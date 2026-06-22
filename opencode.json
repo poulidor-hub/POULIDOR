@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"],
+  "skills": {
+    "paths": [".opencode/skills"]
+  },
+  "mcp": {
+    "hub": {
+      "type": "local",
+      "command": ["python", "-m", "hub_mcp.server"],
+      "cwd": "/home/kkleskk/MyCOMPANY/HUB_stack/POULIDOR/HUBapp_TEMPLATE_base",
+      "enabled": true
+    }
+  }
+}
