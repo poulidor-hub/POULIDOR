@@ -10,7 +10,44 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend"))
 
 from mcp.types import Tool, TextContent
-from backend.hub_client import hub_client
+
+
+class _LazyHubClient:
+    """Proxy a resolution paresseuse vers backend.hub_client.
+
+    Le MCP `hub` est concu pour tourner depuis une app generee depuis
+    HUBapp_TEMPLATE_base, qui expose le paquet `backend`. L'import est differe :
+    le serveur MCP demarre (et liste ses tools) meme hors app ; seuls les
+    appels d'outils echouent alors, avec un message explicite.
+    """
+
+    _client = None
+
+    @classmethod
+    def _resolve(cls):
+        if cls._client is None:
+            try:
+                from backend.hub_client import hub_client as real
+            except Exception as exc:
+                raise RuntimeError(
+                    "hub_mcp: paquet `backend` introuvable. Le MCP `hub` doit etre "
+                    "lance depuis une app generee depuis HUBapp_TEMPLATE_base (ou un "
+                    "repo exposant `backend.hub_client`)."
+                ) from exc
+            cls._client = real
+        return cls._client
+
+    def __getattr__(self, name):
+        return getattr(_LazyHubClient._resolve(), name)
+
+    def __setattr__(self, name, value):
+        setattr(_LazyHubClient._resolve(), name, value)
+
+    def __delattr__(self, name):
+        delattr(_LazyHubClient._resolve(), name)
+
+
+hub_client = _LazyHubClient()
 
 # ============================================================
 # TOOL DEFINITIONS

@@ -1,0 +1,2 @@
+[console_scripts]
+hub-mcp = hub_mcp.server:main
