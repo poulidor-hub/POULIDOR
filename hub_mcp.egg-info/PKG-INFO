@@ -1,7 +1,0 @@
-Metadata-Version: 2.4
-Name: hub-mcp
-Version: 0.1.0
-Summary: Serveur MCP stdio exposant les outils du Hub (HUB_stack).
-License: Proprietary
-Requires-Python: >=3.10
-Requires-Dist: mcp>=1.0
