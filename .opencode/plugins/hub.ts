@@ -4,7 +4,7 @@ import type { Plugin } from "@opencode-ai/plugin"
  * Plugin Hub - outillage opencode pour le Hub et les apps generees depuis
  * HUBapp_TEMPLATE_base. Accompagne le MCP `hub` (hub_mcp/server.py).
  *
- * Source de verite : POULIDOR/.opencode/plugin/hub.ts
+ * Source de verite : POULIDOR/.opencode/plugins/hub.ts
  * Copie template synchronisee via `make sync-hub-tooling` (verif : `make sync-hub-tooling-check`).
  *
  * Garde-fou : pour les operations destructrices (suppression Hub, restore,
@@ -29,7 +29,7 @@ const DESTRUCTIVE = [
 
 export const HubPlugin: Plugin = async () => {
   return {
-    "permission.ask": async (input, output) => {
+    "permission.asked": async (input, output) => {
       try {
         if (output.status !== "allow") return
         const pattern = Array.isArray(input.pattern)
