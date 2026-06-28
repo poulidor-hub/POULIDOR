@@ -4,6 +4,21 @@
 
 ---
 
+## [0.4.0] - 28 juin 2026
+
+### 🤖 Persona Jellycode (assistant de développement)
+- Ajout de l'agent opencode `.opencode/agent/jellycode.md` (mode `primary`) : charte en
+  7 traits (Visual Companion avant toute UI, perf/stabilité > animations, harmonie HUBCSS,
+  vérification post-UI via `verify-feature`, chargement du skill parc adéquat, politique
+  inline vs subagent).
+- Pointeur « Persona Jellycode » ajouté dans `AGENTS.md` (identité always-on).
+
+### 🧹 Hygiène de la doc des skills
+- `00_INSTRUCTION_BIBLE/CLAUDE.md` : retrait des skills fantômes `hub-ecosystem` /
+  `hub-app-template` (sans `SKILL.md`) et ajout de `release-on-main` ; la table reflète
+  désormais exactement les 10 skills réels de `.opencode/skills/`.
+- Ajout du design spec et du plan d'implémentation dans `docs/superpowers/`.
+
 ## [0.3.0] - 28 juin 2026
 
 ### ⚡ Pages d'audit client & vue d'ensemble des process
