@@ -4,6 +4,29 @@
 
 ---
 
+## [0.5.0] - 28 juin 2026
+
+### ⚡ CLI hubctl — outil interactif d'administration du parc
+- Nouvel outil `hubctl` : launcher auto-venv, coffre chiffré Fernet+scrypt (vault parc),
+  sondes système (docker, apps, disque, version).
+- Interface interactive : menu plein écran (questionary), vues Apps/Coffre, animations
+  pluggables, intro fly-to-flock, barre d'état réelle.
+- Actions de gestion : `update`, `add`, `remove`, `repair`, `logs`, `start-stop`,
+  avec make et garde-fous (shell, dry-run, confirmations).
+- Gestion robuste du clavier : Ctrl‑C global, Échap quitte, prompts wrappers avec
+  sémantique Esc/Ctrl‑C, _MergedKeyBindings pour text/confirm/password, sortie propre
+  en mode non-interactif (pas de TTY).
+- Gestion de l'état du serveur avec arrêt par timeout d'inactivité.
+
+### 🖥️ Pages exemple-apps — fiche client et GED
+- Nouvelles pages d'audit client : fiche client et gestion documentaire GED.
+- Design dark pixel ajouté à la spec exemple-apps.
+
+### 📚 Documentation
+- Guide d'usage et vérification end‑to‑end de hubctl.
+- Plan d'implémentation et spec pour l'audit UX/UI exemple-apps.
+- Amendement du plan hubctl (renommage hubctl_cli).
+
 ## [0.4.1] - 28 juin 2026
 
 ### ⚙️ Jellycode défini comme agent par défaut
