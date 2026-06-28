@@ -4,6 +4,13 @@
 
 ---
 
+## [0.2.1] - 28 juin 2026
+
+### ⚡ Rescue d'une instruction HUB
+- Ajout de `.github/instructions/hub-application-contract.instructions.md` (contrat
+  d'application Hub), récupérée de HUB_base avant son strip — pour ne perdre aucun
+  contenu unique lors de la centralisation.
+
 ## [0.2.0] - 28 juin 2026
 
 ### ⚡ Centralisation du dev-interface dans POULIDOR
