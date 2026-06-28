@@ -4,6 +4,21 @@
 
 ---
 
+## [0.3.0] - 28 juin 2026
+
+### ⚡ Pages d'audit client & vue d'ensemble des process
+- Ajout de nouvelles pages pour l'audit client et la vue d'ensemble des process (dev-interface).
+
+### 🧰 Outillage IA — design de la persona « Jellycode »
+- Ajout du design spec `docs/superpowers/specs/2026-06-28-jellycode-persona-design.md` :
+  persona « Jellycode » (Visual Companion avant toute UI, perf/stabilité > animations,
+  harmonie HUBCSS, vérification post-UI, politique inline/subagent) et hygiène des skills
+  (skills fantômes `hub-ecosystem`/`hub-app-template`, resync de la table de doc,
+  déduplication des skills en backlog).
+
+### 🔧 Divers
+- `HUB_base` : alignement sur le fix `optional_oauth2_scheme`.
+
 ## [0.2.1] - 28 juin 2026
 
 ### ⚡ Rescue d'une instruction HUB
