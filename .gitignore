@@ -10,3 +10,11 @@ APPS/
 # Apps en réparation / amélioration — non suivies (le dossier reste via .gitkeep)
 APP_Workshop/*
 !APP_Workshop/.gitkeep
+
+# hubctl (CLI de pilotage) — artefacts locaux jamais suivis
+hubctl_cli/.venv/
+hubctl_cli/vault/
+hubctl_cli/_trash/
+hubctl_cli/backups/
+hubctl_cli/.config.toml
+*.vault.enc
