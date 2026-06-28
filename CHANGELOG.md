@@ -4,6 +4,12 @@
 
 ---
 
+## [0.4.1] - 28 juin 2026
+
+### ⚙️ Jellycode défini comme agent par défaut
+- `opencode.json` : `"default_agent": "jellycode"` — l'agent de développement Jellycode
+  devient l'agent primaire par défaut du parc (après redémarrage d'opencode).
+
 ## [0.4.0] - 28 juin 2026
 
 ### 🤖 Persona Jellycode (assistant de développement)
