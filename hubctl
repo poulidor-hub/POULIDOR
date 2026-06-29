@@ -19,33 +19,4 @@ if [ ! -f "$STAMP" ] || [ "$PKG_DIR/requirements.txt" -nt "$STAMP" ]; then
 fi
 
 cd "$ROOT_DIR"
-
-# --- Intro hybride : animation Node/@opentui avant le menu, sinon intro Python ---
-NO_ANIM=0
-for arg in "$@"; do
-  [ "$arg" = "--no-anim" ] && NO_ANIM=1
-done
-
-INTRO_DIR="$PKG_DIR/intro"
-node_intro_ready() {
-  [ "$NO_ANIM" = "0" ] || return 1                       # pas de --no-anim
-  { [ -t 0 ] && [ -t 1 ]; } || return 1                  # terminal interactif
-  command -v node >/dev/null 2>&1 || return 1            # node présent
-  [ -x "$INTRO_DIR/node_modules/.bin/tsx" ] || return 1  # deps Node installées
-  [ -f "$INTRO_DIR/ascii-motion-tui.tsx" ] || return 1   # animation fournie
-  return 0
-}
-
-INTRO_PLAYED=0
-if node_intro_ready; then
-  if ( cd "$INTRO_DIR" && node_modules/.bin/tsx main.tsx ); then
-    INTRO_PLAYED=1
-  fi
-fi
-
-if [ "$INTRO_PLAYED" = "1" ]; then
-  # L'intro Node a joué : on saute l'intro Python (le préchargement reste).
-  exec "$PY" -m hubctl_cli --no-anim "$@"
-else
-  exec "$PY" -m hubctl_cli "$@"
-fi
+exec "$PY" -m hubctl_cli "$@"
