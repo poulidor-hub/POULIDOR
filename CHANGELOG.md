@@ -4,6 +4,17 @@
 
 ---
 
+## [0.6.0] - 29 juin 2026
+
+### ⚡ CLI hubctl — clone git, intro hybride, confirmations
+- Ajout de l'action `add` par clone git (URL) pour importer une app existante dans le parc.
+- Launcher hybride : intro Node/@opentui avec fallback Python (échafaudage `intro/`).
+- Confirmations en choix Oui/Non pour les actions sensibles.
+- Vue « tout-en-choix » et documentation dans le README de hubctl.
+
+### 🔧 Submodule
+- `HUB_base` : alignement sur le HEAD `92a9494` (v3.8.0 — refonte VPN, import .conf).
+
 ## [0.5.0] - 28 juin 2026
 
 ### ⚡ CLI hubctl — outil interactif d'administration du parc
