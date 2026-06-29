@@ -4,6 +4,27 @@
 
 ---
 
+## [0.7.0] - 29 juin 2026
+
+### ⚡ Canevas fixe 100×30 — hubctl en « fenêtre verrouillée »
+- Canevas fixe 100×30 centré avec cadre letterbox (Rich `Align.center` + `Panel`).
+- Écran de garde si terminal trop petit (« Agrandis ton terminal à 100×30 ») ; recentrage
+  automatique au resize (SIGWINCH).
+- Nouveau moteur d'input clavier maison (`keys.py`) : décodeur cbreak pour flèches,
+  Échap, Entrée, backspace, Ctrl-C. Aucune dépendance supplémentaire.
+- Widgets interactifs framés (`widgets.py`) : `select` (wrap + scroll), `confirm`,
+  `text`, `password`. Remplacent `questionary` dans la couche navigation (menu, vues).
+  `ESC` sentinel canonique partagé entre `widgets` et `prompts`.
+- Surface `Canvas` (écran alternatif `rich.live.Live`) responsable du cadre, du
+  letterbox, du resize et du mode passthrough (`canvas.paused()`).
+- Refactor de `__main__.py` : ordre de démarrage garde → intro → menu.
+- Refactor de `menu.py` : toutes les vues et choix rendus via `canvas.render()`,
+  actions exécutées en passthrough (écran normal) → `actions.py` inchangé.
+- Animations `hub_ascii` et `fly_to_flock` adaptées au contrat viewport
+  (`play(viewport, state)` au lieu de `play(console, state)`).
+- Barre de préchargement dans le cadre (progression textuelle), skip via `keys.read_key`.
+- 62 tests unitaires, module `tests/` étendu (keys, canvas, widgets, menu, main).
+
 ## [0.6.0] - 29 juin 2026
 
 ### ⚡ CLI hubctl — clone git, intro hybride, confirmations
