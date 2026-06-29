@@ -4,6 +4,19 @@
 
 ---
 
+## [0.8.0] - 29 juin 2026
+
+### ⚡ Config Wizard + animation couleur + layout header/body
+- Config Wizard intégré dans hubctl : menu `9. Setup` avec Quick Setup (mode, whitelist, admin)
+  et sous-menus Réseau / Admin / Mode & avancé.
+- Module `env_manager` : read/merge/write du `.env` avec préservation des commentaires.
+- Module `auto_detect` : détection automatique IP serveur, CIDR LAN, subnet Docker, UID/GID.
+- Layout canevas split : header (10 lignes, intro animée) + body (17 lignes, menu interagible).
+- `render_header()` / `render_body()` + `ViewportHeader` pour les animations.
+- Animation `welcome` : word art ASCII « Welcome to HUBctl » (~2 s).
+- Extraction couleur depuis `introHUB.tsx` : 240 frames avec transparence et palette Rich.
+  `hub_ascii.py` passe en `Text.from_markup()` pour le rendu couleur fidèle.
+
 ## [0.7.0] - 29 juin 2026
 
 ### ⚡ Canevas fixe 100×30 — hubctl en « fenêtre verrouillée »
