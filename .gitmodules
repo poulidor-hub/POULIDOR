@@ -8,7 +8,7 @@
 	branch = main
 [submodule "hub-mcp"]
 	path = hub-mcp
-	url = git@github.com:Poutchouli/hub-mcp.git
+	url = git@github.com:POULIDOR-Audit-Developpement/hub-mcp.git
 	branch = master
 [submodule "HUBapp_TEMPLATE_base"]
 	path = HUBapp_TEMPLATE_base
