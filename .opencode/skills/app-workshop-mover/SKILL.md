@@ -41,7 +41,7 @@ Jamais l'inverse.
 Étapes dans l'ordre strict. Chaque étape doit réussir avant de passer à la suivante.
 
 ```
-1. CHECK     Vérifier .dev-mode et Docker
+1. CHECK     Vérifier .dev-mode et Docker. Si absent → proposer de l'activer (créer HUB_base/.dev-mode).
 2. DOWN      docker compose down dans APPS/X
 3. COPY      cp -r APPS/X → APP_Workshop/X-ws
 4. VOLUME    docker run --rm -v {x}-postgres-data:/from -v {x}-ws-postgres-data:/to alpine cp -a /from/. /to/
@@ -83,7 +83,7 @@ docker run --rm \
 Même ordre, sens inverse.
 
 ```
-1. CHECK     Vérifier .dev-mode et Docker
+1. CHECK     Vérifier .dev-mode et Docker. Si absent → proposer de l'activer.
 2. DOWN      docker compose down dans APP_Workshop/X-ws
 3. COPY      cp -r APP_Workshop/X-ws → APPS/X
 4. VOLUME    docker run --rm -v {x}-ws-postgres-data:/from -v {x}-postgres-data:/to alpine cp -a /from/. /to/
@@ -190,6 +190,6 @@ Ajouter une option "Workshop" (sous-menu) entre "Supprimer une app" (3) et "Rép
 - "Je vais juste renommer le dossier, pas besoin de toucher au .env" → Faux. Le slug est dans le .env.
 - "On supprime la source d'abord, ça ira plus vite" → Faux. Perte de données garantie si le build échoue.
 - "Pas besoin de backup, on a une copie" → Faux. La copie n'est pas un backup versionné.
-- "Le mode dev c'est optionnel" → Faux. C'est le premier garde-fou.
+- "Le mode dev c'est optionnel" → Faux. L'opération propose de l'activer, mais ne peut PAS s'exécuter sans. Si refus → abort.
 
 **Tous ces drapeaux signifient : revenir à l'étape 1 du flux et suivre l'ordre strict.**
