@@ -4,6 +4,25 @@
 
 ---
 
+## [0.9.0] - 1er juillet 2026
+
+### ⚡ Action Workshop — déplacer une app entre APPS/ et APP_Workshop/
+- **Skill `app-workshop-mover`** : guide Jellycode pour déplacer une app dans les deux sens
+  (APPS → Workshop pour développement, Workshop → APPS pour retour en production).
+  Flow strict en 9 étapes : check `.dev-mode` → `docker compose down` → copie fichiers +
+  volume PostgreSQL (`docker run alpine cp`) → renommage slug `-ws` → build & up →
+  health check → backup tar.gz → suppression source.
+- **Action `action_workshop_move()`** dans hubctl (`actions.py`) : implémente le même
+  flow 9 étapes avec support `--dry-run`, rollback automatique en cas d'échec, et
+  déplacement de la source vers la corbeille `_trash/`.
+- **Sous-menu Workshop** (`menu.py`, option 12) : liste les apps dans `APPS/` et
+  `APP_Workshop/`, propose `[→] Mettre en atelier` et `[←] Remettre en production`
+  avec confirmation.
+- **`hub_state.py`** : nouveau `WORKSHOP_DIR` et `get_workshop_apps()` (miroir de
+  `get_apps()` pour `APP_Workshop/`).
+- **Tests** : 7 tests unitaires couvrant les deux directions, mode dev manquant,
+  source absente, destination existante, slug via `.env`. 91 tests au total.
+
 ## [0.8.0] - 29 juin 2026
 
 ### ⚡ Config Wizard + animation couleur + layout header/body
