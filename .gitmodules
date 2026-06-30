@@ -26,6 +26,3 @@
 	path = APP_Workshop/exemple-app
 	url = git@github.com:Poutchouli/exemple-app.git
 	branch = main
-[submodule]
-	HUBCSS = branch
-	hub-mcp = branch
