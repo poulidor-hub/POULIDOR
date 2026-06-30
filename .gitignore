@@ -7,10 +7,6 @@ build/
 dist/
 APPS/
 
-# Apps en réparation / amélioration — non suivies (le dossier reste via .gitkeep)
-APP_Workshop/*
-!APP_Workshop/.gitkeep
-
 # hubctl (CLI de pilotage) — artefacts locaux jamais suivis
 hubctl_cli/.venv/
 hubctl_cli/vault/
