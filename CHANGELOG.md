@@ -18,6 +18,8 @@
 - **Sous-menu Workshop** (`menu.py`, option 12) : liste les apps dans `APPS/` et
   `APP_Workshop/`, propose `[→] Mettre en atelier` et `[←] Remettre en production`
   avec confirmation.
+- **Dev-mode manquant** : au lieu d'abandonner, l'action propose de créer
+  `HUB_base/.dev-mode` (confirmation O/N). En dry-run, passage automatique.
 - **`hub_state.py`** : nouveau `WORKSHOP_DIR` et `get_workshop_apps()` (miroir de
   `get_apps()` pour `APP_Workshop/`).
 - **Tests** : 7 tests unitaires couvrant les deux directions, mode dev manquant,
