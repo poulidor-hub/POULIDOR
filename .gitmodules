@@ -14,15 +14,3 @@
 	path = HUBapp_TEMPLATE_base
 	url = git@github.com:POULIDOR-Audit-Developpement/HUBapp_TEMPLATE_base.git
 	branch = main
-[submodule "APP_Workshop/exemple-app-2"]
-	path = APP_Workshop/exemple-app-2
-	url = git@github.com:Poutchouli/exemple-app-2.git
-	branch = main
-[submodule "APP_Workshop/exemple-app"]
-	path = APP_Workshop/exemple-app
-	url = git@github.com:Poutchouli/exemple-app.git
-	branch = main
-[submodule "APP_Workshop/exemple-app"]
-	path = APP_Workshop/exemple-app
-	url = git@github.com:Poutchouli/exemple-app.git
-	branch = main

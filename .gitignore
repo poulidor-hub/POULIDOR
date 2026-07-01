@@ -6,6 +6,7 @@ __pycache__/
 build/
 dist/
 APPS/
+APP_Workshop/
 
 # hubctl (CLI de pilotage) — artefacts locaux jamais suivis
 hubctl_cli/.venv/

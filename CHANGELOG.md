@@ -4,6 +4,15 @@
 
 ---
 
+## [0.9.1] - 1er juillet 2026
+
+### ⚡ Exclusion des applications du méta-dépôt
+- Les applications ne sont plus incluses dans POULIDOR : `APP_Workshop/` est désormais
+  ignoré (comme `APPS/`), et les sous-modules imbriqués `APP_Workshop/{exemple-app-2,exemple-app,exemple-app}`
+  sont désenregistrés (`.gitmodules` + `.git/config` nettoyés, gitlinks retirés de l'index).
+- Les dépôts d'app restent autonomes sur disque (leur propre `.git` + remote) — seul le
+  suivi par le méta-dépôt est supprimé.
+
 ## [0.9.0] - 1er juillet 2026
 
 ### ⚡ Action Workshop — déplacer une app entre APPS/ et APP_Workshop/
