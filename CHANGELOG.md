@@ -4,6 +4,26 @@
 
 ---
 
+## [0.10.0] - 4 juillet 2026
+
+### ⚡ hubctl — menus unifiés dans la colonne de droite
+- Tous les choix et infos s'affichent dans la colonne de droite du dashboard
+  (vue principale conservée) ; le plein écran (`_modal`) est neutralisé.
+- Navigation homogène **surbrillance + Entrée** : `↑`/`↓` déplacent la
+  surbrillance, un chiffre pointe l'item, `Entrée` valide, `Échap`/`0` = retour.
+  Pagination `1-9` par page.
+- `confirm` en `1. Oui / 2. Non` surligné ; encart de commandes contextuel
+  (`↑↓ naviguer · ⏎ valider · ⎋ retour`) ; suppression de la fausse invite shell.
+- Clip défensif des colonnes (`canvas.clip_cell`) pour ne plus casser le cadre.
+
+### ⚡ hubctl — apps legacy et statut API
+- Détection des apps **legacy** (sans `Makefile` + `docker-compose.yml`) :
+  affichées et comptées (`Apps : N (M legacy)`), grisées et non sélectionnables
+  pour les actions hubctl.
+- Sonde `/api/health` par app (`API_PORT` du `.env`, cache TTL) affichée dans le
+  panneau `SERVICES STATUS` — un seul conteneur (l'API) par app.
+- `widgets.select` accepte des items désactivés (grisés, non sélectionnables).
+
 ## [0.9.1] - 1er juillet 2026
 
 ### ⚡ Exclusion des applications du méta-dépôt
