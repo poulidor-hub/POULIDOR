@@ -4,6 +4,21 @@
 
 ---
 
+## [0.11.0] - 4 juillet 2026
+
+### ⚡ hubctl — dashboard fluide, uptime et défilement des apps
+- **Correction de lenteur** : le rendu ne recalcule plus l'inventaire des apps à
+  chaque frame (fini le `git status` + `rglob` de taille par app et par frame,
+  qui faisait chuter le rafraîchissement sous 1 fps).
+- Statut **et uptime** de chaque app obtenus via un **seul** `docker ps -a`
+  (remplace la sonde `curl /api/health`) ; correspondance app ↔ conteneur API par
+  labels compose.
+- **Thread de fond** (~3 s) qui rafraîchit `state["app_status"]` ; le rendu ne lit
+  qu'un cache → coût par frame négligeable.
+- Panneau `SERVICES STATUS` : section `[ APPS ]` avec point de statut coloré, nom
+  et uptime ; **défilement** en fenêtre glissante (4 apps, +1 toutes les ~2 s) si
+  plus de 4 apps.
+
 ## [0.10.0] - 4 juillet 2026
 
 ### ⚡ hubctl — menus unifiés dans la colonne de droite
