@@ -4,6 +4,18 @@
 
 ---
 
+## [0.12.0] - 4 juillet 2026
+
+### ⚡ hubctl — rattacher une app existante
+- « Ajouter une app » propose désormais un sous-choix : **Cloner depuis une URL
+  git** (comportement existant) ou **Rattacher une app existante**.
+- Nouvelle action `action_attach_app` (mode-aware) : initialise (`INITIALISE.py`
+  si présent) puis build + démarre (`docker compose build` + `up -d`) une app
+  déjà présente dans le dossier actif — `APPS/` en prod, `APP_Workshop/` en dev —
+  sans passer par `app_make` (codé en dur sur `APPS/`).
+- La liste de rattachement n'affiche que les apps **compatibles** (Makefile +
+  docker-compose) ; les apps legacy sont exclues.
+
 ## [0.11.1] - 4 juillet 2026
 
 ### ⚡ hubctl — correctifs actions ↔ canvas (audit #1 & #3)
