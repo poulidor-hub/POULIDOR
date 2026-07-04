@@ -4,6 +4,19 @@
 
 ---
 
+## [0.11.1] - 4 juillet 2026
+
+### ⚡ hubctl — correctifs actions ↔ canvas (audit #1 & #3)
+- **Confirmations réparées** : les actions ne lancent plus de prompt `questionary`
+  incompatible avec le canvas. `action_remove_app` devient non interactive ; la
+  confirmation de suppression se fait via les widgets canvas (`widgets.confirm`)
+  **avant** l'exécution. `disk_guard` n'ouvre plus de prompt (abandon si `< 5%`
+  d'espace). Import `prompts` retiré de `actions.py`.
+- **Feedback visible** : `_ACTION_CONSOLE` écrit via `utils.StreamWriter`, qui
+  route chaque ligne vers le flux de streaming actif (repli `sys.__stdout__`) —
+  les messages de progression des actions (« → git pull », « ✓ … ») s'affichent
+  enfin pendant l'exécution.
+
 ## [0.11.0] - 4 juillet 2026
 
 ### ⚡ hubctl — dashboard fluide, uptime et défilement des apps
