@@ -4,6 +4,64 @@
 
 ---
 
+## [0.14.0] - 5 juillet 2026
+
+### 🔒 Audit sécurité & install (HUB_base 3.9.1)
+
+- **Clés JWT** : `install.sh` écrivait dans `secrets/jwt/` mais le code lit
+  `secrets/jwt_private_key.pem` (top-level) — les clés générées n'étaient
+  jamais utilisées et `AUTO_GENERATE_KEYS=true` était forcé en production.
+  Chemin aligné + migration automatique des anciennes clés.
+- **Mot de passe DB fail-fast** : retrait du fallback compromis
+  `hub_secure_password_2025` (`${POSTGRES_PASSWORD:?}`). Un mdp DB/admin
+  faible bloque désormais le démarrage en production.
+- **Permissions restrictives** : clés privées et secrets en `0o600`
+  (JWT, backup, `server.key` TLS, `sa_*.env`, configs WireGuard, `.env`).
+- **Introspection RFC 7662** : `/api/auth/token/introspect` restreint —
+  les appels externes doivent présenter un token Bearer valide.
+
+### 🐛 hubctl — robustesse (park-restore, workshop, update)
+
+- **park-restore** : le `pg_restore` se faisait avant `docker compose up -d`
+  (conteneur inexistant → échec silencieux affiché « ✅ terminé »). Désormais :
+  secrets/.env → compose up → attente DB saine → restore, avec propagation de
+  l'échec et exit code non nul.
+- **workshop move** : `down` → `stop` de la source (redémarrage rapide) +
+  redémarrage automatique de la source en cas d'échec health check (la prod
+  ne reste plus arrêtée après un rollback).
+- **update** : `git pull --recurse-submodules` (rafraîchit les sous-composants).
+- **health check** : respecte `HUB_API_PORT` du `.env` au lieu de hardcoded 8000.
+- `requirements.txt` pinné avec borne supérieure (`rich<16`, `cryptography<50`) ;
+- retrait de la mention `questionary` du README ; mock `canvas` complété (warning thread).
+
+### 🤖 Agent Jellycode — revue du comportement
+
+- **Visual Companion assoupli** : « systématiquement pour toute UI » →
+  « au besoin (just-in-time) », conformément au skill `brainstorming`.
+- **`verify-feature` scopé aux apps** dans `AGENTS.md` (le skill vit dans le
+  template, l'exigence n'était pas tenable au niveau méta-repo).
+- **Skills clarifiés** dans `jellycode.md` : `release-on-main` = gate
+  OBLIGATOIRE avant push `main` ; skills app clairement séparés.
+- Ajout d'une section « Cohabitation avec superpowers » dans `AGENTS.md`.
+
+### 🧹 Méta-repo — nettoyage & cohérence
+
+- **Branche renommée `master` → `main`** : aligne le méta-repo sur les 4
+  submodules et ACTIVE le garde-fou `release-on-main` (auparavant désactivé
+  sur le repo principal).
+- **`00_INSTRUCTION_BIBLE/` supprimée** : lignée « exemple » entièrement périmée
+  (HUB/ vs HUB_base/, PostgreSQL 16 vs 15, skills déplacés, référence master).
+  README mis à jour pour pointer vers les docs vivantes.
+- **`.github/instructions/` déplacé** vers `HUBapp_TEMPLATE_base/.github/`
+  (les liens `../../backend/...` résolvent désormais depuis le template).
+- **`manifest.json`** : URL HUBCSS passée en SSH (cohérent avec les 3 autres
+  entrées et `.gitmodules` — évitait l'échec du clone sur poste neuf).
+- **`scripts/create_app.sh`** : n'emporte plus le `.git` du template + garde-fou
+  sur l'initialisation du submodule template.
+- `.gitignore` : `build/` untraqué, `.superpowers/` exclu.
+
+---
+
 ## [0.13.1] - 5 juillet 2026
 
 ### 🐛 hubctl — actions apps mode-aware (dev)

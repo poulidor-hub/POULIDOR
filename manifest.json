@@ -1,6 +1,6 @@
 {
   "HUB_base": "git@github.com:POULIDOR-Audit-Developpement/HUB_base.git",
-  "HUBCSS": "https://github.com/POULIDOR-Audit-Developpement/HUBCSS.git",
+  "HUBCSS": "git@github.com:POULIDOR-Audit-Developpement/HUBCSS.git",
   "hub-mcp": "git@github.com:POULIDOR-Audit-Developpement/hub-mcp.git",
   "HUBapp_TEMPLATE_base": "git@github.com:POULIDOR-Audit-Developpement/HUBapp_TEMPLATE_base.git",
   "APP_Workshop/exemple-app-2": "git@github.com:Poutchouli/exemple-app-2.git",

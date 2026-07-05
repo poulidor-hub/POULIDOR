@@ -35,8 +35,25 @@ if [ ! -d "$TEMPLATE_DIR" ]; then
   exit 1
 fi
 
+# Garde-fou : le submodule template doit être initialisé (pas un dossier vide)
+if [ ! -f "$TEMPLATE_DIR/Makefile" ] || [ ! -d "$TEMPLATE_DIR/backend" ]; then
+  echo "❌ Le template n'est pas initialisé."
+  echo "   Lancez d'abord : git submodule update --init HUBapp_TEMPLATE_base"
+  exit 1
+fi
+
 mkdir -p "$APPS_DIR"
-cp -r "$TEMPLATE_DIR" "$APPS_DIR/$APP_NAME"
+
+# Copie du template SANS son .git (sinon l'app hérite du dépôt template).
+# On utilise rsync si dispo, sinon cp + nettoyage.
+if command -v rsync &> /dev/null; then
+  rsync -a --exclude '.git' "$TEMPLATE_DIR/" "$APPS_DIR/$APP_NAME/"
+else
+  cp -r "$TEMPLATE_DIR" "$APPS_DIR/$APP_NAME"
+  rm -rf "$APPS_DIR/$APP_NAME/.git"
+fi
+# Au cas où des sous-répertoires contiendraient leur propre .git
+find "$APPS_DIR/$APP_NAME" -name ".git" -type d -prune -exec rm -rf {} + 2>/dev/null || true
 
 cat >> "$APPS_DIR/$APP_NAME/.env" <<'EOF'
 

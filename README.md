@@ -11,7 +11,6 @@ POULIDOR/
 ├── HUBapp_TEMPLATE_base/     ← Template canonique pour toute nouvelle app
 ├── APPS/                     ← Applications en PRODUCTION
 ├── APP_Workshop/             ← Applications en DÉVELOPPEMENT (mode dev)
-├── 00_INSTRUCTION_BIBLE/     ← Documentation IA (blueprint, skills, instructions)
 └── exports/                  ← Archives park-export
 ```
 
@@ -24,26 +23,26 @@ POULIDOR/
 ```
 HUBapp_TEMPLATE_base/
     │
-    │ python ACTIONS/PYTHON/INITIALISE.py [--demo] [--profile client.json]
+    │ scripts/create_app.sh mon-app    (copie le template → APPS/mon-app, sans .git)
+    │    └─ Garde-fou : submodule template initialisé (Makefile + backend/)
+    │
+    │ cd APPS/mon-app
+    │ python INITIALISE.py [--demo] [--profile client.json]
     │    ├─ 14 étapes : .env, docker-compose, config, frontend, tests, VERSION, CHANGELOG
     │    ├─ Par défaut : NETTOIE le contenu de démo (pas de Item/TestData)
     │    └─ --demo : GARDE le contenu de démo (pour explorer)
     │
     ▼
-APP_Workshop/mon-app-ws/          ← Développement (slug suffixé -ws)
+APPS/mon-app/                     ← Application prête (production)
     │
     │ make dev                     ← rebuild + logs en direct
     │ make test-docker             ← tests dans le conteneur
-    │ ... développement ...
     │
-    │ # Push en production :
-    │ docker compose down
-    │ cp -r APP_Workshop/mon-app-ws APPS/mon-app
-    │ sed -i 's/APP_SLUG=mon-app-ws/APP_SLUG=mon-app/' APPS/mon-app/.env
-    │ docker compose -f APPS/mon-app/docker-compose.yml up -d
+    │ # Mise en atelier pour développer (clone DB prod) :
+    │ hubctl → 6. Workshop → [→] Mettre en atelier
     │
     ▼
-APPS/mon-app/                     ← PRODUCTION
+APP_Workshop/mon-app-ws/          ← DÉVELOPPEMENT (slug suffixé -ws)
 ```
 
 ### 2. Mise en atelier d'une app existante (prod → ws → prod)
@@ -266,8 +265,9 @@ cd HUB_base/
 
 | Document | Contenu |
 |----------|---------|
-| `00_INSTRUCTION_BIBLE/CLAUDE.md` | Architecture du parc |
-| `00_INSTRUCTION_BIBLE/TEMPLATE/CLAUDE.md` | Blueprint développeur (template) |
-| `00_INSTRUCTION_BIBLE/TEMPLATE/AGENTS.md` | Conventions projet |
+| `README.md` (ce fichier) | Architecture du parc + workflows |
+| `HUBapp_TEMPLATE_base/CLAUDE.md` | Blueprint développeur (template canonique) |
+| `HUBapp_TEMPLATE_base/AGENTS.md` | Conventions projet (template) |
 | `HUBapp_TEMPLATE_base/docs/` | API, Backup, HTTPS, Messages, Remote Apps |
-| `.opencode/skills/` | Skills IA (verify-feature, workshop-mover, backup-restore-ops, etc.) |
+| `.opencode/skills/` | Skills IA parc (release-on-main, vault-manager, app-workshop-mover) |
+| `HUBapp_TEMPLATE_base/.opencode/skills/` | Skills IA apps (verify-feature, frontend-crud-page, etc.) |
