@@ -4,7 +4,65 @@
 
 ---
 
-## [0.13.0] - 4 juillet 2026
+## [0.13.1] - 5 juillet 2026
+
+### 🐛 hubctl — actions apps mode-aware (dev)
+- Les actions `update`, `remove` et `logs` sur les apps utilisent désormais
+  `active_apps_dir()` (mode-aware : `APP_Workshop/` en dev, `APPS/` en prod)
+  comme le faisait déjà `attach_app`. En mode dev, choisir une app workshop
+  dans le menu appliquait l'action sur le dossier `APPS/` (inexistant ou
+  mauvaise app).
+- Nouveau helper `hub_state.active_apps_dir()` + tests de non-régression.
+
+### 🧹 hubctl — nettoyage code mort
+- Suppression de `prompts.py` (wrappers `questionary` inutilisés depuis v0.11.1),
+  de `intro/` (reliquat du launcher hybride Node 0.6.0, 4 fichiers trackés),
+  de `utils.confirm/confirm_phrase` (bloquants, jamais appelés).
+- Dépendance `questionary>=2.0` retirée de `requirements.txt`.
+- `__version__` du package lit désormais le `VERSION` racine du parc (n'était
+  plus synchro, bloqué à `0.1.0`).
+- `hubctl_cli/recovery/` ajouté au `.gitignore` (secrets en clair exportés
+  par `export_recovery`).
+
+### 🔒 .opencode — restructuration skills + correctifs
+- **Skills « app » déplacés** : les 9 skills conçus pour le contexte d'une
+  app (`backup-restore-ops`, `badge-search-system`, `cache-busting-deployment`,
+  `deploy-troubleshoot`, `frontend-crud-page`, `hub-messages-integration`,
+  `react-list-rendering`, `release-sync`, `verify-feature`) sont déplacés de
+  `POULIDOR/.opencode/skills/` vers `HUBapp_TEMPLATE_base/.opencode/skills/`
+  où leurs chemins relatifs `../../../` résolvent correctement.
+- **Skill `vault-manager` réécrit** : reflète le modèle sauvegarde seule
+  du coffre v0.13.0 (plus de `push_env`/`pull_env`/`managed_env`).
+- **`app-workshop-mover` + `vault-manager`** ajoutés à la liste des skills
+  dans `jellycode.md` (étaient orphelins, non chargés par les agents).
+- **Correction `master` → `main`** dans `jellycode.md:28` (cohérent avec
+  `AGENTS.md` et `release-on-main` qui s'auto-désactive si ≠ `main`).
+
+### ⚡ HUB_base — SSE EventSource (v3.9.0)
+- Le endpoint SSE `/api/events/stream` accepte désormais l'auth par query
+  param `?token=JWT` (fallback pour EventSource, qui ne supporte pas les
+  headers custom). Corrige le bruit de fond 401 dans les apps frontend.
+- UI Docker info : `docker_available: false` explicite quand le socket
+  Docker n'est pas monté (mode production durci).
+- Cleanup : `config.py` (code mort `unreachable return`), `TODO.md` (backup
+  scheduler stale marqué résolu).
+
+### 🧩 hub-mcp — correctifs (v0.1.1)
+- `hub_app_list` et `hub_user_list` transmettent désormais leurs paramètres
+  `page`/`per_page`/`search` à l'API Hub.
+- `hub_call_service` accepte un `body` JSON pour les appels POST/PATCH.
+- `hub_design_upload` corrige sa réponse (dict `error` → `not_implemented`).
+- Ajout README + CHANGELOG. Branche renommée `master` → `main`.
+
+### 📋 HUBapp_TEMPLATE_base — correctifs (v2.4.3)
+- **Skills .opencode** déplacés du méta-repo vers le template (voir ci-dessus).
+- **Versions synchronisées** : `bump_version.py` → `package.json`/`.env.example`/
+  `docs/API.md` alignés sur `VERSION`.
+- **Double `apply_migrations()`** retiré dans `backend/main.py`.
+- **`.instructions.md`** : références Tailwind remplacées par HUBCSS, chemin
+  `index.css` corrigé → `app.css`.
+- **Seed HUBCSS régénéré** : `global.css` passe de 16 Ko à 38 Ko (tokens
+  `--hub-space-*`, composants 0.2.x inclus).
 
 ### ⚡ hubctl — coffre en mode sauvegarde seule
 - **Changement de rôle** : le coffre ne réécrit plus jamais les `.env` sur le

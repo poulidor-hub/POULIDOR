@@ -9,7 +9,7 @@
 [submodule "hub-mcp"]
 	path = hub-mcp
 	url = git@github.com:POULIDOR-Audit-Developpement/hub-mcp.git
-	branch = master
+	branch = main
 [submodule "HUBapp_TEMPLATE_base"]
 	path = HUBapp_TEMPLATE_base
 	url = git@github.com:POULIDOR-Audit-Developpement/HUBapp_TEMPLATE_base.git

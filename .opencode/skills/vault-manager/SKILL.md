@@ -1,82 +1,91 @@
 ---
 name: vault-manager
-description: "Work with hubctl's encrypted vault manager: push/pull .env files, check divergence, toggle managed_env mode. Use for any task touching vault_manager.py, coffre.py, or .env lifecycle (add/remove/start/update apps, setup wizard, workshop moves)."
-argument-hint: "vault operation, for example: push env before start, pull after update, check divergence, add edit-env to coffre view"
+description: "Work with hubctl's encrypted vault (coffre) which is a READ-ONLY backup of all .env files and HUB_base/secrets/* . Use for any task touching vault_manager.py, coffre.py, backup_all, export_recovery, check_divergence, passphrase, or the coffre UI. The vault NEVER writes .env files to disk."
+argument-hint: "vault operation, for example: backup_all, export_recovery, check_divergence, change_passphrase, add file to backup set"
 ---
 
-# Vault Manager
+# Vault Manager (coffre)
 
-Use this skill when modifying any code that touches the .env lifecycle or the vault
-(coffre). The vault (`hubctl_cli/vault/parc.vault.enc`) is the **single source of truth**
-for all `.env` files in the park.
+Use this skill when modifying any code that touches the vault (`hubctl_cli/coffre.py`),
+the backup manager (`hubctl_cli/vault_manager.py`), or the coffre UI
+(`view_coffre` in `hubctl_cli/menu.py`).
+
+> ⚠️ **Rôle du coffre (depuis v0.13.0) : sauvegarde chiffrée EN LECTURE SEULE sur le disque.**
+> Le coffre **ne réécrit jamais** les `.env` : pas de `push_env`/`pull_env`/`managed_env`/
+> `toggle_managed`/`auto_import_missing` (ces fonctions ont été **supprimées** en v0.13.0).
+> Le disque reste la source de vérité ; le coffre n'est qu'une **copie de sauvegarde**.
 
 ## Architecture
 
 ```
-VaultManager
-├── vault: Vault          # chiffrement Fernet+scrypt (coffre.py)
-├── push_env(target)      # coffre → disque
-├── pull_env(target)      # disque → coffre
-├── check_divergence()    # compare hash coffre vs disque
-├── auto_import_missing() # importe les .env absents du coffre
-├── toggle_managed()      # active/désactive le mode managé
-└── managed_env: bool     # lu depuis __meta__.managed_env
+Vault (coffre.py)                       # chiffrement Fernet + scrypt (MAGIC=b"HUBCTLV1")
+├── unlock(passphrase) / lock()
+├── sync()                # disk → coffre (LECTURE seule, jamais d'écriture disque)
+├── save()                # chiffre et écrit hubctl_cli/vault/parc.vault.enc (chmod 0600)
+├── set_file(rel, bytes)  # ajoute un fichier (base64) — utilisé pour HUB_base/secrets/*
+├── get_file(rel) / list_files()
+├── get_entry(key) / list_entries()
+└── change_passphrase(new_pw)
+
+VaultManager (vault_manager.py)
+├── backup_all(on_log=)        # sync() + capture HUB_base/secrets/* + save()
+├── export_recovery()          # écrit hubctl_cli/recovery/<date>/ (secrets en clair, path-contained)
+└── check_divergence()         # hash coffre vs disque → dict informatif (badge [MODIFIÉ])
 ```
 
-## Schema
+## Contenu sauvegardé
 
-```json
-{
-  "__meta__": { "managed_env": true, "version": 1 },
-  "hub": { "KEY": "value", ... },
-  "app:<name>": { "KEY": "value", ... },
-  "ws:<name>": { "KEY": "value", ... }
-}
-```
-
-## Target mapping
-
-| Target key | Chemin disque |
-|-----------|---------------|
+| Entrée coffre | Source disque |
+|---|---|
 | `"hub"` | `HUB_base/.env` |
 | `"app:<nom>"` | `APPS/<nom>/.env` |
 | `"ws:<nom>"` | `APP_Workshop/<nom>/.env` |
+| `"__files__"` (base64) | `HUB_base/secrets/*` (clés JWT/backup, SA) |
 
-## Lifecycle rules
+## Règles de cycle (NON-négociables)
 
-1. **Before any docker operation** (start, restart, update): call `push_env(target)`
-   to write .env from vault to disk.
-2. **After any docker operation**: call `pull_env(target)` to read .env from disk
-   back into vault (captures runtime values like ports, version).
-3. **On add_app**: `pull_env("app:<name>")` after INITIALISE.py runs.
-4. **On remove_app**: do NOT pull — keep vault entry as history.
-5. **On preload**: `auto_import_missing()` + `check_divergence()`.
-6. **If managed_env is OFF**: skip all push/pull. Apps manage their own .env.
+1. **Passphrase obligatoire à chaque démarrage** (prod ET dev). Création forcée si aucun coffre.
+   Si l'utilisateur fait Échap → `SystemExit` (on ne démarre pas sans coffre).
+2. **Capture automatique au démarrage** : après déverrouillage, `backup_all()` est appelé.
+3. **Bouton « 💾 Sauvegarder maintenant »** (coffre UI) → `backup_all()`.
+4. **Bouton « ⬇ Récupérer (export) »** → `export_recovery()` écrit `hubctl_cli/recovery/<stamp>/`
+   reproduisant l'arborescence, **sans jamais toucher aux fichiers existants** (garde de
+   containment `is_relative_to(dest)`).
+5. **Divergence = informatif uniquement.** `check_divergence()` marque `[MODIFIÉ]` et le
+   dashboard affiche `⚠ N .env divergents`. **Aucune résolution automatique** : pas
+   d'écrasement du disque par le coffre, ni l'inverse.
+6. **Le coffre ne pousse/jamais les `.env` vers les conteneurs docker.** Les opérations
+   docker (start/update/...) utilisent les `.env` du disque, inchangés.
 
-## Adding a new action that needs push/pull
+## Ajouter une action qui interagit avec le coffre
 
-1. The hook is in `_run_action()` in menu.py. Ensure the action goes through it.
-2. `_target_from_args()` must be able to deduce the vault target from the action's args.
-3. If the action doesn't use `_run_action` (e.g., `_workshop_menu`, `setup_wizard`),
-   add explicit `push_env`/`pull_env` before/after docker operations.
+- Une action qui **modifie un `.env` disque** (rare) : après modification, appeler
+  `vault_mgr.backup_all()` pour rafraîchir la sauvegarde. Ne **jamais** écrire le coffre
+  vers le disque.
+- Une action qui **ajoute un secret fichier** (ex. nouveau SA) : `vault.set_file(rel, bytes)`
+  puis `vault.save()` — ou simplement `backup_all()` qui capture tout `HUB_base/secrets/`.
+- Ne **pas** recréer de `push_env`/`pull_env`/`managed_env` : c'est une régression de
+  design. Les tests `test_vault_manager.py` et `test_env_manager.py` assertent leur absence.
 
-## Divergence workflow
+## Divergence (workflow lecture seule)
 
-1. `check_divergence()` compares `sha256(sorted(vault_data))` vs `sha256(sorted(disk_data))`.
-2. If divergent, the entry is marked `[MODIFIÉ]` in coffre view.
-3. The dashboard shows `⚠ N .env divergents` in the resources column.
-4. User resolves via coffre: import (disk→vault) or overwrite (vault→disk).
-
-## Toggle managed_env
-
-- Default: `true` if `APP_ENV=production`, `false` if `development` or absent.
-- Toggle accessible from coffre submenu.
-- Persisted in vault `__meta__.managed_env`.
-- When OFF, hubctl never touches .env files on disk — same behavior as before this feature.
+1. `check_divergence()` compare `sha256(sorted(disk))` vs `sha256(sorted(coffre))`.
+2. Si divergent → entrée marquée `[MODIFIÉ]` dans la vue coffre + badge dashboard.
+3. L'utilisateur peut : **Sauvegarder maintenant** (rafraîchit le coffre depuis le disque)
+   ou **Récupérer (export)** (écrit le coffre dans `recovery/` sans écraser le disque).
 
 ## Error handling
 
-- If vault is locked → `managed_env` is temporarily OFF, no push/pull.
-- If disk .env is missing → `push_env` creates it, `pull_env` skips silently.
-- If vault file is corrupted → alert user, disable managed mode until recreated.
-- Push/pull failures are non-fatal: the docker operation still proceeds.
+- Coffre verrouillé / `_data is None` → `backup_all`/`check_divergence` retournent vide,
+  aucune écriture. L'UI force le déverrouillage au démarrage.
+- `.env` disque absent → `sync()` l'ignore silencieusement ; `export_recovery` saute l'entrée.
+- Fichier secret absent → ignoré.
+- Path traversal dans `export_recovery` → bloqué par `is_relative_to(dest)` (double garde).
+
+## Fichiers clés
+
+- `hubctl_cli/coffre.py` — `Vault` (chiffrement, sync lecture-seule, save)
+- `hubctl_cli/vault_manager.py` — `VaultManager` (backup_all, export_recovery, check_divergence)
+- `hubctl_cli/menu.py::view_coffre` — UI (sauvegarder / récupérer / passphrase / divergence)
+- `hubctl_cli/vault/parc.vault.enc` — le coffre (gitignoré via `*.vault.enc`)
+- `hubctl_cli/recovery/` — exports en clair (**gitignoré** depuis v0.13.x — secrets)
