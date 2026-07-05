@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide du HUB — make</title>
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="assets/guide.js"></script>
+</head>
+<body>
+<nav class="topnav">
+  <span class="brand">Guide HUB</span>
+  <a href="index.html">Accueil</a>
+  <a href="hubctl.html">hubctl</a>
+  <a href="make.html">make</a>
+  <a href="architecture.html">Architecture</a>
+</nav>
+<main class="wrap">
+  <div class="breadcrumb"><a href="index.html">Accueil</a> › make</div>
+  <h1>Commandes <code>make</code> par application</h1>
+  <p>Chaque app dans <code>APPS/</code> et <code>APP_Workshop/</code> possède un
+  <code>Makefile</code> standard. Ces commandes se lancent depuis le dossier de
+  l'app.</p>
+
+  <h2>Cycle de vie</h2>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>make sync-env</code></td><td>Alloue les ports via le Hub et synchronise le <code>.env</code> (après toute modif de <code>.env</code> ou <code>VERSION</code>).</td></tr>
+    <tr><td><code>make dev</code></td><td>Mode développement : reconstruit et affiche les logs en direct.</td></tr>
+    <tr><td><code>make up</code></td><td>Démarre en arrière-plan (sans reconstruire).</td></tr>
+    <tr><td><code>make down</code></td><td>Arrête tous les services.</td></tr>
+    <tr><td><code>make restart-api</code></td><td>Redémarre uniquement l'API.</td></tr>
+    <tr><td><code>make restart-frontend</code></td><td>Redémarre uniquement le frontend.</td></tr>
+  </table>
+
+  <h2>Tests et santé</h2>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>make test</code></td><td>Tests sur l'hôte (SQLite, rapide).</td></tr>
+    <tr><td><code>make test-docker</code></td><td>Tests dans le conteneur (miroir de la production).</td></tr>
+    <tr><td><code>make test-cov</code></td><td>Tests avec couverture.</td></tr>
+    <tr><td><code>make health</code></td><td><code>GET /api/health</code>.</td></tr>
+    <tr><td><code>make health-detailed</code></td><td><code>GET /api/health/detailed</code>.</td></tr>
+  </table>
+
+  <h2>Versions</h2>
+  <div class="code"><pre>make bump-patch    # x.y.Z  (correctif)
+make bump-minor    # x.Y.0  (nouvelle fonctionnalité)
+make bump-major    # X.0.0  (changement majeur)</pre></div>
+
+  <h2>Nettoyage</h2>
+  <div class="danger">
+    <strong>Attention aux commandes de nettoyage</strong>
+    <ul>
+      <li><code>make clean</code> supprime les conteneurs, <strong>les volumes</strong> et les caches : les données de l'app sont perdues.</li>
+      <li><code>make clean-all</code> supprime en plus les images Docker.</li>
+    </ul>
+    Ne les utilisez que si vous avez une sauvegarde ou si l'app n'a pas de
+    données importantes.
+  </div>
+
+  <details class="accordion">
+    <summary>En coulisse (technique)</summary>
+    <p>Ces cibles enveloppent <code>docker compose</code>. <code>make dev</code>
+    équivaut à un rebuild suivi d'un <code>up</code> en avant-plan.
+    <code>make sync-env</code> interroge le Hub pour réserver des ports uniques
+    avant de réécrire le <code>.env</code>.</p>
+  </details>
+</main>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.14.0</span> · <a href="index.html">Accueil</a></footer>
+</body>
+</html>
