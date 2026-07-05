@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide du HUB — Accueil</title>
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="assets/guide.js"></script>
+</head>
+<body>
+<nav class="topnav">
+  <span class="brand">Guide HUB</span>
+  <a href="index.html">Accueil</a>
+  <a href="hubctl.html">hubctl</a>
+  <a href="make.html">make</a>
+  <a href="architecture.html">Architecture</a>
+</nav>
+<main class="wrap">
+  <h1>Bienvenue dans le guide du HUB POULIDOR</h1>
+  <p>Ce guide forme à l'usage du <strong>HUB</strong> : un parc d'applications
+  web reliées à un service d'authentification central. Tout le pilotage se fait
+  depuis un seul outil en ligne de commande : <code>./hubctl</code>.</p>
+
+  <div class="info">
+    <strong>En une phrase</strong>
+    Le HUB héberge plusieurs applications qui partagent la même connexion
+    (authentification unique), et <code>hubctl</code> est le tableau de bord qui
+    permet de les installer, démarrer, sauvegarder et dépanner.
+  </div>
+
+  <h2>Comprendre le parc en 5 minutes</h2>
+  <div class="code"><pre>POULIDOR/
+├── hubctl                 ← l'outil de pilotage (ce que vous lancez)
+├── HUB_base/              ← le Hub central (connexion, annuaire des apps)
+├── HUBapp_TEMPLATE_base/  ← le modèle pour créer une nouvelle app
+├── APPS/                  ← les applications EN PRODUCTION
+├── APP_Workshop/          ← les applications EN DÉVELOPPEMENT (atelier)
+└── exports/               ← les archives du parc</pre></div>
+
+  <ul>
+    <li><strong>Hub central</strong> : gère la connexion
+      (<span class="term">SSO<span class="tip">Single Sign-On : une seule
+      connexion donne accès à toutes les apps du parc.</span></span>),
+      l'annuaire des apps et les sauvegardes.</li>
+    <li><strong>Applications</strong> : les logiciels métier, chacun dans son
+      dossier sous <code>APPS/</code>.</li>
+    <li><strong>Atelier</strong> (<code>APP_Workshop/</code>) : copies des apps
+      pour développer sans toucher à la production.</li>
+    <li><strong>Coffre</strong> : stockage chiffré des secrets (mots de passe,
+      clés) du parc.</li>
+  </ul>
+
+  <h2>Les deux modes de travail</h2>
+  <table>
+    <tr><th>Mode</th><th>Apps actives</th><th>Pour quoi faire</th></tr>
+    <tr><td><strong>PRODUCTION</strong></td><td><code>APPS/</code></td><td>Usage réel, quotidien.</td></tr>
+    <tr><td><strong>DÉVELOPPEMENT</strong></td><td><code>APP_Workshop/</code></td><td>Tester des modifications sans risque.</td></tr>
+  </table>
+  <p>On bascule d'un mode à l'autre depuis le menu de <code>hubctl</code>
+  (touche <kbd>5</kbd>).</p>
+
+  <h2>Sommaire du guide</h2>
+  <div class="cards">
+    <a class="card" href="hubctl.html"><h3>Prendre en main hubctl</h3><p>Lancer l'outil, naviguer dans le menu, comprendre les garde-fous.</p></a>
+    <a class="card" href="make.html"><h3>Commandes make</h3><p>Le cycle de vie d'une application (démarrer, tester, versionner).</p></a>
+    <a class="card" href="architecture.html"><h3>Architecture</h3><p>Référence des composants du parc.</p></a>
+  </div>
+
+  <h2 id="attention">Actions qui demandent de l'attention</h2>
+  <p>Ces opérations touchent aux données ou aux secrets : lisez la page dédiée
+  avant de les lancer.</p>
+  <div class="cards">
+    <a class="card" href="attention-ajouter-app.html"><h3>Ajouter une app</h3><p>Cloner puis initialiser une application.</p></a>
+    <a class="card" href="attention-suppression-app.html"><h3>Supprimer une app</h3><p>Corbeille et sauvegarde avant suppression.</p></a>
+    <a class="card" href="attention-bascule-dev-prod.html"><h3>Bascule DEV/PROD</h3><p>Changer le dossier d'apps actives.</p></a>
+    <a class="card" href="attention-workshop.html"><h3>Workshop</h3><p>Mettre en atelier / remettre en production.</p></a>
+    <a class="card" href="attention-coffre.html"><h3>Coffre (secrets)</h3><p>Passphrase maître irrécupérable.</p></a>
+    <a class="card" href="attention-park.html"><h3>park-export / restore</h3><p>Archiver et restaurer tout le parc.</p></a>
+    <a class="card" href="attention-danger-downv.html"><h3>Danger : down -v</h3><p>La commande à ne jamais lancer.</p></a>
+  </div>
+</main>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.14.0</span> · <a href="index.html">Accueil</a></footer>
+</body>
+</html>
