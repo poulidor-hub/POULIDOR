@@ -4,6 +4,23 @@
 
 ---
 
+## [0.15.0] - 5 juillet 2026
+
+### ⚡ Guide visuel du HUB (formation + référence technique)
+
+- Nouveau guide HTML multi-pages autonome sous `docs/guide-hub/` : parcours
+  opérateur + référence technique, articulé autour de `hubctl`.
+- 11 pages reliées par liens relatifs : accueil (vue globale), `hubctl`,
+  `make`, architecture, et 7 pages « attention » (ajouter/supprimer une app,
+  bascule DEV/PROD, workshop, coffre, park-export/restore, danger `down -v`).
+- Assets partagés `assets/style.css` (thème neutre) et `assets/guide.js`
+  (boutons copier, surbrillance de nav, version du parc). Accordéons via
+  `<details>` natifs et infobulles en CSS pur ; 100 % hors-ligne, sans
+  dépendance réseau.
+- Contenu aligné sur `README.md` et `hubctl_cli/menu.py` (arbre de menu réel,
+  commandes make, garde-fous).
+- Spec et plan d'implémentation ajoutés sous `docs/superpowers/`.
+
 ## [0.14.0] - 5 juillet 2026
 
 ### 🔒 Audit sécurité & install (HUB_base 3.9.1)
