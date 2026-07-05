@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide du HUB — Coffre</title>
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="assets/guide.js"></script>
+</head>
+<body>
+<nav class="topnav">
+  <span class="brand">Guide HUB</span>
+  <a href="index.html">Accueil</a>
+  <a href="hubctl.html">hubctl</a>
+  <a href="make.html">make</a>
+  <a href="architecture.html">Architecture</a>
+</nav>
+<main class="wrap">
+  <div class="breadcrumb"><a href="index.html">Accueil</a> › <a href="index.html#attention">Actions sensibles</a> › Coffre</div>
+  <h1>Coffre : les secrets chiffrés</h1>
+
+  <h2>Objectif</h2>
+  <p>Sauvegarder et restaurer de façon chiffrée tous les secrets du parc
+  (fichiers <code>.env</code>, secrets du Hub) sous une seule passphrase maître.</p>
+
+  <h2>Quand l'utiliser</h2>
+  <p>Après toute modification de secrets, avant une suppression d'app, ou pour
+  récupérer un <code>.env</code> perdu.</p>
+
+  <h2>Étapes dans hubctl</h2>
+  <ol>
+    <li>Configuration (<kbd>3</kbd>) → Coffre (<kbd>5</kbd>).</li>
+    <li>Saisir la passphrase pour déverrouiller.</li>
+    <li>Choisir : <strong>💾 Sauvegarder</strong>, <strong>⬇ Récupérer (export)</strong>, ou <strong>🔑 Changer la passphrase</strong>.</li>
+  </ol>
+  <p>Une entrée marquée <code>[MODIFIÉ]</code> signale un <code>.env</code> qui
+  diverge de la version sauvegardée.</p>
+
+  <details class="accordion">
+    <summary>En coulisse (technique)</summary>
+    <p>Les secrets sont chiffrés (<span class="term">Fernet<span class="tip">Chiffrement
+    symétrique authentifié.</span></span>) dans
+    <code>hubctl_cli/vault/parc.vault.enc</code>. La passphrase n'est jamais
+    stockée. Sources lues : <code>HUB_base/.env</code>, <code>APPS/*/.env</code>,
+    <code>HUB_base/secrets/</code>. Une sauvegarde automatique est faite avant
+    toute suppression d'app.</p>
+  </details>
+
+  <div class="danger">
+    <strong>⚠ Passphrase IRRÉCUPÉRABLE</strong>
+    Si vous perdez la passphrase maître, <strong>les secrets sont définitivement
+    inaccessibles</strong>. Notez-la dans un gestionnaire de mots de passe sûr.
+  </div>
+
+  <details class="accordion">
+    <summary>En cas de problème</summary>
+    <p>Passphrase refusée : vérifiez la casse et la disposition du clavier. En
+    cas de divergence <code>[MODIFIÉ]</code>, choisissez si vous sauvegardez la
+    version locale ou récupérez la version du coffre.</p>
+  </details>
+</main>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.14.0</span> · <a href="index.html">Accueil</a></footer>
+</body>
+</html>
