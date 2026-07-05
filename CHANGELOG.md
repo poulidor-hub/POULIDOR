@@ -4,6 +4,26 @@
 
 ---
 
+## [0.13.0] - 4 juillet 2026
+
+### ⚡ hubctl — coffre en mode sauvegarde seule
+- **Changement de rôle** : le coffre ne réécrit plus jamais les `.env` sur le
+  disque. Il ne fait que **copier** vers lui-même (jamais de suppression /
+  déplacement / écrasement). Le « mode .env managé » et les push/pull autour des
+  opérations docker sont **supprimés** (`push_env`, `pull_env`,
+  `auto_import_missing`, `toggle_managed`, `managed_env`, `backup_env`,
+  `restore_env`, hooks `_vault_target`).
+- **Contenu sauvegardé** : tous les `.env` (hub + APPS/ + APP_Workshop/) **et**
+  les fichiers secrets du hub (`HUB_base/secrets/*`, stockés en base64).
+- **Capture** : automatique au démarrage (après déverrouillage) + bouton
+  « 💾 Sauvegarder maintenant ».
+- **Récupération** : « ⬇ Récupérer (export) » écrit un dossier horodaté
+  `hubctl_cli/recovery/<date>/` reproduisant l'arborescence, **sans jamais**
+  toucher aux fichiers existants (garde de containment de chemin).
+- **Passphrase obligatoire à chaque démarrage** (prod ET dev) ; création forcée
+  si aucun coffre. **Changement de passphrase** possible dans l'option coffre.
+- Divergence conservée en **informatif** (badge « modifié »).
+
 ## [0.12.0] - 4 juillet 2026
 
 ### ⚡ hubctl — rattacher une app existante
