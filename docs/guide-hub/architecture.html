@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide du HUB — Architecture</title>
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="assets/guide.js"></script>
+</head>
+<body>
+<nav class="topnav">
+  <span class="brand">Guide HUB</span>
+  <a href="index.html">Accueil</a>
+  <a href="hubctl.html">hubctl</a>
+  <a href="make.html">make</a>
+  <a href="architecture.html">Architecture</a>
+</nav>
+<main class="wrap">
+  <div class="breadcrumb"><a href="index.html">Accueil</a> › Architecture</div>
+  <h1>Architecture du parc</h1>
+  <p>Référence des composants qui constituent le HUB POULIDOR.</p>
+
+  <h2>Vue d'ensemble</h2>
+  <div class="code"><pre>POULIDOR/
+├── hubctl / hubctl_cli/   ← CLI de pilotage (menu, coffre, park-export)
+├── HUB_base/              ← Hub SSO (auth JWT/JWKS, annuaire, messagerie, backups)
+├── HUBapp_TEMPLATE_base/  ← template canonique de toute nouvelle app
+├── APPS/                  ← applications en PRODUCTION
+├── APP_Workshop/          ← applications en DÉVELOPPEMENT (slug suffixé -ws)
+└── exports/               ← archives park-export</pre></div>
+
+  <h2>Le Hub central (<code>HUB_base/</code>)</h2>
+  <ul>
+    <li><strong>Authentification</strong> : émet des jetons
+      <span class="term">JWT<span class="tip">JSON Web Token : jeton de session
+      signé, présenté par l'utilisateur à chaque app.</span></span> vérifiés par
+      les apps via
+      <span class="term">JWKS<span class="tip">JSON Web Key Set : les clés
+      publiques exposées par le Hub pour vérifier les jetons.</span></span>.</li>
+    <li><strong>Annuaire (registry)</strong> : les apps s'y enregistrent
+      automatiquement au démarrage.</li>
+    <li><strong>Messagerie</strong> : notifications entre apps et vers les
+      utilisateurs.</li>
+    <li><strong>Sauvegardes</strong> : backup quotidien automatique du Hub.</li>
+  </ul>
+
+  <h2>Le template (<code>HUBapp_TEMPLATE_base/</code>)</h2>
+  <p>Modèle de référence pour créer une app : backend FastAPI, frontend React +
+  Vite, PostgreSQL, Docker Compose. Copié par <code>create_app.sh</code> puis
+  personnalisé par <code>INITIALISE.py</code>.</p>
+
+  <h2>Production vs Atelier</h2>
+  <table>
+    <tr><th>Dossier</th><th>Rôle</th><th>Slug</th></tr>
+    <tr><td><code>APPS/</code></td><td>Apps en production</td><td>nom normal</td></tr>
+    <tr><td><code>APP_Workshop/</code></td><td>Apps en développement</td><td>suffixe <code>-ws</code></td></tr>
+  </table>
+
+  <h2>Le coffre</h2>
+  <p>Stockage chiffré (<span class="term">Fernet<span class="tip">Chiffrement
+  symétrique authentifié : les secrets ne sont lisibles qu'avec la
+  passphrase.</span></span>) des secrets du parc, dans
+  <code>hubctl_cli/vault/parc.vault.enc</code>. Voir la page
+  <a href="attention-coffre.html">Coffre</a>.</p>
+
+  <h2>park-export</h2>
+  <p>Archive complète du parc (<code>tar.gz</code>) pour migration ou sauvegarde
+  hors-ligne. Voir la page <a href="attention-park.html">park-export / restore</a>.</p>
+
+  <details class="accordion">
+    <summary>Pour aller plus loin (docs développeur)</summary>
+    <p>Détails d'implémentation (conventions <code>TIMESTAMPTZ</code>, endpoints,
+    structure backend/frontend) : voir
+    <code>HUBapp_TEMPLATE_base/CLAUDE.md</code> et
+    <code>HUBapp_TEMPLATE_base/docs/</code>.</p>
+  </details>
+</main>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.14.0</span> · <a href="index.html">Accueil</a></footer>
+</body>
+</html>
