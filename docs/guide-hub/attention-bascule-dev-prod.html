@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide du HUB — Bascule DEV/PROD</title>
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="assets/guide.js"></script>
+</head>
+<body>
+<nav class="topnav">
+  <span class="brand">Guide HUB</span>
+  <a href="index.html">Accueil</a>
+  <a href="hubctl.html">hubctl</a>
+  <a href="make.html">make</a>
+  <a href="architecture.html">Architecture</a>
+</nav>
+<main class="wrap">
+  <div class="breadcrumb"><a href="index.html">Accueil</a> › <a href="index.html#attention">Actions sensibles</a> › Bascule DEV/PROD</div>
+  <h1>Basculer entre DEV et PROD</h1>
+
+  <h2>Objectif</h2>
+  <p>Changer le dossier d'applications actives : <code>APPS/</code> en
+  PRODUCTION, <code>APP_Workshop/</code> en DÉVELOPPEMENT.</p>
+
+  <h2>Quand l'utiliser</h2>
+  <p>Pour passer en atelier (développement) ou revenir en production.</p>
+
+  <h2>Étapes dans hubctl</h2>
+  <ol>
+    <li>Menu principal → touche <kbd>5</kbd> (Passer en DEV / en PROD).</li>
+    <li>Confirmer <strong>Oui</strong>.</li>
+    <li>Au premier passage en DEV, <code>hubctl</code> propose de <em>snapshooter</em> des apps de <code>APPS/</code> vers l'atelier.</li>
+  </ol>
+
+  <details class="accordion">
+    <summary>En coulisse (technique)</summary>
+    <p>Le mode est stocké dans l'état de <code>hubctl</code>. Il détermine quelles
+    apps sont listées et pilotées, et fait apparaître le menu <strong>Workshop</strong>
+    uniquement en DEV. Le snapshot utilise le même mécanisme que
+    <a href="attention-workshop.html">Workshop</a> (code + volumes).</p>
+  </details>
+
+  <div class="attention">
+    <strong>⚠ Points d'attention</strong>
+    <ul>
+      <li>En DEV, les actions portent sur <code>APP_Workshop/</code>, pas sur la production.</li>
+      <li>Le snapshot copie des données réelles : espace disque et confidentialité.</li>
+    </ul>
+  </div>
+
+  <details class="accordion">
+    <summary>En cas de problème</summary>
+    <p>Si une app n'apparaît pas après bascule, vérifiez qu'elle est bien dans le
+    dossier du mode courant (<code>APPS/</code> ou <code>APP_Workshop/</code>).</p>
+  </details>
+</main>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.14.0</span> · <a href="index.html">Accueil</a></footer>
+</body>
+</html>
