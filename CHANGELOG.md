@@ -4,6 +4,31 @@
 
 ---
 
+## [0.15.1] - 5 juillet 2026
+
+### ⚡ Correction critique — capture complète des secrets (park-export + coffre + restore)
+
+- **park-export** : `_collect_hub_secrets` codait 3 chemins inexistants
+  (`jwt_private.pem`, `jwt_public.pem`, `.fernet_key`) ne correspondant à
+  aucun fichier réel → les archives DR étaient produites **sans aucun secret
+  Hub** (ni clés JWT, ni clés de backup, ni service_accounts). Réécriture
+  en collecte récursive de `HUB_base/secrets/` conservant l'arborescence.
+- **coffre** (`vault_manager`) : `backup_all` étendu en capture récursive
+  (`rglob` au lieu d'`iterdir`) — les `service_accounts/` (credentials SA,
+  un par app) étaient ignorés du coffre.
+- **park-restore** : nouvelle aide `_restore_tree` (copie récursive sans
+  écrasement) remplaçant l'ancien `iterdir`+`copy2` qui ne savait pas
+  gérer les sous-dossiers. Le round-trip export/restore/recoffre est
+  désormais cohérent sur l'arborescence complète.
+- **Tests** : 9 nouveaux tests (161 → 161 passants) couvrant la collecte
+  récursive, l'intégration archive, le restore_tree, et la capture des
+  service_accounts dans le coffre.
+
+### 🧰 Configuration
+
+- **MCP** : serveur `zai-mcp-server` (`@z_ai/mcp-server`) ajouté dans
+  `opencode.json`.
+
 ## [0.15.0] - 5 juillet 2026
 
 ### ⚡ Guide visuel du HUB (formation + référence technique)

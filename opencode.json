@@ -7,5 +7,16 @@
   ],
   "skills": {
     "paths": [".opencode/skills"]
+  },
+  "mcp": {
+    "zai-mcp-server": {
+      "type": "local",
+      "command": ["npx", "-y", "@z_ai/mcp-server"],
+      "enabled": true,
+      "env": {
+        "Z_AI_API_KEY": "your_api_key",
+        "Z_AI_MODE": "ZAI"
+      }
+    }
   }
 }
