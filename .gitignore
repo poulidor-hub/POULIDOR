@@ -15,4 +15,5 @@ hubctl_cli/_trash/
 hubctl_cli/backups/
 hubctl_cli/recovery/
 hubctl_cli/.config.toml
+exports/
 *.vault.enc
