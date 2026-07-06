@@ -18,3 +18,6 @@ hubctl_cli/recovery/
 hubctl_cli/.config.toml
 exports/
 *.vault.enc
+
+# Agent debug Granite — config temporaire
+opencode.debug.json
