@@ -4,6 +4,39 @@
 
 ---
 
+## [0.15.2] - 6 juillet 2026
+
+### 🔒 Sous-module HUB_base (v3.9.1 → v3.9.2) — durcissement sécurité P1 + P3
+
+- **P1 — Reset token rejeté comme access token** : `verify_token()` rejette
+  désormais tout token portant `scope="pwd_reset"`. Ces tokens (sans `jti` ni
+  `type`) pouvaient contourner la vérification de révocation et servir de
+  Bearer sur les endpoints protégés pendant `recovery_token_ttl_minutes`.
+  Le flow légitime (`decode_reset_token`) n'est pas affecté.
+- **P3 — CORS : plus d'injection de `localhost`** : la décision est extraite
+  dans `build_cors_config()` (testable). En production avec uniquement
+  `ALLOWED_ORIGIN_REGEX` (recommandé LAN), `localhost` n'est plus injecté
+  dans les origines autorisées. En mode dev rien configuré, `localhost`
+  reste autorisé mais sans credentials.
+- **P3 — `except:` nus** remplacés par `except Exception`.
+
+### 🐛 Sous-module HUBapp_TEMPLATE_base (v2.4.3 → v2.4.4) — hardening template
+
+- **Backup** : introspection DB dialect-agnostique via SQLAlchemy `Inspector`
+  (remplace `information_schema`/`pg_*` Postgres-only → tests SQLite valides
+  et robustesse Postgres améliorée).
+- **Restore** : `SET CONSTRAINTS ALL DEFERRED` restreint à PostgreSQL
+  (SQLite ignoré).
+- **Models** : `OutboxMessage.headers` `default=dict` (mutable default footgun).
+- **hub_auth** : retrait du fallback JWKS mort dans `_try_decode` (cascade
+  directe vers PEM).
+- **Compose** : port 443 conditionnel via `docker-compose.https.yml` (plus de
+  crash si `FRONTEND_HTTPS_PORT` vide) + fallback `APP_SLUG` sur `POSTGRES_HOST`.
+- **Tests** : activation de `ENABLE_DEMO_ENDPOINTS` dans `conftest.py` (19
+  tests services verts) ; `test_backup.py` réaligné sur le format générique v3.0.
+- **Chores** : `python`→`python3` (Makefile), retrait `psycopg2-binary` inutilisé,
+  format de date `bump_version` portable (`lstrip("0")`).
+
 ## [0.15.1] - 5 juillet 2026
 
 ### ⚡ Correction critique — capture complète des secrets (park-export + coffre + restore)
