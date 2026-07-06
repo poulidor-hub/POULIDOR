@@ -4,6 +4,17 @@
 
 ---
 
+## [Unreleased]
+
+### Fixed
+- **park-restore** : la garde « Hub vierge » (`_check_hub_is_empty`) était un no-op
+  — `--format {{.Status}}` ne contient jamais le nom du conteneur, donc la condition
+  retournait toujours `True`, autorisant le restore sur un Hub en production.
+- **park-restore** : `_restore_tree` n'avait pas de vérification de confinement
+  (`is_relative_to`), permettant une traversée de répertoire via un membre `../`.
+- **park-restore** : `tar.extractall` sans `filter="data"` vulnérable au tar-slip
+  (CVE-2007-4559). Ajout de `filter="data"` (Python 3.12+).
+
 ## [0.15.1] - 5 juillet 2026
 
 ### ⚡ Correction critique — capture complète des secrets (park-export + coffre + restore)
