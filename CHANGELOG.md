@@ -4,6 +4,23 @@
 
 ---
 
+## [0.15.8] - 7 juillet 2026
+
+### 🛠 hubctl update — flux séquentiel + rollback (Lot 2, C3+H3+H5+H6)
+
+- **action_update** : la stratégie blue/green (instance test + swap) n'a jamais
+  fonctionné — collision `container_name` entre l'instance test et la prod
+  (C3), mauvais nom de projet pour le swap du Hub (H5), health check sur le
+  mauvais port pour les apps (H3). Le code de rollback existait mais n'était
+  jamais appelé (H6).
+- **Rewrite** : flux séquentiel `stop → git pull → build → up → health`.
+  Rollback automatique (git reset + restore DB + rebuild + re-up) à chaque
+  point d'échec. `_health_check` lit désormais `API_PORT` de l'app cible (H3).
+- **Suppression** de la machinerie blue/green morte : `_deploy_test`,
+  `_swap_to_prod`, `_cleanup_test`, `_find_free_ports`, `_port_in_use`.
+- **HUB_base (Makefile)** : ajout du target `build` (v3.9.6) — requis par le
+  nouveau flux `make build`.
+
 ## [0.15.7] - 7 juillet 2026
 
 ### 🔒 Quick wins sécurité (Lot 2bis, H9 + H10)
