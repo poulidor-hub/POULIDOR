@@ -154,10 +154,23 @@ make clean             ← suppression conteneurs + volumes
 ### CLI non-interactif
 
 ```bash
-./hubctl park-export                     # Export tout le parc → tar.gz
-./hubctl park-export --app exemple-apps  # Export une seule app
-./hubctl park-restore park.tar.gz         # Restaure sur Hub VIERGE uniquement
+# Opérations quotidiennes (développeur averti)
+./hubctl status                            # Vue d'ensemble (Hub + apps + mode)
+./hubctl work <slug>                       # Mettre en atelier (clone DB prod → dev)
+./hubctl ship <slug>                       # Ramener en production
+./hubctl update hub|<slug>                 # Mise à jour (git pull + rebuild + restart)
+./hubctl start hub|<slug>                  # Démarrage
+./hubctl stop hub|<slug>                   # Arrêt
+
+# Sauvegarde / restauration du parc
+./hubctl park-export                       # Export tout le parc → tar.gz.enc (chiffré)
+./hubctl park-export --app exemple-apps   # Export une seule app
+./hubctl park-export --no-encrypt          # Archive non chiffrée (legacy)
+./hubctl park-restore park.tar.gz          # Restaure sur Hub VIERGE uniquement
 ```
+
+Le mode est **auto-détecté** : si `APP_Workshop/` contient des apps → DEV, sinon → PROD.
+`./hubctl --dev` / `./hubctl --prod` ou `HUBCTL_MODE=dev|prod` pour forcer le mode.
 
 ---
 
