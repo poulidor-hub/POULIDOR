@@ -4,6 +4,19 @@
 
 ---
 
+## [0.16.2] - 7 juillet 2026
+
+### 🩺 Correction vue santé des apps (NaNh + faux « Degraded »)
+
+- **HUB_base (apps_health.py)** : la sonde HTTP ne marque plus les 4xx comme
+  « degraded » — seuls les 5xx le sont. Les apps sans endpoint `/health`
+  standard (Vaultwarden, etc.) étaient faussement « degraded » alors qu'elles
+  répondent en 9-16ms. HUB_base v3.9.8.
+- **HUB_base (apps-health.js)** : le timestamp `checked_at` doublait le `Z`
+  (`"2025-...ZZ"` → `NaNh`). Correction + affichage amélioré : note « Serveur
+  joignable — pas d'endpoint /health standard » pour les apps online sans
+  health endpoint.
+
 ## [0.16.1] - 7 juillet 2026
 
 ### 🔒 action_ship : confirmation obligatoire avant remplacement DB prod
