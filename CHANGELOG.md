@@ -4,7 +4,7 @@
 
 ---
 
-## [Unreleased]
+## [0.15.4] - 7 juillet 2026
 
 ### Fixed
 - **hubctl (cleanup_orphan_tests)** : ne fait plus `docker compose down -v`
