@@ -4,6 +4,20 @@
 
 ---
 
+## [0.15.5] - 7 juillet 2026
+
+### 🔒 Sécurité auth Hub — injection install.sh + spoofing IP (Lot 3)
+
+- **HUB_base (install.sh)** : le code Python inline faisait `open('$PROFILE')`
+  avec interpolation bash du chemin → un nom de fichier profil contenant une
+  apostrophe permettait l'injection de code arbitraire (RCE) à l'install.
+  Lecture via `sys.stdin` (C6).
+- **HUB_base (_get_client_ip)** : trustait `X-Forwarded-For` inconditionnellement
+  → bypass du rate-limit de login (H7) et introspection de token non
+  authentifiée (H8). N'honore désormais les headers de proxy que depuis une IP
+  de confiance (réseau Docker = frontend nginx). Compatibilité préservée pour
+  les déploiements standards.
+
 ## [0.15.4] - 7 juillet 2026
 
 ### Fixed
