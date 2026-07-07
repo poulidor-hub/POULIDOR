@@ -8,7 +8,9 @@ Usage :
 """
 
 from __future__ import annotations
+import getpass
 import json
+import os
 import shutil
 import subprocess
 import tarfile
@@ -17,7 +19,53 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+from cryptography.fernet import Fernet, InvalidToken
+
 from hubctl_cli.hub_state import PARC_ROOT, HUB_DIR, APPS_DIR
+from hubctl_cli.coffre import derive_key
+
+ARCHIVE_MAGIC = b"PARKEV1"
+
+
+class WrongPassphraseError(Exception):
+    """Levée quand la passphrase de déchiffrement d'archive est incorrecte."""
+
+
+def encrypt_archive(tar_bytes: bytes, passphrase: str) -> bytes:
+    """Chiffre un blob tar.gz avec une passphrase (Fernet + scrypt).
+
+    Format : ARCHIVE_MAGIC (7) + salt (16) + ciphertext.
+    Le salt est aléatoire à chaque appel → blobs différents pour la même entrée.
+    """
+    salt = os.urandom(16)
+    key = derive_key(passphrase, salt)
+    ciphertext = Fernet(key).encrypt(tar_bytes)
+    return ARCHIVE_MAGIC + salt + ciphertext
+
+
+def decrypt_archive(blob: bytes, passphrase: str) -> bytes:
+    """Déchiffre un blob produit par encrypt_archive.
+
+    Lève WrongPassphraseError si la passphrase est incorrecte.
+    Lève ValueError si le blob n'a pas le magic attendu.
+    """
+    if not blob.startswith(ARCHIVE_MAGIC):
+        raise ValueError("Blob sans magic PARKEV1 — pas une archive chiffrée")
+    salt = blob[len(ARCHIVE_MAGIC):len(ARCHIVE_MAGIC) + 16]
+    ciphertext = blob[len(ARCHIVE_MAGIC) + 16:]
+    try:
+        return Fernet(derive_key(passphrase, salt)).decrypt(ciphertext)
+    except InvalidToken:
+        raise WrongPassphraseError("Passphrase d'archive incorrecte")
+
+
+def is_encrypted_archive(path) -> bool:
+    """Détecte si un fichier (Path) ou des bytes sont une archive chiffrée PARKEV1."""
+    if isinstance(path, (bytes, bytearray)):
+        return bytes(path).startswith(ARCHIVE_MAGIC)
+    data = Path(path).read_bytes()[:len(ARCHIVE_MAGIC) + 1]
+    return data.startswith(ARCHIVE_MAGIC)
+
 
 EXPORT_DIR = PARC_ROOT / "exports"
 
@@ -120,15 +168,32 @@ def _collect_hub_secrets(work_dir: Path) -> list[Path]:
     return collected
 
 
-def export_park(app_slug: Optional[str] = None) -> Path:
+def export_park(app_slug: Optional[str] = None, *, encrypt: bool = True,
+                passphrase: Optional[str] = None) -> Path:
     """
     Exporte tout le parc (ou une app spécifique) dans une archive tar.gz.
 
+    Par défaut (encrypt=True), produit une archive chiffrée park-<ts>.tar.gz.enc.
+    Avec encrypt=False, produit une archive legacy park-<ts>.tar.gz (secrets en clair).
+
     Retourne le chemin de l'archive créée.
     """
+    # Résolution de la passphrase si chiffrement demandé
+    if encrypt:
+        if passphrase is None:
+            import sys
+            if sys.stdin.isatty():
+                passphrase = getpass.getpass("🔐 Passphrase d'archive : ")
+                confirm = getpass.getpass("🔐 Confirmer : ")
+                if passphrase != confirm:
+                    print("❌ Les passphrases ne correspondent pas.")
+                    raise SystemExit(1)
+            else:
+                print("❌ Aucune passphrase fournie (stdin non-TTY). "
+                      "Utilisez --passphrase-stdin ou un TTY interactif.")
+                raise SystemExit(1)
+
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    archive_name = f"park-{timestamp}.tar.gz"
-    archive_path = EXPORT_DIR / archive_name
     EXPORT_DIR.mkdir(exist_ok=True)
 
     with tempfile.TemporaryDirectory(prefix="park-export-") as tmp:
@@ -199,9 +264,27 @@ def export_park(app_slug: Optional[str] = None) -> Path:
         (work / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
         # ── Archive ──
-        print(f"\n📦 Création de l'archive {archive_name}...")
-        with tarfile.open(archive_path, "w:gz") as tar:
+        # Construire le tar.gz en mémoire (sera chiffré ou écrit tel quel)
+        import io
+        buf = io.BytesIO()
+        with tarfile.open(fileobj=buf, mode="w:gz") as tar:
             tar.add(work, arcname="")
+        tar_bytes = buf.getvalue()
+
+        if encrypt:
+            print(f"\n📦 Chiffrement de l'archive (Fernet + scrypt)...")
+            blob = encrypt_archive(tar_bytes, passphrase)
+            archive_path = EXPORT_DIR / f"park-{timestamp}.tar.gz.enc"
+            archive_path.write_bytes(blob)
+            print(f"🔒 Archive chiffrée : {archive_path}")
+        else:
+            print(f"\n⚠️  Archive NON chiffrée (mode --no-encrypt) — secrets en clair.")
+            archive_path = EXPORT_DIR / f"park-{timestamp}.tar.gz"
+            archive_path.write_bytes(tar_bytes)
+            print(f"📦 Archive : {archive_path}")
+
+        # Restreindre les permissions (0600) même en mode non chiffré
+        os.chmod(archive_path, 0o600)
 
         size_mb = archive_path.stat().st_size / (1024 * 1024)
         print(f"✅ Export terminé : {archive_path} ({size_mb:.1f} Mo)")

@@ -4,6 +4,24 @@
 
 ---
 
+## [0.15.6] - 7 juillet 2026
+
+### 🔒 Chiffrement des archives park-export (Lot 4, H2)
+
+- **park-export** : les archives `park-*.tar.gz` contenaient en clair tous les
+  secrets du parc (clés JWT privées, mots de passe DB, `.env` complets, dumps
+  DB). Désormais chiffrées par défaut (`park-*.tar.gz.enc`, Fernet + scrypt,
+  passphrase requise). Format `PARKEV1 + salt + ciphertext`, réutilise la KDF
+  du coffre (`coffre.derive_key`). `--no-encrypt` pour l'ancien comportement
+  (compatibilité scripts CI). Permissions 0600 systématiques. Passphrase vide
+  rejetée (`--passphrase-stdin` sur stdin vide → erreur).
+- **park-restore** : détecte automatiquement le format (magic `PARKEV1`) et
+  déchiffre ; accepte toujours les archives `.tar.gz` legacy non chiffrées
+  (rétrocompatibilité — archives existantes des lots précédents). Mauvaise
+  passphrase → échec propre (`WrongPassphraseError`). `--passphrase-stdin`
+  pour CI/DR. Garde-fous Lot 1 intacts (`_check_hub_is_empty`, `_restore_tree`,
+  `filter="data"`).
+
 ## [0.15.5] - 7 juillet 2026
 
 ### 🔒 Sécurité auth Hub — injection install.sh + spoofing IP (Lot 3)
