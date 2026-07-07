@@ -4,6 +4,24 @@
 
 ---
 
+## [0.16.0] - 7 juillet 2026
+
+### ✨ Sous-commandes CLI + auto-détection mode DEV/PROD
+
+- **Nouvelles commandes CLI quotidiennes** : `./hubctl status` (vue d'ensemble),
+  `./hubctl work <slug>` (atelier + clone DB + start), `./hubctl ship <slug>`
+  (retour en prod), `./hubctl update hub|<slug>` (mise à jour avec rollback),
+  `./hubctl start/stop hub|<slug>` (démarrage/arrêt). Toutes non-interactives,
+  pour développeur averti.
+- **Auto-détection du mode** : `APP_Workshop/` contient des apps → DEV, sinon
+  → PROD. Plus de question systématique au démarrage. `--dev`/`--prod` ou
+  `HUBCTL_MODE` pour forcer le mode.
+- **TUI allégé** : `_choose_mode` supprimé, toggle mode sans confirmation.
+- **action_start_stop étendu** : ajout du paramètre `target` pour gérer aussi
+  les apps (via `app_make`), et non plus uniquement le Hub.
+- **Tests** : 11 nouveaux tests (auto_detect_mode, action_status, action_work/ship,
+  start_stop app, parseur sous-commandes). Suite : 208 passés.
+
 ## [0.15.9] - 7 juillet 2026
 
 ### 🔧 Quick wins MEDIUM (TZ=UTC, env atomic, recovery 0700, wireguard auto-off)
