@@ -4,6 +4,18 @@
 
 ---
 
+## [0.15.9] - 7 juillet 2026
+
+### 🔧 Quick wins MEDIUM (TZ=UTC, env atomic, recovery 0700, wireguard auto-off)
+
+- **HUB_base (docker-compose)** : `TZ: UTC` ajouté au conteneur Postgres (convention
+  obligatoire du parc). Wireguard ne démarre plus par défaut — profil `wireguard`
+  requis (`docker compose --profile wireguard up`). HUB_base v3.9.7.
+- **hubctl (env_manager)** : écriture atomique corrigée — `os.replace` était hors
+  du bloc `try` → sur ENOSPC le `.env` était remplacé par un fichier tronqué.
+- **hubctl (vault_manager)** : l'export recovery écrivait les secrets en clair en
+  0644 (world-readable). Passage en 0700 + umask 077.
+
 ## [0.15.8] - 7 juillet 2026
 
 ### 🛠 hubctl update — flux séquentiel + rollback (Lot 2, C3+H3+H5+H6)
