@@ -4,6 +4,15 @@
 
 ---
 
+## [0.16.1] - 7 juillet 2026
+
+### 🔒 action_ship : confirmation obligatoire avant remplacement DB prod
+
+- **`./hubctl ship <slug>`** remplaçait silencieusement la DB de production
+  par celle de l'atelier. Ajout d'un prompt de confirmation : l'utilisateur
+  doit retaper le slug pour valider. Pas de `--yes` ou `--force`. Pour
+  déployer le code sans toucher la DB, utiliser `./hubctl update <slug>`.
+
 ## [0.16.0] - 7 juillet 2026
 
 ### ✨ Sous-commandes CLI + auto-détection mode DEV/PROD
