@@ -4,6 +4,20 @@
 
 ---
 
+## [0.15.3] - 7 juillet 2026
+
+### ⚡ Sécurité park-restore — protection contre la perte de données (Lot 1)
+
+- **park-restore** : la garde « Hub vierge » (`_check_hub_is_empty`) était un no-op
+  — `--format {{.Status}}` ne contient jamais le nom du conteneur, donc la condition
+  retournait toujours `True`, autorisant le restore sur un Hub en production.
+- **park-restore** : `_restore_tree` n'avait pas de vérification de confinement
+  (`is_relative_to`), permettant une traversée de répertoire via un membre `../`.
+- **park-restore** : `tar.extractall` sans `filter="data"` vulnérable au tar-slip
+  (CVE-2007-4559). Ajout de `filter="data"` (Python 3.12+).
+- **Tests** : 10 nouveaux tests couvrant les 5 scénarios de `_check_hub_is_empty`,
+  la traversée de répertoire, et le tar-slip via `restore_park()`.
+
 ## [0.15.2] - 6 juillet 2026
 
 ### 🔒 Sous-module HUB_base (v3.9.1 → v3.9.2) — durcissement sécurité P1 + P3
