@@ -4,6 +4,18 @@
 
 ---
 
+## [0.15.7] - 7 juillet 2026
+
+### 🔒 Quick wins sécurité (Lot 2bis, H9 + H10)
+
+- **HUB_base (regenerate-secret)** : l'endpoint `/me/regenerate-secret` acceptait
+  l'authentification par IP Docker + header `X-Slug` sans token M2M.
+  N'importe quel conteneur docker pouvait voler/révoquer le secret M2M d'une
+  autre app. Token M2M désormais obligatoire (H9, HUB_base v3.9.5).
+- **hubctl (_ensure_jwt_keys)** : persistait `AUTO_GENERATE_KEYS=true` dans
+  le `.env` de production quand les clés JWT étaient absentes, dégradant
+  silencieusement la sécurité. Avertit désormais sans modifier le `.env` (H10).
+
 ## [0.15.6] - 7 juillet 2026
 
 ### 🔒 Chiffrement des archives park-export (Lot 4, H2)
