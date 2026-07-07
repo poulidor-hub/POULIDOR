@@ -181,6 +181,35 @@ def _rollback(target: str, target_path: Path, prev_commit: str | None,
         con.print("[green]✓ Rollback terminé[/green]")
 
 
+def action_status(console=None) -> None:
+    """Affiche une vue d'ensemble texte du parc (Hub + apps + mode)."""
+    con = console or _console
+    mode = hub_state.get_mode()
+    mode_label = "DEV (APP_Workshop/)" if mode == "dev" else "PROD (APPS/)"
+
+    # Hub
+    services = hub_state.get_hub_services()
+    hub_version = hub_state.get_hub_version()
+    api_running = any(s.state == "running" and "api" in s.name.lower() for s in services)
+    hub_icon = "🟢" if api_running else "🔴"
+    con.print(f"[bold]Hub[/bold]      : {hub_icon} {'running' if api_running else 'stopped'}"
+              f"  v{hub_version}")
+    for s in services:
+        con.print(f"  {s.name:<20} {s.state} ({s.health})")
+
+    # Apps
+    apps = hub_state.get_apps_status()
+    if apps:
+        con.print(f"[bold]Apps[/bold]     :")
+        for app in apps:
+            icon = "🟢" if app.status == "running" else ("🟡" if app.status == "stopped" else "⚫")
+            con.print(f"  {app.name:<20} {icon} {app.status}")
+    else:
+        con.print(f"[bold]Apps[/bold]     : (aucune)")
+
+    con.print(f"[bold]Mode[/bold]     : {mode_label}")
+
+
 def action_update(console, target: str, *, dry_run: bool) -> None:
     """Met à jour le Hub ou une app : stop → git pull → build → up → health.
     Rollback automatique (git reset + DB restore) si le health check échoue.
@@ -424,16 +453,27 @@ def cleanup_orphan_tests(console=None) -> None:
         pass
 
 
-def action_start_stop(console, sub: str, *, dry_run: bool) -> None:
-    if sub in ("start", "restart"):
-        _ensure_jwt_keys(console, dry_run=dry_run)
+def action_start_stop(console, sub: str, target: str = "hub", *, dry_run: bool = False) -> None:
+    """Démarre/arrête/redémarre le Hub ou une app.
 
-    if sub == "start":
-        hub_make("up-prod", dry_run=dry_run, console=console)
-    elif sub in ("stop", "restart"):
-        hub_make("down", dry_run=dry_run, console=console)
-        if sub == "restart":
+    target="hub" (défaut) → hub_make. Sinon → app_make(target, ...).
+    """
+    if target == "hub":
+        if sub in ("start", "restart"):
+            _ensure_jwt_keys(console, dry_run=dry_run)
+        if sub == "start":
             hub_make("up-prod", dry_run=dry_run, console=console)
+        elif sub in ("stop", "restart"):
+            hub_make("down", dry_run=dry_run, console=console)
+            if sub == "restart":
+                hub_make("up-prod", dry_run=dry_run, console=console)
+    else:
+        if sub == "start":
+            app_make(target, "up", dry_run=dry_run, console=console)
+        elif sub in ("stop", "restart"):
+            app_make(target, "down", dry_run=dry_run, console=console)
+            if sub == "restart":
+                app_make(target, "up", dry_run=dry_run, console=console)
 
 
 def action_workshop_move(console, direction: str, app_name: str, *, dry_run: bool) -> None:
@@ -615,3 +655,23 @@ def action_workshop_move(console, direction: str, app_name: str, *, dry_run: boo
         con.print(f"[green]✓ Source déplacée dans la corbeille : _trash/{source_slug}-{stamp}[/green]")
 
     con.print(f"[green]✓ Workshop move « {source_slug} » → « {dest_slug} » terminé ![/green]")
+
+
+def action_work(console, slug: str, *, dry_run: bool = False) -> None:
+    """Met une app en atelier (APPS → APP_Workshop) avec clone DB, puis démarre.
+    Wrapper CLI autour de action_workshop_move(direction='to_workshop').
+    """
+    con = console or _console
+    con.print(f"[bold]→ Mise en atelier de « {slug} »[/bold]")
+    action_workshop_move(con, "to_workshop", slug, dry_run=dry_run)
+    con.print(f"[green]✅ {slug} prête en atelier (APP_Workshop/{slug}-ws)[/green]")
+
+
+def action_ship(console, slug: str, *, dry_run: bool = False) -> None:
+    """Ramène une app de l'atelier vers la production.
+    Wrapper CLI autour de action_workshop_move(direction='to_production').
+    """
+    con = console or _console
+    con.print(f"[bold]→ Retour en production de « {slug} »[/bold]")
+    action_workshop_move(con, "to_production", slug, dry_run=dry_run)
+    con.print(f"[green]✅ {slug} remise en production (APPS/{slug})[/green]")

@@ -612,3 +612,78 @@ def test_health_check_reads_app_port(tmp_path, monkeypatch):
     assert "9999" in test_health_check_reads_app_port.curl_url, (
         f"health_check doit utiliser API_PORT=9999, URL vue: {test_health_check_reads_app_port.curl_url}"
     )
+
+
+def test_action_status_prints_hub_and_apps(monkeypatch):
+    """action_status doit afficher le statut du Hub et des apps."""
+    from io import StringIO
+    from rich.console import Console
+    output = StringIO()
+    console = Console(file=output, width=120, force_terminal=False)
+
+    # Mock hub services
+    fake_service = mock.Mock()
+    fake_service.name = "hub-api"
+    fake_service.state = "running"
+    fake_service.health = "healthy"
+    monkeypatch.setattr(actions.hub_state, "get_hub_services", lambda: [fake_service])
+
+    # Mock apps status
+    fake_app = mock.Mock()
+    fake_app.name = "exemple-apps"
+    fake_app.status = "running"
+    fake_app.uptime = "2h"
+    fake_app.legacy = False
+    monkeypatch.setattr(actions.hub_state, "get_apps_status", lambda: [fake_app])
+
+    monkeypatch.setattr(actions.hub_state, "get_hub_version", lambda: "3.9.7")
+    monkeypatch.setattr(actions.hub_state, "get_mode", lambda: "dev")
+
+    actions.action_status(console)
+
+    text = output.getvalue()
+    assert "hub-api" in text
+    assert "exemple-apps" in text
+    assert "DEV" in text
+    assert "3.9.7" in text
+
+
+def test_action_work_calls_workshop_move_to_workshop(monkeypatch):
+    """action_work doit appeler action_workshop_move avec direction='to_workshop'."""
+    calls = []
+    monkeypatch.setattr(actions, "action_workshop_move",
+                        lambda console, direction, app_name, *, dry_run=False:
+                        calls.append((direction, app_name)))
+    actions.action_work(None, "exemple-apps")
+    assert ("to_workshop", "exemple-apps") in calls
+
+
+def test_action_ship_calls_workshop_move_to_production(monkeypatch):
+    """action_ship doit appeler action_workshop_move avec direction='to_production'."""
+    calls = []
+    monkeypatch.setattr(actions, "action_workshop_move",
+                        lambda console, direction, app_name, *, dry_run=False:
+                        calls.append((direction, app_name)))
+    actions.action_ship(None, "exemple-apps")
+    assert ("to_production", "exemple-apps") in calls
+
+
+def test_action_start_stop_app_calls_app_make(monkeypatch):
+    """start/stop d'une app doit appeler app_make (pas hub_make)."""
+    calls = []
+    monkeypatch.setattr(actions, "app_make",
+                        lambda app_name, target, *, dry_run=False, console=None:
+                        calls.append((app_name, target)))
+    monkeypatch.setattr(actions, "_ensure_jwt_keys", lambda console, *, dry_run=False: None)
+    actions.action_start_stop(None, "start", target="exemple-apps")
+    assert ("exemple-apps", "up") in calls
+
+
+def test_action_start_stop_hub_default_unchanged(monkeypatch):
+    """Sans target, action_start_stop garde le comportement hub (compatibilité)."""
+    calls = []
+    monkeypatch.setattr(actions, "hub_make",
+                        lambda target, *, dry_run=False, console=None: calls.append(target))
+    monkeypatch.setattr(actions, "_ensure_jwt_keys", lambda console, *, dry_run=False: None)
+    actions.action_start_stop(None, "stop")
+    assert "down" in calls
