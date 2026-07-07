@@ -4,6 +4,19 @@
 
 ---
 
+## [Unreleased]
+
+### Fixed
+- **hubctl (cleanup_orphan_tests)** : ne fait plus `docker compose down -v`
+  sur tout projet `-test` — seuls les projets hubctl-owned (`hub-test`,
+  `{app}-test` pour les apps réelles) sont nettoyés. Les projets `-test`
+  étrangers (`load-test`, `integration-test`…) étaient détruits silencieusement
+  à chaque lancement du TUI (C2).
+- **HUB_base (scheduler backups)** : `periodic_backup_scheduler` comparait
+  `next_backup_at` (aware via TIMESTAMPTZ/asyncpg) avec `utcnow()` (naive)
+  → `TypeError` chaque minute → aucun backup planifié ne se déclenchait.
+  Normalisation via `_naive_utc` existant (C4).
+
 ## [0.15.3] - 7 juillet 2026
 
 ### ⚡ Sécurité park-restore — protection contre la perte de données (Lot 1)
