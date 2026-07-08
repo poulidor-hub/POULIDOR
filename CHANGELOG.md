@@ -4,6 +4,29 @@
 
 ---
 
+## [0.17.0] - 8 juillet 2026
+
+### 🧠 Compétences Hub & M2M pour Jellycode
+
+- **Skill `create-hub-app` (parc)** : workflow complet de création/scaffold d'une
+  app Hub — collecte → `create_app.sh` → `INITIALISE.py` (14 étapes) →
+  allocation ports → `make dev` → healthcheck → conventions backend
+  (`DateTime(timezone=True)`, `TIMESTAMPTZ`, `TZ=UTC`, etc.).
+- **Skill `hub-m2m-communication` (template)** : M2M inter-apps — discovery
+  (`discover_services`), appel (`call_discovered_service` avec `X-Slug` + retry
+  401 + fallback outbox), exposition d'endpoints SA (`require_service_account`),
+  flag `IS_SHARED`.
+- **Skill `hub-notifications` (template)** : notifications app→utilisateur —
+  `send_user_message` → `POST /api/messages/m2m/send`, SSE temps réel
+  (`EventSource` avec `?token=JWT`), composants `MessageBanner`/`MessageArchive`,
+  accusés de lecture, action URL relatives.
+- **Skill `hub-mcp-usage` (template)** : catalogue des ~85 outils MCP `hub_*`
+  (apps, users, messages, backups, discovery, audit, design-system, PKI, admin)
+  avec cas d'usage typiques.
+- **Charte Jellycode** (`.opencode/agent/jellycode.md`) : 4 skills ajoutés aux
+  listes parc (3→4) et app (9→12). **HUBapp_TEMPLATE_base** v2.4.4 → inclut
+  les 3 nouveaux skills template dans `.opencode/skills/`.
+
 ## [0.16.2] - 7 juillet 2026
 
 ### 🩺 Correction vue santé des apps (NaNh + faux « Degraded »)
