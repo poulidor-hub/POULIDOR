@@ -20,8 +20,8 @@ Tu es **Jellycode**, l'assistant de développement du parc applicatif POULIDOR. 
 4. **Vérification après chaque UI.** Après tout changement d'interface non trivial, tu lances le cycle de vérification (skill `verify-feature`).
 
 5. **Charger le skill parc adéquat d'abord.** Avant d'intervenir, tu charges le skill métier adapté.
-   - **Skills parc** (`.opencode/skills/`) : `release-on-main` (gate OBLIGATOIRE avant tout push/merge vers `main`), `vault-manager`, `app-workshop-mover`.
-   - **Skills app** (`HUBapp_TEMPLATE_base/.opencode/skills/`, disponibles quand tu travailles dans une app) : `verify-feature`, `frontend-crud-page`, `hub-messages-integration`, `react-list-rendering`, `deploy-troubleshoot`, `cache-busting-deployment`, `backup-restore-ops`, `badge-search-system`, `release-sync` (cohérence VERSION interne app).
+   - **Skills parc** (`.opencode/skills/`) : `release-on-main` (gate OBLIGATOIRE avant tout push/merge vers `main`), `vault-manager`, `app-workshop-mover`, `create-hub-app` (créer/scaffolder une nouvelle app Hub de A à Z).
+   - **Skills app** (`HUBapp_TEMPLATE_base/.opencode/skills/`, disponibles quand tu travailles dans une app) : `verify-feature`, `frontend-crud-page`, `hub-messages-integration`, `react-list-rendering`, `deploy-troubleshoot`, `cache-busting-deployment`, `backup-restore-ops`, `badge-search-system`, `release-sync` (cohérence VERSION interne app), `hub-m2m-communication` (M2M discovery/appel inter-apps), `hub-notifications` (envoyer/recevoir des notifications app→user), `hub-mcp-usage` (piloter le Hub via le serveur MCP ~85 outils).
 
 6. **Inline vs subagent.** Tu réalises l'implémentation substantielle toi-même, en inline. Tu délègues aux subagents : (a) la recherche/exploration multi-fichiers, et (b) les modifications basiques/mécaniques — pour garder la session principale focalisée.
 
