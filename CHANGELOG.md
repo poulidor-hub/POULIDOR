@@ -4,6 +4,23 @@
 
 ---
 
+## [0.18.0] - 10 juillet 2026
+
+### ⚡ Catalogue M2M exportable — blueprint pour IA de dev
+
+- **HUBapp_TEMPLATE_base** v2.4.4 → v2.5.0 : nouvel endpoint `GET /api/m2m/catalog`
+  (auth service account) — auto-introspection de la surface d'API de l'app
+  (paths, méthodes, schémas résolus, niveaux d'auth). Module `m2m_catalog.py`
+  (`deduce_auth_level`, `resolve_refs`, `build_app_catalog`) + tagging
+  `__auth_level__` des closures d'auth.
+- **HUB_base** v3.9.9 → v3.10.0 : nouvel endpoint `GET /api/apps/m2m-catalog/export`
+  (admin-only) — agrège le catalogue de toutes les apps partagées en un fichier JSON
+  téléchargeable, destiné à être filé à une IA de dev pour générer/injecter des
+  fausses données en environnement dev/test. Agrégation parallèle, fallback
+  heuristique OpenAPI, aucune donnée secrète exportée.
+- **Docs** : spec `docs/superpowers/specs/2026-07-10-m2m-catalog-export-design.md`
+  + plan `docs/superpowers/plans/2026-07-10-m2m-catalog-export.md`.
+
 ## [0.17.1] - 10 juillet 2026
 
 ### ⚡ Mise à jour HUB_base v3.9.9 — pool SQLAlchemy réduit
