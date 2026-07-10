@@ -4,6 +4,14 @@
 
 ---
 
+## [0.17.1] - 10 juillet 2026
+
+### ⚡ Mise à jour HUB_base v3.9.9 — pool SQLAlchemy réduit
+
+- **HUB_base** v3.9.8 → v3.9.9 : `database.py` — pool_size réduit de 10→5,
+  max_overflow de 20→10. Aligne le Hub sur le template `HUBapp_TEMPLATE_base`,
+  prévient le risque `too many clients` PostgreSQL.
+
 ## [0.17.0] - 8 juillet 2026
 
 ### 🧠 Compétences Hub & M2M pour Jellycode
