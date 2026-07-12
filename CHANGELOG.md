@@ -4,6 +4,17 @@
 
 ---
 
+## [0.18.2] - 12 juillet 2026
+
+### 🛠 guide-hub : resynchronisation de la version affichée
+
+- `docs/guide-hub/assets/guide.js` : constante `PARC_VERSION` passée de
+  `0.14.0` (obsolète) à la version courante du parc. Ajout d'un commentaire
+  pointant vers le fichier `VERSION` comme source de vérité, pour éviter la
+  re-désynchronisation lors des futures releases.
+- Impact : les footers des pages du guide (`data-parc-version`) affichent
+  désormais la bonne version.
+
 ## [0.18.1] - 12 juillet 2026
 
 ### ⚡ Guides hubctl & make exhaustifs (docs/guide-hub)
