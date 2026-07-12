@@ -4,6 +4,27 @@
 
 ---
 
+## [0.18.1] - 12 juillet 2026
+
+### ⚡ Guides hubctl & make exhaustifs (docs/guide-hub)
+
+- **hubctl.html** : flags complets (`--anim`, `--dev`, `--prod`) + variable
+  `HUBCTL_MODE` + comportement non-TTY ; nouvelle section « Sous-commandes CLI
+  non interactives » (`status`, `start`/`stop hub|<slug>`, `update` avec
+  rollback auto + health check, `work`/`ship`, `park-export`/`park-restore`,
+  agent `debug`) ; détail des sous-choix internes du menu TUI ; garde-fous
+  complétés (rollback automatique sur `update`, confirmation par retaper le
+  slug sur `ship`).
+- **make.html** : distinction des deux familles de Makefile ; nouvelle section
+  `HUB_base/Makefile` (hub central : `build`, `up-prod`, `up-dev`, `down`,
+  `logs`, `ps`) ; Makefile d'app restructuré et complété (SSL/env, cycle de
+  vie, logs, tests & santé, base de données, initialisation/index IA, design
+  system/outillage Hub) ; section « Hors make, pas sur hubctl » (scripts
+  racine, HUBCSS `npm run build`/`demo:dev`, sous le capot `allocate_ports.py`
+  / `INITIALISE.py`).
+- Constat (hors release) : `guide.js` porte `PARC_VERSION = "0.14.0"`
+  (obsolète vs 0.18.x) — non corrigé, hors périmètre.
+
 ## [0.18.0] - 10 juillet 2026
 
 ### ⚡ Catalogue M2M exportable — blueprint pour IA de dev
