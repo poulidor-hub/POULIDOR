@@ -57,6 +57,8 @@
     <tr><td><code>./hubctl stop &lt;slug&gt;</code></td><td>Arrête une app.</td></tr>
     <tr><td><code>./hubctl update hub</code></td><td>Met à jour le hub : stop → git pull → build → up → health check, avec <strong>rollback automatique</strong> (git reset + restauration DB) si la santé ne revient pas.</td></tr>
     <tr><td><code>./hubctl update &lt;slug&gt;</code></td><td>Idem pour une app (sans snapshot DB).</td></tr>
+    <tr><td><code>./hubctl deploy hub</code></td><td>Déploiement <strong>blue-green</strong> (zéro downtime) : instance verte sur ports+1 → health check → swap. <code>--validate</code> pour validation humaine avant swap.</td></tr>
+    <tr><td><code>./hubctl deploy &lt;slug&gt;</code></td><td>Idem pour une app.</td></tr>
     <tr><td><code>./hubctl work &lt;slug&gt;</code></td><td>Met une app en atelier : copie code + volume DB vers <code>APP_Workshop/&lt;slug&gt;-ws</code> et démarre.</td></tr>
     <tr><td><code>./hubctl ship &lt;slug&gt;</code></td><td>Ramène une app de l'atelier vers la prod. <strong>⚠ Remplace la DB de prod</strong> par celle de l'atelier (confirmation : retaper le slug).</td></tr>
   </table>
@@ -81,6 +83,15 @@
     <tr><td><code>./hubctl debug &lt;app&gt; --rw</code></td><td>Mode semi-auto (peut proposer/appliquer des correctifs).</td></tr>
     <tr><td><code>./hubctl debug &lt;app&gt; --model 2b</code></td><td>Force un modèle (<code>8b</code> par défaut, ou <code>2b</code> plus léger).</td></tr>
     <tr><td><code>./hubctl debug --off</code></td><td>Désactive l'agent.</td></tr>
+  </table>
+
+  <h3>Dev (cibles granulaires)</h3>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>./hubctl logs &lt;cible&gt; [--api|--db|--frontend]</code></td><td>Logs de la cible (filtrés par service si flag).</td></tr>
+    <tr><td><code>./hubctl restart &lt;cible&gt; [api|frontend]</code></td><td>Redémarrer un service précis (défaut : tous).</td></tr>
+    <tr><td><code>./hubctl health &lt;cible&gt; [--detailed]</code></td><td><code>GET /api/health</code> (+ détaillé). Exit 0 si sain.</td></tr>
+    <tr><td><code>./hubctl db-shell &lt;app&gt;</code></td><td>Shell PostgreSQL interactif d'une app.</td></tr>
   </table>
 
   <h2>Se déplacer dans le menu</h2>
