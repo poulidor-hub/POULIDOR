@@ -22,15 +22,66 @@
   lancé dans le terminal du serveur.</p>
 
   <h2>Lancer l'outil</h2>
-  <div class="code"><pre>./hubctl              # menu interactif (avec intro animée)
-./hubctl --no-anim    # sans l'intro animée
-./hubctl --dry-run    # affiche les commandes sans les exécuter
-./hubctl --init       # clone les dépôts manquants du parc</pre></div>
+  <div class="code"><pre>./hubctl                 # menu interactif (avec intro animée)
+./hubctl --no-anim        # sans l'intro animée
+./hubctl --anim random    # choisit une animation d'intro au hasard
+./hubctl --dry-run        # affiche les commandes sans les exécuter
+./hubctl --init           # clone les dépôts manquants du parc
+./hubctl --dev            # force le mode DÉVELOPPEMENT (APP_Workshop/)
+./hubctl --prod           # force le mode PRODUCTION (APPS/)</pre></div>
   <div class="info">
     <strong>Astuce</strong>
     <code>--dry-run</code> est idéal pour découvrir sans risque : rien n'est
     réellement exécuté.
   </div>
+  <div class="info">
+    <strong>Sans terminal interactif</strong> (pipe, cron, SSH non interactif),
+    <code>hubctl</code> affiche simplement l'état du hub puis quitte — le menu
+    requiert un vrai terminal (TTY). On peut aussi forcer le mode via la
+    variable d'environnement <code>HUBCTL_MODE=dev</code> ou
+    <code>HUBCTL_MODE=prod</code>.
+  </div>
+
+  <h2>Sous-commandes CLI (non interactives)</h2>
+  <p>Piloter le parc depuis un script ou sans entrer dans le menu. Toutes ces
+  commandes sont non interactives (sauf <code>ship</code>) et peuvent être
+  automatisées.</p>
+
+  <h3>Pilotage quotidien</h3>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>./hubctl status</code></td><td>Vue d'ensemble texte du parc (Hub + apps + mode courant).</td></tr>
+    <tr><td><code>./hubctl start hub</code></td><td>Démarre le hub central.</td></tr>
+    <tr><td><code>./hubctl start &lt;slug&gt;</code></td><td>Démarre une app.</td></tr>
+    <tr><td><code>./hubctl stop hub</code></td><td>Arrête le hub central.</td></tr>
+    <tr><td><code>./hubctl stop &lt;slug&gt;</code></td><td>Arrête une app.</td></tr>
+    <tr><td><code>./hubctl update hub</code></td><td>Met à jour le hub : stop → git pull → build → up → health check, avec <strong>rollback automatique</strong> (git reset + restauration DB) si la santé ne revient pas.</td></tr>
+    <tr><td><code>./hubctl update &lt;slug&gt;</code></td><td>Idem pour une app (sans snapshot DB).</td></tr>
+    <tr><td><code>./hubctl work &lt;slug&gt;</code></td><td>Met une app en atelier : copie code + volume DB vers <code>APP_Workshop/&lt;slug&gt;-ws</code> et démarre.</td></tr>
+    <tr><td><code>./hubctl ship &lt;slug&gt;</code></td><td>Ramène une app de l'atelier vers la prod. <strong>⚠ Remplace la DB de prod</strong> par celle de l'atelier (confirmation : retaper le slug).</td></tr>
+  </table>
+
+  <h3>Sauvegarde / restauration du parc</h3>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>./hubctl park-export</code></td><td>Archive tout le parc (Hub + apps) dans un <code>tar.gz</code> chiffré par passphrase.</td></tr>
+    <tr><td><code>./hubctl park-export --app &lt;slug&gt;</code></td><td>Archive une seule app.</td></tr>
+    <tr><td><code>./hubctl park-export --no-encrypt</code></td><td>Archive <strong>non chiffrée</strong> (legacy, secrets en clair).</td></tr>
+    <tr><td><code>./hubctl park-export --passphrase-stdin</code></td><td>Lit la passphrase sur stdin (CI / reprise après sinistre).</td></tr>
+    <tr><td><code>./hubctl park-restore &lt;archive&gt;</code></td><td>Restaure le parc depuis une archive — <strong>uniquement sur un Hub vierge</strong>.</td></tr>
+    <tr><td><code>./hubctl park-restore &lt;archive&gt; --passphrase-stdin</code></td><td>Restauration automatisée (passphrase via stdin).</td></tr>
+  </table>
+
+  <h3>Agent de debug Granite / Ollama</h3>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>./hubctl debug --setup</code></td><td>Installe Ollama et le modèle Granite.</td></tr>
+    <tr><td><code>./hubctl debug --status</code></td><td>Vérifie la disponibilité de l'agent.</td></tr>
+    <tr><td><code>./hubctl debug &lt;app&gt;</code></td><td>Lance le diagnostic IA en lecture seule sur une app.</td></tr>
+    <tr><td><code>./hubctl debug &lt;app&gt; --rw</code></td><td>Mode semi-auto (peut proposer/appliquer des correctifs).</td></tr>
+    <tr><td><code>./hubctl debug &lt;app&gt; --model 2b</code></td><td>Force un modèle (<code>8b</code> par défaut, ou <code>2b</code> plus léger).</td></tr>
+    <tr><td><code>./hubctl debug --off</code></td><td>Désactive l'agent.</td></tr>
+  </table>
 
   <h2>Se déplacer dans le menu</h2>
   <table>
@@ -53,6 +104,18 @@
   </table>
   <p><small>* <strong>Workshop</strong> n'apparaît qu'en mode DÉVELOPPEMENT.</small></p>
 
+  <h3>Détail des sous-choix internes</h3>
+  <table>
+    <tr><th>Entrée</th><th>Sous-choix / détail</th></tr>
+    <tr><td>Apps › Update app</td><td>Choix de l'app puis mise à jour (stop → pull → build → up → health, rollback auto).</td></tr>
+    <tr><td>Apps › Ajouter une app</td><td><em>Cloner depuis une URL git</em> ou <em>Rattacher une app existante</em> (déjà présente sur disque).</td></tr>
+    <tr><td>Apps › Supprimer une app</td><td>Sync coffre + backup <code>tar.gz</code> + arrêt + corbeille.</td></tr>
+    <tr><td>Hub › Start/Stop HUB</td><td>Au choix : <code>start</code>, <code>stop</code> ou <code>restart</code>.</td></tr>
+    <tr><td>Configuration › Coffre</td><td><em>Sauvegarder maintenant</em>, <em>Récupérer (export)</em>, <em>Changer la passphrase</em>, ou révéler une entrée.</td></tr>
+    <tr><td>Configuration › Workshop</td><td>Déplacer une app entre <code>APPS/</code> et <code>APP_Workshop/</code>. <strong>Mode DEV seulement.</strong></td></tr>
+    <tr><td>Scénarios</td><td>4 séquences enregistrées : Quick diag · Full update · App rescue · Health check.</td></tr>
+  </table>
+
   <h2>Les garde-fous</h2>
   <div class="attention">
     <strong>hubctl vous protège</strong>
@@ -60,6 +123,8 @@
       <li>Chaque action destructrice demande une confirmation <strong>Oui/Non</strong>.</li>
       <li>Une app supprimée part en corbeille (<code>hubctl_cli/_trash/</code>), jamais un <code>rm -rf</code>.</li>
       <li>Une archive <code>tar.gz</code> est créée avant toute suppression.</li>
+      <li><code>update</code> capture le commit git courant + un snapshot DB (pour le hub) et <strong>rollback automatique</strong> (git reset + restauration DB) si le health check échoue.</li>
+      <li><code>ship &lt;slug&gt;</code> demande de retaper le slug pour confirmer le remplacement de la DB de production.</li>
       <li>Garde disque : avertissement sous <strong>15 %</strong> d'espace libre, refus sous <strong>5 %</strong>.</li>
     </ul>
   </div>
