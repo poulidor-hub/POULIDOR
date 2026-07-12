@@ -17,36 +17,98 @@
 </nav>
 <main class="wrap">
   <div class="breadcrumb"><a href="index.html">Accueil</a> › make</div>
-  <h1>Commandes <code>make</code> par application</h1>
-  <p>Chaque app dans <code>APPS/</code> et <code>APP_Workshop/</code> possède un
-  <code>Makefile</code> standard. Ces commandes se lancent depuis le dossier de
-  l'app.</p>
+  <h1>Commandes <code>make</code> du parc</h1>
+  <p>Le parc possède <strong>deux</strong> familles de <code>Makefile</code> :</p>
+  <ul>
+    <li><code>HUB_base/Makefile</code> — pour le <strong>hub central</strong> (api, db…).</li>
+    <li>le <code>Makefile</code> d'<strong>app</strong> (hérité du template <code>HUBapp_TEMPLATE_base</code>), présent dans chaque <code>APPS/&lt;nom&gt;</code> et <code>APP_Workshop/&lt;nom&gt;</code>.</li>
+  </ul>
+  <p>Les commandes se lancent depuis le dossier concerné, ou via
+  <code>make -C &lt;dossier&gt; &lt;cible&gt;</code>.</p>
 
-  <h2>Cycle de vie</h2>
+  <h2><code>HUB_base/Makefile</code> — hub central</h2>
+  <p>À lancer depuis <code>HUB_base/</code> (ou <code>make -C HUB_base &lt;cible&gt;</code>).</p>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
-    <tr><td><code>make sync-env</code></td><td>Alloue les ports via le Hub et synchronise le <code>.env</code> (après toute modif de <code>.env</code> ou <code>VERSION</code>).</td></tr>
-    <tr><td><code>make dev</code></td><td>Mode développement : reconstruit et affiche les logs en direct.</td></tr>
-    <tr><td><code>make up</code></td><td>Démarre en arrière-plan (sans reconstruire).</td></tr>
-    <tr><td><code>make down</code></td><td>Arrête tous les services.</td></tr>
-    <tr><td><code>make restart-api</code></td><td>Redémarre uniquement l'API.</td></tr>
-    <tr><td><code>make restart-frontend</code></td><td>Redémarre uniquement le frontend.</td></tr>
+    <tr><td><code>make build</code></td><td>Construit les images Docker du hub.</td></tr>
+    <tr><td><code>make up-prod</code></td><td>Démarre le hub en mode production (arrière-plan).</td></tr>
+    <tr><td><code>make up-dev</code></td><td>Démarre le hub en mode développement (avant-plan, via <code>docker-compose.dev.yml</code>).</td></tr>
+    <tr><td><code>make down</code></td><td>Arrête les services du hub.</td></tr>
+    <tr><td><code>make logs</code></td><td>Suit les logs (dernières 100 lignes).</td></tr>
+    <tr><td><code>make ps</code></td><td>Liste les conteneurs et leur état.</td></tr>
   </table>
 
-  <h2>Tests et santé</h2>
+  <h2>Le <code>Makefile</code> d'app</h2>
+  <p>Valable pour chaque app dans <code>APPS/</code> et <code>APP_Workshop/</code>,
+  hérité de <code>HUBapp_TEMPLATE_base/Makefile</code>. À lancer depuis le
+  dossier de l'app.</p>
+
+  <h3>SSL &amp; environnement</h3>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
-    <tr><td><code>make test</code></td><td>Tests sur l'hôte (SQLite, rapide).</td></tr>
-    <tr><td><code>make test-docker</code></td><td>Tests dans le conteneur (miroir de la production).</td></tr>
-    <tr><td><code>make test-cov</code></td><td>Tests avec couverture.</td></tr>
+    <tr><td><code>make sync-env</code></td><td>Alloue les ports via le Hub (<code>allocate_ports.py</code>) et synchronise <code>FRONTEND_HTTPS_PORT</code> + <code>APP_VERSION</code> dans le <code>.env</code>. À lancer après toute modif du <code>.env</code> ou de <code>VERSION</code>.</td></tr>
+    <tr><td><code>make ssl</code></td><td>Génère les certificats SSL locaux (<code>scripts/generate-ssl.sh</code>).</td></tr>
+  </table>
+
+  <h3>Cycle de vie</h3>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>make dev</code></td><td>Mode développement : <code>sync-env</code> + rebuild + logs en direct (avant-plan).</td></tr>
+    <tr><td><code>make up-dev</code></td><td>Mode développement en arrière-plan.</td></tr>
+    <tr><td><code>make up</code></td><td>Démarre en production (arrière-plan, avec HTTPS si activé).</td></tr>
+    <tr><td><code>make down</code></td><td>Arrête tous les services (prod ou dev).</td></tr>
+    <tr><td><code>make down-dev</code></td><td>Arrête les services lancés en mode dev.</td></tr>
+    <tr><td><code>make restart</code></td><td>Redémarre tous les services.</td></tr>
+    <tr><td><code>make restart-api</code></td><td>Redémarre uniquement l'API.</td></tr>
+    <tr><td><code>make restart-frontend</code></td><td>Redémarre uniquement le frontend.</td></tr>
+    <tr><td><code>make build</code></td><td>Construit les images Docker (<code>sync-env</code> inclus).</td></tr>
+  </table>
+
+  <h3>Logs</h3>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>make logs</code></td><td>Logs de tous les services.</td></tr>
+    <tr><td><code>make logs-api</code></td><td>Logs de l'API uniquement.</td></tr>
+    <tr><td><code>make logs-db</code></td><td>Logs de PostgreSQL.</td></tr>
+  </table>
+
+  <h2>Tests &amp; santé</h2>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>make test</code></td><td>Tests <code>pytest</code> sur l'hôte (SQLite en mémoire, rapide).</td></tr>
+    <tr><td><code>make test-cov</code></td><td>Tests avec couverture HTML sur l'hôte.</td></tr>
+    <tr><td><code>make test-docker</code></td><td>Tests dans le conteneur <code>api</code> (miroir de la prod).</td></tr>
+    <tr><td><code>make test-docker-cov</code></td><td>Tests + couverture dans le conteneur <code>api</code>.</td></tr>
     <tr><td><code>make health</code></td><td><code>GET /api/health</code>.</td></tr>
     <tr><td><code>make health-detailed</code></td><td><code>GET /api/health/detailed</code>.</td></tr>
+    <tr><td><code>make version</code></td><td>Affiche le contenu de <code>VERSION</code>.</td></tr>
+  </table>
+
+  <h2>Base de données</h2>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>make db-shell</code></td><td>Ouvre un shell PostgreSQL (<code>psql</code>) dans le conteneur <code>postgres</code>.</td></tr>
   </table>
 
   <h2>Versions</h2>
   <div class="code"><pre>make bump-patch    # x.y.Z  (correctif)
 make bump-minor    # x.Y.0  (nouvelle fonctionnalité)
 make bump-major    # X.0.0  (changement majeur)</pre></div>
+
+  <h2>Initialisation &amp; index IA</h2>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>make init</code></td><td>Initialise une nouvelle app depuis le template (déprécié : préférer <code>ACTIONS/PYTHON/INITIALISE.py</code>).</td></tr>
+    <tr><td><code>make ai-index</code></td><td>Régénère <code>AI_INDEX.md</code> (carte des symboles pour les assistants IA).</td></tr>
+  </table>
+
+  <h2>Design system &amp; outillage Hub</h2>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>make refresh-design-seed</code></td><td>Régénère le seed HUBCSS local (<code>frontend/public/design-system/current</code>) depuis <code>../HUBCSS/dist</code>. À lancer après <code>npm run build</code> dans HUBCSS.</td></tr>
+    <tr><td><code>make sync-hub-tooling</code></td><td>Resynchronise la copie locale de <code>hub_mcp/</code> + plugin opencode depuis <code>../hub-mcp</code> et <code>..</code>.</td></tr>
+    <tr><td><code>make sync-hub-tooling-check</code></td><td>Vérifie (CI) que la copie locale <code>hub_mcp</code> + plugin est synchro avec les sources.</td></tr>
+  </table>
 
   <h2>Nettoyage</h2>
   <div class="danger">
@@ -57,6 +119,24 @@ make bump-major    # X.0.0  (changement majeur)</pre></div>
     </ul>
     Ne les utilisez que si vous avez une sauvegarde ou si l'app n'a pas de
     données importantes.
+  </div>
+
+  <h2>Hors <code>make</code>, pas sur <code>hubctl</code></h2>
+  <p>Quelques scripts du parc ne sont exposés ni par <code>hubctl</code> ni par un
+  <code>Makefile</code> :</p>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>bash scripts/create_app.sh &lt;nom&gt;</code></td><td>Scaffolde une nouvelle app en copiant <code>HUBapp_TEMPLATE_base</code> dans <code>APPS/&lt;nom&gt;</code>.</td></tr>
+    <tr><td><code>bash scripts/test_flux_complet.sh</code></td><td>Test d'intégration Hub + app en isolation totale (Hub de test sur ports +18000, ressources préfixées <code>pouly-test</code>).</td></tr>
+    <tr><td><code>cd HUBCSS &amp;&amp; npm run build</code></td><td>Reconstruit le design system (<code>dist/</code>). Source de <code>make refresh-design-seed</code> côté app.</td></tr>
+    <tr><td><code>cd HUBCSS &amp;&amp; npm run demo:dev</code></td><td>Démarre le playground de démo du design system.</td></tr>
+  </table>
+  <div class="info">
+    <strong>Sous le capot des <code>make</code></strong>
+    <code>make sync-env</code> appelle <code>ACTIONS/PYTHON/allocate_ports.py</code>
+    (réservation de ports auprès du Hub) et <code>make init</code> appelle
+    <code>ACTIONS/PYTHON/INITIALISE.py</code>. Vous n'avez normalement pas à les
+    lancer directement.
   </div>
 
   <details class="accordion">
