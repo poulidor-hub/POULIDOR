@@ -4,6 +4,22 @@
 
 ---
 
+## [0.19.1] - 13 juillet 2026
+
+### 🛠 Coffre — confirmation de la passphrase à la création
+
+- **`menu._require_vault`** : à la création du coffre, la passphrase est
+  désormais demandée **deux fois** (saisie + confirmation). Si les deux saisies
+  ne correspondent pas, l'utilisateur est invité à recommencer (message
+  « Les passphrases ne correspondent pas »). La passphrase vide reste rejetée.
+- **Pourquoi** : auparavant la création ne demandait la passphrase qu'une seule
+  fois — une typo silencieuse rendait le coffre définitivement inaccessible
+  (passphrase irrécupérable par design). C'est la cause racine d'un incident
+  réel (coffre recréé depuis le disque). La confirmation aligne la création sur
+  le pattern déjà utilisé par `change_passphrase` et `park-export`.
+- Tests : 2 nouveaux (`test_require_vault_create_confirms_and_rejects_mismatch`,
+  `test_require_vault_create_empty_then_valid`) + 1 existant adapté.
+
 ## [0.19.0] - 12 juillet 2026
 
 ### ⚡ hubctl « atout dev » + « sécurité prod » — vague quick wins
