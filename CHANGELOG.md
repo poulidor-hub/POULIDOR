@@ -4,6 +4,55 @@
 
 ---
 
+## [0.19.0] - 12 juillet 2026
+
+### ⚡ hubctl « atout dev » + « sécurité prod » — vague quick wins
+
+Refonte ciblée pour faire de `hubctl` un outil adopté par les dev (et non une
+contrainte) tout en comblant les sécurités prod prévues non implémentées.
+
+**Cibles dev (4 sous-commandes CLI non-interactives)** — comblent la fracture
+`make` ↔ `hubctl` :
+- `./hubctl logs <cible> [--api|--db|--frontend]` — logs filtrables par service
+  (délègue à `docker compose logs`).
+- `./hubctl restart <cible> [api|frontend]` — redémarrage granulaire (défaut :
+  tous les services).
+- `./hubctl health <cible> [--detailed]` — `GET /api/health` (+ détaillé),
+  exit 0 si sain.
+- `./hubctl db-shell <app>` — shell `psql` interactif d'une app.
+
+**Blue-green `deploy` (prod safe, zéro downtime)** — la grosse sécurité prod
+qui manquait :
+- `./hubctl deploy <cible>` — instance verte sur ports+1 → health check → swap.
+  `--validate` pour validation humaine avant swap (œil dans le navigateur).
+  `--dry-run` pour simuler.
+- Helpers : `_find_free_ports`, `_port_in_use`, `_db_snapshot_app`,
+  `_read_prod_ports`, `_build_test_env`.
+- `update` **inchangé** (flow en place, rapide, pour le dev/atelier).
+
+**Sécurités annexes** — comblent des écarts spec↔code :
+- **Retypage du nom pour supprimer une app** (`widgets.confirm_by_typing`) —
+  la spec §9 prévoyait « retaper le nom exact », le code faisait juste
+  Oui/Non. Corrigé.
+- **Génération automatique des clés JWT** (`_ensure_jwt_keys`) — hubctl génère
+  `jwt_private_key.pem` / `jwt_public_key.pem` (`openssl genrsa`/`rsa -pubout`)
+  au lieu de juste avertir. Fini le « exécutez install.sh à la main ».
+
+**Fixes post-review (qualité prod)** :
+- `deploy` blue-green : propagation `env=test_env` au conteneur vert (C1),
+  health check sur le port test via `port_override` (C2), `_rollback` cible
+  la bonne DB selon hub/app via `db_container`/`db_name` (C3), pipe du
+  snapshot SQL via `input=snapshot.read_bytes()` (C4), `import sys` (C5).
+- `deploy --dry-run` : `_rollback` propage `dry_run` (C6 — sinon `git reset
+  --hard` + `make build` exécutés pour de vrai), health checks simulés en
+  dry_run (C7), snapshot skippé en dry_run (C8).
+
+**Outillage** : `utils.run_shell` accepte désormais un paramètre `env=` pour
+les overrides de variables d'environnement (blue-green).
+
+**Docs** : `docs/guide-hub/hubctl.html` (section « Dev (cibles granulaires) »
++ doc `deploy`) et `make.html` (note hubctl) mis à jour.
+
 ## [0.18.2] - 12 juillet 2026
 
 ### 🛠 guide-hub : resynchronisation de la version affichée
