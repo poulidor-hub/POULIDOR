@@ -1,29 +1,37 @@
 ---
 name: app-workshop-mover
-description: Utiliser pour déplacer une application entre APPS/ et APP_Workshop/ (les deux sens) afin de travailler dessus en mode dev ou de la ramener en production. Gère docker compose down avant copie, copie de volume avec docker run alpine cp, renommage du slug avec suffixe -ws, build-up avec vérification santé, et backup avant suppression de la source. Utiliser quand on demande "déplacer/copier une app vers le workshop", "ramener une app du workshop", "mettre une app en atelier", ou pour implémenter l'action workshop-move dans hubctl.
+description: Utiliser pour le cycle Workshop (mode DEV) — mettre une app en atelier (sandbox avec clone DB), déployer le code de l'atelier vers la prod via git pull (défaut, DB préservée), ou exceptionnellement écraser la DB prod (--copy-db, avancé CLI-only), et supprimer l'atelier. La prod n'est jamais supprimée pendant l'atelier (modèle sandbox + deploy). Utiliser quand on demande "mettre en atelier", "déployer l'atelier vers la prod", "shipper le code", "copier la BDD de l'atelier (--copy-db)", "supprimer l'atelier", ou pour implémenter ces actions dans hubctl.
 ---
 
 # app-workshop-mover
 
 ## Overview
 
-Déplacer une application entre `APPS/` (production) et `APP_Workshop/` (développement)
-en préservant les données réelles. L'opération suit un ordre strict : **down →
-copy files + volume → rename slug → build-up → verify health → backup → delete source**.
-Jamais l'inverse.
+Le Workshop (mode DEV uniquement) suit un modèle **« sandbox + deploy »** :
+l'app de production `APPS/X` reste **en place** (stopée, jamais supprimée) pendant
+qu'un atelier `APP_Workshop/X-ws` sandbox tourne à côté avec un clone de sa DB.
+
+- **`[→] Mettre en atelier`** : clone la prod (code + DB) vers `X-ws`, stoppe la prod.
+- **`[←] Déployer vers la prod`** (défaut) : `git pull` code-only sur la prod, **DB intacte**.
+- **`[←] --copy-db`** (avancé, CLI-only) : écrase la DB prod par celle de l'atelier (destructif).
+- **`[×] Supprimer l'atelier`** : détruit la sandbox (`down -v` + backup), redémarre la prod.
+
+**Règle d'or** : on ne touche JAMAIS à la DB de prod par défaut. La copie DB est
+l'exception explicite (`--copy-db`), jamais le cycle standard.
 
 ## When to Use
 
-- "Déplace l'app X dans le workshop"
-- "Ramène l'app X-ws en production"
-- "Mets exemple-app-2 en atelier pour travailler dessus"
-- Implémenter l'action Workshop dans `hubctl` (actions.py + menu.py)
+- "Mets exemple-app-2 en atelier pour travailler dessus" → `[→]`
+- "Déploie / shippe le code de l'atelier vers la prod" → `[←]` (git pull)
+- "Copie la BDD de l'atelier vers la prod" → `[←] --copy-db` (avancé)
+- "Supprime l'atelier X-ws" → `[×]`
+- Implémenter ces actions dans `hubctl` (`actions.py` + `menu.py`)
 
 **Ne PAS utiliser pour :**
-- Créer une nouvelle app depuis le template → `create_app.sh`
-- Cloner un dépôt distant → `action_add_app()` ou `action_init()`
-- Simplement redémarrer une app → `make restart`
-- Déployer une mise à jour → `action_update()` (blue-green)
+- Créer une nouvelle app → `create_app.sh` / skill `create-hub-app`
+- Déployer une MAJ code-only en prod (hors atelier) → `action_update()`
+- Déploiement blue-green zéro-downtime → `action_deploy()`
+- Redémarrer une app → `make restart`
 
 ## Prérequis (non négociables)
 
@@ -31,68 +39,88 @@ Jamais l'inverse.
 |-----------|-------------|
 | Mode dev actif | `test -f HUB_base/.dev-mode` (ou via hubctl) |
 | Docker running | `docker info > /dev/null 2>&1` |
-| App source existante | Le dossier source doit exister |
-| App destination absente | Le dossier destination ne doit PAS exister (pas d'écrasement) |
+| `[→]` : `APPS/X` existe, `APP_Workshop/X-ws` absent | Pas d'écrasement d'atelier existant |
+| `[←]` : `APPS/X` ET `APP_Workshop/X-ws` existent | La prod doit être en place pour un git pull |
 
 **Violer un prérequis = tout arrêter.** Ne jamais contourner.
 
-## Flux 1 : APPS → APP_Workshop (mise en atelier)
-
-Étapes dans l'ordre strict. Chaque étape doit réussir avant de passer à la suivante.
+## Action `[→]` : Mettre en atelier (`action_workshop_create`)
 
 ```
-1. CHECK     Vérifier .dev-mode et Docker. Si absent → proposer de l'activer (créer HUB_base/.dev-mode).
-2. DOWN      docker compose down dans APPS/X
-3. COPY      cp -r APPS/X → APP_Workshop/X-ws
-4. VOLUME    docker run --rm -v {x}-postgres-data:/from -v {x}-ws-postgres-data:/to alpine cp -a /from/. /to/
-5. RENAME    Modifier APP_SLUG=X → APP_SLUG=X-ws dans APP_Workshop/X-ws/.env
-6. BUILD-UP  cd APP_Workshop/X-ws && docker compose build && docker compose up -d
-7. HEALTH    curl -f http://localhost:{API_PORT}/api/health  (retry 5x, 2s interval)
-8. BACKUP    tar czf hubctl_cli/backups/X-$(date +%Y%m%d-%H%M%S).tar.gz -C APPS X
-9. DELETE    rm -rf APPS/X
+1. CHECK    .dev-mode + Docker ; refuser si X-ws existe déjà
+2. STOP     docker compose stop sur APPS/X   ← prod stoppée, dir + volume LAISSÉS EN PLACE
+3. COPY     APPS/X → APP_Workshop/X-ws        (shutil.copytree)
+4. VOLUME   X-postgres-data → X-ws-postgres-data  (clone DB, alpine cp)
+5. SLUG     APP_SLUG=X → X-ws dans l'.env atelier
+6. BUILD-UP atelier
+7. HEALTH   atelier (via _health_check, port_override=API_PORT atelier)
+             └ échec → down atelier + rmtree + RESTART prod (rollback)
 ```
 
-**Règle d'or** : si l'étape 6 ou 7 échoue, on fait `docker compose down` dans APP_Workshop et on rollback (ne pas supprimer la source).
+**Pas de backup, pas de suppression de source.** La prod est stoppée mais conservée.
 
-### Slug renaming (étape 5)
+## Action `[←]` Défaut : Déployer code-only (`action_prod_deploy`, `copy_db=False`)
 
-Modifier uniquement le `.env` de destination :
+```
+1. CHECK    .dev-mode + Docker ; APPS/X et APP_Workshop/X-ws doivent exister
+2. GIT-HYGIÈNE (warnings non bloquants sur le dépôt atelier) :
+   - changements non commités → ⚠
+   - commits non poussés → ⚠ "git pull ne ramènera rien"
+3. CAPTURE prev_commit = git -C APPS/X rev-parse HEAD   (pour rollback)
+4. PULL     git -C APPS/X pull --recurse-submodules
+5. BUILD    make -C APPS/X build
+6. UP       make -C APPS/X up
+7. HEALTH   _health_check(X)  └ échec → _rollback(snapshot=None) : git reset --hard + build + up
+```
+
+**La DB prod (volume `X-postgres-data`) n'est JAMAIS touchée.** Atelier conservé.
+
+## Action `[←] --copy-db` : Écraser la DB prod (avancé, CLI-only)
+
+⚠️ Destructif. **Jamais exposé dans le menu TUI** — uniquement `hubctl ship X --copy-db`.
+
+```
+1. CONFIRM   input() : doit taper le slug exact (gate forte)
+2. STOP       prod APPS/X
+3. BACKUP     volume X-postgres-data → alpine tar czf (filet de sécurité)
+              └ si rc != 0 : backup_path=None (rollback skippera la restore)
+4. OVERWRITE  docker volume rm X-postgres-data + create + alpine cp (X-ws → X)
+5. PULL       git -C APPS/X pull (migrations cohérentes avec la DB migrée)
+6. BUILD-UP   prod
+7. HEALTH     └ échec → alpine restore volume depuis backup (mount SYMÉTRIQUE /data, -C /)
+                 + git reset (rollback lourd)
+```
+
+**Symétrie backup/restore** : le backup monte `dst_vol:/data` et archive `/data`
+(entrées `data/...`) ; la restore monte `dst_vol:/data` et extrait `-C /` pour que
+`data/...` atterrisse **dans le volume**. Un montage `/to` casserait la restore.
+
+## Action `[×]` : Supprimer l'atelier (`action_workshop_remove`)
+
+```
+1. CONFIRM   widgets.confirm(default=False)
+2. DOWN-V    docker compose down -v sur APP_Workshop/X-ws   ← SEUL usage légitime de -v
+3. BACKUP    tar.gz X-ws → hubctl_cli/backups/
+4. TRASH     shutil.move X-ws → hubctl_cli/_trash/
+5. RESTART   prod APPS/X (make up) si elle existe ; sinon warning
+```
+
+C'est le **seul** endroit du cycle où `down -v` est permis (destruction explicite
+de la sandbox). Partout ailleurs, `down -v` est INTERDIT.
+
+## Slug renaming
+
+Le slug est dans le `.env` (`APP_SLUG`). Pour l'atelier, `X` → `X-ws` :
+
 ```bash
+# Via hubctl (recommandé) — env_manager.write_env gère l'upsert atomique
+# Manuel :
 sed -i 's/^APP_SLUG=.*/APP_SLUG=X-ws/' APP_Workshop/X-ws/.env
 ```
 
-Le slug impacte automatiquement les `container_name`, le nom du volume, et le network dans `docker-compose.yml` (qui référence `${APP_SLUG}`).
-
-### Copie de volume (étape 4)
-
-```bash
-# Créer le volume destination s'il n'existe pas
-docker volume create X-ws-postgres-data
-
-# Copier les données
-docker run --rm \
-  -v X-postgres-data:/from:ro \
-  -v X-ws-postgres-data:/to \
-  alpine cp -a /from/. /to/
-```
-
-**Ne JAMAIS utiliser `docker compose down -v`** — cela détruirait les volumes.
-
-## Flux 2 : APP_Workshop → APPS (retour en production)
-
-Même ordre, sens inverse.
-
-```
-1. CHECK     Vérifier .dev-mode et Docker. Si absent → proposer de l'activer.
-2. DOWN      docker compose down dans APP_Workshop/X-ws
-3. COPY      cp -r APP_Workshop/X-ws → APPS/X
-4. VOLUME    docker run --rm -v {x}-ws-postgres-data:/from -v {x}-postgres-data:/to alpine cp -a /from/. /to/
-5. RENAME    Modifier APP_SLUG=X-ws → APP_SLUG=X dans APPS/X/.env
-6. BUILD-UP  cd APPS/X && docker compose build && docker compose up -d
-7. HEALTH    curl -f http://localhost:{API_PORT}/api/health  (retry 5x, 2s interval)
-8. BACKUP    tar czf hubctl_cli/backups/X-ws-$(date +%Y%m%d-%H%M%S).tar.gz -C APP_Workshop X-ws
-9. DELETE    rm -rf APP_Workshop/X-ws
-```
+Le slug pilote `container_name`, le nom du volume (`{slug}-postgres-data`), et le
+network dans `docker-compose.yml` (qui référence `${APP_SLUG}`). Le `[←]` code-only
+ne change **pas** le slug de la prod (il reste `X`).
 
 ## Quick Reference
 
@@ -104,92 +132,113 @@ Même ordre, sens inverse.
 | Volume pattern | `{slug}-postgres-data` |
 | Marqueur dev-mode | `HUB_base/.dev-mode` |
 | Backup dir | `hubctl_cli/backups/` |
+| Corbeille | `hubctl_cli/_trash/` |
 | Health endpoint | `http://localhost:{API_PORT}/api/health` |
 
-### Commandes essentielles
+### Commandes hubctl
+
+```bash
+./hubctl work X              # [→] mettre X en atelier (clone DB)
+./hubctl ship X              # [←] déployer code-only vers la prod (git pull, DB préservée) — DÉFAUT
+./hubctl ship X --copy-db    # [←] avancé : écraser la DB prod (destructif, gate input)
+# [×] Supprimer l'atelier : via menu TUI (touch 6 en mode dev)
+# --dry-run global supporté sur work/ship
+```
+
+### Commandes Docker brutes (référence)
 
 ```bash
 # Check dev-mode
 test -f HUB_base/.dev-mode && echo "OK: dev mode" || echo "ERREUR: mode prod!"
 
-# Down propre (sans -v !)
-docker compose -f APPS/X/docker-compose.yml down
+# Stop prod sans détruire (préserve volume + container pour restart rapide)
+docker compose -f APPS/X/docker-compose.yml stop
 
-# Copier un volume Docker
-docker run --rm -v vol_src:/from:ro -v vol_dst:/to alpine cp -a /from/. /to/
+# Cloner un volume (APPS → atelier)
+docker volume create X-ws-postgres-data
+docker run --rm -v X-postgres-data:/from:ro -v X-ws-postgres-data:/to alpine cp -a /from/. /to/
 
-# Build + up
-docker compose -f APP_Workshop/X-ws/docker-compose.yml build
-docker compose -f APP_Workshop/X-ws/docker-compose.yml up -d
+# Backup volume en tar (pour --copy-db)
+docker run --rm -v X-postgres-data:/data:ro alpine tar czf - /data > backup.tar.gz
 
-# Health check avec retry
-for i in $(seq 1 5); do
-  curl -sf http://localhost:{PORT}/api/health && echo "OK" && break
-  sleep 2
-done
-
-# Backup tar.gz
-tar czf hubctl_cli/backups/X-$(date +%Y%m%d-%H%M%S).tar.gz -C APPS X
+# Restore volume depuis tar (SYMÉTRIQUE : mount /data, -C /)
+docker volume rm X-postgres-data && docker volume create X-postgres-data
+docker run --rm -i -v X-postgres-data:/data alpine tar xzf - -C / < backup.tar.gz
 ```
 
 ## Guide hubctl (implémentation)
 
-### Nouvelle action dans `actions.py`
+### Trois fonctions dans `actions.py`
 
 ```python
-def action_workshop_move(direction: str, app_name: str, dry_run: bool = False):
+def action_workshop_create(console, app_name: str, *, dry_run: bool = False) -> None:
+    """[→] APPS/X → APP_Workshop/X-ws (clone DB). Prod stoppée mais laissée en place."""
+
+def action_prod_deploy(console, slug: str, *, copy_db: bool = False, dry_run: bool = False) -> None:
+    """[←] Déployer l'atelier X-ws vers la prod APPS/X.
+    copy_db=False (défaut) : git pull code-only, DB préservée.
+    copy_db=True          : écrase la DB prod (destructif, délégué à action_prod_deploy_copy_db).
     """
-    Déplace une app entre APPS/ et APP_Workshop/.
-    direction: "to_workshop" | "to_production"
-    """
-    # 1. Vérifier .dev-mode
-    # 2. Résoudre chemins source/dest selon direction
-    # 3. docker compose down (source)
-    # 4. cp -r fichiers
-    # 5. Copier volume Docker
-    # 6. Renommer slug -ws (ajout ou retrait)
-    # 7. docker compose build && up -d (dest)
-    # 8. Vérifier santé (retry 5x)
-    # 9. Backup tar.gz (source)
-    # 10. Supprimer dossier source
+    # `slug` est le slug BASE (sans -ws).
+
+def action_prod_deploy_copy_db(con, slug, prod_dir, ws_dir, compose_file, *, dry_run):
+    """Chemin --copy-db (interne) : backup + overwrite volume + git pull + rollback restore."""
+
+def action_workshop_remove(console, app_name: str, *, dry_run: bool = False) -> None:
+    """[×] Supprimer l'atelier X-ws (down -v + backup + trash + restart prod)."""
+    # `app_name` est le slug ATELIER (avec -ws).
 ```
 
-### Intégration menu (`menu.py`)
+### Wrappers CLI (`actions.py`)
 
-Ajouter une option "Workshop" (sous-menu) entre "Supprimer une app" (3) et "Réparer" (4). Le sous-menu liste les apps dans les deux dossiers et propose deux actions :
-- `[→] Mettre en atelier` → sélectionne une app dans `APPS/`, appelle `action_workshop_move("to_workshop", ...)`
-- `[←] Remettre en production` → sélectionne une app dans `APP_Workshop/`, appelle `action_workshop_move("to_production", ...)`
+- `action_work(console, slug, *, dry_run=False)` → `action_workshop_create`
+- `action_ship(console, slug, *, copy_db=False, dry_run=False)` → `action_prod_deploy(copy_db=...)`
+  (la gate `input()` est DANS `action_prod_deploy_copy_db`, pas dans `action_ship`)
+
+### Menu TUI (`menu.py::_workshop_menu`)
+
+```
+── APP_Workshop/ (développement) ──
+  [←] X-ws   → déployer vers la prod (git pull)     # action_prod_deploy(base slug)
+  [×] X-ws   → supprimer l'atelier                  # action_workshop_remove(ws slug)
+── APPS/ (production) ──
+  [→] Y      → mettre en atelier        (si Y-ws absent)
+  ⏸  X       (en atelier — prod stoppée) (si X-ws existe, pas de [→])
+ℹ Copie DB (avancé) : hubctl ship <slug> --copy-db
+```
 
 ### Réutilisation de l'existant
 
 | Besoin | Code existant |
 |--------|--------------|
-| Lancer une commande shell | `run_shell()` dans `utils.py` |
-| Dry-run global | Déjà propagé à `run_shell()` |
-| Backup tar.gz | Pattern de `action_remove_app()` |
-| Check `.dev-mode` | `menu.py::_devprod_toggle()` |
-| Liste des apps | `hub_state.py::get_apps()` |
-| Confirmation utilisateur | `utils.py::confirm()` |
+| Shell + dry-run | `utils.run_shell()` |
+| Health check | `_health_check(target, console, timeout, port_override)` |
+| Rollback code-only | `_rollback(target, path, prev_commit, snapshot=None, ...)` |
+| Capture HEAD | `_git_previous_commit(path, console)` |
+| Liste apps | `hub_state.get_apps()` / `get_workshop_apps()` |
+| `.env` read/write | `env_manager.read_env()` / `write_env()` |
+| Confirmation TUI | `widgets.confirm()` / `widgets.confirm_by_typing()` |
+| Confirmation CLI | `input()` (builtins, pas de canvas) |
 
 ## Common Mistakes
 
 | Erreur | Conséquence | Correction |
 |--------|-------------|------------|
-| `docker compose down -v` | **Destruction irréversible des volumes** | Toujours `down` sans `-v` |
-| Copier sans faire `down` d'abord | DB corrompue, ports occupés | Étape 2 avant étape 3, toujours |
-| Supprimer la source avant de vérifier la destination | Perte de données si le build-up échoue | Ordre : build-up → health → backup → delete |
-| Oublier le renommage du slug | Collision de `container_name`, deux apps ne peuvent pas tourner | Slug `-ws` systématique |
-| Ne pas copier le volume | L'app workshop démarre avec une DB vide | `docker run alpine cp` obligatoire |
-| Faire l'opération en mode prod | Risque de casser la production | Check `.dev-mode` en étape 1 |
-| Utiliser `cp` au lieu de `cp -r` | Les sous-dossiers ne sont pas copiés | `cp -r` ou `rsync -a` |
+| `docker compose down -v` hors de `action_workshop_remove` | **Destruction irréversible des volumes** | `-v` UNIQUEMENT dans `[×]` ; partout ailleurs `stop` ou `down` sans `-v` |
+| `[←]` par défaut qui touche à la DB | Écrasement accidentel de la DB prod | Le défaut est code-only (`git pull`) ; `--copy-db` est explicite |
+| Restore volume `--copy-db` avec mount asymétrique (`/to` vs backup `/data`) | Restore silencieuse → prod garde la DB écrasée | Mount SYMÉTRIQUE `dst_vol:/data` + `-C /` |
+| `[→]` sans stopper la prod d'abord | DB/source en cours d'écriture, clone incohérent | `stop` avant `copytree` + clone volume |
+| Oublier le renommage du slug à l'atelier | Collision `container_name`, deux apps ne tournent pas | `APP_SLUG=X-ws` systématique |
+| `[←]` alors que l'atelier a des commits non poussés | `git pull` ne ramène rien, dev confus | Warnings git-hygiène ; le dev pousse d'abord |
+| Faire l'opération en mode prod | Casser la production | Check `.dev-mode` étape 1, toujours |
 
 ## Red Flags — STOP et corriger
 
-- "Les conteneurs sont déjà arrêtés, pas besoin de down" → Faux. Des networks/volumes persistent.
-- "On peut réutiliser le volume existant sans le copier" → Faux. Deux slugs différents = deux volumes.
-- "Je vais juste renommer le dossier, pas besoin de toucher au .env" → Faux. Le slug est dans le .env.
-- "On supprime la source d'abord, ça ira plus vite" → Faux. Perte de données garantie si le build échoue.
-- "Pas besoin de backup, on a une copie" → Faux. La copie n'est pas un backup versionné.
-- "Le mode dev c'est optionnel" → Faux. L'opération propose de l'activer, mais ne peut PAS s'exécuter sans. Si refus → abort.
+- "Le `[←]` copie la DB par défaut, non ?" → **Faux.** Le défaut est `git pull` code-only. `--copy-db` est explicite.
+- "`down -v` pour être sûr de nettoyer" → **Faux.** Sauf dans `action_workshop_remove`, c'est une destruction de volume.
+- "On supprime la prod à l'atelier, comme avant" → **Faux.** La prod reste en place (stopée). C'est le modèle sandbox + deploy.
+- "La restore `--copy-db`, je monte n'importe comment" → **Faux.** Montage symétrique obligatoire (cf. section `[←] --copy-db`).
+- "Pas besoin de git-hygiène, je pousse toujours" → **Faux.** Les warnings existent justement pour les oublis.
+- "Le mode dev c'est optionnel" → **Faux.** Obligatoire ; proposé à l'activation mais refus = abort.
 
-**Tous ces drapeaux signifient : revenir à l'étape 1 du flux et suivre l'ordre strict.**
+**Tous ces drapeaux : revenir à l'action correspondante et suivre l'ordre strict.**
