@@ -6,8 +6,10 @@ __pycache__/
 build/
 dist/
 .superpowers/
-APPS/
-APP_Workshop/
+APPS/*
+!APPS/README.md
+APP_Workshop/*
+!APP_Workshop/README.md
 
 # hubctl (CLI de pilotage) — artefacts locaux jamais suivis
 hubctl_cli/.venv/
@@ -17,7 +19,11 @@ hubctl_cli/backups/
 hubctl_cli/recovery/
 hubctl_cli/.config.toml
 exports/
+docs/superpowers/
 *.vault.enc
+
+# Secrets API IA (source unique) — ne jamais committer (.secrets.example reste suivi)
+.secrets
 
 # Agent debug Granite — config temporaire
 opencode.debug.json

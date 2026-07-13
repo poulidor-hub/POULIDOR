@@ -4,6 +4,15 @@
 
 ---
 
+## [0.20.0] - 13 juillet 2026
+
+### 🎨 Doc client & structuration des secrets
+
+- **Ajouté** : `docs/canvas-poulidor.html` — canvas client standalone (schéma double-vue métier / service info, tokens HUBCSS, zéro dépendance externe). Première représentation visuelle du fonctionnement du parc destinée aux prospects.
+- **Ajouté** : `.secrets.example` — template (committé) de la source unique des secrets d'API IA (DeepSeek, Anthropic, Z_AI). Documente les variables attendues par l'écosystème.
+- **Modifié** : `.gitignore` ignore désormais `.secrets` (la source unique des clés API, à ne jamais committer ; `.secrets.example` reste suivi).
+- **Pourquoi** : le canvas donne enfin un support pédagogique client (vue métier pour décideurs, vue service info pour DSI) ; la structuration `.secrets` centralise les clés API précédemment éparpillées dans `TEMPLATE_CODE/apiCC` (supprimé), avec sourcing automatique via `~/.bashrc`.
+
 ## [0.19.1] - 13 juillet 2026
 
 ### 🛠 Coffre — confirmation de la passphrase à la création
