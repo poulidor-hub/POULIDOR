@@ -4,6 +4,32 @@
 
 ---
 
+## [0.22.0] - 14 juillet 2026
+
+### 📣 Pour les utilisateurs (devs hubctl)
+
+- **Ajouté** : `hubctl vpn {sync,status,on,off}` pour piloter le conteneur WireGuard depuis le shell. Le conteneur ne tourne désormais que si le VPN est activé.
+- **Changé** : au démarrage du Hub (`hubctl start`), le conteneur WG démarre automatiquement si le VPN est activé, et reste arrêté sinon — fini le conteneur `Up` à vide pendant des jours (RAM + surface `NET_ADMIN`/`SYS_MODULE` économisées).
+- **Corrigé** : sur Debian/Mint/Ubuntu, `./hubctl` démarre proprement même si `python3-venv` n'est pas installé — le launcher détecte le venv sans pip et se reconstruit, avec un message actionnable (`sudo apt install python3 python3-venv python3-pip`). Plus de crash silencieux à la ligne 16 sur machine neuve.
+
+### ⚡ `hubctl vpn` + réconciliation host-level WireGuard
+
+- **`action_vpn(console, subcmd, *, dry_run=False)`** + 7 helpers : `_vpn_read_enabled` (psql `app_settings`), `_vpn_conf_exists` (alpine `test -f /vpn/wg_confs/wg0.conf`), `_vpn_container_state` (`docker inspect`), `_vpn_set_enabled` (UPSERT psql), `_vpn_compose_up`/`_vpn_stop` (`utils.run_shell`, dry_run natif), `_vpn_reconcile`.
+  - `sync` : lit `vpn_enabled` en DB, démarre (`docker compose --profile wireguard up -d wireguard-client`) ou arrête (`docker stop hub-wireguard`). Idempotent. Retry psql si `hub-db` pas prêt.
+  - `status` : flag DB + état conteneur + `wg show`.
+  - `on`/`off` : UPSERT du flag + reconcile. `on` avertit si pas de `wg0.conf` ; `off` ne supprime pas la conf (job de l'UI toggle).
+- **Hook de boot** : `action_start_stop("start","hub")` appelle `action_vpn(console,"sync",dry_run=dry_run)` après `make up-prod` réussi (rc-gated), dans un `try/except` (échec VPN non bloquant).
+- **Argparse** : sous-commande `vpn` (`choices=[sync,status,on,off]`), `--dry-run` global supporté.
+- **Sous-module HUB_base** pointer vers v3.11.0 (`restart: "no"` sur `wireguard-client` + bandeau UI informatif).
+- **Hub-api reste durcie** : **aucun** mount du socket Docker (approche Y — le cycle de vie est host-level via hubctl, pas via l'API). Aucun `docker compose down -v`.
+- Tests : 16 nouveaux (`test_vpn_*` sync/status/on/off + helpers + hook boot rc-gate/non-bloquant + dispatch + choices).
+
+### 🛠 Launcher `hubctl` — robustesse d'installation sur machine neuve
+
+- **Corrigé** : le launcher (`hubctl` racine) créait un venv via `python3 -m venv` puis appelait `$VENV/bin/pip` — sur Debian/Mint/Ubuntu avec seulement `python3` (sans `python3-venv`), `ensurepip` est absent → venv créé **sans pip** → crash ligne 16 (« aucun fichier ou dossier de ce nom ») sans indiquer quoi installer.
+- **Détecté & auto-résolu** : (1) check `command -v python3` en entrée avec message `apt install python3 python3-venv python3-pip` ; (2) détection d'un venv existant sans pip utilisable (`$PY -m pip --version` échoue) → suppression + reconstruction automatique ; (3) post-création, vérification que pip est bien présent, sinon message explicite + nettoyage du venv cassé.
+- **Robustesse** : utilisation de `$PY -m pip` (forme module via le python du venv) au lieu de `$VENV/bin/pip`.
+
 ## [0.21.0] - 14 juillet 2026
 
 ### 📣 Pour les utilisateurs (devs hubctl)
