@@ -68,16 +68,28 @@ Outil unique pour administrer tout le parc :
 git clone --recurse-submodules git@github.com:POULIDOR-Audit-Developpement/POULIDOR.git
 cd POULIDOR
 
-# 2. Lancer le Hub (tout est automatique : .env, build, santé, credentials)
-./hubctl init
+# 2. Installation tout-en-un (prérequis + Hub)
+#    Sur Debian/Ubuntu/Linux Mint — installe Docker, Python, git, etc.
+#    puis initialise le Hub automatiquement.
+sudo ./install.sh
 
-# 3. Le Hub est accessible sur http://localhost:8000
+# 3. Le Hub est accessible sur https://<IP_DU_SERVEUR>
 #    Les credentials admin s'affichent dans le récapitulatif final.
 
 # 4. Créer une nouvelle application
 #    Via le TUI : ./hubctl → Apps → Ajouter
 #    Ou via l'IA : « Crée une app mon-outil dans POULIDOR »
 ```
+
+### Installation manuelle (alternative)
+
+Si les prérequis sont déjà installés, ou pour un déploiement ciblé du Hub uniquement :
+
+```bash
+./hubctl init
+```
+
+Voir `HUB_base/docs/GUIDE_INSTALLATION.md` pour l'installation manuelle détaillée.
 
 ---
 
