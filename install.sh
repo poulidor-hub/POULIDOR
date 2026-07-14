@@ -99,6 +99,7 @@ done
 # 1c. Ajouter le repo Docker officiel (si pas déjà présent)
 DOCKER_REPO_FILE="/etc/apt/sources.list.d/docker.list"
 NEED_REPO_UPDATE=false
+DOCKER_FROM_REPO=true
 
 if [ ! -f "$DOCKER_REPO_FILE" ]; then
     NEED_REPO_UPDATE=true
@@ -112,8 +113,6 @@ fi
 if $NEED_REPO_UPDATE; then
     say "  Ajout du dépôt Docker officiel..."
     install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    chmod a+r /etc/apt/keyrings/docker.gpg
 
     # Détecter le codename Ubuntu (Mint est basé sur Ubuntu, on remappe)
     CODENAME="$(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")"
@@ -127,43 +126,73 @@ if $NEED_REPO_UPDATE; then
         CODENAME="noble"
     fi
 
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $CODENAME stable" > "$DOCKER_REPO_FILE"
-    apt-get update -qq
-    ok "Dépôt Docker ajouté ($CODENAME)"
+    if curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null && \
+       chmod a+r /etc/apt/keyrings/docker.gpg && \
+       echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $CODENAME stable" > "$DOCKER_REPO_FILE" && \
+       apt-get update -qq; then
+        ok "Dépôt Docker ajouté ($CODENAME)"
+    else
+        warn "Échec d'ajout du dépôt Docker officiel — utilisation du paquet docker.io système (moins récent)"
+        DOCKER_FROM_REPO=false
+        rm -f "$DOCKER_REPO_FILE"
+    fi
 else
     ok "Dépôt Docker déjà configuré"
 fi
 
 # 1d. Installer les paquets (idempotent)
-PACKAGES=(
-    "docker-ce"
-    "docker-ce-cli"
-    "containerd.io"
-    "docker-compose-plugin"
-    "python3"
-    "python3-venv"
-    "python3-pip"
-    "git"
-    "make"
-    "openssl"
-    "curl"
-    "iproute2"
-    "rsync"
-)
+if $DOCKER_FROM_REPO; then
+    PACKAGES=(
+        "docker-ce"
+        "docker-ce-cli"
+        "containerd.io"
+        "docker-compose-plugin"
+        "python3"
+        "python3-venv"
+        "python3-pip"
+        "git"
+        "make"
+        "openssl"
+        "curl"
+        "iproute2"
+        "rsync"
+    )
+else
+    PACKAGES=(
+        "docker.io"
+        "docker-compose-v2"
+        "python3"
+        "python3-venv"
+        "python3-pip"
+        "git"
+        "make"
+        "openssl"
+        "curl"
+        "iproute2"
+        "rsync"
+    )
+fi
 
 INSTALLED=0
 SKIPPED=0
-for pkg in "${PACKAGES[@]}"; do
-    if dpkg -s "$pkg" &>/dev/null; then
-        SKIPPED=$((SKIPPED + 1))
-    else
-        apt-get install -y -qq "$pkg" >/dev/null 2>&1 || {
-            warn "Échec installation $pkg — tentative sans -qq..."
-            apt-get install -y "$pkg" >/dev/null
-        }
-        INSTALLED=$((INSTALLED + 1))
-    fi
-done
+if $FORCE; then
+    say "  (mode --force : réinstallation des paquets déjà présents)"
+    apt-get install --reinstall -y -qq "${PACKAGES[@]}"
+    INSTALLED=${#PACKAGES[@]}
+    SKIPPED=0
+else
+    for pkg in "${PACKAGES[@]}"; do
+        if dpkg -s "$pkg" &>/dev/null; then
+            SKIPPED=$((SKIPPED + 1))
+        else
+            apt-get install -y -qq "$pkg" >/dev/null 2>&1 || {
+                warn "Échec installation $pkg — tentative sans -qq..."
+                apt-get install -y "$pkg" >/dev/null
+            }
+            INSTALLED=$((INSTALLED + 1))
+        fi
+    done
+fi
 
 ok "${PACKAGES[*]}"
 say "  ${GREEN}${SKIPPED}${NC} déjà installés, ${GREEN}${INSTALLED}${NC} nouvellement installés"
@@ -234,9 +263,10 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
 # 3a. Vérifier si le Hub est déjà opérationnel (idempotence)
+API_PORT="$(grep -E '^HUB_API_PORT=' HUB_base/.env 2>/dev/null | cut -d= -f2 || echo "8000")"
 HUB_ALREADY_RUNNING=false
 if docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^hub-api$'; then
-    if curl -sf "http://localhost:8000/api/health" &>/dev/null; then
+    if curl -sf "http://localhost:${API_PORT}/api/health" &>/dev/null; then
         HUB_ALREADY_RUNNING=true
     fi
 fi
@@ -276,7 +306,7 @@ COMPOSE_VER=$(docker compose version --short 2>/dev/null || echo "?")
 say "  ${BOLD}Docker${NC}     ${GREEN}✓${NC} ${DOCKER_VER}   Compose ${GREEN}✓${NC} ${COMPOSE_VER}"
 say ""
 say "  ${BOLD}Hub${NC}        https://${HOST_IP}"
-say "  ${BOLD}API${NC}        https://${HOST_IP}:${API_PORT}/api/health"
+say "  ${BOLD}API${NC}        http://${HOST_IP}:${API_PORT}/api/health"
 say ""
 say "  ${BOLD}Login${NC}      admin (voir HUB_base/.env pour le mot de passe généré)"
 say ""
