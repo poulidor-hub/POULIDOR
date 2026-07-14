@@ -4,6 +4,22 @@
 
 ---
 
+## [0.23.3] - 14 juillet 2026
+
+### 📝 README — refonte présentation du projet
+
+- **Refonte** : le README passe de 286 à ~80 lignes. Simplification radicale : suppression
+  des murs de commandes `make`, des tables de keybindings TUI et des schémas ASCII de
+  workflows — tout est délégué aux docs `docs/guide-hub/`.
+- **Corrigé** : le workflow Workshop décrivait l'ancien modèle « move » (obsolète depuis
+  v0.21.0). Remplacé par une présentation « sandbox + deploy ».
+- **Corrigé** : l'installation pointait vers `./install.sh` (obsolète depuis v0.23.0).
+  Remplacé par `./hubctl init`.
+- **Ajouté** : section « Pourquoi POULIDOR ? », démarrage rapide en 4 commandes, et
+  table de liens vers les docs détaillées.
+
+---
+
 ## [0.23.2] - 14 juillet 2026
 
 ### ⚡ Fix init — docker compose down avec cwd correct
