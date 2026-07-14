@@ -224,3 +224,71 @@ else
     err "Docker daemon injoignable. Vérifie : systemctl status docker"
 fi
 say ""
+
+# ── Phase 3 : Initialisation du Hub ──────────────────────────────────────────
+
+say "${BOLD}Phase 3 — Initialisation du Hub${NC}"
+say ""
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT_DIR"
+
+# 3a. Vérifier si le Hub est déjà opérationnel (idempotence)
+HUB_ALREADY_RUNNING=false
+if docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^hub-api$'; then
+    if curl -sf "http://localhost:8000/api/health" &>/dev/null; then
+        HUB_ALREADY_RUNNING=true
+    fi
+fi
+
+# 3b. Lancer ./hubctl init (ou skip si déjà running et pas --force)
+if $HUB_ALREADY_RUNNING && ! $FORCE; then
+    ok "Hub déjà opérationnel — phase init skippée"
+    warn "Pour forcer la réinit : sudo ./install.sh --force"
+else
+    say "  Lancement de ./hubctl init..."
+    say ""
+    INIT_ARGS=""
+    if $FORCE; then
+        INIT_ARGS="--force"
+    fi
+    if ! sudo -u "$REAL_USER" ./hubctl init $INIT_ARGS; then
+        say ""
+        err "L'initialisation du Hub a échoué. Logs : sudo docker compose -f HUB_base/docker-compose.yml logs hub-api"
+    fi
+fi
+say ""
+
+# ── Phase 4 : Résumé ─────────────────────────────────────────────────────────
+
+say "${BOLD}${GREEN}══════════════════════════════════════════════════════════${NC}"
+say "${BOLD}${GREEN}   POULIDOR — Installation terminée !${NC}"
+say "${BOLD}${GREEN}══════════════════════════════════════════════════════════${NC}"
+say ""
+
+# Lire l'IP hôte depuis le .env si présent
+HOST_IP="$(grep -E '^HUB_HOST=' HUB_base/.env 2>/dev/null | cut -d= -f2 || echo "localhost")"
+API_PORT="$(grep -E '^HUB_API_PORT=' HUB_base/.env 2>/dev/null | cut -d= -f2 || echo "8000")"
+
+DOCKER_VER=$(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',' || echo "?")
+COMPOSE_VER=$(docker compose version --short 2>/dev/null || echo "?")
+
+say "  ${BOLD}Docker${NC}     ${GREEN}✓${NC} ${DOCKER_VER}   Compose ${GREEN}✓${NC} ${COMPOSE_VER}"
+say ""
+say "  ${BOLD}Hub${NC}        https://${HOST_IP}"
+say "  ${BOLD}API${NC}        https://${HOST_IP}:${API_PORT}/api/health"
+say ""
+say "  ${BOLD}Login${NC}      admin (voir HUB_base/.env pour le mot de passe généré)"
+say ""
+say "  ${BOLD}Services${NC}   $(docker ps --format '{{.Names}}' 2>/dev/null | grep '^hub-' | tr '\n' ' ')"
+say ""
+say "${BOLD}Prochaines étapes :${NC}"
+say "  1. Ouvre https://${HOST_IP} dans un navigateur"
+say "  2. Connecte-toi et change le mot de passe admin"
+say "  3. Lance ${BOLD}./hubctl${NC} → Apps → Ajouter une application"
+say "  4. Ou demande à l'IA : « Crée une app mon-outil dans POULIDOR »"
+say ""
+if ! id -nG "$REAL_USER" 2>/dev/null | grep -qw "docker"; then
+    warn "Action requise : lance 'newgrp docker' ou reconnecte-toi pour activer le groupe docker."
+    say ""
+fi
