@@ -4,6 +4,15 @@
 
 ---
 
+## [0.23.2] - 14 juillet 2026
+
+### ⚡ Fix init — docker compose down avec cwd correct
+
+- **Corrigé** : `_cleanup_existing_hub_containers` exécutait `docker compose down` depuis la racine POULIDOR au lieu de `HUB_base/` → docker compose ne trouvait pas le `.env` → échec silencieux sur les variables `:?` → les anciens conteneurs n'étaient pas nettoyés.
+- Fix : ajout de `cwd=str(hub_state.HUB_DIR)` au `subprocess.run` pour que docker compose résolve `.env` correctement.
+
+---
+
 ## [0.23.1] - 14 juillet 2026
 
 ### 📣 Pour les utilisateurs (devs hubctl)
