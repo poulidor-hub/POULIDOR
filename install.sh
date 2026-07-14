@@ -175,3 +175,52 @@ command -v python3 &>/dev/null || err "python3 introuvable après installation."
 python3 -c "import venv" 2>/dev/null || err "python3-venv non fonctionnel."
 ok "Vérifications : docker, git, python3-venv — OK"
 say ""
+
+# ── Phase 2 : Services ───────────────────────────────────────────────────────
+
+say "${BOLD}Phase 2 — Configuration des services${NC}"
+say ""
+
+# 2a. Activer Docker au boot
+if systemctl is-enabled --quiet docker 2>/dev/null; then
+    ok "Docker déjà activé au boot"
+else
+    systemctl enable docker
+    ok "Docker activé au boot"
+fi
+
+# 2b. Démarrer Docker
+if systemctl is-active --quiet docker 2>/dev/null; then
+    ok "Docker déjà actif"
+else
+    systemctl start docker
+    ok "Docker démarré"
+fi
+
+# 2c. Ajouter l'utilisateur au groupe docker
+if id -nG "$REAL_USER" 2>/dev/null | grep -qw "docker"; then
+    ok "${REAL_USER} déjà dans le groupe docker"
+else
+    usermod -aG docker "$REAL_USER"
+    ok "${REAL_USER} ajouté au groupe docker"
+    warn "Groupe docker : déconnecte/reconnecte-toi ou lance 'newgrp docker' pour l'activer."
+fi
+
+# 2d. Vérifier docker compose (plugin v2)
+if docker compose version &>/dev/null; then
+    COMPOSE_VER=$(docker compose version --short 2>/dev/null || echo "?")
+    ok "Docker Compose v2 (${COMPOSE_VER})"
+else
+    err "Docker Compose v2 (plugin) non fonctionnel. Vérifie docker-compose-plugin."
+fi
+
+# 2e. Vérifier l'accès au socket Docker
+#     Note : sous sudo, root a accès au socket même si l'utilisateur n'est pas
+#     encore dans le groupe (newgrp requis côté utilisateur).
+if docker info &>/dev/null; then
+    DOCKER_VER=$(docker --version | awk '{print $3}' | tr -d ',')
+    ok "Docker Engine opérationnel (${DOCKER_VER})"
+else
+    err "Docker daemon injoignable. Vérifie : systemctl status docker"
+fi
+say ""
