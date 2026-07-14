@@ -4,6 +4,20 @@
 
 ---
 
+## [0.23.1] - 14 juillet 2026
+
+### 📣 Pour les utilisateurs (devs hubctl)
+
+- **Corrigé** : `hubctl init` nettoie désormais les anciens conteneurs avant de démarrer le Hub. Plus d'erreur « container name already in use » si une instance précédente occupe encore les noms `hub-db`, `hub-api`, `hub-frontend`.
+
+### ⚡ Fix init — nettoyage des conteneurs orphelins
+
+- **`_cleanup_existing_hub_containers(console, *, dry_run)`** : exécute `docker compose down` (gracieux, préserve les volumes) puis inspecte les noms `hub-db`, `hub-api`, `hub-frontend` et force-remove les orphelins issus d'un autre projet compose.
+- Appelé dans `action_bootstrap()` entre la génération des clés JWT et le `make up-prod`.
+- Tests : 3 nouveaux (compose down + rm orphelins, dry-run no-op, pas de rm si aucun orphelin).
+
+---
+
 ## [0.23.0] - 14 juillet 2026
 
 ### 📣 Pour les utilisateurs (devs hubctl)
