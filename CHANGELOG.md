@@ -4,6 +4,69 @@
 
 ---
 
+## [0.21.0] - 14 juillet 2026
+
+### 📣 Pour les utilisateurs (devs hubctl)
+
+- **Changé** : le `[←]` du menu Workshop ne **clone plus la BDD** par défaut. Il
+  fait désormais un `git pull` du code uniquement — la BDD de prod est
+  **préservée**. C'était l'attente : toucher à une BDD de prod est rare, ça ne
+  doit plus être le cycle par défaut.
+- **Changé** : quand tu mets une app en atelier (`[→]`), la prod n'est **plus
+  supprimée** — elle est stoppée et laissée en place. Tu peux donc la remettre
+  en route via un simple `git pull`.
+- **Ajouté** : nouvelle action `[×] Supprimer l'atelier` (nettoie la sandbox
+  quand tu n'en veux plus, et redémarre la prod).
+- **Ajouté** : pour le cas rare où tu veux VRAIMENT écraser la BDD de prod par
+  celle de l'atelier, c'est désormais explicite en CLI uniquement :
+  `./hubctl ship <app> --copy-db` (avec confirmation en tapant le slug).
+- **Renommé** : `[←] Remettre en production` → `[←] Déployer vers la prod`.
+
+### ⚡ Refonte du cycle Workshop — modèle « sandbox + deploy »
+
+Remplacement du modèle « move » (l'app basculait physiquement entre `APPS/` et
+`APP_Workshop/`, la prod était supprimée et la BDD clonée à chaque cycle) par
+un modèle « sandbox + deploy » : la prod reste en place (stopée), l'atelier est
+une sandbox parallèle conservée entre les cycles, et « shipper » = pousser le
+code vers la prod via `git pull` (BDD intacte). La copie de BDD devient
+l'exception explicite (`--copy-db`, CLI-only).
+
+- **`action_workshop_create`** (`[→]`) : clone la prod (code + volume Postgres)
+  vers `X-ws`, stoppe la prod mais la laisse en place (plus de backup/trash).
+  Rollback propre : `down` atelier + `rmtree` + restart prod en cas d'échec
+  build/health. Réutilise `_health_check(port_override=...)` (acceptation
+  stricte `status:healthy`, pas n'importe quel 2xx).
+- **`action_prod_deploy`** (`[←]` défaut, `copy_db=False`) : `git pull` code-only
+  via `make build`/`make up`, BDD **jamais touchée**. Warnings non bloquants de
+  git-hygiène (atelier sale, commits non poussés). Rollback via
+  `_rollback(snapshot=None)` → `git reset --hard {prev}` + rebuild.
+- **`action_prod_deploy_copy_db`** (`[←] --copy-db`, CLI-only) : chemin destructif
+  — backup volume (`alpine tar`) + overwrite (`docker volume rm`/`create` +
+  `alpine cp`) + `git pull` + rollback restore. Gate forte `input()` (doit taper
+  le slug exact). **Restore SYMÉTRIQUE** du volume (mount `dst_vol:/data` +
+  `tar xzf - -C /`) — corrige un bug Critical où la restore était un no-op
+  (montage `/to` asymétrique → les fichiers atterrissaient dans l'overlay du
+  conteneur, pas dans le volume).
+- **`action_workshop_remove`** (`[×]`) : supprime la sandbox
+  (`docker compose down -v` — **seul usage légitime de `-v`** dans tout le cycle
+  Workshop) + backup `tar.gz` + corbeille + restart prod.
+- **Refactor** : suppression de l'ancienne `action_workshop_move` (9 étapes × 2
+  sens, trop de responsabilités) au profit de 3 fonctions ciblées à signature
+  uniforme `(console, …, *, dry_run=False)`. Couverture préservée (2 tests de
+  remplacement réels pour les cas dev-mode-manquant et source-manquante).
+- **CLI** : `action_work`/`action_ship` rewirés vers les nouvelles fonctions ;
+  `ship` gagne `--copy-db` ; `--dry-run` enfin threadé sur `work`/`ship` (était
+  silencieusement ignoré avant).
+- **Menu** (`_workshop_menu`) : double entrée `[←]`/`[×]` par app atelier, ligne
+  `⏸ (en atelier)` pour les apps dont la prod est stoppée, footer informatif
+  pour `--copy-db` (pas de choix direct — conforme à « explicite en CLI »).
+- **Skill `app-workshop-mover`** réécrit pour refléter le nouveau modèle
+  (défaut `git pull`, `--copy-db` avancé, `[×]`, exigence de symétrie restore).
+- **Sécurité** : `docker compose down -v` confiné à `action_workshop_remove`
+  par test (`test_workshop_create_never_uses_down_with_v`) + grep.
+- Tests : 250 verts (refonte complète TDD, 1 `tarfile` DeprecationWarning
+  préexistant non lié).
+
 ## [0.20.0] - 13 juillet 2026
 
 ### 🎨 Doc client & structuration des secrets
