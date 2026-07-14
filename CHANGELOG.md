@@ -4,6 +4,25 @@
 
 ---
 
+## [0.23.0] - 14 juillet 2026
+
+### 📣 Pour les utilisateurs (devs hubctl)
+
+- **Ajouté** : `hubctl init` — un clone frais, une commande, et le Hub tourne. Plus besoin de lancer `install.sh` à la main, de générer le `.env`, ni de débugger les perms SSL. `hubctl init` fait tout : génération des secrets, build, démarrage, vérification santé, et affichage des identifiants admin.
+- **Ajouté** : `hubctl init --force` pour écraser un `.env` existant sans confirmation (pratique en CI ou rebuild).
+- **Corrigé** : le frontend nginx ne crashe plus au premier démarrage à cause des permissions du certificat SSL — corrigé à la source dans `pki.py`.
+
+### ⚡ `hubctl init` — bootstrap automatique du Hub
+
+- **`_detect_host_ip()`** : détection automatique de l'IP hôte (UDP socket vers 1.1.1.1:80, fallback `127.0.0.1`).
+- **`_generate_dotenv(console, *, force, dry_run) -> dict | None`** : génération de `HUB_base/.env` avec secrets aléatoires (PostgreSQL, admin, Fernet, PKI, CORS, whitelist). Idempotent : si `.env` existe déjà, confirmation interactive avant écrasement ; `--force` écrase sans confirmation. Couvre toutes les variables obligatoires (`:?`) et optionnelles du `docker-compose.yml`.
+- **`action_bootstrap(console, *, force, dry_run) -> int`** : orchestre le flux complet — check Docker → génération `.env` → clés JWT (`_ensure_jwt_keys`) → `make up-prod` → health check (polling `/api/health`, timeout 120s) → résumé (table Rich avec URLs + credentials admin).
+- **CLI** : sous-commande `init` avec flag `--force`, dispatch dans `__main__.py`. Coexiste sans conflit avec le flag `--init` existant (clonage repos depuis `manifest.json`).
+- **Sous-module HUB_base** pointer vers `f3bde58` (fix pki.py : clé serveur `0o600` → `0o644`, nginx peut enfin lire le certificat).
+- Tests : 16 nouveaux (284 total, 0 régression). TDD attesté pour chaque nouvelle fonction.
+
+---
+
 ## [0.22.0] - 14 juillet 2026
 
 ### 📣 Pour les utilisateurs (devs hubctl)
