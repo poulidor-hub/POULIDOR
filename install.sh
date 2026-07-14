@@ -79,5 +79,99 @@ ok "Utilisateur : ${GREEN}${REAL_USER}${NC}"
 ok "Distribution : $(. /etc/os-release && echo "$PRETTY_NAME")"
 say ""
 
-# Placeholder pour les phases (remplacé par les tâches suivantes)
-say "${BOLD}Phases non encore implémentées.${NC}"
+# ── Phase 1 : Prérequis système ──────────────────────────────────────────────
+
+say "${BOLD}Phase 1 — Prérequis système${NC}"
+say ""
+
+# 1a. apt-get update (une seule fois)
+say "  Mise à jour des dépôts apt..."
+apt-get update -qq
+
+# 1b. Installer curl et gnupg (requis pour ajouter le repo Docker) s'ils manquent
+PACKAGES_BASE=("curl" "ca-certificates" "gnupg")
+for pkg in "${PACKAGES_BASE[@]}"; do
+    if ! dpkg -s "$pkg" &>/dev/null; then
+        apt-get install -y -qq "$pkg" >/dev/null
+    fi
+done
+
+# 1c. Ajouter le repo Docker officiel (si pas déjà présent)
+DOCKER_REPO_FILE="/etc/apt/sources.list.d/docker.list"
+NEED_REPO_UPDATE=false
+
+if [ ! -f "$DOCKER_REPO_FILE" ]; then
+    NEED_REPO_UPDATE=true
+else
+    # Vérifier que la clé GPG Docker est présente
+    if [ ! -f /etc/apt/keyrings/docker.gpg ]; then
+        NEED_REPO_UPDATE=true
+    fi
+fi
+
+if $NEED_REPO_UPDATE; then
+    say "  Ajout du dépôt Docker officiel..."
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    chmod a+r /etc/apt/keyrings/docker.gpg
+
+    # Détecter le codename Ubuntu (Mint est basé sur Ubuntu, on remappe)
+    CODENAME="$(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")"
+    if [ -z "$CODENAME" ]; then
+        # Fallback : Linux Mint ne fournit pas toujours UBUNTU_CODENAME
+        CODENAME="$(. /etc/os-release && echo "$DEBIAN_CODENAME")"
+    fi
+    # Linux Mint 22.x = Ubuntu 24.04 = "noble"
+    if [ -z "$CODENAME" ]; then
+        warn "Codename Ubuntu introuvable, utilisation de 'noble' (Ubuntu 24.04)."
+        CODENAME="noble"
+    fi
+
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $CODENAME stable" > "$DOCKER_REPO_FILE"
+    apt-get update -qq
+    ok "Dépôt Docker ajouté ($CODENAME)"
+else
+    ok "Dépôt Docker déjà configuré"
+fi
+
+# 1d. Installer les paquets (idempotent)
+PACKAGES=(
+    "docker-ce"
+    "docker-ce-cli"
+    "containerd.io"
+    "docker-compose-plugin"
+    "python3"
+    "python3-venv"
+    "python3-pip"
+    "git"
+    "make"
+    "openssl"
+    "curl"
+    "iproute2"
+    "rsync"
+)
+
+INSTALLED=0
+SKIPPED=0
+for pkg in "${PACKAGES[@]}"; do
+    if dpkg -s "$pkg" &>/dev/null; then
+        SKIPPED=$((SKIPPED + 1))
+    else
+        apt-get install -y -qq "$pkg" >/dev/null 2>&1 || {
+            warn "Échec installation $pkg — tentative sans -qq..."
+            apt-get install -y "$pkg" >/dev/null
+        }
+        INSTALLED=$((INSTALLED + 1))
+    fi
+done
+
+ok "${PACKAGES[*]}"
+say "  ${GREEN}${SKIPPED}${NC} déjà installés, ${GREEN}${INSTALLED}${NC} nouvellement installés"
+
+# 1e. Vérifications critiques
+command -v docker &>/dev/null || err "docker CLI introuvable après installation."
+command -v git &>/dev/null || err "git introuvable après installation."
+command -v python3 &>/dev/null || err "python3 introuvable après installation."
+python3 -c "import venv" 2>/dev/null || err "python3-venv non fonctionnel."
+ok "Vérifications : docker, git, python3-venv — OK"
+say ""
