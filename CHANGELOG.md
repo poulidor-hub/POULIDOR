@@ -4,6 +4,19 @@
 
 ---
 
+## [0.23.4] - 17 juillet 2026
+
+### ⚡ Fix hubctl — prévention fuite "skipped" + label français
+
+- **Corrigé** : `hubctl` laissait fuiter les éléments marqués "skipped" vers l'API.
+- **Corrigé** : le label du bouton d'annulation était en anglais, passé en français.
+
+### ⚙️ Sous-module HUB_base → v3.11.2
+
+- Mise à jour du pointeur de sous-module vers `bd9ff79` (v3.11.2) : fix SSE (`sub→user_id`), régénération du secret M2M pour les apps existantes, fix PKI (`server.key` 0o644 pour nginx).
+
+---
+
 ## [0.23.3] - 14 juillet 2026
 
 ### 📝 README — refonte présentation du projet
