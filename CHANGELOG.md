@@ -4,6 +4,23 @@
 
 ---
 
+## [0.23.5] - 18 juillet 2026
+
+### ⚡ Sécurité hubctl — durcissement coffre, permissions, dry-run et validation
+
+- **Sécurité** : `sync()` supprime les entrées obsolètes d'apps supprimées et ignore les répertoires symlinkés (`coffre.py`, `vault_manager.py`).
+- **Sécurité** : `unlock()` ne corrompt plus l'état interne sur mauvais mot de passe.
+- **Sécurité** : `_write_app_env()` et les nouvelles sauvegardes (tar.gz, SQL) appliquent `chmod 0600` ; 28 fichiers existants durcis (`.env`, archives, dumps).
+- **Corrigé** : `_sync_app_coffre()` utilisait l'ancien chemin `.coffre` et appelait `backup_app_env()` (méthode inexistante) — basculé sur `VaultManager.backup_all()`.
+- **Corrigé** : `--dry-run` global (`global_dry_run`) n'est plus écrasé par les sous-parsers ; `update`/`start`/`stop`/`deploy`/`vpn on/off` propagent correctement le mode simulation.
+- **Corrigé** : `_compose_file()` rejette les chemins absolus et `..` (prévention traversée de répertoire).
+- **Corrigé** : validation des slugs dans toutes les commandes (`work`, `ship`, `update`, `logs`, etc.) — rejet des `/`, `..`, chemins absolus.
+- **Corrigé** : `--dev` et `--prod` sont désormais mutuellement exclusifs.
+- **Corrigé** : `action_bootstrap()` n'imprime plus le mot de passe admin en clair dans la console.
+- **Tests** : +16 tests de régression couvrant chaque correction.
+
+---
+
 ## [0.23.4] - 17 juillet 2026
 
 ### ⚡ Fix hubctl — prévention fuite "skipped" + label français
