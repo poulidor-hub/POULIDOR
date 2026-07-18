@@ -4,6 +4,24 @@
 
 ---
 
+## [0.24.0] - 18 juillet 2026
+
+### ⚡ Design d'audit Hub/template, release M2M et durcissement TLS
+
+- **Ajouté** : design complet d'audit et de remédiation progressive Hub/template (`docs/superpowers/specs/2026-07-18-hub-template-remediation-design.md`).
+- **Ajouté** : plans d'implémentation détaillés Release 1/2/3.
+- **Ajouté** : `.worktrees/` ignoré globalement.
+
+### ⚙️ Sous-module HUB_base → v3.12.0
+
+- Mise à jour du pointeur vers `98a70ed` (v3.12.0) : dépendances M2M (AppDependency, POST/GET /api/apps/dependencies, sync-report), section admin SPA, et durcissement TLS (server.key 0640 avec groupe hôte partagé, suppression des capacités frontend excessives).
+
+### ⚙️ Sous-module HUBapp_TEMPLATE_base → v2.6.0
+
+- Mise à jour du pointeur vers `7ac4212` (v2.6.0) : déclaration `depends.yaml`, `HubClient.report_sync()`, push non-bloquant des dépendances au registre, skill `app-dependencies`.
+
+---
+
 ## [0.23.5] - 18 juillet 2026
 
 ### ⚡ Sécurité hubctl — durcissement coffre, permissions, dry-run et validation
