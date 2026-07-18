@@ -53,7 +53,7 @@ Squelette standard pour toute nouvelle app du parc :
 ### Pilotage (`hubctl`)
 Outil unique pour administrer tout le parc :
 - **TUI interactif** : dashboard avec statut des apps, menus de configuration, coffre de secrets
-- **CLI non-interactive** : `status`, `start`/`stop`, `update`, `logs`, `health`, `db-shell`
+- **CLI non-interactive** : `work`, `ship`, `update`, `start`/`stop`, `deploy`, `logs`, `health`, `db-shell`, `vpn`, `status`, `park-export`, `park-restore`, `debug`, `init`
 - **Blue-green deploy** : déploiement zéro downtime avec validation humaine (`--validate`)
 - **Atelier de développement** : bac à sable parallèle par app (clone DB prod à la demande)
 - **Coffre chiffré** : sauvegarde des secrets du parc (Fernet + scrypt), export de recovery

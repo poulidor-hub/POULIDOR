@@ -59,8 +59,10 @@
     <tr><td><code>./hubctl update &lt;slug&gt;</code></td><td>Idem pour une app (sans snapshot DB).</td></tr>
     <tr><td><code>./hubctl deploy hub</code></td><td>Déploiement <strong>blue-green</strong> (zéro downtime) : instance verte sur ports+1 → health check → swap. <code>--validate</code> pour validation humaine avant swap.</td></tr>
     <tr><td><code>./hubctl deploy &lt;slug&gt;</code></td><td>Idem pour une app.</td></tr>
-    <tr><td><code>./hubctl work &lt;slug&gt;</code></td><td>Met une app en atelier : copie code + volume DB vers <code>APP_Workshop/&lt;slug&gt;-ws</code> et démarre.</td></tr>
-    <tr><td><code>./hubctl ship &lt;slug&gt;</code></td><td>Ramène une app de l'atelier vers la prod. <strong>⚠ Remplace la DB de prod</strong> par celle de l'atelier (confirmation : retaper le slug).</td></tr>
+    <tr><td><code>./hubctl work &lt;slug&gt;</code></td><td>Met une app en atelier : clone code + DB vers <code>APP_Workshop/&lt;slug&gt;-ws</code> et démarre.</td></tr>
+    <tr><td><code>./hubctl work X,Y,Z</code></td><td>Multi-slug : met plusieurs apps en atelier en une passe (séparées par virgules).</td></tr>
+    <tr><td><code>./hubctl ship &lt;slug&gt;</code></td><td>Déploie le <strong>code</strong> de l'atelier vers la prod via <code>git pull</code>. <strong>DB prod préservée</strong> (défaut).</td></tr>
+    <tr><td><code>./hubctl ship &lt;slug&gt; --copy-db</code></td><td>Avancé — écrase la DB prod par celle de l'atelier (destructif, confirmation par saisie).</td></tr>
   </table>
 
   <h3>Sauvegarde / restauration du parc</h3>
@@ -106,14 +108,14 @@
   <h2>L'arbre du menu</h2>
   <table>
     <tr><th>Touche</th><th>Menu</th><th>Contient</th></tr>
-    <tr><td><kbd>1</kbd></td><td>Apps</td><td>Update app · Ajouter une app · Supprimer une app · Logs app</td></tr>
+    <tr><td><kbd>1</kbd></td><td>Apps</td><td>Update app · Ajouter une app · Supprimer une app · Logs app · Atelier (workshop)*</td></tr>
     <tr><td><kbd>2</kbd></td><td>Hub</td><td>Update hub · Réparer/Diagnostiquer · Start/Stop HUB · Apps (Vue+Disque) · Logs hub</td></tr>
     <tr><td><kbd>3</kbd></td><td>Configuration</td><td>Quick setup · Réseau · Admin · Mode &amp; avancé · Coffre · Workshop*</td></tr>
     <tr><td><kbd>4</kbd></td><td>Scénarios</td><td>Quick diag · Full update · App rescue · Health check</td></tr>
     <tr><td><kbd>5</kbd></td><td>Bascule</td><td>Passer en DEV / en PROD</td></tr>
     <tr><td><kbd>0</kbd></td><td>Quitter</td><td>—</td></tr>
   </table>
-  <p><small>* <strong>Workshop</strong> n'apparaît qu'en mode DÉVELOPPEMENT.</small></p>
+  <p><small>* <strong>Atelier (workshop)</strong> apparaît dans le menu Apps et dans Configuration en mode DÉVELOPPEMENT.</small></p>
 
   <h3>Détail des sous-choix internes</h3>
   <table>
@@ -123,7 +125,7 @@
     <tr><td>Apps › Supprimer une app</td><td>Sync coffre + backup <code>tar.gz</code> + arrêt + corbeille.</td></tr>
     <tr><td>Hub › Start/Stop HUB</td><td>Au choix : <code>start</code>, <code>stop</code> ou <code>restart</code>.</td></tr>
     <tr><td>Configuration › Coffre</td><td><em>Sauvegarder maintenant</em>, <em>Récupérer (export)</em>, <em>Changer la passphrase</em>, ou révéler une entrée.</td></tr>
-    <tr><td>Configuration › Workshop</td><td>Déplacer une app entre <code>APPS/</code> et <code>APP_Workshop/</code>. <strong>Mode DEV seulement.</strong></td></tr>
+    <tr><td>Apps › Atelier (workshop)</td><td>Gestion complète du cycle atelier : <code>[→]</code> mettre en atelier (avec suggestions automatiques des dépendances 🔗), <code>[←]</code> déployer vers la prod (<code>git pull</code> code-only, DB préservée), <code>[×]</code> supprimer l'atelier, <code>[→→]</code> multi-sélection, <code>[→+]</code> ajouter à l'atelier existant. <strong>Mode DEV seulement.</strong></td></tr>
     <tr><td>Scénarios</td><td>4 séquences enregistrées : Quick diag · Full update · App rescue · Health check.</td></tr>
   </table>
 
@@ -135,7 +137,7 @@
       <li>Une app supprimée part en corbeille (<code>hubctl_cli/_trash/</code>), jamais un <code>rm -rf</code>.</li>
       <li>Une archive <code>tar.gz</code> est créée avant toute suppression.</li>
       <li><code>update</code> capture le commit git courant + un snapshot DB (pour le hub) et <strong>rollback automatique</strong> (git reset + restauration DB) si le health check échoue.</li>
-      <li><code>ship &lt;slug&gt;</code> demande de retaper le slug pour confirmer le remplacement de la DB de production.</li>
+      <li><code>ship &lt;slug&gt;</code> (défaut) déploie le code uniquement via <code>git pull</code> — <strong>la DB de prod n'est jamais touchée</strong>. Seul <code>--copy-db</code> (explicite) écrase la DB, avec confirmation par saisie du slug.</li>
       <li>Garde disque : avertissement sous <strong>15 %</strong> d'espace libre, refus sous <strong>5 %</strong>.</li>
     </ul>
   </div>

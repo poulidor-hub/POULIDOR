@@ -20,31 +20,68 @@
   <h1>Workshop : atelier ↔ production</h1>
 
   <h2>Objectif</h2>
-  <p>Déplacer une application entre la production (<code>APPS/</code>) et
-  l'atelier (<code>APP_Workshop/</code>) pour développer ou tester avec une copie
-  des données réelles, puis remettre les modifications en production.</p>
+  <p>Travailler sur une app en <strong>bac à sable</strong> (atelier) avec une copie
+  des données réelles, sans impacter la production. Une fois le code prêt, le
+  déployer en production <strong>sans toucher à la base de données</strong>.</p>
 
-  <h2>Quand l'utiliser</h2>
-  <p>Quand vous voulez modifier une app sans risque pour la version en service.
-  Disponible uniquement en <strong>mode DÉVELOPPEMENT</strong>.</p>
+  <h2>Modèle : sandbox + deploy</h2>
+  <p>Contrairement à l'ancien modèle « move » (déplacer physiquement les dossiers),
+  le workshop fonctionne en <strong>sandbox parallèle</strong> :</p>
+  <ul>
+    <li>La prod <code>APPS/X</code> <strong>reste en place</strong> (stoppée, jamais supprimée).</li>
+    <li>L'atelier <code>APP_Workshop/X-ws</code> est une copie indépendante (code + DB clonée).</li>
+    <li>« Shipper » = <code>git pull</code> sur la prod → la DB n'est jamais touchée par défaut.</li>
+    <li>La copie DB est l'exception explicite (<code>--copy-db</code> en CLI, jamais par défaut).</li>
+  </ul>
 
-  <h2>Étapes dans hubctl</h2>
+  <h2>Accès</h2>
+  <p>Disponible uniquement en <strong>mode DÉVELOPPEMENT</strong> :</p>
   <ol>
-    <li>Passer en mode DEV : menu principal → <kbd>5</kbd>.</li>
-    <li>Configuration (<kbd>3</kbd>) → Workshop (<kbd>6</kbd>).</li>
-    <li>Choisir <strong>[→] mettre en atelier</strong> ou <strong>[←] remettre en production</strong>.</li>
-    <li>Confirmer <strong>Oui</strong>.</li>
+    <li>Menu principal → <kbd>5</kbd> pour basculer en mode DEV.</li>
+    <li>Menu <strong>Apps</strong> (<kbd>1</kbd>) → <strong>Atelier</strong> (<kbd>5</kbd>).</li>
   </ol>
+  <p>Également accessible via Configuration (<kbd>3</kbd>) → Workshop.</p>
+
+  <h2>Options du menu atelier</h2>
+  <table>
+    <tr><th>Option</th><th>Rôle</th></tr>
+    <tr><td><code>[→] X</code></td><td>Mettre <strong>X</strong> en atelier (clone DB). Si X a des dépendances (🔗), propose automatiquement de les emmener aussi.</td></tr>
+    <tr><td><code>[←] X-ws</code></td><td>Déployer le <strong>code</strong> vers la prod via <code>git pull</code>. <strong>DB prod préservée.</strong></td></tr>
+    <tr><td><code>[×] X-ws</code></td><td>Supprimer l'atelier (<code>down -v</code> + backup + redémarrage de la prod).</td></tr>
+    <tr><td><code>[→→]</code></td><td><strong>Multi-sélection</strong> : cocher plusieurs apps à mettre en atelier d'un coup. Les dépendances sont automatiquement incluses.</td></tr>
+    <tr><td><code>[→+]</code></td><td><strong>Ajouter</strong> une app à un atelier existant sans toucher au reste.</td></tr>
+  </table>
+
+  <h2>Dépendances inter-apps 🔗</h2>
+  <p>Chaque app peut déclarer ses dépendances M2M via un fichier
+  <code>depends.yaml</code> à sa racine :</p>
+  <pre>depends_on:
+  - slug: exemple-app-2
+    note: "Catalogue articles"</pre>
+  <p>Le menu atelier affiche un indicateur 🔗 et <strong>propose automatiquement</strong>
+  d'emmener les dépendances quand on met une app en atelier. Si vous refusez,
+  un warning vous alerte du risque de défaut M2M.</p>
+
+  <h2>En ligne de commande</h2>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>./hubctl work X</code></td><td>Mettre X en atelier.</td></tr>
+    <tr><td><code>./hubctl work X,Y,Z</code></td><td>Multi-slug : mettre X, Y et Z en atelier en une passe.</td></tr>
+    <tr><td><code>./hubctl ship X</code></td><td>Déployer le code vers la prod (<code>git pull</code>, DB préservée).</td></tr>
+    <tr><td><code>./hubctl ship X --copy-db</code></td><td>Avancé : écraser la DB prod (destructif, confirmation par saisie).</td></tr>
+  </table>
 
   <details class="accordion">
     <summary>En coulisse (technique)</summary>
-    <p>La mise en atelier fait un <code>docker compose down</code>, copie le code
-    vers <code>APP_Workshop/&lt;app&gt;-ws</code>, clone le
-    <span class="term">volume Docker<span class="tip">Stockage persistant de la
-    base de données, séparé du conteneur.</span></span> de la base via un
-    conteneur Alpine, réécrit le slug en <code>-ws</code> dans le <code>.env</code>,
-    puis redémarre. Le retour en production applique le flux inverse (les
-    modifications de la base sont ramenées).</p>
+    <p><strong>Mise en atelier</strong> : <code>docker compose stop</code> sur la prod
+    (pas de <code>down -v</code>), copie du code vers
+    <code>APP_Workshop/X-ws</code>, clone du volume Docker via un conteneur Alpine,
+    réécriture du slug en <code>-ws</code> dans le <code>.env</code>, puis
+    <code>build + up</code>. La prod reste en place, stoppée.</p>
+    <p><strong>Déploiement</strong> : <code>git pull</code> sur la prod →
+    <code>build + up</code> → health check. La DB n'est jamais touchée.
+    <code>--copy-db</code> est l'exception qui clone le volume atelier → prod
+    (avec backup préalable).</p>
   </details>
 
   <div class="attention">
@@ -53,14 +90,16 @@
       <li>Le mode DEV est <strong>obligatoire</strong> pour voir le menu Workshop.</li>
       <li>Le clone recopie les <strong>données réelles</strong> de la base : traitez l'atelier avec le même soin.</li>
       <li>Le slug change (<code>-ws</code>) : les ports et l'URL diffèrent de la prod.</li>
+      <li><code>--copy-db</code> est <strong>destructif</strong> : jamais par défaut, confirmation explicite requise.</li>
+      <li>Le bouton <code>[×]</code> est le <strong>seul endroit</strong> où <code>docker compose down -v</code> est utilisé.</li>
     </ul>
   </div>
 
   <details class="accordion">
     <summary>En cas de problème</summary>
-    <p>Si le déplacement échoue en cours de route, l'app source reste intacte
-    (une sauvegarde est prise avant suppression). Vérifiez l'espace disque
-    (<kbd>2</kbd> → Apps Vue+Disque) et relancez.</p>
+    <p>Si une action échoue, l'app source reste intacte. Le déploiement code-only
+    a un rollback automatique (<code>git reset</code>) si le health check échoue.
+    Vérifiez l'espace disque (<kbd>2</kbd> → Apps Vue+Disque) et relancez.</p>
   </details>
 </main>
 <footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.14.0</span> · <a href="index.html">Accueil</a></footer>
