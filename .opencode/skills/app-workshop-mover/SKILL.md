@@ -122,6 +122,48 @@ Le slug pilote `container_name`, le nom du volume (`{slug}-postgres-data`), et l
 network dans `docker-compose.yml` (qui référence `${APP_SLUG}`). Le `[←]` code-only
 ne change **pas** le slug de la prod (il reste `X`).
 
+## Multi-app & dépendances
+
+Le workshop supporte la mise en atelier de **plusieurs apps en une passe**, avec
+suggestions automatiques basées sur les dépendances déclarées (`depends.yaml`).
+Cf. skill `app-dependencies` (côté template) pour la création des fichiers.
+
+### Trois modes de mise en atelier
+
+| Option TUI | Comportement |
+|---|---|
+| `[→] X` | Met X en atelier. Si X a des deps non présentes en atelier, propose de les emmener (menu `select` : Oui / Non). |
+| `[→→] Multi-sélection` | `widgets.multiselect` (checkbox). Calcule l'union des `resolve_group` et propose le groupe final. |
+| `[→+] Ajouter à l'atelier` | Ajoute une app à un atelier existant sans toucher au reste. Visible si atelier non vide. |
+
+### CLI multi-slug
+
+```bash
+./hubctl work X,Y,Z          # met X, Y, Z en atelier (un par un, clone DB)
+./hubctl work "alpha , beta" # whitespace stripped automatiquement
+```
+
+Le split sur virgule se fait dans `action_work`. Chaque slug déclenche un
+`action_workshop_create` indépendant (avec son propre rollback sur échec).
+
+### Logique de suggestion (`resolve_group`)
+
+`hubctl_cli/dependencies.py::resolve_group(slug)` fait un DFS transitif :
+si `exemple-apps` dépend de `exemple-app-2` qui dépend de `HUBVault`, alors
+`resolve_group("exemple-apps")` → `{exemple-apps, exemple-app-2, HUBVault}`.
+
+Le menu propose d'emmener tout le groupe. Si l'utilisateur refuse, un warning
+clair s'affiche :
+
+> ⚠ exemple-app sera en atelier sans exemple-app-2. Les appels M2M pointeront vers la prod.
+
+### Offline-first
+
+La lecture disque (`build_graph()`) ne dépend **ni du hub ni de Docker**. Le menu
+workshop peut proposer des groupes même si le hub est down ou les apps stoppées.
+Le graphe hub (`app_dependencies`) sert uniquement au dashboard prod (via
+`GET /api/apps/dependencies`) et à l'affichage de `last_sync_at`.
+
 ## Quick Reference
 
 | Ressource | Emplacement |
@@ -134,11 +176,15 @@ ne change **pas** le slug de la prod (il reste `X`).
 | Backup dir | `hubctl_cli/backups/` |
 | Corbeille | `hubctl_cli/_trash/` |
 | Health endpoint | `http://localhost:{API_PORT}/api/health` |
+| Fichier deps par app | `APPS/X/depends.yaml` |
+| Module graphe hubctl | `hubctl_cli/dependencies.py` |
+| CLI multi-slug | `./hubctl work X,Y,Z` |
 
 ### Commandes hubctl
 
 ```bash
 ./hubctl work X              # [→] mettre X en atelier (clone DB)
+./hubctl work X,Y,Z          # multi-slug : met X, Y, Z en atelier en une passe
 ./hubctl ship X              # [←] déployer code-only vers la prod (git pull, DB préservée) — DÉFAUT
 ./hubctl ship X --copy-db    # [←] avancé : écraser la DB prod (destructif, gate input)
 # [×] Supprimer l'atelier : via menu TUI (touch 6 en mode dev)
