@@ -6,6 +6,7 @@ __pycache__/
 build/
 dist/
 .superpowers/
+.worktrees/
 APPS/*
 !APPS/README.md
 APP_Workshop/*
