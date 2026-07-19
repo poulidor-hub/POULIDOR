@@ -4,6 +4,24 @@
 
 ---
 
+## [0.24.1] - 19 juillet 2026
+
+### ⚡ Release 1 — sécurité M2M et stabilité
+
+- **Hub** : mode M2M par application (`compat`/`enforced`), garde SA/slug, audit des réinscriptions legacy, outbox admin-only avec livraison `2xx` exclusive.
+- **Template** : AuthProvider corrigé (TDZ supprimée), outbox réalignée, preuve M2M en cache lors de la réinscription.
+- **Docs** : procédure canari volontaire `MIGRATION_M2M_CANARY.md` ; flux legacy tagués `🔶 LEGACY`.
+
+### ⚙️ Sous-module HUB_base → v3.12.1
+
+- Mise à jour vers `b684457` (v3.12.1).
+
+### ⚙️ Sous-module HUBapp_TEMPLATE_base → v2.6.1
+
+- Mise à jour vers `4482887` (v2.6.1).
+
+---
+
 ## [0.24.0] - 18 juillet 2026
 
 ### ⚡ Design d'audit Hub/template, release M2M et durcissement TLS
