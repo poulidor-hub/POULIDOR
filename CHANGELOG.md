@@ -4,6 +4,19 @@
 
 ---
 
+## [0.24.3] - 21 juillet 2026
+
+### 🐛 Fix — fresh install du Hub cassé par NotNullViolation sur m2m_enforcement_mode
+
+- **Hub** : le fresh install (DB vierge) échouait sur la migration `026_add_backup_clusters_and_system_app.sql` (`NotNullViolationError` sur `m2m_enforcement_mode`). La colonne était `nullable=False` avec un `default='compat'` Python uniquement ; `Base.metadata.create_all()` créait la colonne sans default SQL → l'INSERT de l'app système violait la contrainte. Fix : `server_default='compat'` sur `models.Application.m2m_enforcement_mode`. Bug latent depuis la 3.12.1 (n'apparaissait que sur DB vierge, pas sur DB existante).
+- **Hub** : nettoyage — 3 snapshots chiffrés (`.enc`) étaient trackés par erreur dans `storage/snapshots/` ; retirés du tracking + `storage/snapshots/` ajouté au `.gitignore`.
+
+### ⚙️ Sous-module HUB_base → v3.12.3
+
+- Mise à jour vers `6d84bcd` (v3.12.3).
+
+---
+
 ## [0.24.2] - 21 juillet 2026
 
 ### ⚡ Sécurité M2M — extension du garde SA/slug à 3 routes Hub supplémentaires
