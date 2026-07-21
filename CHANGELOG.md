@@ -4,6 +4,18 @@
 
 ---
 
+## [0.24.2] - 21 juillet 2026
+
+### ⚡ Sécurité M2M — extension du garde SA/slug à 3 routes Hub supplémentaires
+
+- **Hub** : `authorize_service_account_slug()` appliqué à `PUT /api/apps/me/shared`, `POST /api/apps/me/openapi` et `POST /api/messages/m2m/send` (partage, spec OpenAPI, synchronisation) — slugs non possédés audités en `compat` (défaut), refusés en `enforced` (403). Conforme au design Lot 1 « Autorisation M2M centralisée ».
+
+### ⚙️ Sous-module HUB_base → v3.12.2
+
+- Mise à jour vers `16aff93` (v3.12.2).
+
+---
+
 ## [0.24.1] - 19 juillet 2026
 
 ### ⚡ Release 1 — sécurité M2M et stabilité
