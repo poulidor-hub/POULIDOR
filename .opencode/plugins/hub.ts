@@ -15,8 +15,6 @@ import type { Plugin } from "@opencode-ai/plugin"
 const DESTRUCTIVE = [
   /\bhub_\w*_delete\b/i,
   /\bhub_backup_restore\b/i,
-  /\bhub_pki_revoke\b/i,
-  /\bhub_user_reset_password\b/i,
   /\bhub_app_(delete|approve|toggle_active)\b/i,
   /\brm\s+-[a-z]*r[a-z]*f/i,
   /docker\s+compose\s+down\s+.*(-v|--volumes)/i,

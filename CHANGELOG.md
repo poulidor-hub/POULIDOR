@@ -4,6 +4,17 @@
 
 ---
 
+## [0.24.8] - 22 juillet 2026
+
+### 🧹 Tooling — nettoyage plugin + sync outillage Hub
+
+- **Plugin `hub.ts`** : retrait de 2 regex destructrices mortes (`hub_pki_revoke`, `hub_user_reset_password`) — ces outils n'existent plus dans le catalogue hub-mcp v0.3.0.
+
+### ⚙️ Sous-modules
+
+- **hub-mcp → v0.3.0** (`9774f57`) : resynchronisation des outils MCP avec les routes réelles du Hub v3.12 — 4 remappages (`config`, `admin_settings`, `admin_ports_status`, `backup_trigger`) + 12 suppressions d'outils sans route réelle (`pki_*`, `design_*`, `admin_info`, `admin_dns_status`, `discovery_proxy`, `backup_export_env`/`import_env`, `user_reset_password`). Catalogue : 77 → 65 outils. Modèle de permissions documenté (mode app = token Service Account → `403` sur les endpoints utilisateurs ; mode standalone = token admin).
+- **HUBapp_TEMPLATE_base → v2.6.3** (`00ce80f`) : skill `hub-mcp-usage` réécrit (65 outils, section « Modèle de permissions SA/standalone », badges 🔓/🔒) + plugin `hub.ts` synchronisé.
+
 ## [0.24.7] - 21 juillet 2026
 
 ### 🐛 Fix — hub-mcp standalone : suivi des redirects HTTP
