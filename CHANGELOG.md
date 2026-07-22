@@ -4,6 +4,18 @@
 
 ---
 
+## [0.24.7] - 21 juillet 2026
+
+### 🐛 Fix — hub-mcp standalone : suivi des redirects HTTP
+
+- **hub-mcp** : le client standalone (`standalone_client.py`) ne suivait pas les redirects HTTP → les routes FastAPI sans trailing slash (`/api/apps` → `307 /api/apps/`) retournaient un body vide et cassaient les outils concernés (ex: `hub_app_list`). Ajout de `follow_redirects=True`. Validé : `hub_app_list` retourne désormais `canari` depuis le méta-repo.
+
+### ⚙️ Sous-module hub-mcp → v0.2.1
+
+- Mise à jour vers `7897f0a` (v0.2.1).
+
+---
+
 ## [0.24.6] - 21 juillet 2026
 
 ### ⚡ hub-mcp désormais actif au méta-repo (mode standalone)
