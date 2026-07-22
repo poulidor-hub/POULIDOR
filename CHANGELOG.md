@@ -4,6 +4,14 @@
 
 ---
 
+## [0.24.5] - 21 juillet 2026
+
+### 🐛 Fix — `install.sh` robuste au piège du socket Docker invalidé par apt
+
+- **install.sh** : lors d'un fresh install, si `apt` (Phase 1) (ré)installait un paquet `docker-ce`, le fichier unit `docker.socket` était écrasé à chaud → systemd invalidait le socket ("not functional until restarted") → `systemctl start docker` (Phase 2b) échouait avec rate-limit. Fix : on insère `daemon-reload` + `reset-failed` + `start docker.socket` avant le démarrage du service. Commandes idempotentes (inoffensives si apt n'a rien réinstallé). Bug observé et contourné manuellement lors du fresh install de cette session.
+
+---
+
 ## [0.24.4] - 21 juillet 2026
 
 ### 🐛 Fix — INITIALISE.py (template) mode clean cassait le code des nouvelles apps

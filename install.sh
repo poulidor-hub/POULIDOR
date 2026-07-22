@@ -218,6 +218,16 @@ else
     ok "Docker activé au boot"
 fi
 
+# 2b-pre. Si apt a (ré)installé un paquet docker en Phase 1, le fichier unit
+# docker.socket a pu être écrasé à chaud → socket invalidé par systemd
+# ("Socket unit configuration has changed ... not functional until restarted"),
+# puis rate-limit au redémarrage → "Failed to start docker.service". On prévient
+# ce piège avant de démarrer le service. Commandes idempotentes (inoffensives si
+# apt n'a rien réinstallé).
+systemctl daemon-reload
+systemctl reset-failed docker.socket docker.service 2>/dev/null || true
+systemctl start docker.socket 2>/dev/null || true
+
 # 2b. Démarrer Docker
 if systemctl is-active --quiet docker 2>/dev/null; then
     ok "Docker déjà actif"
