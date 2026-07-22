@@ -4,6 +4,20 @@
 
 ---
 
+## [0.24.6] - 21 juillet 2026
+
+### ⚡ hub-mcp désormais actif au méta-repo (mode standalone)
+
+- **hub-mcp** : nouveau mode standalone (`hub_mcp/standalone_client.py`, client HTTP httpx) permettant de piloter le Hub depuis le méta-repo POULIDOR **sans dépendre du `backend` d'une app**. Fallback transparent dans `_LazyHubClient` (mode app prioritaire, puis standalone). Contrat `call_hub_endpoint` identique → `tools.py` inchangé.
+- **opencode.json** : déclaration du serveur MCP `hub` au niveau du méta-repo (`cd hub-mcp && python3 -m hub_mcp.server`). Les creds (`HUB_BASE_URL` / `HUB_ADMIN_USERNAME` / `HUB_ADMIN_PASSWORD`) viennent de `.secrets` (gitignoré, sourcé via `~/.bashrc`) → non versionnés.
+- Jusqu'ici, seul `zai-mcp-server` était actif au méta-repo (hub-mcp étant conçu pour tourner depuis une app). Désormais les ~85 outils du Hub sont pilotables depuis n'importe quelle session méta-repo.
+
+### ⚙️ Sous-module hub-mcp → v0.2.0
+
+- Mise à jour vers `5438c30` (v0.2.0).
+
+---
+
 ## [0.24.5] - 21 juillet 2026
 
 ### 🐛 Fix — `install.sh` robuste au piège du socket Docker invalidé par apt
