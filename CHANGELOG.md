@@ -4,6 +4,18 @@
 
 ---
 
+## [0.24.4] - 21 juillet 2026
+
+### 🐛 Fix — INITIALISE.py (template) mode clean cassait le code des nouvelles apps
+
+- **Template** : le mode `--clean` (défaut) d'`INITIALISE.py` produisait une app qui ne démarrait pas — `_clean_models()` réécrivait `models.py` en dur en omettant le modèle core `OutboxMessage` (→ `ImportError`), et `_clean_main()` laissait un bloc `if ENABLE_DEMO_ENDPOINTS:` orphelin (→ `IndentationError`). Refactor en nettoyage **ciblé** (regex sur `Item`/`TestData` uniquement, préservation de tous les modèles core). Validé : app canari créée en mode clean démarre et s'inscrit au Hub.
+
+### ⚙️ Sous-module HUBapp_TEMPLATE_base → v2.6.2
+
+- Mise à jour vers `3629aa6` (v2.6.2).
+
+---
+
 ## [0.24.3] - 21 juillet 2026
 
 ### 🐛 Fix — fresh install du Hub cassé par NotNullViolation sur m2m_enforcement_mode
