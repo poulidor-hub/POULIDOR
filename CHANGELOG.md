@@ -4,6 +4,12 @@
 
 ---
 
+## [0.25.1] - 23 juillet 2026
+
+### 🔧 Correction — `FRONTEND_HTTPS_PORT` manquant dans les `.env` générés
+
+- **`_write_app_env`** : ajout de `FRONTEND_HTTPS_PORT = FRONTEND_PORT + 1` dans les substitutions du `.env` généré. Évite le timing Makefile où `make sync-env` écrit la valeur mais `docker compose build` ne la voit pas (le `include .env` est lu au démarrage de make).
+
 ## [0.25.0] - 23 juillet 2026
 
 ### ⚡ Nouvelle commande `hubctl seed` — déploiement batch déclaratif d'applications
