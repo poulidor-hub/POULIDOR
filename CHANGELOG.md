@@ -4,6 +4,19 @@
 
 ---
 
+## [0.25.0] - 23 juillet 2026
+
+### ⚡ Nouvelle commande `hubctl seed` — déploiement batch déclaratif d'applications
+
+- **`hubctl seed <fichier.yaml>`** : déploie/converge un ensemble d'applications depuis un fichier YAML déclaratif, en mode batch non-interactif et best-effort.
+- **3 cas de déploiement** : nouvelle app (clone + init), app clonée non-initialisée (pull + init), app déjà déployée (pull + build + up, `.env` préservé).
+- **`--prune`** : supprime les apps présentes mais non listées dans le fichier (confirmation Oui/Non).
+- **`--dry-run`** : simule sans exécuter.
+- **Rapport final** Rich avec ✓/✗ par app et code de sortie (0 si tout OK, 1 si échec).
+- **Fonctions isolées et testables** : `_load_seed_file`, `_seed_one_app`, `_seed_prune`, `action_seed`, `_seed_report` — réutilisation massive des helpers existants.
+- **`seed-apps.yaml`** : fichier d'exemple à la racine du parc (8 apps du parc courant).
+- **Tests** : +308 lignes de tests unitaires TDD (416 tests au total, 0 régression).
+
 ## [0.24.8] - 22 juillet 2026
 
 ### 🧹 Tooling — nettoyage plugin + sync outillage Hub
