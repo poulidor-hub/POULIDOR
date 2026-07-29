@@ -4,6 +4,37 @@
 
 ---
 
+## [0.25.3] - 29 juillet 2026
+
+### 📣 Pour les utilisateurs
+
+- **Corrigé** : `hubctl` ne lagge plus — toutes les touches du clavier répondent désormais instantanément. Le tableau de bord recalculait des appels Docker et `git status` à chaque image (≈ 384 ms de blocage par frame), ce qui gelait la lecture du clavier.
+- **Amélioré** : le coffre des secrets est désormais protégé contre la corruption — la sauvegarde est atomique et l'ancien coffre est automatiquement préservé dans un `.bak` récupérable.
+- **Amélioré** : durcissement de sécurité du debug agent et de la restauration du parc (voir détail technique ci-dessous).
+
+### ⚡ Performance — `hubctl` (lag des inputs)
+
+- **Boucle de rendu non bloquante** (`menu.py`) : les builders du dashboard (`_build_services`, `_build_resources`) appelaient des fonctions bloquantes synchrones sur le thread de rendu à chaque frame — `docker info`, `docker compose ps`, et surtout `get_active_apps()` (`git status` × N + parcours récursif `_dir_size` × N), soit ≈ 384 ms/frame. Désormais un poll worker d'arrière-plan (`_state_poll_worker`) peuple un cache `_snap` (docker_ok, services, apps_count) lu instantanément par les builders. **Coût d'un render : 384 ms → 0,6 ms (×624).**
+- **Amorçage du cache** (`__main__.py`) : l'état calculé par le preload de démarrage (jusqu'ici calculé puis jeté) amorce désormais le cache via `main_loop(..., initial_state=state)` → zéro appel bloquant supplémentaire au boot.
+
+### 🔒 Sécurité — coffre & debug agent
+
+- **Garde-fou SQL durci** (`debug_agent/debug_mcp.py`) : `psql -c` exécutait tous les statements séparés par `;`. Un payload `SELECT 1; COPY ... TO PROGRAM 'cmd'` (non couvert par l'ancienne denylist) permettait une **RCE sur l'hôte DB**, y compris en mode lecture seule. Nouveau `_validate_readonly_query` : interdit le chainage `;` + denylist étendue (`COPY`/`PROGRAM`/`DO`/`CALL`/`VACUUM`/`GRANT`/`REVOKE`/`MERGE`…).
+- **`coffre.save()` atomique** (`coffre.py`) : l'écriture était directe (`write_bytes`) — un crash pendant la sauvegarde corrompait le coffre et **perdait tous les secrets du parc**. Désormais : écriture atomique (temp → fsync → `os.replace`, mode 0600) + backup `.bak` récupérable du coffre précédent.
+- **`restore()` anti path traversal** (`coffre.py`) : un coffre importé d'une source externe pouvait écrire arbitrairement hors parc via un relpath `../../etc/cron.d/evil`. Garde `is_relative_to(PARC_ROOT)`.
+- **`git clone` validé** (`coffre.py`) : l'URL Git issue du coffre est désormais validée (allowlist http/https/ssh/git@/git ; `file://` et chemins locaux interdits) pour empêcher le clonage d'un dépôt arbitraire (vecteur hooks/fsmonitor). Clone best-effort au lieu de `check=True` qui propageait.
+- **`import_vault` validé** (`vault_manager.py`) : n'importe quel binaire pouvait remplacer le coffre (activant les failles ci-dessus). Désormais : vérif du magic `HUBCTLV1` + backup `.bak` du coffre courant.
+
+### 🛡️ Robustesse — DB & parsing
+
+- **Health check robuste** (`actions.py`) : l'ancien match littéral `'"status":"healthy"' in stdout` échouait sur `{"status": "healthy"}` (espaces après `:`, format `json.dumps` par défaut) → **faux négatif → rollbacks destructeurs** sur une API pourtant saine. Nouveau `_is_healthy_body` parse le JSON ; + catch `FileNotFoundError` (curl absent) + durée réelle via `time.monotonic()`.
+- **`_restore_db` transactionnel** (`vault_manager.py`) : `TRUNCATE CASCADE` sans filet — un dump partiel/corrompu laissait la base **vidée sans recours** (users/apps/settings perdus). Désormais : snapshot live **avant** truncate + rollback automatique sur échec + log (plus d'échec silencieux).
+- **Parser `.env`** (`env_manager.py`) : `export KEY=val` et `KEY = val` (espaces autour de `=`) étaient **ignorés silencieusement** → le secret correspondant n'était pas sauvegardé dans le coffre. Regex étendue.
+
+### 🧪 Tests
+
+- **290 tests, 0 échec** (+37 depuis v0.25.2) : garde-fou SQL (17), health check (6), atomicité coffre (3), path traversal + git_url (3), import_vault (3), restore_db transactionnel (2), parser `.env` (3), cache dashboard (déjà en place).
+
 ## [0.25.2] - 29 juillet 2026
 
 ### 📣 Pour les utilisateurs
