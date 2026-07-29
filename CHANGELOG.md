@@ -6,6 +6,12 @@
 
 ## [0.25.1] - 23 juillet 2026
 
+### 📣 Pour les utilisateurs
+
+- **Ajouté** : `hubctl seed <fichier.yaml>` — déploie ou met à jour toutes les applications listées dans un fichier YAML en une seule commande. Idéal pour initialiser un nouveau serveur ou synchroniser un parc complet.
+- **Ajouté** : `--dry-run` et `--prune` — simulez avant d'exécuter, et nettoyez les apps absentes du fichier seed.
+- **Corrigé** : le port HTTPS frontend (`FRONTEND_HTTPS_PORT`) n'était pas renseigné dans les `.env` générés pour les nouvelles applications, ce qui pouvait bloquer le build Docker.
+
 ### 🔧 Correction — `FRONTEND_HTTPS_PORT` manquant dans les `.env` générés
 
 - **`_write_app_env`** : ajout de `FRONTEND_HTTPS_PORT = FRONTEND_PORT + 1` dans les substitutions du `.env` généré. Évite le timing Makefile où `make sync-env` écrit la valeur mais `docker compose build` ne la voit pas (le `include .env` est lu au démarrage de make).
