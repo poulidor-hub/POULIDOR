@@ -4,6 +4,29 @@
 
 ---
 
+## [0.25.5] - 29 juillet 2026
+
+### 📣 Pour les utilisateurs
+
+- **Corrigé** : la création d'un nouveau coffre avec une passphrase vide n'est plus autorisée.
+- **Corrigé** : l'export de récupération protège désormais les permissions des fichiers secrets écrits (0o600) et restaure correctement l'umask en cas d'erreur.
+- **Amélioré** : la vérification « Hub vide » avant une restauration de parc utilise désormais le nombre réel de lignes dans la table `users` (et non le nombre de tables), ce qui permet de restaurer un Hub fraîchement initialisé.
+- **Note technique** : les paramètres du KDF Scrypt (n=2^14) sont volontairement bas pour la rapidité — ils évolueront dans une version future avec versionnage du format coffre.
+
+### 🧹 Finitions — `hubctl`
+
+- **`export_recovery` umask garantie** (`vault_manager.py`) : l'état du `umask` est restauré via `try/finally`. Les fichiers secrets écrits reçoivent explicitement `chmod 0o600` (plus par effet de bord).
+- **Passphrase vide refusée** (`coffre.py:unlock()`) : un coffre créé avec une passphrase vide était trivialement déchiffrable. Défense en profondeur (l'UI vérifiait déjà mais le coffre ne défendait pas).
+- **`datetime.utcnow()` → `now(timezone.utc)`** (`vault_manager.py`) : API dépréciée depuis Python 3.12.
+- **Validation des valeurs `.env`** (`env_manager.py`) : `write_env` rejette désormais les valeurs contenant un `\n` (saut de ligne) — elles corrompraient le fichier.
+- **Durabilité de `_atomic_write`** (`env_manager.py`) : `os.fsync` du répertoire parent après `os.replace` pour garantir la persistance du rename en cas de crash système.
+- **`_check_hub_is_empty` corrigé** (`park_restore.py`) : la requête comptait les tables via `information_schema.tables` (1 si la table existe, même vide) au lieu des lignes de `users` (`SELECT COUNT(*) FROM users`). Un Hub démarré mais sans users (juste après un `compose up` initial) était refusé à tort.
+- **Note Scrypt** (`coffre.py:derive_key`) : commentaire documentant le choix `n=2^14` et la nécessité de versionner le KDF dans le blob pour une future montée en résistance brute-force.
+
+### 🧪 Tests
+
+- **306 tests, 0 échec** (stable depuis v0.25.4).
+
 ## [0.25.4] - 29 juillet 2026
 
 ### 📣 Pour les utilisateurs
