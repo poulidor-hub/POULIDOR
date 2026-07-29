@@ -4,6 +4,33 @@
 
 ---
 
+## [0.25.2] - 29 juillet 2026
+
+### 📣 Pour les utilisateurs
+
+- **Corrigé** : `hubctl` plantait au démarrage (module `re` manquant) et lors de la création d'un atelier avec base de données.
+- **Corrigé** : `hubctl seed --prune` plantait lors de la suppression d'applications (fonction de suppression manquante).
+- **Amélioré** : le tableau de bord affiche désormais la mémoire RAM et swap réelles (au lieu d'une métrique CPU trompeuse).
+- **Amélioré** : la fluidité de l'interface terminal est nettement meilleure (taux de rafraîchissement réduit de 30 à 8 fps pour éviter la surcharge du terminal).
+
+### 🐛 Fixes critiques — `hubctl`
+
+- **`import re` manquant** (`actions.py`) : `NameError` au démarrage de `hubctl`. Le module `re` était utilisé (regex de validation, substitutions) mais jamais importé.
+- **`run_shell()` non qualifié** (`actions.py`) : `NameError` lors de la création d'un atelier avec clone DB. Remplacé par `subprocess.run(...)` (cohérent avec le reste du fichier).
+- **`action_remove_app()` inexistante** (`actions.py`) : `NameError` sur `hubctl seed --prune` confirmé. Fonction implémentée : `compose down -v` + backup tar.gz + `rmtree`.
+
+### ⚡ Améliorations — dashboard & performance
+
+- **Barre RAM corrigée** (`menu.py`) : `_build_resources` affichait le load average CPU étiqueté « RAM » et la swap hardcodée à 0. Nouvelle fonction `_mem_usage()` lisant `/proc/meminfo` → vraies valeurs RAM + swap.
+- **Framerate terminal** (`canvas.py`, `menu.py`) : `refresh_per_second` réduit de 30 à 8 (le défaut Rich est 4) ; ajout d'un throttle de rendu (250 ms) dans `main_loop` pour éviter l'étranglement du terminal. Cohérent avec le pattern existant de `stream_command()` (4 fps).
+- **Fuite de descripteur de fichier** (`actions.py` : `_db_snapshot`) : `stdout=open(path, "w")` jamais fermé → encapsulé dans `with open(...) as f:`.
+
+### 🧹 Nettoyage & tests
+
+- **Code mort supprimé** : `_port_in_use()`, `_ui_state`, `_cpu_load()` (rendu mort par la correction RAM), double définition `_console = Console()`.
+- **Tests réparés** : suppression de `test_menu_tree_contains_all_actions` (obsolète, menu refactorisé) ; mock manquant de `_sync_db_password_if_needed` dans `test_bootstrap_does_not_leak_password` (causait un pend de 60 s) ; les tests `test_seed_prune_*` fonctionnent désormais grâce à l'implémentation de `action_remove_app`.
+- **253 tests, 0 échec.**
+
 ## [0.25.1] - 23 juillet 2026
 
 ### 📣 Pour les utilisateurs
