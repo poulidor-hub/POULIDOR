@@ -4,6 +4,14 @@
 
 ---
 
+## [0.25.6] - 30 juillet 2026
+
+### 🐛 HUB_base v3.19.1 — fix migrations fresh install
+
+- **HUB_base → v3.19.1** : correctifs sur les migrations 026 (`INSERT` app système Hub manquait `is_workshop` et `is_unmanaged`) et 042 (`ALTER TABLE ADD COLUMN git_repo_url` manquait `IF NOT EXISTS`). Ces bugs empêchaient un boot sur base de données vierge (`NotNullViolation` / `DuplicateColumnError`). Nouveau test garde-fou empêchant cette classe de régression à la source.
+
+---
+
 ## [0.25.5] - 29 juillet 2026
 
 ### 📣 Pour les utilisateurs
