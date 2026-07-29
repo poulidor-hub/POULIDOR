@@ -4,6 +4,41 @@
 
 ---
 
+## [0.25.4] - 29 juillet 2026
+
+### 📣 Pour les utilisateurs
+
+- **Corrigé** : la jauge réseau du tableau de bord affichait une unité fausse (Go/s au lieu de Mo/s).
+- **Corrigé** : appuyer sur Échap dans le dialogue de confirmation (exemple : quitter hubctl) fermait l'application au lieu d'annuler.
+- **Corrigé** : la barre d'espace disque et son pourcentage se contredisaient (barre = % utilisé, chiffre = % libre) — désormais cohérents.
+- **Amélioré** : le terminal revient toujours en mode normal, même après un crash de hubctl (plus d'entrée invisible sans écho qui forçait à taper `reset`).
+- **Amélioré** : l'atelier (création d'un environnement de test pour une app) garantit désormais le redémarrage de la production en cas d'erreur inattendue.
+- **Amélioré** : robustesse de l'export et de la restauration de parc — l'archive détecte correctement un dump de base de données manquant, et la restauration est compatible avec Python 3.10 et 3.11.
+
+### 🛡️ Robustesse — `hubctl` (Palier 3)
+
+- **`_norm` cohérent Compose v2** (`hub_state.py`) : remplace les séparateurs par `-` au lieu de les supprimer → fin des collisions `exemple-app` ≡ `exemple` (faux statut d'app).
+- **Labels Docker dict/str** (`hub_state.py`) : `_docker_api_containers` gère maintenant le format `"Labels":{"key":"val"}` (certaines versions/API Docker le produisent) en plus du format comma-separated. Sans cela, l'ancien code plantait sur `AttributeError: 'dict' object has no attribute 'split'` → toutes les apps affichées « stopped ».
+- **Timeouts `auto_detect`** (`auto_detect.py`) : `subprocess.check_output` appelé sans `timeout=` → ajout de `timeout=5`/`timeout=10` + catch `TimeoutExpired`. Évite que le boot gèle si le daemon Docker est dans un état dégradé.
+- **Injection SQL `ALTER USER`** (`actions.py:278`) : extraction de `_build_alter_user_sql` (échappement des quotes + validation de l'identifiant SQL). L'ancienne interpolation `f"ALTER USER ... '{password}'"` cassait silencieusement le bootstrap si le mot de passe contenait une apostrophe.
+- **Atelier création : garantie restart prod** (`actions.py`) : le corps de création est entouré d'un `try/except` — toute exception non gérée (ex : `shutil.copytree`, `docker volume create` sans catch) nettoie l'atelier et **redémarre la prod** au lieu de la laisser down.
+- **`restore` sans traceback brut** (`__main__.py`) : la commande `restore` attrape désormais les exceptions prévisibles (archive corrompue, magic absent, `tarfile.ReadError`, `docker` absent) → message + exit 1.
+- **Fuite de processus sur timeout** (`utils.py`) : `run_shell` (branche `stream=True`) ne tuait pas le fils sur timeout (`communicate(timeout=)` ne le fait pas). Désormais `proc.kill()` + `proc.communicate()` → plus d'orphelins docker/compose.
+- **TOCTOU `cancel_current`** (`utils.py`) : le global `_current_proc` était lu deux fois (test + `.kill()`) → un worker parallèle pouvait le mettre à `None` entre-temps → `AttributeError` (pas catché). Fix : capture dans une variable locale.
+
+### 🧪 Fiabilité — coffre, export, TUI
+
+- **Export : manifest `hub_db: null`** (`park_export.py`) : si le dump de la base Hub échoue, le manifest pointe désormais sur `null` au lieu de `databases/hub.pgdump` (inexistant) → le restore n'abortait plus sans explication (« faux backup valide »).
+- **`_safe_extractall` compat Python 3.10/3.11** (`park_restore.py`) : l'argument `filter="data"` de `extractall` n'existe qu'en 3.12+. Sur versions antérieures, on valide manuellement chaque membre (anti path-traversal + rejet des symlinks) avant extraction.
+- **Échap ne quitte plus l'app** (`menu.py`) : `confirm` retourne le sentinel `ESC` (truthy) sur Échap. Les 3 appels `if confirm:` → `if confirm is True:` (strict).
+- **UTF-8 invalide toléré** (`keys.py`) : en mode cbreak, un caractère multioctet peut arriver scindé en plusieurs `os.read` → `UnicodeDecodeError` non rattrapé → crash TUI. `_decode` ignore désormais ces séquences partielles.
+- **Terminal restauré avant Live** (`canvas.py:close()`) : le `__exit__` du `Live` Rich était appelé AVANT `termios.tcsetattr`. Si `__exit__` levait, le terminal restait en mode cbreak (input sans écho). Désormais le tcsetattr est fait en premier, chaque étape dans son propre `try/except`.
+- **Unités réseau corrigées** (`menu.py:_fmt_net`) : `1000 KB/s ≈ 1 MB/s` (et non 1 GB/s) ; ajout du palier Mo/s manquant. Barre et pourcentage disque désormais tous deux sur le % **utilisé** (plus de contradiction).
+
+### 🧪 Tests
+
+- **306 tests, 0 échec** (+16 depuis v0.25.3) : `_norm` (3), timeouts (2), `ALTER USER` (3), `restore` try/except (1), fuite proc + TOCTOU (3), extraction sûre (2), manifest `hub_db` null (1), UTF-8 invalide (1).
+
 ## [0.25.3] - 29 juillet 2026
 
 ### 📣 Pour les utilisateurs
