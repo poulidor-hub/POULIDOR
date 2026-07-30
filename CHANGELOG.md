@@ -4,7 +4,30 @@
 
 ---
 
-## [0.25.6] - 30 juillet 2026
+## [0.26.0] - 30 juillet 2026
+
+### 📣 Pour les utilisateurs
+
+- **Ajouté** : le coffre (vue détaillée) est maintenant accessible depuis le dashboard (touche `4`/`6`). Il affiche les entrées du coffre, les badges `[MODIFIÉ]` quand le disque a divergé, et permet de consulter les secrets par entrée.
+- **Corrigé** : les résultats des actions (✓/✗ démarrage, arrêt, mise à jour, sauvegarde coffre) étaient invisibles — seul « ↵ Entrée pour revenir au menu… » s'affichait. Le message de résultat est désormais composé avec l'invite.
+- **Corrigé** : les erreurs lors de la sauvegarde / export / changement de passphrase du coffre étaient silencieuses. Elles sont maintenant affichées avec ✗ en rouge.
+- **Amélioré** : le coffre ne sauvegarde plus inutilement quand aucun `.env` n'a changé depuis la dernière sauvegarde (« ✓ Coffre déjà à jour »).
+- **Amélioré** : le démarrage/arrêt détecte désormais les apps déjà démarrées/arrêtées et les saute (« ✓ déjà démarré/arrêté »).
+- **Amélioré** : la mise à jour détecte désormais si le dépôt git est déjà à jour et saute le cycle stop→pull→build→up (« ✓ déjà à jour »).
+
+### ⚡ hubctl v0.26.0 — coffre visible + actions idempotentes
+
+- **`view_coffre` branché dans `main_loop`** (`menu.py`) : l'écran complet du coffre (entrées, divergence, actions, révélation) était écrit mais jamais appelé — il remplace désormais `_coffre_submenu`.
+- **`pause(canvas, message)`** (`menu.py`) : `pause` accepte un message optionnel composé AVEC l'invite Entrée (au lieu d'écraser le message précédent).
+- **`_run_action`** (`menu.py`) : utilise `pause(canvas, message)` pour que le résultat ✓/✗ reste visible après `stream_command`.
+- **`view_coffre` try/except** (`menu.py`) : les 3 actions (sauvegarder, export, changer passphrase) capturent et affichent les erreurs.
+- **Coffre idempotent** (`menu.py:view_coffre`) : `check_divergence()` avant `backup_all()` — skip si rien n'a changé.
+- **Helpers d'idempotence** (`actions.py`) : `_app_running()` (Docker API), `_hub_running()` (services Hub), `_git_up_to_date()` (git fetch + compare HEAD/@{u}).
+- **Start/stop idempotents** (`actions.py`) : `_start_hub`, `_start_app`, `_stop_app` sautent les cibles déjà dans l'état voulu.
+- **Update idempotent** (`actions.py:_update_target`) : si `HEAD == @{u}`, saute le cycle stop→pull→build→up.
+- **Tests** : 307 (inclut `test_view_coffre_backup_already_up_to_date`).
+
+---
 
 ### 🐛 HUB_base v3.19.1 — fix migrations fresh install
 
