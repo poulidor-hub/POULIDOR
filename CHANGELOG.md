@@ -4,6 +4,14 @@
 
 ---
 
+## [0.27.0] - 30 juillet 2026
+
+### ⚡ hubctl v0.27.0 — seed export
+
+- **`hubctl seed export`** : nouvelle commande pour générer un fichier seed YAML à partir des apps installées dans `APPS/`. Utilise `-o <chemin>` pour spécifier la sortie (défaut : `seed-export-YYYY-MM-DD.yaml`), `--force` pour écraser un fichier existant. Compatible avec `hubctl seed <fichier.yaml>` (déploiement).
+- **312 tests** (hubctl_cli), 5 tests unitaires dédiés à `action_seed_export`.
+- Correction post-review : support de la syntaxe `seed export`, nettoyage du dead code, tests `--force` et nom de fichier par défaut.
+
 ## [0.26.0] - 30 juillet 2026
 
 ### 📣 Pour les utilisateurs
