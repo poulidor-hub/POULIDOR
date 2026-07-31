@@ -4,6 +4,19 @@
 
 ---
 
+## [0.27.2] - 31 juillet 2026
+
+### ⚡ Migration hubctl_cli → sous-module Hubctl
+
+- **hubctl_cli** (59 fichiers) extrait en sous-module indépendant vers le repo
+  `POULIDOR-Audit-Developpement/Hubctl` (v0.1.0). Historique complet préservé
+  (502 commits via `git subtree split`). Sous-module dans `hubctl_src/`.
+- **Compatibilité préservée** : symlinks `hubctl → hubctl_src/hubctl` et
+  `hubctl_cli → hubctl_src/hubctl_cli`. Tous les chemins `./hubctl` et
+  `hubctl_cli/` continuent de fonctionner sans modification.
+- **`git clone` et `hubctl init`** nécessitent désormais `--recurse-submodules`
+  (ou `git submodule update --init` après clone) pour initialiser `hubctl_src`.
+
 ## [0.27.1] - 31 juillet 2026
 
 ### ⚡ Outillage MCP hub-mcp v0.3.1
