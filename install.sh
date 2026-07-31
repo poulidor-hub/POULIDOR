@@ -203,6 +203,13 @@ command -v git &>/dev/null || err "git introuvable après installation."
 command -v python3 &>/dev/null || err "python3 introuvable après installation."
 python3 -c "import venv" 2>/dev/null || err "python3-venv non fonctionnel."
 ok "Vérifications : docker, git, python3-venv — OK"
+
+# 1f. Initialiser les sous-modules (hubctl_src, hub-mcp, etc.)
+say "  Initialisation des sous-modules git…"
+if ! sudo -u "$REAL_USER" git submodule update --init --recursive; then
+    err "Échec de l'initialisation des sous-modules git. Vérifiez l'accès SSH aux repos GitHub."
+fi
+ok "Sous-modules initialisés"
 say ""
 
 # ── Phase 2 : Services ───────────────────────────────────────────────────────
