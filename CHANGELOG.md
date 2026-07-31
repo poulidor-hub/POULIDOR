@@ -4,6 +4,16 @@
 
 ---
 
+## [0.27.1] - 31 juillet 2026
+
+### ⚡ Outillage MCP hub-mcp v0.3.1
+
+- **hub-mcp** (sous-module) mis à jour vers v0.3.1 : correction du bug `"object dict
+  can't be used in 'await' expression"` qui rendait tous les outils MCP du Hub
+  inaccessibles depuis le méta-repo (mode standalone). Le client standalone
+  `StandaloneHubClient.call_hub_endpoint` passe en `async def` pour respecter le
+  contrat attendu par `call_tool()`.
+
 ## [0.27.0] - 30 juillet 2026
 
 ### ⚡ hubctl v0.27.0 — seed export
