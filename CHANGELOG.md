@@ -14,8 +14,11 @@
 - **Compatibilité préservée** : symlinks `hubctl → hubctl_src/hubctl` et
   `hubctl_cli → hubctl_src/hubctl_cli`. Tous les chemins `./hubctl` et
   `hubctl_cli/` continuent de fonctionner sans modification.
-- **`git clone` et `hubctl init`** nécessitent désormais `--recurse-submodules`
-  (ou `git submodule update --init` après clone) pour initialiser `hubctl_src`.
+- **`install.sh`** : ajout de `git submodule update --init --recursive` en
+  phase 1, garantissant que `hubctl_src/` est initialisé même si le clone a
+  été fait sans `--recurse-submodules`.
+- **`git clone`** : nécessite `--recurse-submodules` pour initialiser `hubctl_src`.
+  `install.sh` gère désormais ce cas automatiquement via `git submodule update --init`.
 
 ## [0.27.1] - 31 juillet 2026
 
