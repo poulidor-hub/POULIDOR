@@ -4,6 +4,15 @@
 
 ---
 
+## [0.28.1] - 2 août 2026
+
+### ⚡ Correction des pointeurs de sous-modules
+
+- **HUB_base** : `1393353` (orphelin) → `9ec9148` (origin/main, v3.20.1)
+- **HUBapp_TEMPLATE_base** : `84f6878` (feature branch) → `98900db` (origin/main, v2.7.0)
+- **hubctl_src** : `205a927` (orphelin) → `e67e72b` (origin/main, v0.1.0)
+- Les trois sous-modules pointaient vers des commits jamais poussés sur leurs dépôts respectifs.
+
 ## [0.28.0] - 1 août 2026
 
 ### ⚡ Directive agent template-centrée (ex-HUBCSS)
