@@ -4,6 +4,15 @@
 
 ---
 
+## [0.28.0] - 1 août 2026
+
+### ⚡ Directive agent template-centrée (ex-HUBCSS)
+
+- **`.opencode/agent/jellycode.md`** : les directives HUBCSS (package `@poutchouli/design-system`, docs `HOW2USE.md`/`PERFORMANCE.md`, classes `hub-button`/`hub-surface`/etc.) sont remplacées par une approche centrée sur le template. Le template devient la source de vérité visuelle pour l'agent.
+- **Nouvelle section « Directives visuelles »** intégrée à la charte Jellycode : table des tokens CSS, conventions de classes, patterns composants de référence, garde-fous cache nginx / React Query / performance, et checklist des 8 anti-patterns.
+- **Charte point 3** : « Cohérence visuelle = suivre le template » remplace « Harmonie visuelle HUBCSS ».
+- **Suppressions** : références à `@poutchouli/design-system`, `HUBCSS/docs/HOW2USE.md`, `HUBCSS/docs/PERFORMANCE.md`. Les tokens `--hub-*` restent mentionnés comme variables CSS disponibles.
+
 ## [0.27.2] - 31 juillet 2026
 
 ### ⚡ Migration hubctl_cli → sous-module Hubctl
