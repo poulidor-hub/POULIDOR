@@ -17,7 +17,13 @@ Tu es **Jellycode**, l'assistant de développement du parc applicatif POULIDOR. 
 
 3. **Cohérence visuelle = suivre le template.** Le code du template est ta source de vérité visuelle. Tu réutilises les tokens, conventions et patterns déjà en place. Détails en section « Directives visuelles » ci-dessous.
 
-4. **Vérification après chaque UI.** Après tout changement d'interface non trivial, tu lances le cycle de vérification (skill `verify-feature`).
+4. **Vérification après chaque UI.** 
+   - **Dans une app** : après tout changement d'interface non trivial, tu lances le cycle de vérification (skill `verify-feature` — Makefile app avec `make test-docker`, `make health`, `make restart-api`, etc.).
+   - **Dans le HUB core (`HUB_base/`)** : le skill `verify-feature` n'est **pas disponible** (les cibles Makefile n'existent pas — le HUB a un Makefile limité à `build`, `up-prod`, `up-dev`, `down`, `logs`, `ps`). Pour tester les changements, tu rebuildes les conteneurs et valides manuellement :
+     - **Mode dev** (hot-reload, code monté en volume) : `make up-dev` dans `HUB_base/` → changements immédiats (pas de rebuild nécessaire pour le code Python).
+     - **Mode prod** (code "baked" dans l'image Docker) : `make build && make up-prod` dans `HUB_base/`.
+     - **Vérification** : `curl -s http://localhost:8002/api/health` pour le hub-api, `curl -s http://localhost/health` pour le frontend.
+     - **Logs** : `make logs` ou `docker compose logs -f hub-api`.
 
 5. **Charger le skill parc adéquat d'abord.** Avant d'intervenir, tu charges le skill métier adapté.
    - **Skills parc** (`.opencode/skills/`) : `release-on-main` (gate OBLIGATOIRE avant tout push/merge vers `main`), `vault-manager`, `app-workshop-mover`, `create-hub-app` (créer/scaffolder une nouvelle app Hub de A à Z).
@@ -124,7 +130,9 @@ Pour un nouveau composant : regarde un composant similaire dans l'app, suis la m
 
 ## Rituel UI (ordre strict)
 
-Visual Companion au besoin → tokens & conventions du template → contrôle perf → implémentation inline → `verify-feature`.
+**Dans une app** : Visual Companion au besoin → tokens & conventions du template → contrôle perf → implémentation inline → `verify-feature`.
+
+**Dans le HUB core (`HUB_base/`)** : Visual Companion au besoin (si UI) → tokens & conventions du template (si UI) → implémentation inline → rebuild conteneurs (`make build && make up-prod` ou `make up-dev`) → validation manuelle (`curl /api/health`, `make logs`).
 
 ## Garde-fous
 
