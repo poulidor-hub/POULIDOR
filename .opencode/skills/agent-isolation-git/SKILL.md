@@ -290,3 +290,44 @@ json.dump(reg,open('.worktrees/_agents/registry.json','w'),indent=2,ensure_ascii
 "
 agent_lock_release
 ```
+
+## Cas d'erreur
+
+| Situation | Action |
+|---|---|
+| Branche déjà `active` au step 1 | Abort. Proposer un nom alternatif. Ne jamais réutiliser une branche active. |
+| `git worktree add` échoue au step 2 | Prendre le lock, retirer l'entrée du registre, libérer. |
+| Merge en conflit au step 4 | Résoudre manuellement. Si impossible : `git merge --abort`, libérer le lock, garder le worktree pour debug. |
+| `release-on-main` échoue au step 4 | `git merge --abort`, libérer le lock, investiguer avant de réessayer. |
+| Agent crashé, worktree zombie | Pas de nettoyage automatique. Le registre garde `status=active`. Nettoyage manuel par l'humain. |
+| Lock stale (>60s) | Forcé automatiquement par le prochain agent (cf. section Lock). |
+
+## Interaction avec les skills existants
+
+| Skill | Rôle |
+|---|---|
+| `release-on-main` | Invoqué à l'étape 4 sous lock. Garantit bump version + changelog séquentiel. Non modifié par ce skill. |
+| `using-git-worktrees` (superpowers) | Référence pour les commandes `git worktree` avancées. Ce skill documente le minimum nécessaire. |
+| `app-workshop-mover` | Indépendant. Isolation git uniquement. Combiner manuellement si isolation Docker/DB nécessaire. |
+
+## Common Mistakes
+
+| Erreur | Conséquence | Correction |
+|---|---|---|
+| Travailler dans le worktree principal sans isoler | Conflit avec d'autres agents, WIP mélangé aux commits | Toujours créer un worktree avant de modifier du code |
+| Oublier de libérer le lock | Tous les autres agents bloqués | Toujours wrapper dans try/finally ou trap EXIT |
+| Merger sans invoquer `release-on-main` | Push sur `main` sans bump version = violation AGENTS.md | `release-on-main` est obligatoire, appelé dans l'étape 4 |
+| Merger sans tenir le lock | Deux agents bumpent la même version → conflit VERSION/CHANGELOG | Le lock couvre l'intégralité du merge + release + push |
+| Créer un worktree sans s'enregistrer au registre | Pas de détection de collision, worktree orphelin | Étape 1 (registre) AVANT étape 2 (worktree) |
+| Ne pas nettoyer le worktree après merge | Accumulation de worktrees zombies | Étape 5 (nettoyage) systématique après étape 4 |
+| Modifier un submodule comme le méta-repo | Le pointeur parent n'est pas mis à jour | v1 : gérer les submodules manuellement |
+
+## Red Flags — STOP et corriger
+
+- "Pas besoin de worktree, c'est une petite modif" → **Faux.** Si d'autres agents sont actifs, toute modif peut entrer en conflit. Isoler.
+- "Je merge direct sans lock, ça ira plus vite" → **Faux.** Sans lock, `release-on-main` peut bumper la même version qu'un autre agent.
+- "Le registre, je l'ignore, git gère tout" → **Faux.** Git ne prévient pas les collisions de branches entre agents ; le registre si.
+- "Je supprime le worktree sans le retirer du registre" → **Faux.** Entrée fantôme = fausse collision pour les prochains agents.
+- "Le lock stale, je l'ignore" → **Faux.** Un lock non libéré bloque tous les agents. Le forcer après 60s est obligatoire.
+
+**Tous ces drapeaux : revenir à l'étape concernée et suivre l'ordre strict.**
