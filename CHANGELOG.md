@@ -4,6 +4,22 @@
 
 ---
 
+## [0.30.0] - 2 août 2026
+
+### ⚡ Skill agent-isolation-git : isolation multi-agent concurrents
+
+- **Nouveau skill `agent-isolation-git`** : permet à plusieurs agents Jellycode de
+  travailler en parallèle sur le même dépôt sans collision de commits ou de branches,
+  via des worktrees isolés et un registre partagé.
+- **Registre JSON** (`registry.json`) dans `.worktrees/_agents/` avec lock atomique
+  (`mkdir`) pour éviter les collisions de branches et sérialiser les merges vers `main`.
+- **Cycle de vie en 5 étapes** : enregistrement → création du worktree → travail →
+  merge sérialisé (lock + `release-on-main`) → nettoyage.
+- **Lock stale détecté** automatiquement après 60 secondes (crash d'un agent).
+- **Périmètre git uniquement** (v1) — pas de Docker, DB, ou submodules.
+- **AGENTS.md** : nouvelle section "Multi-agent — isolation git" qui documente
+  l'obligation d'isolation avant toute modification de code.
+
 ## [0.29.0] - 2 août 2026
 
 ### ⚡ Guide développement + clarification agent + màj dépendances
