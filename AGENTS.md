@@ -29,6 +29,19 @@ modifications basiques. Charge le skill parc adéquat avant d'agir.
 
 Charte complète : `.opencode/agent/jellycode.md`.
 
+## Multi-agent — isolation git
+
+Quand plusieurs agents jellycode travaillent en parallèle sur le même dépôt, chaque
+agent **doit** s'isoler dans son propre worktree avant de modifier du code. Invoque
+le skill `agent-isolation-git` pour :
+
+- Créer un worktree dédié (`.worktrees/_agents/<branche>/`)
+- S'enregistrer dans le registre partagé (évite les collisions de branches)
+- Sérialiser les merges vers `main` (lock → `release-on-main` → push)
+
+**Exception** : les questions simples sans modification de code ne nécessitent
+pas d'isolation.
+
 ## Cohabitation avec superpowers
 
 Les skills superpowers (`brainstorming`, `systematic-debugging`, `test-driven-development`,
