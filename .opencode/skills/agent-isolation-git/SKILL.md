@@ -48,3 +48,52 @@ n'est nécessaire que lorsqu'un agent va modifier des fichiers et committer.
 - Dispatch de subagents → mécanisme natif opencode `task`
 - Submodules → gérés manuellement par l'agent
 - Nettoyage automatique des worktrees zombies
+
+## Conventions de nommage
+
+| Ressource | Convention | Exemple |
+|---|---|---|
+| Branche agent | `feat/<description>` ou `fix/<description>` | `feat/filtres-recherche` |
+| Dossier worktree | `.worktrees/_agents/<branch-slug>/` | `.worktrees/_agents/feat-filtres-recherche/` |
+| Branch-slug | Nom de branche avec `/` → `-` | `feat/filtres-recherche` → `feat-filtres-recherche` |
+| Agent ID | `jellycode-<uuid4:8>` | `jellycode-a3f2b1c0` |
+| Registre | `.worktrees/_agents/registry.json` | — |
+| Lock | `.worktrees/_agents/.lock` | — |
+
+> **Worktree principal** : le répertoire racine du dépôt (le checkout `main`
+> par défaut, là où l'agent a été invoqué). C'est depuis ce répertoire qu'on
+> exécute les commandes `git worktree` et les merges.
+
+## Le registre
+
+**Fichier** : `.worktrees/_agents/registry.json` (au niveau racine du dépôt).
+
+**Exclu de git** : `.worktrees/` est déjà dans le `.gitignore` du projet. Le
+registre et le lock héritent de cette exclusion. Aucune modification du
+`.gitignore` n'est nécessaire.
+
+**Format** :
+
+```json
+{
+  "agents": [
+    {
+      "branch": "feat/filtres-recherche",
+      "path": ".worktrees/_agents/feat-filtres-recherche",
+      "agent_id": "jellycode-a3f2b1c0",
+      "status": "active",
+      "created_at": "2026-08-02T10:00:00Z",
+      "task": "Ajouter des filtres de recherche avances"
+    }
+  ]
+}
+```
+
+| Champ | Type | Description |
+|---|---|---|
+| `branch` | string | Nom de la branche (unique parmi les `active`) |
+| `path` | string | Chemin relatif du worktree depuis la racine |
+| `agent_id` | string | `jellycode-<uuid4:8>` |
+| `status` | string | `active` → `merged` (transitoire, retiré au cleanup) → `abandoned` (laissé pour audit) |
+| `created_at` | string | ISO 8601 UTC |
+| `task` | string | Optionnel, description humaine |
