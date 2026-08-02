@@ -4,6 +4,16 @@
 
 ---
 
+## [0.28.2] - 2 août 2026
+
+### ⚡ Mise à jour de dépendance — HUB_base v3.21.0
+
+- **HUB_base** : `9ec9148` (v3.20.1) → `49f5549` (v3.21.0)
+  - VPN WireGuard mode serveur : gestion peers, .conf, QR code, split tunnel
+  - AllowedIPs dynamiques (accès apps via VPN, aucune IP en dur)
+  - Fix : changement de port via l'UI réellement appliqué (redémarrage conteneur)
+  - Fix : retrait du DNS imposé au client
+
 ## [0.28.1] - 2 août 2026
 
 ### ⚡ Correction des pointeurs de sous-modules
