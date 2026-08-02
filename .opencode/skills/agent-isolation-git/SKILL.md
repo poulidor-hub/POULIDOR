@@ -97,3 +97,67 @@ registre et le lock héritent de cette exclusion. Aucune modification du
 | `status` | string | `active` → `merged` (transitoire, retiré au cleanup) → `abandoned` (laissé pour audit) |
 | `created_at` | string | ISO 8601 UTC |
 | `task` | string | Optionnel, description humaine |
+
+## Lock (accès concurrent au registre)
+
+Le registre est partagé entre tous les agents sur le même filesystem. Pour éviter
+les race conditions à l'écriture, on utilise un lock par répertoire (`mkdir`
+atomique sur tous les OS POSIX).
+
+### Acquisition
+
+```bash
+mkdir .worktrees/_agents/.lock  # atomique : échoue si déjà pris
+```
+
+Si l'acquisition échoue (répertoire existe déjà) : retry avec `sleep 1`, max 10
+tentatives. Au-delà, vérifier si le lock est stale (voir ci-dessous).
+
+### Libération
+
+```bash
+rmdir .worktrees/_agents/.lock
+```
+
+**Toujours libérer le lock**, même en cas d'erreur. Wrapper les opérations
+protégées dans un try/finally équivalent.
+
+### Lock stale (crash d'un agent)
+
+Si un agent crash en tenant le lock, le répertoire `.lock` persiste. Le prochain
+agent qui tente d'acquérir le lock vérifie l'âge du répertoire et le force
+si >60 secondes :
+
+```bash
+if [ -d .worktrees/_agents/.lock ]; then
+    LOCK_AGE=$(( $(date +%s) - $(stat -c %Y .worktrees/_agents/.lock) ))
+    if [ $LOCK_AGE -gt 60 ]; then
+        rmdir .worktrees/_agents/.lock
+        echo "⚠️  Lock stale (>${LOCK_AGE}s) forcé. Vérifier le registre."
+    fi
+fi
+```
+
+### Helper bash réutilisable
+
+```bash
+agent_lock_acquire() {
+    local attempts=0
+    while ! mkdir .worktrees/_agents/.lock 2>/dev/null; do
+        # Vérifier stale
+        if [ -d .worktrees/_agents/.lock ]; then
+            local age=$(( $(date +%s) - $(stat -c %Y .worktrees/_agents/.lock) ))
+            [ $age -gt 60 ] && rmdir .worktrees/_agents/.lock 2>/dev/null && continue
+        fi
+        attempts=$((attempts + 1))
+        [ $attempts -ge 10 ] && { echo "❌ Lock: 10 tentatives échouées"; return 1; }
+        sleep 1
+    done
+}
+
+agent_lock_release() {
+    rmdir .worktrees/_agents/.lock 2>/dev/null
+}
+```
+
+Usage : `agent_lock_acquire && { ... ; agent_lock_release; }` ou trap sur EXIT.
