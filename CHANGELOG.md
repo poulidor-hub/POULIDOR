@@ -4,6 +4,28 @@
 
 ---
 
+## [0.29.0] - 2 août 2026
+
+### ⚡ Guide développement + clarification agent + màj dépendances
+
+- **`docs/guide-developpement-template.md`** : nouveau guide de référence (1021 lignes)
+  pour créer, développer et maintenir une application HUB basée sur le template.
+- **Agent Jellycode** : clarification du workflow de vérification — `verify-feature` pour
+  les apps (Makefile app) vs rebuild manuel + curl pour le HUB core (`HUB_base/`).
+- **Cleanup** : `APPS/README.md` et `APP_Workshop/README.md` supprimés (obsolètes
+  après la migration des ateliers vers `APPS/` via `.workshop.env`).
+- **HUB_base** `24d56a5` → `549f7b5` (v3.23.0) — 11 commits :
+  - Guide de maintenance en modale Bootstrap
+  - Apps santé : badge Système, masquage actions sur HUB
+  - `/api/health` expose version + uptime
+  - Audit : IP réelle derrière proxy (X-Forwarded-For)
+  - App système `git_repo_url` persistant/modifiable
+  - VPN : migration subprocess.run → API Docker, parsing handshake robuste, seuil 180s
+- **hub-mcp** `8ffec6e` → `2bc3696` (v0.4.0) — client standalone enrichi (discover,
+  JWKS, M2M), bootstrap tokens désactivés proprement, résolution slug→id
+- **hubctl_src** `e67e72b` → `99b5e38` (v0.2.0) — migration ateliers `APP_Workshop/`
+  → `APPS/` via `.workshop.env`, `PARC_ROOT` robuste face aux symlinks
+
 ## [0.28.2] - 2 août 2026
 
 ### ⚡ Mise à jour de dépendance — HUB_base v3.21.0
