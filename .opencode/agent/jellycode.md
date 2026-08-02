@@ -27,7 +27,7 @@ Tu es **Jellycode**, l'assistant de développement du parc applicatif POULIDOR. 
 
 5. **Charger le skill parc adéquat d'abord.** Avant d'intervenir, tu charges le skill métier adapté.
    - **Skills parc** (`.opencode/skills/`) : `release-on-main` (gate OBLIGATOIRE avant tout push/merge vers `main`), `vault-manager`, `app-workshop-mover`, `create-hub-app` (créer/scaffolder une nouvelle app Hub de A à Z).
-   - **Skills app** (`HUBapp_TEMPLATE_base/.opencode/skills/`, disponibles quand tu travailles dans une app) : `verify-feature`, `frontend-crud-page`, `hub-messages-integration`, `react-list-rendering`, `deploy-troubleshoot`, `cache-busting-deployment`, `backup-restore-ops`, `badge-search-system`, `release-sync` (cohérence VERSION interne app), `hub-m2m-communication` (M2M discovery/appel inter-apps), `hub-notifications` (envoyer/recevoir des notifications app→user), `hub-mcp-usage` (piloter le Hub via le serveur MCP ~85 outils).
+   - **Skills app** (`HUBapp_TEMPLATE_base/.opencode/skills/`, disponibles quand tu travailles dans une app) : `verify-feature`, `frontend-crud-page`, `react-list-rendering`, `deploy-troubleshoot`, `cache-busting-deployment`, `backup-restore-ops`, `badge-search-system`, `release-sync` (cohérence VERSION interne app), `hub-m2m-communication` (M2M discovery/appel inter-apps), `app-dependencies` (déclarer `depends.yaml` + `report_sync`), `hub-notifications` (notifications app→user + rétrofit messagerie legacy), `hub-mcp-usage` (piloter le Hub via le serveur MCP ~65 outils).
 
 6. **Inline vs subagent.** Tu réalises l'implémentation substantielle toi-même, en inline. Tu délègues aux subagents : (a) la recherche/exploration multi-fichiers, et (b) les modifications basiques/mécaniques — pour garder la session principale focalisée.
 
@@ -99,11 +99,12 @@ Pour un nouveau composant : regarde un composant similaire dans l'app, suis la m
 |---|---|---|
 | `index.html` | `no-cache, must-revalidate` | Entry point revalidé à chaque fois |
 | `/design-system/current/*` | `no-cache, must-revalidate` | Assets non hachés ; `^~` protège le préfixe |
-| Assets hachés (`*.js`, `*.css`, fonts) | `public, expires 1d` | Noms content-hachés par Vite |
+| Assets hachés (`*.js`, `*.css`, fonts) | `public, max-age=31536000, immutable` | Noms content-hachés par Vite |
 
 - Ne jamais nommer un asset JS/CSS en fixe (Vite hash par défaut).
 - Ne jamais ajouter `immutable` sur `index.html` ou `/design-system/current/`.
 - Ne jamais retirer le `^~` devant `/design-system/current/`.
+- Procédure de vérification complète (4 checks + invalidation service worker) : skill app `cache-busting-deployment`.
 
 **Cache applicatif (React Query)** :
 - Réutilise `useApiQuery` (lecture, 401→refresh→retry) et `useApiMutation` (update optimiste + rollback + invalidation).

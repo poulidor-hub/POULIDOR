@@ -4,6 +4,21 @@
 
 ---
 
+## [0.31.0] - 2 août 2026
+
+### 📣 Pour les développeurs
+
+- **Amélioré** : Les skills parc sont allégés et consolidés — `agent-isolation-git` (333→135 lignes, + découvrable), `hub-oidc-manager` (462→387), `create-hub-app` (183→161).
+- **Corrigé** : Incohérence cache nginx `jellycode.md` (expires 1d → immutable) résolue. Compteur MCP ~85→~65 corrigé. Skill `app-dependencies` désormais découvrable (front-matter ajouté). `hub-messages-integration` fusionné dans `hub-notifications`.
+- **Mis à jour** : Submodule `HUBapp_TEMPLATE_base` → v2.8.0 (refactor massif des skills template : fusion, scission, allègement, nouvelle doc `docs/HUB_MCP.md`, nouveau skill `bulk-operations`).
+
+### ⚡ Refactor du parc de skills — nettoyage et cohérence
+
+- **Skills parc allégés** : `agent-isolation-git` 333→135 (condensé au noyau lock/registre, multi-agent occasionnel confirmé), `hub-oidc-manager` 462→387 (doc code coupée : vars OIDC, endpoints, tables DB, claims OIDC ; recettes terrain gardées), `create-hub-app` 183→161 (Phase E/F redondantes → pointeurs).
+- **Corrections `jellycode.md`** : cache headers `expires 1d` → `public, max-age=31536000, immutable` (aligné sur `cache-busting-deployment`), compteur MCP ~85→~65, listing skills app à jour (+app-dependencies, -hub-messages-integration).
+- **Corrections skills** : `app-dependencies` front-matter ajouté (était un zombie invisible sans découverte), `release-sync` pointe vers `release-on-main`.
+- **Submodule `HUBapp_TEMPLATE_base`** → v2.8.0 : refactor complet des skills template (fusion hub-messages-integration→hub-notifications, scission badge-search→badge-search + bulk-operations, migration catalogue hub-mcp-usage→docs/HUB_MCP.md). Net -187 lignes.
+
 ## [0.30.0] - 2 août 2026
 
 ### ⚡ Skill agent-isolation-git : isolation multi-agent concurrents

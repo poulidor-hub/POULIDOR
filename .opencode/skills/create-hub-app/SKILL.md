@@ -139,34 +139,13 @@ Signatures d'échec au boot (tableau de diagnostic `verify-feature SKILL.md:50-5
 
 **Ne pas avancer si le healthcheck échoue.** Le boot doit être 100% propre avant de passer à la suite.
 
-## Phase E — Conventions backend critiques
+## Phase E — Conventions backend
 
-Rappeler au développeur ces conventions **obligatoires** du template (`HUBapp_TEMPLATE_base/README.md:240-249`) :
-
-| Règle | Détail |
-|-------|--------|
-| `DateTime(timezone=True)` | Obligatoire côté SQLAlchemy ORM |
-| `TIMESTAMPTZ` | Obligatoire dans les migrations SQL |
-| `TZ=UTC` | Obligatoire dans le conteneur Postgres (`docker-compose.yml`) |
-| `datetime.now(timezone.utc)` | Obligatoire en Python (jamais `datetime.utcnow()`) |
-| SSE `?token=JWT` | Obligatoire — `EventSource` ne supporte pas les headers HTTP |
-| Refresh proactif | 2 min avant expiration (TTL 15 min) côté frontend |
-| `ExpiredSignatureError` | Jamais avalé dans `hub_auth._try_decode()` |
-
-**Migrations SQL** : convention `NNN_description.sql`, exécutées par le runner dans `backend/database.py` (enregistre le préfixe dans `schema_migrations`, savepoint par statement). Documentation : `.github/instructions/migrations-sql.instructions.md`.
+**Ne pas dupliquer ici** — les conventions obligatoires (`DateTime(timezone=True)`, `TIMESTAMPTZ`, `TZ=UTC`, `datetime.now(timezone.utc)`, SSE `?token=JWT`, refresh proactif, gestion `ExpiredSignatureError`) vivent dans `HUBapp_TEMPLATE_base/README.md` §« Conventions backend » et les `.github/instructions/*.instructions.md`. L'agent qui travaille dans l'app les lira en place.
 
 ## Phase F — Transition vers l'intégration métier
 
-L'app tourne. Pour la suite du développement :
-
-| Besoin | Skill à charger |
-|--------|-----------------|
-| Faire communiquer deux apps | `hub-m2m-communication` |
-| Envoyer des notifications aux utilisateurs | `hub-notifications` |
-| Piloter/observer le Hub | `hub-mcp-usage` |
-| Créer une page CRUD React | `frontend-crud-page` |
-| Vérifier après une modif | `verify-feature` (skill app) |
-| Rétrofitter la messagerie sur une app existante | `hub-messages-integration` |
+L'app tourne. Pour la suite, charger le skill adapté — voir le listing dans `.opencode/agent/jellycode.md` §5 (skills parc + skills app) ou `.github/instructions/` (instructions copilot par domaine : frontend, migrations SQL, etc.).
 
 ## Références
 
