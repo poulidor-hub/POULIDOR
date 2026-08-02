@@ -161,3 +161,132 @@ agent_lock_release() {
 ```
 
 Usage : `agent_lock_acquire && { ... ; agent_lock_release; }` ou trap sur EXIT.
+
+## Cycle de vie d'un agent
+
+### Arbre de décision
+
+```
+La demande est-elle une QUESTION SANS modification de code ?
+  → OUI → répondre normalement, pas de worktree
+  → NON → suivre le cycle ci-dessous
+```
+
+### Étape 1 — Enregistrement
+
+```bash
+# 1. Générer un agent_id
+AGENT_ID="jellycode-$(python3 -c 'import uuid;print(uuid.uuid4().hex[:8])')"
+
+# 2. Acquérir le lock
+agent_lock_acquire
+
+# 3. Lire le registre (créer si absent)
+if [ ! -f .worktrees/_agents/registry.json ]; then
+    echo '{"agents":[]}' > .worktrees/_agents/registry.json
+fi
+
+# 4. Vérifier pas de collision sur la branche
+python3 -c "
+import json,sys
+reg=json.load(open('.worktrees/_agents/registry.json'))
+if any(a['status']=='active' and a['branch']=='$BRANCHE' for a in reg['agents']):
+    print('COLLISION'); sys.exit(1)
+"
+# → si COLLISION : agent_lock_release && abort
+
+# 5. Ajouter l'entrée
+python3 -c "
+import json,datetime
+reg=json.load(open('.worktrees/_agents/registry.json'))
+reg['agents'].append({
+    'branch':'$BRANCHE',
+    'path':'.worktrees/_agents/$BRANCH_SLUG',
+    'agent_id':'$AGENT_ID',
+    'status':'active',
+    'created_at':datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+    'task':'$TASK'
+})
+json.dump(reg,open('.worktrees/_agents/registry.json','w'),indent=2,ensure_ascii=False)
+"
+
+# 6. Libérer le lock
+agent_lock_release
+```
+
+### Étape 2 — Création du worktree
+
+```bash
+# Depuis le worktree principal
+git checkout main && git pull origin main
+
+# Créer la branche si absente
+git checkout -b "$BRANCHE" 2>/dev/null || git checkout "$BRANCHE"
+git push -u origin "$BRANCHE"
+
+# Revenir sur main et créer le worktree
+git checkout main
+git worktree add ".worktrees/_agents/$BRANCH_SLUG/" "$BRANCHE"
+ls ".worktrees/_agents/$BRANCH_SLUG/"  # vérifier
+```
+
+### Étape 3 — Travail
+
+```bash
+cd ".worktrees/_agents/$BRANCH_SLUG/"
+# Modifier, committer, pousser normalement
+git add -A && git commit -m "feat: ..."
+git push
+```
+
+### Étape 4 — Finalisation (merge vers main, SÉRIALISÉ)
+
+**Le lock est tenu pendant TOUTE la durée du merge + release-on-main + push.**
+
+```bash
+cd "$(git rev-parse --show-toplevel)"  # revenir au worktree principal
+
+agent_lock_acquire
+
+git fetch origin
+git checkout main
+git pull origin main
+git merge "origin/$BRANCHE" --no-ff
+# → Conflit ? Résoudre, git add, git commit.
+#   Si impossible : git merge --abort && agent_lock_release && abort
+
+# Invoquer release-on-main (bump version + changelog) — voir skill dédié
+git push origin main
+
+# Optionnel : supprimer la branche distante
+git push origin --delete "$BRANCHE" 2>/dev/null
+
+# Marquer merged dans le registre
+python3 -c "
+import json
+reg=json.load(open('.worktrees/_agents/registry.json'))
+for a in reg['agents']:
+    if a['branch']=='$BRANCHE': a['status']='merged'
+json.dump(reg,open('.worktrees/_agents/registry.json','w'),indent=2,ensure_ascii=False)
+"
+
+agent_lock_release
+```
+
+### Étape 5 — Nettoyage
+
+```bash
+# 1. Supprimer le worktree
+git worktree remove ".worktrees/_agents/$BRANCH_SLUG/" 2>/dev/null
+rm -rf ".worktrees/_agents/$BRANCH_SLUG/"  # sécurité
+
+# 2. Retirer l'entrée du registre
+agent_lock_acquire
+python3 -c "
+import json
+reg=json.load(open('.worktrees/_agents/registry.json'))
+reg['agents']=[a for a in reg['agents'] if a['branch']!='$BRANCHE']
+json.dump(reg,open('.worktrees/_agents/registry.json','w'),indent=2,ensure_ascii=False)
+"
+agent_lock_release
+```
