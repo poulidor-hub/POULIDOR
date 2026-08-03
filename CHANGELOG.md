@@ -4,6 +4,19 @@
 
 ---
 
+## [0.32.0] - 3 août 2026
+
+### ⚡ HUB_base v3.24.0 — Préférences utilisateur globales
+
+- **HUB_base** : nouveau système de préférences utilisateur (tags globaux). Les admins
+  définissent des catégories de préférences (ex: secteur, équipe), les utilisateurs
+  sélectionnent leurs valeurs depuis leur dashboard, et les apps les consomment automatiquement
+  via le claim JWT `tags`. API REST `/api/tags` (12 endpoints), migration 047, UI admin
+  avec onglets (catégories, utilisateurs, mes préférences), widget dashboard, SSE temps réel.
+- **Correctifs HUB_base** : proxy SSL redirect, grille VPN peers UI, healthcheck frontend.
+
+---
+
 ## [0.31.0] - 2 août 2026
 
 ### 📣 Pour les développeurs
