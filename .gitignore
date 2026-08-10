@@ -9,6 +9,7 @@ dist/
 .worktrees/
 APPS/*
 !APPS/README.md
+!APPS/.gitkeep
 APP_Workshop/*
 !APP_Workshop/README.md
 

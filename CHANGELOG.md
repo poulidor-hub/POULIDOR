@@ -4,6 +4,16 @@
 
 ---
 
+## [0.34.1] - 10 août 2026
+
+### ⚡ Fix fresh clone : APPS/.gitkeep + hubctl_src PARC_ROOT
+
+- **hubctl_src** → v0.3.1 : `_find_parc_root()` corrigé — ne requiert plus `APPS/`
+  (seulement `manifest.json`). Sur un fresh clone sans apps, `APPS/` n'existe pas
+  et la détection retombait sur `hubctl_src/`, empêchant `make -C HUB_base up-prod`.
+- **POULIDOR** : ajout de `APPS/.gitkeep` tracké dans git (avec exception dans
+  `.gitignore`) pour garantir que le dossier existe sur tout clone frais.
+
 ## [0.34.0] - 10 août 2026
 
 ### ⚡ Installation full-auto + .env enrichi OIDC/SLO/SA
