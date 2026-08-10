@@ -4,6 +4,16 @@
 
 ---
 
+## [0.34.0] - 10 août 2026
+
+### ⚡ Installation full-auto + .env enrichi OIDC/SLO/SA
+
+- **HUB_base** → v3.28.0 : `install.sh` en mode `--auto` par défaut (zéro interaction),
+  `.env` généré enrichi avec les variables OIDC, SLO, et Service Account interne.
+  `.env.example` synchronisé avec les 5 variables manquantes.
+- **hubctl_src** → v0.3.0 : `_generate_dotenv()` enrichi avec les mêmes variables
+  OIDC/SLO/SA pour la cohérence entre `./install.sh` et `./hubctl init`.
+
 ## [0.33.0] - 10 août 2026
 
 ### ⚡ Mise à jour sous-modules + skill migrate-app-template
