@@ -4,6 +4,14 @@
 
 ---
 
+## [0.33.0] - 10 août 2026
+
+### ⚡ Mise à jour sous-modules + skill migrate-app-template
+
+- **HUB_base** → v3.27.0 : routage SNI `service.example.org` → proxy PhiliaNG transparent (nginx-ssl.conf)
+- **HUBapp_TEMPLATE_base** → v2.9.0 : affichage `APP_VERSION` dans le header de l'app
+- **Skills** : ajout du skill `migrate-app-template` pour mettre à jour les apps vers la dernière version du template
+
 ## [0.32.0] - 3 août 2026
 
 ### ⚡ HUB_base v3.24.0 — Préférences utilisateur globales
