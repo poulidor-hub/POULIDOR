@@ -4,6 +4,16 @@
 
 ---
 
+## [0.35.1] - 11 août 2026
+
+### ⚡ Fixes HUB_base + hubctl_src
+
+- **HUB_base** → v3.28.1 : PhiliaNG nginx conditionnel — ne crash plus au boot
+  si les certificats `certs/server/philia-ng/` sont absents (machine sans PhiliaNG).
+- **hubctl_src** → v0.3.2 : fix `_sync_db_password_if_needed()` — la commande
+  `psql -d` utilisait `POSTGRES_USER` au lieu de `POSTGRES_DB`, empêchant la
+  sync du mot de passe DB quand un volume existait.
+
 ## [0.35.0] - 11 août 2026
 
 ### ⚡ Nouveau skill proxy-ia et correction release-on-main
