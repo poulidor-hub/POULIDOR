@@ -4,6 +4,17 @@
 
 ---
 
+## [0.35.0] - 11 août 2026
+
+### ⚡ Nouveau skill proxy-ia et correction release-on-main
+
+- **Skills** : ajout du skill `proxy-ia` — pattern générique de proxy transparent
+  avec overlay JS, cache collectif L1/L2, piggyback du token utilisateur, et
+  recherches backend dans le cache. Cas de référence : PhiliaNG / philiang.
+- **release-on-main** : correction du comportement par défaut — le CHANGELOG
+  est désormais purement technique, le patchnote utilisateur n'est rédigé que
+  sur demande explicite (plus de question automatique au push).
+
 ## [0.34.1] - 10 août 2026
 
 ### ⚡ Fix fresh clone : APPS/.gitkeep + hubctl_src PARC_ROOT
