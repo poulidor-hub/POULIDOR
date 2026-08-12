@@ -26,8 +26,7 @@ POULIDOR/
 ├── hubctl_cli/               ← Code métier (menu, coffre, blue-green, park-export)
 ├── HUB_base/                 ← Hub SSO (auth, registry, messaging, backups)
 ├── HUBapp_TEMPLATE_base/     ← Template canonique pour toute nouvelle app
-├── APPS/                     ← Applications en production
-├── APP_Workshop/             ← Applications en développement (mode bac à sable)
+├── APPS/                     ← Applications en production (ateliers inclus, via .workshop.env)
 └── exports/                  ← Archives park-export
 ```
 

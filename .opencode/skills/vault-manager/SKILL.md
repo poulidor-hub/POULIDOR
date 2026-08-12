@@ -39,7 +39,6 @@ VaultManager (vault_manager.py)
 |---|---|
 | `"hub"` | `HUB_base/.env` |
 | `"app:<nom>"` | `APPS/<nom>/.env` |
-| `"ws:<nom>"` | `APP_Workshop/<nom>/.env` |
 | `"__files__"` (base64) | `HUB_base/secrets/*` (clés JWT/backup, SA) |
 
 ## Règles de cycle (NON-négociables)

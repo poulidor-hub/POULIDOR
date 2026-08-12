@@ -63,7 +63,7 @@ Ce que fait le script (`scripts/create_app.sh`, 67 lignes) :
 - Si le submodule n'est pas initialisé, `create_app.sh` échoue avec un message clair — ne pas contourner.
 - Le dossier `APPS/` doit exister.
 
-**Mode atelier (dev)** : si `.dev-mode` existe dans `HUB_base/`, l'app est destinée au développement. Copier vers `APP_Workshop/<slug>-ws` plutôt que `APPS/<slug>`, et suffixer le slug avec `-ws`. Voir aussi le skill `app-workshop-mover` pour basculer un workshop existant vers la prod.
+**Mode atelier (dev)** : si `.dev-mode` existe dans `HUB_base/`, l'app est destinée au développement. Le slug est suffixé avec `-ws` et l'atelier tourne via `docker compose -p X-ws` dans `APPS/<slug>` (override `.workshop.env`), sans déplacer les fichiers. Voir aussi le skill `app-workshop-mover` pour le cycle atelier (créer / supprimer).
 
 ## Phase C — INITIALISE
 

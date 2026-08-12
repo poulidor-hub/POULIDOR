@@ -4,6 +4,19 @@
 
 ---
 
+## [0.35.2] - 12 août 2026
+
+### ⚡ Skills enrichis + submodules bumped + script check-import
+
+- **HUB_base** → v3.28.2 : Docker GID configurable via `HOST_DOCKER_GID`, fix comment `is_workshop`.
+- **hubctl_src** → v0.4.0 : shell marker portable (`_install_shell_marker`), auto-source `.secrets`, cleanup legacy `APP_Workshop/`.
+- **Skills** : `app-workshop-mover`, `proxy-ia` enrichis ; `create-hub-app`, `vault-manager` corrigés.
+- **Manifest** : ajout de `hubctl_src` dans `manifest.json` pour la découverte complète du parc.
+- **README** : suppression de la référence `APP_Workshop/` (obsolète depuis le nouveau schéma atelier).
+- **`.secrets.example`** : mise à jour des variables d'exemple.
+- **`scripts/check-import.sh`** : nouveau script utilitaire pour vérifier les imports.
+- **`.superpowers/sdd/`** : rapports de tâches mis à jour.
+
 ## [0.35.1] - 11 août 2026
 
 ### ⚡ Fixes HUB_base + hubctl_src
