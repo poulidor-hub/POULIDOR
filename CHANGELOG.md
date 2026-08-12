@@ -4,6 +4,13 @@
 
 ---
 
+## [0.35.3] - 12 août 2026
+
+### 🔧 HUB_base v3.28.3 — SNI PhiliaNG automatique
+
+- **HUB_base** : `nginx-philia-ng.conf` utilise `host.docker.internal:4443` au lieu d'une IP hardcodée. Le HUB se déploie sur n'importe quel serveur sans modifier la config SNI PhiliaNG.
+- **HUB_base** : `docker-compose.yml` ajoute `extra_hosts: host.docker.internal:host-gateway` au service `hub-frontend`.
+
 ## [0.35.2] - 12 août 2026
 
 ### ⚡ Skills enrichis + submodules bumped + script check-import
