@@ -4,6 +4,15 @@
 
 ---
 
+## [0.35.5] - 14 août 2026
+
+### ⚡ HUBapp_TEMPLATE_base v2.11.0 — Canevas de cahier des charges (100 % métier)
+
+- **HUBapp_TEMPLATE_base** → v2.11.0 : ajout de `cahier-des-charges.html`, un canevas interactif autonome (HTML statique, `file://`, sans backend) pour décrire le besoin métier d'une nouvelle app en amont du code, à remplir en atelier (dev + métier).
+- Canevas **100 % métier** (10 questions) : l'agent Jellycode dérive la couche technique (modèle de données, endpoints, écrans) depuis la spécification exportée. Exports Markdown + JSON round-trip + « Spécification agent » (manifest métier). Attribution POULIDOR, fiche d'identité (auteur/mainteneur), logigramme Mermaid, thème clair/sombre.
+
+---
+
 ## [0.35.4] - 13 août 2026
 
 ### ⚡ HUB_base v3.28.4 — Retrait du « Guide de maintenance »
