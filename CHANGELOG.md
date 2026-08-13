@@ -4,6 +4,14 @@
 
 ---
 
+## [0.35.4] - 13 août 2026
+
+### ⚡ HUB_base v3.28.4 — Retrait du « Guide de maintenance »
+
+- **HUB_base** → v3.28.4 : suppression de la vue d'aide « Guide de maintenance » (bouton `?` de la navbar, modale `#guideModal` et logique `showGuideModal`). Vue jugée inutile.
+
+---
+
 ## [0.35.3] - 12 août 2026
 
 ### 🔧 HUB_base v3.28.3 — SNI PhiliaNG automatique
