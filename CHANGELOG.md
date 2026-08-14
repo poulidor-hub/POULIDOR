@@ -4,6 +4,16 @@
 
 ---
 
+## [0.35.6] - 14 août 2026
+
+### 🔒 Correctifs sécurité parc — audit du 10 mai 2026 (fin de chantier)
+
+- **HUBapp_TEMPLATE_base** → v2.11.1 : durcissement des conteneurs (audit #21) — `no-new-privileges` + `cap_drop: ALL` sur les trois services compose (caps minimales pour postgres, zéro pour l'api, `NET_BIND_SERVICE` pour le frontend) ; frontend **100 % non-root** (`USER nginx`, pattern `HUB_base/frontend`). Non propagé aux apps existantes (effectif à la prochaine migration template).
+- **exemple-app** (app, hors sous-modules) → v2.15.2 : SSE — fin du décodage JWT sans vérification de signature et du fallback anonyme par cookie (audit #12) ; token validé via `hub_auth.decode_token` (RS256), 401 sinon, + 5 tests de régression.
+- **exemple-app** (app, hors sous-modules) → v1.26.1 : retrait de la publication du port Postgres 5432 sur l'hôte (recommandation audit « ne jamais publier la DB ») — accès réseau Docker interne uniquement.
+
+---
+
 ## [0.35.5] - 14 août 2026
 
 ### ⚡ HUBapp_TEMPLATE_base v2.11.0 — Canevas de cahier des charges (100 % métier)
