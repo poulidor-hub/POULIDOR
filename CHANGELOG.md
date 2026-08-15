@@ -4,6 +4,29 @@
 
 ---
 
+## [0.35.8] - 15 août 2026
+
+### 🔒 Fin du spam du journal d'erreurs HUB — 401 SSE + fixes des 4 apps legacy
+
+- **HUB_base** → v3.28.5 : les 401 sur `/api/events/stream` ne sont plus enregistrés dans
+  `error_logs` (bruit attendu des clients SSE non authentifiés, ~14 000 entrées/jour
+  observées le 2026-08-15). Le rejet côté client est inchangé. *(Pointeur sous-module à
+  avancer lors de la réconciliation de la branche feature en cours.)*
+- **4 apps legacy corrigées** (SSE du Hub désormais authentifié via `?token=`, pattern
+  template — notifications SSE fonctionnelles + fin de la boucle 401) :
+  - **exemple-app** → v0.0.2
+  - **exemple-app-16_API_v3** → v1.6.1
+  - **exemple-app_v3** → v0.2.1 (package.json réaligné)
+  - **exemple-app** → v1.0.6 (package.json réaligné ; **push GitHub bloqué** :
+    droits d'écriture manquants sur `Federation-exemple-50/exemple-app` — commit prêt
+    localement)
+- **Purge** : 14 344 erreurs 401 SSE historiques supprimées de `error_logs`.
+- **Skills** : `migrate-app-template` — nouvelle section **D.3.2** (SSE authentifié :
+  détection, pattern correct, vérification post-migration) + item dédié dans la
+  checklist **G.2**.
+
+---
+
 ## [0.35.7] - 14 août 2026
 
 ### 🔒 Bug « onglet qui se referme » au lancement des apps — correctif + garde-fou migration

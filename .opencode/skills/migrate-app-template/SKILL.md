@@ -393,6 +393,36 @@ forcer un refresh HUB), puis relancer l'app depuis le dashboard → le 1er clic 
 l'app sans fermeture. Vérifier aussi l'absence de `POST /api/auth/token/refresh 401` dans
 les logs hub-api juste après un launch.
 
+#### D.3.2 — ⚠️ SSE du Hub sans token (spam du journal d'erreurs HUB)
+
+Les `AuthContext.jsx` legacy connectent le flux SSE du HUB **sans authentification** :
+
+```js
+// ❌ legacy — 401 depuis l'audit #12 (SSE authentifié obligatoire)
+const sseUrl = `${hubApiUrl}/api/events/stream`
+```
+
+Le HUB rejette en 401 → le client reconnected en boucle toutes les 10 s → **~14 000
+entrées/jour** dans le journal d'erreurs du HUB (incident 2026-08-15), qui masquent les
+vrais incidents. Depuis HUB_base 3.29.1, ces 401 ne sont plus enregistrés en base (bruit
+attendu), mais les apps concernées **n'ont pas de notifications SSE fonctionnelles** tant
+que le token n'est pas envoyé.
+
+**Le AuthContext du template corrige** (EventSource ne supporte pas les headers) :
+```js
+// ✅ pattern template
+const sseUrl = `${hubApiUrl}/api/events/stream?token=${encodeURIComponent(token)}`
+console.log('🔌 Connexion SSE au Hub:', sseUrl.replace(token, '***'))
+```
+avec `token` dans les dépendances du `useEffect` SSE (reconnexion avec le token rafraîchi).
+
+**Vérification post-migration** (obligatoire) :
+```bash
+grep -n "events/stream?token=" APPS/<slug>/frontend/src/context/AuthContext.jsx  # doit exister
+```
+Et dans les logs hub-api : `GET /api/events/stream?token=... 200 OK` (plus de boucle 401)
+quand l'app est ouverte.
+
 ### D.4 — main.jsx — fusionner
 
 Le `main.jsx` de l'app peut avoir des providers ou routes customs. Le template 2.8.0 a l'arbre de providers suivant :
@@ -656,6 +686,7 @@ Avant de déclarer la migration terminée, vérifier :
 - [ ] `make test-docker` tous les tests passent (0 failed)
 - [ ] Le frontend est accessible et fonctionnel
 - [ ] **Bug « onglet qui se referme » corrigé** : AuthContext URL-first + purge refresh token (cf. D.3.1) — 1er clic depuis le dashboard ouvre l'app sans fermeture, pas de `refresh 401` dans les logs hub-api après un launch
+- [ ] **SSE authentifié** : `events/stream?token=` présent dans l'AuthContext (cf. D.3.2) — SSE 200 dans les logs hub-api quand l'app est ouverte, pas de boucle 401
 - [ ] Les composants métier de l'app sont préservés
 - [ ] Les nouvelles fonctionnalités template sont opérationnelles
 - [ ] Les skills `.opencode/` sont chargeables
