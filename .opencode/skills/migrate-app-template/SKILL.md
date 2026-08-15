@@ -359,6 +359,40 @@ cp HUBapp_TEMPLATE_base/frontend/src/hooks/useApiMutation.js APPS/<slug>/fronten
 cp HUBapp_TEMPLATE_base/frontend/src/lib/queryClient.js APPS/<slug>/frontend/src/lib/queryClient.js
 ```
 
+#### D.3.1 — ⚠️ Bug auth legacy « onglet qui se referme au lancement » (à corriger par la migration)
+
+Les `AuthContext.jsx` antérieurs au template 2.11.2 portent un bug visible depuis que les
+access tokens HUB durent 30 min (`ACCESS_TOKEN_EXPIRE_MINUTES=30`, ex-480) : au clic sur
+l'app dans le HUB, l'onglet s'ouvre puis **se referme aussitôt** — il faut recliquer pour
+que ça fonctionne.
+
+**Mécanisme** (vérifié en prod, cf. incident 2026-08-14) :
+1. Le flux de lancement HUB livre `?access_token=<frais>` **sans** `refresh_token` dans l'URL.
+2. L'app conserve en localStorage un refresh token d'une session précédente, **consommé par
+   la rotation** du HUB (l'onglet HUB refresh toutes les ~28 min).
+3. Variante aggravante (ex. exemple-app avant 2.15.3) : état initial lu depuis le localStorage
+   **seulement**, avec le token URL traité dans un effet *après* le mount → si le token
+   localStorage est expiré, `logout()` est déclenché **avant** que le token frais de l'URL
+   ne soit pris en compte.
+4. `logout()` redirige vers le HUB `?action=logout` → `window.close()` → onglet fermé.
+   Au 2e clic, le localStorage a été purgé par le logout → le token URL est accepté.
+
+**Le AuthContext du template actuel corrige les deux points** :
+- lecture du token **URL-first synchrone** au mount (`getInitialToken` en initializer de
+  `useState`, jamais dans un effet) ;
+- **purge du refresh token localStorage** quand un token de lancement arrive **sans**
+  `refresh_token` associé (périmé par construction).
+
+**Vérification post-migration** (obligatoire) :
+```bash
+grep -n "getInitialToken" APPS/<slug>/frontend/src/context/AuthContext.jsx   # doit exister
+grep -n "removeItem(config.storageKeys.refreshToken)" APPS/<slug>/frontend/src/context/AuthContext.jsx  # purge au lancement
+```
+Puis test manuel : dans l'app ouverte, laisser la session HUB se rafraîchir (> 30 min ou
+forcer un refresh HUB), puis relancer l'app depuis le dashboard → le 1er clic doit ouvrir
+l'app sans fermeture. Vérifier aussi l'absence de `POST /api/auth/token/refresh 401` dans
+les logs hub-api juste après un launch.
+
 ### D.4 — main.jsx — fusionner
 
 Le `main.jsx` de l'app peut avoir des providers ou routes customs. Le template 2.8.0 a l'arbre de providers suivant :
@@ -621,6 +655,7 @@ Avant de déclarer la migration terminée, vérifier :
 - [ ] `make health` retourne `{"status":"healthy"}`
 - [ ] `make test-docker` tous les tests passent (0 failed)
 - [ ] Le frontend est accessible et fonctionnel
+- [ ] **Bug « onglet qui se referme » corrigé** : AuthContext URL-first + purge refresh token (cf. D.3.1) — 1er clic depuis le dashboard ouvre l'app sans fermeture, pas de `refresh 401` dans les logs hub-api après un launch
 - [ ] Les composants métier de l'app sont préservés
 - [ ] Les nouvelles fonctionnalités template sont opérationnelles
 - [ ] Les skills `.opencode/` sont chargeables

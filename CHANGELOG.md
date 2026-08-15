@@ -4,6 +4,25 @@
 
 ---
 
+## [0.35.7] - 14 août 2026
+
+### 🔒 Bug « onglet qui se referme » au lancement des apps — correctif + garde-fou migration
+
+- **HUBapp_TEMPLATE_base** → v2.11.2 : `AuthContext.getInitialToken()` purge le refresh
+  token localStorage quand un token de lancement arrive sans `refresh_token` associé —
+  corrige la fermeture immédiate d'onglet au clic (refresh token consommé par la
+  rotation du HUB → 401 → logout → `window.close()`), quasi systématique depuis les
+  access tokens à 30 min.
+- **exemple-app** (app) → v2.15.3 : même correctif **+ init URL-first synchrone** au mount
+  (l'ancien état lisait uniquement le localStorage et pouvait `logout()` avant de
+  traiter le token frais de l'URL). Déployé en production.
+- **Skills** : `migrate-app-template` enrichi — section **D.3.1** documentant le bug
+  legacy (mécanisme + 2 correctifs du template + vérification post-migration) et item
+  dédié dans la checklist **G.2** : les apps legacy non migrées gardent le bug jusqu'à
+  leur migration.
+
+---
+
 ## [0.35.6] - 14 août 2026
 
 ### 🔒 Correctifs sécurité parc — audit du 10 mai 2026 (fin de chantier)
