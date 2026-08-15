@@ -8,10 +8,18 @@
 
 ### 🔒 Fin du spam du journal d'erreurs HUB — 401 SSE + fixes des 4 apps legacy
 
-- **HUB_base** → v3.28.5 : les 401 sur `/api/events/stream` ne sont plus enregistrés dans
-  `error_logs` (bruit attendu des clients SSE non authentifiés, ~14 000 entrées/jour
-  observées le 2026-08-15). Le rejet côté client est inchangé. *(Pointeur sous-module à
-  avancer lors de la réconciliation de la branche feature en cours.)*
+- **HUB_base** → v3.31.1 : merge de `feat/audit-usage-charts` sur `main` — embarque
+  v3.28.5 (les 401 sur `/api/events/stream` ne sont plus enregistrés dans `error_logs`,
+  ~14 000 entrées/jour observées le 2026-08-15 ; rejet côté client inchangé), v3.29.0
+  (cert PhiliaNG auto-généré), v3.30.0 (groupes d'applications), v3.31.0 (visualisations
+  audit : uptime utilisateurs, heatmap parc, stats par application) et v3.31.1 (perf
+  agrégats 90 j + filtre app sur `/usage/apps`). *(Pointeur sous-module avancé —
+  réconciliation effectuée.)*
+- **HUBapp_TEMPLATE_base** → v2.12.0 : re-synchro périodique (6 h) des certificats HTTPS
+  depuis la PKI du HUB (`cert_sync.py`) — la rotation du cert du HUB se propage sans
+  intervention manuelle. *(Pointeur sous-module avancé.)*
+- **exemple-app** → v1.27.0 (dépôt indépendant, hors sous-modules) : vue groupée arborescente
+  des contrats + correctifs recherche/filtres cumulatifs.
 - **4 apps legacy corrigées** (SSE du Hub désormais authentifié via `?token=`, pattern
   template — notifications SSE fonctionnelles + fin de la boucle 401) :
   - **exemple-app** → v0.0.2
