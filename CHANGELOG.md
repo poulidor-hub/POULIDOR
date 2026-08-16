@@ -4,6 +4,19 @@
 
 ---
 
+## [0.37.1] - 16 août 2026
+
+### 🔧 hubctl v0.5.1 — durcissements du kit PRA (revue finale)
+
+- **hubctl_src** → v0.5.1 : pointeur de sous-module avancé sur `main`.
+  - Badge `⚠ PRA` calculé par le poll worker (plus d'I/O montage dans le thread
+    de rendu — un NFS mort ne gèle plus le dashboard).
+  - `pra-restore` : preflight Docker (binaire + daemon) avant toute action ;
+    `build_stack` s'arrête proprement sur échec `make build`/`make up-prod`.
+  - Réplication : garde fraîcheur (mtime < 120 s) + vérif taille post-copie —
+    un snapshot partiel ne peut plus être marqué synchronisé sur le kit.
+  - Tests : 408 (12 nouveaux).
+
 ## [0.37.0] - 16 août 2026
 
 ### ⚡ hubctl v0.5.0 — kit PRA : emplacement secondaire automatique + pra-restore
