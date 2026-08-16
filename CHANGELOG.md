@@ -4,6 +4,18 @@
 
 ---
 
+## [0.35.12] - 16 août 2026
+
+### ⚡ HUB_base v3.32.2 — tooltip « Répartition du temps par application » corrigé
+
+- **HUB_base** → v3.32.2 : pointeur de sous-module avancé sur `main`.
+  - **Fix audit** (`audit-charts.js`, `renderUserDayBreakdown`) : au survol/clic d'un segment
+    de la barre empilée « Répartition du temps par application » (onglet Uptime utilisateurs),
+    le tooltip affichait `— 20min (undefined%)` sans nom d'app. Cause : formatter basé sur
+    `params.name` (vide — axe de catégorie masqué) et `params.percent` (propriété réservée
+    aux séries pie). Correctif : nom via `params.seriesName`, pourcentage calculé sur le
+    total du jour. Vérifié en production (tooltip « App — durée (x%) »).
+
 ## [0.35.11] - 16 août 2026
 
 ### ⚡ HUB_base v3.32.1 — fin du bruit 404 du health monitor dans le journal d'audit
