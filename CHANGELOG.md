@@ -4,6 +4,22 @@
 
 ---
 
+## [0.35.9] - 16 août 2026
+
+### ⚡ HUB_base v3.32.0 — snapshots complets + allocation de sous-réseaux Docker
+
+- **HUB_base** → v3.32.0 : pointeur de sous-module avancé sur `main`.
+  - **Snapshots** : capture du code, de la config et de l'historique `.git` des apps
+    (`APPS/`) dans `apps/apps_code.tar` ; restauration semi-automatique PRA bare-metal
+    documentée dans `BACKUP.md` ; fix du scheduler cron qui ne déclenchait jamais les
+    snapshots planifiés.
+  - **Réseau** : allocation d'un sous-réseau Docker `/24` par application depuis le pool
+    `APP_SUBNET_POOL` (défaut `198.51.100.40/16`) ; remplissage paresseux des allocations
+    existantes ; champ `subnet` exposé dans `AllocatePortsResponse`,
+    `GithubRepoPrepareResponse` et `PortsStatusResponse`.
+- **Docs** : mise à jour des rapports Superpowers (`task-6-report.md`,
+  `task-7-report.md`, `progress.md`) pour la livraison snapshot.
+
 ## [0.35.8] - 15 août 2026
 
 ### 🔒 Fin du spam du journal d'erreurs HUB — 401 SSE + fixes des 4 apps legacy
