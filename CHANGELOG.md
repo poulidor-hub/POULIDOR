@@ -4,6 +4,19 @@
 
 ---
 
+## [0.35.10] - 16 août 2026
+
+### ⚡ HUBapp_TEMPLATE_base v2.13.0 — épinglage du sous-réseau Docker des apps
+
+- **HUBapp_TEMPLATE_base** → v2.13.0 : pointeur de sous-module avancé sur `main`.
+  - **Réseau** : le réseau `app-network` du `docker-compose.yml` du template épingle son
+    sous-réseau via IPAM (`APP_SUBNET`), alloué automatiquement par le Hub
+    (`POST /api/apps/allocate-ports`, pool `APP_SUBNET_POOL`) à la première exécution de
+    `make up`/`make build`. Complète la feature subnet de HUB_base v3.32.0.
+  - **⚠ Migration** : les apps existantes syncées sur ce template doivent relancer
+    `make sync-env` (allocation `APP_SUBNET` automatique et idempotente) avant
+    `docker compose up`.
+
 ## [0.35.9] - 16 août 2026
 
 ### ⚡ HUB_base v3.32.0 — snapshots complets + allocation de sous-réseaux Docker
