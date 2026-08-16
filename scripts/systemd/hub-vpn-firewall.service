@@ -1,0 +1,20 @@
+# POULIDOR — Cloisonnement VPN WireGuard du HUB
+# Applique à chaque boot les règles firewall qui restreignent les clients VPN
+# (wg0) aux seuls ports publiés par Docker (HUB + applications). Voir
+# scripts/hub-vpn-firewall.sh pour le détail.
+
+[Unit]
+Description=POULIDOR - Cloisonnement VPN WireGuard (hub + apps uniquement)
+Documentation=file:///usr/local/sbin/hub-vpn-firewall.sh
+# DOCKER-USER est créée par Docker → attendre le daemon. Wants (pas Requires) :
+# si Docker est lent/absent, le script crée la chaîne lui-même.
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/hub-vpn-firewall.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -269,6 +269,25 @@ if docker info &>/dev/null; then
 else
     err "Docker daemon injoignable. Vérifie : systemctl status docker"
 fi
+
+# 2f. Firewall VPN WireGuard (cloisonnement hub + apps uniquement)
+#     Les clients VPN (wg0) ne peuvent atteindre que les ports publiés par
+#     Docker (DNAT) — pas le LAN, pas les réseaux internes, pas l'hôte.
+#     Script + unit systemd idempotents ; inoffensif si le VPN est désactivé.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/scripts/hub-vpn-firewall.sh" ]; then
+    install -m 0755 "$SCRIPT_DIR/scripts/hub-vpn-firewall.sh" /usr/local/sbin/hub-vpn-firewall.sh
+    install -m 0644 "$SCRIPT_DIR/scripts/systemd/hub-vpn-firewall.service" /etc/systemd/system/hub-vpn-firewall.service
+    systemctl daemon-reload
+    systemctl enable --now hub-vpn-firewall.service >/dev/null 2>&1
+    if systemctl is-active --quiet hub-vpn-firewall.service; then
+        ok "Cloisonnement VPN installé et actif (hub-vpn-firewall.service)"
+    else
+        warn "Cloisonnement VPN installé mais inactif — vérifie : systemctl status hub-vpn-firewall"
+    fi
+else
+    warn "scripts/hub-vpn-firewall.sh introuvable — cloisonnement VPN non installé"
+fi
 say ""
 
 # ── Phase 3 : Initialisation du Hub ──────────────────────────────────────────

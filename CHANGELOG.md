@@ -4,6 +4,31 @@
 
 ---
 
+## [0.36.0] - 16 août 2026
+
+### 🔒 Cloisonnement réseau du VPN WireGuard (defense-in-depth)
+
+- **Constat audit** : la restriction « HUB uniquement » des clients VPN ne reposait que
+  sur le split tunnel côté client (`AllowedIPs = hub/32` dans les .conf générés par le
+  HUB). Côté serveur, rien ne l'enforçait : `net.ipv4.ip_forward=1` et politique
+  `FORWARD ACCEPT` avec `DOCKER-USER` vide — un client éditant son .conf (ex.
+  `AllowedIPs = 198.51.100.30/16`) pouvait atteindre les réseaux Docker internes
+  (`hub-db` :5432, bridges des apps) et tenter le LAN.
+- **Ajouté** `scripts/hub-vpn-firewall.sh` : script firewall idempotent (règles marquées
+  `-m comment`, purge + réinsertion ordonnée). Les clients `wg0` n'atteignent que le
+  trafic **DNATé** par Docker (= HUB + apps via leurs ports publiés) ; tout le reste
+  est droppé (LAN, réseaux internes, hôte/SSH). `INPUT` : seul `ESTABLISHED,RELATED`
+  et ICMP echo (ping `198.51.100.50`, diagnostic) passent depuis `wg0`. IPv4 uniquement
+  (`wg0` sans adressage IPv6).
+- **Ajouté** `scripts/systemd/hub-vpn-firewall.service` (oneshot, `After=docker.service`,
+  `RemainAfterExit=yes`) : réapplique les règles à chaque boot — la chaîne `DOCKER-USER`
+  est recréée vide par Docker au démarrage. Inoffensif si le VPN est désactivé (aucun
+  trafic ne matche `-i wg0`).
+- **install.sh** (Phase 2f) : installe script + unit vers `/usr/local/sbin/` et
+  `/etc/systemd/system/`, `systemctl enable --now`. Idempotent.
+- **Tests** : script validé par harnais mock iptables (ordre des règles ACCEPT/DROP,
+  idempotence sur 3 exécutions, création de la chaîne si absente).
+
 ## [0.35.12] - 16 août 2026
 
 ### ⚡ HUB_base v3.32.2 — tooltip « Répartition du temps par application » corrigé
