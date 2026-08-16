@@ -4,6 +4,17 @@
 
 ---
 
+## [0.35.11] - 16 août 2026
+
+### ⚡ HUB_base v3.32.1 — fin du bruit 404 du health monitor dans le journal d'audit
+
+- **HUB_base** → v3.32.1 : pointeur de sous-module avancé sur `main`.
+  - **Fix supervision** (`routes/apps_health.py`) : le moniteur (`GET /api/apps/health`)
+    ne sonde plus `/api/health/detailed` sur l'app système `hub` elle-même — le HUB
+    n'expose pas cet endpoint, d'où un faux 404 auto-infligé (IP hub-api) journalisé
+    dans l'audit à chaque affichage de la page de supervision. L'enrichissement local
+    (version + uptime sans HTTP) reste inchangé, aucune perte dans l'UI.
+
 ## [0.35.10] - 16 août 2026
 
 ### ⚡ HUBapp_TEMPLATE_base v2.13.0 — épinglage du sous-réseau Docker des apps
