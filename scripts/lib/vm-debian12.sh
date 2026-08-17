@@ -92,6 +92,10 @@ EOF
     -pidfile "$VM_PIDFILE" -daemonize
 
   vm_wait_ssh 300
+  # Attendre la fin de cloud-init : sshd démarre AVANT l'installation des
+  # packages (git, curl) — sans ça, git peut manquer juste après le boot.
+  vm_ssh "sudo cloud-init status --wait >/dev/null 2>&1" || true
+  vm_ssh "command -v git >/dev/null" || { echo "✗ git absent après cloud-init — voir $VM_CONSOLE" >&2; return 1; }
   echo "✓ VM prête : ssh -p $VM_PORT $VM_USER@$VM_SSHHOST (clé $VM_KEY)"
 }
 

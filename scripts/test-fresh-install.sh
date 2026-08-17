@@ -30,7 +30,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TS="$(date +%Y%m%d-%H%M%S)"
-RUN_DIR="$ROOT/build/fresh-install/run-$TS"
+# Rapport et logs dans runs/<ts> — HORS du dossier VM (détruit par vm_destroy)
+RUN_DIR="$ROOT/build/fresh-install/runs/$TS"
 KEEP=false
 BRANCH=""
 
@@ -45,7 +46,7 @@ done
 mkdir -p "$RUN_DIR"
 # shellcheck source=scripts/lib/vm-debian12.sh
 source "$ROOT/scripts/lib/vm-debian12.sh"
-export VM_NAME="run-$TS"
+export VM_NAME="harness-$TS"
 VM_DIR="$FI_ROOT/$VM_NAME"
 # Port aléatoire libre (évite les collisions avec une VM de debug sur 2222)
 # shellcheck disable=SC2155
