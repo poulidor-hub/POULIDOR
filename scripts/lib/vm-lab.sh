@@ -15,6 +15,7 @@
 set -euo pipefail
 
 LAB_ROOT="${LAB_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/build/vm-lab}"
+mkdir -p "$LAB_ROOT"
 VM_LAB_MAX_LABS="${VM_LAB_MAX_LABS:-2}"
 VM_LAB_MIN_DISK_GB="${VM_LAB_MIN_DISK_GB:-20}"
 VM_LAB_BASE_NAME="debian-12-generic-amd64.qcow2"
@@ -119,7 +120,7 @@ _lab_count() { # nb de labos existants (hors base/)
   printf '%s' "$n"
 }
 
-_lab_disk_free_gb() { df -BG --output=avail "$(dirname "$LAB_ROOT")" | tail -1 | tr -dc '0-9'; }
+_lab_disk_free_gb() { df -BG --output=avail "$LAB_ROOT" | tail -1 | tr -dc '0-9'; }
 
 # ── Commandes ────────────────────────────────────────────────────────────────
 
@@ -249,7 +250,7 @@ lab_list() { # labos : nom, état, port, âge, taille + alertes
     total=$((total + 1))
   done
   [ "$found" -eq 0 ] && echo "  (aucun labo — vm-lab.sh create <nom>)"
-  local pct; pct="$(df --output=pcent "$(dirname "$LAB_ROOT")" | tail -1 | tr -dc '0-9')"
+  local pct; pct="$(df --output=pcent "$LAB_ROOT" | tail -1 | tr -dc '0-9')"
   local droot; droot="$(_lab_disk_free_gb)"
   echo "Disque hôte : ${pct}% utilisé, ${droot} Go libres$([ "$pct" -ge 95 ] && echo ' ⚠')"
   return 0
