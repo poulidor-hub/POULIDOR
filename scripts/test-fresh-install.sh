@@ -131,7 +131,7 @@ check "app-init" in_vm 'cd ~/POULIDOR/APPS/testapp && printf "{\"format_version\
 # Whitelist du subnet VM + recreate hub-api (docker compose restart ne recharge
 # pas le .env — découverte #8) + attente du retour de santé (le recreate
 # interrompt le service quelques secondes)
-check "hub-whitelist" in_vm 'cd ~/POULIDOR/HUB_base && (grep -q "10.0.2.0/24" .env || sed -i "s/^APP_WHITELIST_NETWORKS=.*/APP_WHITELIST_NETWORKS=10.0.2.0\/24,&/" .env); sudo docker compose up -d hub-api >/dev/null 2>&1; for i in $(seq 1 30); do curl -sf http://localhost:8000/api/health >/dev/null && exit 0; sleep 2; done; exit 1'
+check "hub-whitelist" in_vm 'cd ~/POULIDOR/HUB_base && (grep -q "10.0.2.0/24" .env || sed -i "s/^APP_WHITELIST_NETWORKS=\(.*\)/APP_WHITELIST_NETWORKS=10.0.2.0\/24,\1/" .env); sudo docker compose up -d hub-api >/dev/null 2>&1; for i in $(seq 1 30); do curl -sf http://localhost:8000/api/health >/dev/null && exit 0; sleep 2; done; exit 1'
 check "app-sync-env" in_vm 'cd ~/POULIDOR/APPS/testapp && make sync-env && grep -q "^API_PORT=[0-9]" .env'
 check "app-up" in_vm 'cd ~/POULIDOR/APPS/testapp && make up'
 check "app-health" in_vm 'cd ~/POULIDOR/APPS/testapp && API_PORT=$(grep -E "^API_PORT=" .env | cut -d= -f2); curl -sf "http://localhost:${API_PORT}/api/health" | grep -q "\"status\": \"healthy\"\|\"status\":\"healthy\""'
