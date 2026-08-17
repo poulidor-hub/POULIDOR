@@ -44,7 +44,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 mkdir -p "$RUN_DIR"
-# shellcheck source=scripts/lib/vm-debian12.sh
+# shellcheck disable=SC1091  # lib sourcée : fournit vm_* et consomme les globals ci-dessous
 source "$ROOT/scripts/lib/vm-debian12.sh"
 export VM_NAME="harness-$TS"
 VM_DIR="$FI_ROOT/$VM_NAME"
@@ -56,11 +56,12 @@ s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1]); s.clos
 PY
 )"
 # Recâbler les chemins dérivés après le changement de VM_PORT/VM_NAME
-VM_KEY="$VM_DIR/vm_key"
-VM_PIDFILE="$VM_DIR/qemu.pid"
-VM_CONSOLE="$VM_DIR/console.log"
-VM_SEED="$VM_DIR/seed.iso"
-VM_DISK="$VM_DIR/overlay.qcow2"
+# (exportés : consommés par les fonctions de la lib, ex. vm_destroy)
+export VM_KEY="$VM_DIR/vm_key"
+export VM_PIDFILE="$VM_DIR/qemu.pid"
+export VM_CONSOLE="$VM_DIR/console.log"
+export VM_SEED="$VM_DIR/seed.iso"
+export VM_DISK="$VM_DIR/overlay.qcow2"
 
 PASS=0; FAIL=0
 check() { # check <nom> <cmd...> : exécute, log, compte
@@ -128,8 +129,9 @@ check "hubctl-start-prod" in_vm "cd ~/POULIDOR && ./hubctl start prod"
 check "app-create" in_vm 'cd ~/POULIDOR && bash scripts/create_app.sh testapp'
 check "app-init" in_vm 'cd ~/POULIDOR/APPS/testapp && printf "{\"format_version\": \"1.0\", \"app\": {\"slug\": \"testapp\", \"name\": \"Test App\", \"description\": \"App de test fresh-install\"}, \"client\": {\"name\": \"POULIDOR Test\", \"contact_name\": \"Jellycode\", \"contact_email\": \"test@local.lan\"}, \"license\": {\"quote_number\": \"TEST-2026-0001\", \"quote_date\": \"2026-08-17\", \"notice_year\": \"2026\"}, \"hub\": {\"host\": \"10.0.2.15\", \"api_port\": 8000, \"frontend_port\": 80}, \"ports\": {\"api\": 9045, \"frontend\": 4250}, \"options\": {\"clean_demo\": true, \"tailwind\": false}}" > profile.json && printf "O\n" | python3 INITIALISE.py --profile profile.json && [ ! -f INITIALISE.py ]'
 # Whitelist du subnet VM + recreate hub-api (docker compose restart ne recharge
-# pas le .env — découverte #8)
-check "hub-whitelist" in_vm 'cd ~/POULIDOR/HUB_base && grep -q "10.0.2.0/24" .env || sed -i "s/^APP_WHITELIST_NETWORKS=.*/APP_WHITELIST_NETWORKS=10.0.2.0\/24,&/" .env; sudo docker compose up -d hub-api'
+# pas le .env — découverte #8) + attente du retour de santé (le recreate
+# interrompt le service quelques secondes)
+check "hub-whitelist" in_vm 'cd ~/POULIDOR/HUB_base && (grep -q "10.0.2.0/24" .env || sed -i "s/^APP_WHITELIST_NETWORKS=.*/APP_WHITELIST_NETWORKS=10.0.2.0\/24,&/" .env); sudo docker compose up -d hub-api >/dev/null 2>&1; for i in $(seq 1 30); do curl -sf http://localhost:8000/api/health >/dev/null && exit 0; sleep 2; done; exit 1'
 check "app-sync-env" in_vm 'cd ~/POULIDOR/APPS/testapp && make sync-env && grep -q "^API_PORT=[0-9]" .env'
 check "app-up" in_vm 'cd ~/POULIDOR/APPS/testapp && make up'
 check "app-health" in_vm 'cd ~/POULIDOR/APPS/testapp && API_PORT=$(grep -E "^API_PORT=" .env | cut -d= -f2); curl -sf "http://localhost:${API_PORT}/api/health" | grep -q "\"status\": \"healthy\"\|\"status\":\"healthy\""'
