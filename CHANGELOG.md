@@ -4,6 +4,33 @@
 
 ---
 
+## [0.38.0] - 17 août 2026
+
+### 🧪 Test fresh-install Debian 12 — validation, correctifs et harness
+
+Première validation complète de l'installation de zéro sur Debian 12 pur (VM QEMU/KVM jetable) : **avant ces correctifs, `install.sh` échouait en Phase 1 sur Debian (exit 100)**. Cycle complet validé (installation → santé Hub → login admin → smoke hubctl → création d'app approuvée) et rejouable via le nouveau harness.
+
+### 🔧 install.sh — installation sur Debian
+
+- **Corrigé** : dépôt Docker ajouté via l'URL **Ubuntu** avec un codename Debian (`does not have a Release file`) → détection de distribution, `download.docker.com/linux/debian` sur Debian.
+- **Corrigé** : fallback paquets système installait `docker-compose-v2` (paquet inexistant sur bookworm) → mort du script exit 100 **silencieux** → `docker-compose` sur Debian + message `err()` explicite en cas d'échec de paquet.
+- **Corrigé** : non-idempotence de l'ajout du dépôt (`gpg --dearmor` refusait d'écraser un keyring existant → curl erreur 23 → bascule silencieuse docker.io) → `--dearmor --yes`.
+
+### 🧰 Harness fresh-install (nouveau)
+
+- **Ajouté** : `scripts/test-fresh-install.sh` — orchestrateur (VM Debian 12 jetable + 23 assertions A2→A8 : clone sous-modules, install, santé Hub, login admin, smoke hubctl, création d'app bout-en-bout) avec rapport pass/fail, `--keep`, `--branch`.
+- **Ajouté** : `scripts/lib/vm-debian12.sh` — primitives VM (création QEMU/cloud-init, SSH agent-forwardé, push de branche par git bundle incluant les sous-modules, destruction).
+
+### 🔺 Sous-modules
+
+- **hubctl_src** → v0.5.2 : whitelist LAN réelle à l'init (fini le `192.0.2.0/24` magique → 403) ; URL API `http` exacte dans le résumé.
+- **HUB_base** → v3.32.3 : `POST /api/auth/login` renvoie le vrai `must_change_password` ; GUIDE_INSTALLATION corrigé (`up -d` au lieu de `restart`, troubleshooting 403 whitelist, note HTTPS app).
+- **HUBapp_TEMPLATE_base** → v2.14.0 : `INITIALISE.py --yes` (confirmation non-interactive du mode profil).
+
+### 📖 Docs
+
+- README : liste réelle des sous-commandes hubctl (les commandes `work`/`ship`/`deploy`/`logs`/`health`/`db-shell`/`status` n'existaient pas) ; prérequis SSH GitHub + note whitelist réseau au démarrage rapide.
+
 ## [0.37.1] - 16 août 2026
 
 ### 🔧 hubctl v0.5.1 — durcissements du kit PRA (revue finale)

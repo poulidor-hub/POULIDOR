@@ -52,7 +52,7 @@ Squelette standard pour toute nouvelle app du parc :
 ### Pilotage (`hubctl`)
 Outil unique pour administrer tout le parc :
 - **TUI interactif** : dashboard avec statut des apps, menus de configuration, coffre de secrets
-- **CLI non-interactive** : `work`, `ship`, `update`, `start`/`stop`, `deploy`, `logs`, `health`, `db-shell`, `vpn`, `status`, `park-export`, `park-restore`, `debug`, `init`
+- **CLI non-interactive** : `start`/`stop`, `update`, `init`, `atelier`, `export` (park-export), `restore` (park-restore), `pra-restore`, `vpn`, `vault`, `seed`, `debug`
 - **Blue-green deploy** : déploiement zéro downtime avec validation humaine (`--validate`)
 - **Atelier de développement** : bac à sable parallèle par app (clone DB prod à la demande)
 - **Coffre chiffré** : sauvegarde des secrets du parc (Fernet + scrypt), export de recovery
@@ -63,7 +63,9 @@ Outil unique pour administrer tout le parc :
 ## Démarrage rapide
 
 ```bash
-# 1. Cloner le dépôt
+# 1. Cloner le dépôt (nécessite une clé SSH enregistrée sur l'org GitHub ;
+#    accepter la host key GitHub au premier connect — ou pré-remplir :
+#    ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts)
 git clone --recurse-submodules git@github.com:POULIDOR-Audit-Developpement/POULIDOR.git
 cd POULIDOR
 
@@ -79,6 +81,12 @@ sudo ./install.sh
 #    Via le TUI : ./hubctl → Apps → Ajouter
 #    Ou via l'IA : « Crée une app mon-outil dans POULIDOR »
 ```
+
+> **Réseau des apps** — à l'installation, `hubctl init` autorise
+> (`APP_WHITELIST_NETWORKS`) le réseau Docker des apps + le subnet LAN
+> détecté du serveur. Pour autoriser d'autres réseaux (allocation de ports,
+> auto-enregistrement), éditer `HUB_base/.env` puis
+> `docker compose up -d hub-api` (⚠️ `restart` ne recharge pas le `.env`).
 
 ### Installation manuelle (alternative)
 
