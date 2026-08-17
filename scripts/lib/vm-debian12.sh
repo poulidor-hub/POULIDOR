@@ -106,7 +106,7 @@ vm_push_branch() { # vm_push_branch <branche> : bundle → scp → fetch+checkou
   local bundle="/tmp/fi-${branch//\//-}.bundle"
   git -C "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)" bundle create "$bundle" "$branch" --all >/dev/null 2>&1 \
     || git bundle create "$bundle" "$branch"
-  vm_scp "$bundle" "/tmp/$(basename "$bundle")"
+  vm_scp "$bundle" "$VM_USER@$VM_SSHHOST:/tmp/$(basename "$bundle")"
   rm -f "$bundle"
   vm_ssh "cd ~/POULIDOR && git fetch /tmp/$(basename "$bundle") '$branch' \
     && git checkout -B '$branch' FETCH_HEAD \
