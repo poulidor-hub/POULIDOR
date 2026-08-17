@@ -18,8 +18,11 @@ VM_SEED="$VM_DIR/seed.iso"
 VM_DISK="$VM_DIR/overlay.qcow2"
 
 vm_ssh() {
+  # ForwardAgent : requis pour les opérations GitHub (clone, submodule update)
+  # depuis la VM — le lanceur doit avoir un agent actif (ssh-add).
   ssh -i "$VM_KEY" -p "$VM_PORT" \
     -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    -o ForwardAgent=yes \
     -o ConnectTimeout=10 -o LogLevel=ERROR \
     "$VM_USER@$VM_SSHHOST" "$@"
 }
@@ -101,11 +104,30 @@ vm_destroy() {
   echo "✓ VM $VM_NAME détruite."
 }
 
-vm_push_branch() { # vm_push_branch <branche> : bundle → scp → fetch+checkout
+vm_push_branch() { # vm_push_branch <branche> : bundle meta + sous-modules → VM
+  # Les nouveaux SHAs de sous-modules n'existent pas sur GitHub → on bundle
+  # chaque sous-module AVANT le checkout méta-repo (sinon submodule update
+  # essaie de les fetcher depuis GitHub et échoue).
   local branch="$1"
-  local bundle="/tmp/fi-${branch//\//-}.bundle"
-  git -C "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)" bundle create "$bundle" "$branch" --all >/dev/null 2>&1 \
-    || git bundle create "$bundle" "$branch"
+  local root
+  root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+  local sub sub_bundle bundle="/tmp/fi-${branch//\//-}.bundle"
+
+  # 1. Bundles des sous-modules (HEAD courant de chacun)
+  for sub in HUB_base HUBCSS hub-mcp HUBapp_TEMPLATE_base hubctl_src; do
+    if [ -d "$root/$sub/.git" ] || git -C "$root" config --get "submodule.$sub.url" >/dev/null 2>&1; then
+      sub_bundle="/tmp/fi-sub-${sub//\//-}.bundle"
+      if git -C "$root/$sub" rev-parse HEAD >/dev/null 2>&1; then
+        git -C "$root/$sub" bundle create "$sub_bundle" HEAD >/dev/null 2>&1 || true
+        vm_scp "$sub_bundle" "$VM_USER@$VM_SSHHOST:/tmp/$(basename "$sub_bundle")"
+        vm_ssh "cd ~/POULIDOR/$sub && git fetch /tmp/$(basename "$sub_bundle") HEAD && git checkout -q -B fi-sub FETCH_HEAD && rm -f /tmp/$(basename "$sub_bundle")" || true
+        rm -f "$sub_bundle"
+      fi
+    fi
+  done
+
+  # 2. Bundle méta-repo + checkout + submodule update (SHAs déjà locaux)
+  git -C "$root" bundle create "$bundle" "$branch" >/dev/null
   vm_scp "$bundle" "$VM_USER@$VM_SSHHOST:/tmp/$(basename "$bundle")"
   rm -f "$bundle"
   vm_ssh "cd ~/POULIDOR && git fetch /tmp/$(basename "$bundle") '$branch' \
