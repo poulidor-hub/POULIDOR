@@ -4,6 +4,15 @@
 
 ---
 
+## [0.39.0] - 17 août 2026
+
+### 🧪 Skill `vm-lab` — labos VM Debian 12 persistants (nouveau)
+
+- **Ajouté** : `.opencode/skills/vm-lab/` — labos VM nommés et persistants pour reproduire des bugs en environnement propre, tester des branches sur VM vierge, et **simuler des serveurs clients réels** (diagnostic support) en injectant leurs données de restauration. 3 recettes documentées + 7 pièges capitalisés du test fresh-install.
+- **Ajouté** : `scripts/lib/vm-lab.sh` — `create/start/ssh/push/inject/restore/list/destroy`, périmètre strict `build/vm-lab/` (l'archive de preuves `build/fresh-install/` est intouchable), image de base hardlinkée (0 Mo), port SSH persisté (`port.txt`), `journal.md` par labo, garde-fous (≤ 2 labos, ≥ 20 Go libres, destroy limité aux enfants directs).
+- **Restauration** : kit PRA → `hubctl pra-restore --yes` ; archive `park-*.tar.gz` → `hubctl restore --passphrase-stdin` ; artefact non reconnu → injection + guidance. Passphrase toujours demandée à l'humain, pipée, jamais stockée.
+- S'appuie sur `vm-debian12.sh` (FI_ROOT redirigé) — zéro duplication des primitives QEMU.
+
 ## [0.38.0] - 17 août 2026
 
 ### 🧪 Test fresh-install Debian 12 — validation, correctifs et harness
