@@ -114,23 +114,31 @@ if $NEED_REPO_UPDATE; then
     say "  Ajout du dépôt Docker officiel..."
     install -m 0755 -d /etc/apt/keyrings
 
-    # Détecter le codename Ubuntu (Mint est basé sur Ubuntu, on remappe)
+    # Détecter la distribution : Debian a son propre dépôt Docker, Ubuntu/Mint le dépôt ubuntu
+    DISTRO_ID="$(. /etc/os-release && echo "$ID")"                    # debian | ubuntu | linuxmint
+    DISTRO_REPO="$DISTRO_ID"
+    [ "$DISTRO_ID" = "linuxmint" ] && DISTRO_REPO="ubuntu"
     CODENAME="$(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")"
-    if [ -z "$CODENAME" ]; then
+    if [ -z "$CODENAME" ] && [ "$DISTRO_ID" = "linuxmint" ]; then
         # Fallback : Linux Mint ne fournit pas toujours UBUNTU_CODENAME
         CODENAME="$(. /etc/os-release && echo "$DEBIAN_CODENAME")"
     fi
-    # Linux Mint 22.x = Ubuntu 24.04 = "noble"
     if [ -z "$CODENAME" ]; then
-        warn "Codename Ubuntu introuvable, utilisation de 'noble' (Ubuntu 24.04)."
-        CODENAME="noble"
+        if [ "$DISTRO_ID" = "debian" ]; then
+            warn "Codename introuvable, utilisation de 'bookworm' (Debian 12)."
+            CODENAME="bookworm"
+        else
+            # Linux Mint 22.x = Ubuntu 24.04 = "noble"
+            warn "Codename Ubuntu introuvable, utilisation de 'noble' (Ubuntu 24.04)."
+            CODENAME="noble"
+        fi
     fi
 
-    if curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null && \
+    if curl -fsSL "https://download.docker.com/linux/${DISTRO_REPO}/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null && \
        chmod a+r /etc/apt/keyrings/docker.gpg && \
-       echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $CODENAME stable" > "$DOCKER_REPO_FILE" && \
+       echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${DISTRO_REPO} $CODENAME stable" > "$DOCKER_REPO_FILE" && \
        apt-get update -qq; then
-        ok "Dépôt Docker ajouté ($CODENAME)"
+        ok "Dépôt Docker ajouté (${DISTRO_REPO}/${CODENAME})"
     else
         warn "Échec d'ajout du dépôt Docker officiel — utilisation du paquet docker.io système (moins récent)"
         DOCKER_FROM_REPO=false
@@ -158,19 +166,39 @@ if $DOCKER_FROM_REPO; then
         "rsync"
     )
 else
-    PACKAGES=(
-        "docker.io"
-        "docker-compose-v2"
-        "python3"
-        "python3-venv"
-        "python3-pip"
-        "git"
-        "make"
-        "openssl"
-        "curl"
-        "iproute2"
-        "rsync"
-    )
+    # Fallback paquets système. Debian bookworm n'a pas docker-compose-v2
+    # (paquet Ubuntu) — compose v1 (docker-compose) y est le seul recours ;
+    # la vérification "docker compose v2" plus bas échouera alors avec un
+    # message clair (le fallback est déjà signalé comme dégradé).
+    if [ "$(. /etc/os-release && echo "$ID")" = "debian" ]; then
+        PACKAGES=(
+            "docker.io"
+            "docker-compose"
+            "python3"
+            "python3-venv"
+            "python3-pip"
+            "git"
+            "make"
+            "openssl"
+            "curl"
+            "iproute2"
+            "rsync"
+        )
+    else
+        PACKAGES=(
+            "docker.io"
+            "docker-compose-v2"
+            "python3"
+            "python3-venv"
+            "python3-pip"
+            "git"
+            "make"
+            "openssl"
+            "curl"
+            "iproute2"
+            "rsync"
+        )
+    fi
 fi
 
 INSTALLED=0
@@ -187,7 +215,7 @@ else
         else
             apt-get install -y -qq "$pkg" >/dev/null 2>&1 || {
                 warn "Échec installation $pkg — tentative sans -qq..."
-                apt-get install -y "$pkg" >/dev/null
+                apt-get install -y "$pkg" || err "Impossible d'installer le paquet $pkg (voir messages apt ci-dessus)."
             }
             INSTALLED=$((INSTALLED + 1))
         fi
