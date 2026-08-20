@@ -4,7 +4,13 @@
 
 ---
 
-## [0.39.0] - 17 août 2026
+## [0.39.1] - 20 août 2026
+
+### 🔺 Sous-modules
+
+- **HUBapp_TEMPLATE_base** → v2.15.0 : merge des deux branches en attente — `feat/sync-env-hub-host` (découverte auto de l'IP du Hub via `make sync-env`, cible dédiée `sync-hub-host`, bootstrap du `.env` au premier démarrage) et `feat/devtools-integration` (MSW, TanStack Router/Form, DevTools conditionnés à `import.meta.env.DEV`). Réalignement des fichiers dérivés de version (`package.json`, `APP_VERSION`), correction de variables CSS obsolètes (`--color-*` → alias actuels).
+
+---
 
 ### 🧪 Skill `vm-lab` — labos VM Debian 12 persistants (nouveau)
 
