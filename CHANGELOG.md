@@ -12,6 +12,8 @@
 
 ---
 
+## [0.39.0] - 17 août 2026
+
 ### 🧪 Skill `vm-lab` — labos VM Debian 12 persistants (nouveau)
 
 - **Ajouté** : `.opencode/skills/vm-lab/` — labos VM nommés et persistants pour reproduire des bugs en environnement propre, tester des branches sur VM vierge, et **simuler des serveurs clients réels** (diagnostic support) en injectant leurs données de restauration. 3 recettes documentées + 7 pièges capitalisés du test fresh-install.
