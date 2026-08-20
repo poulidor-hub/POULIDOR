@@ -4,6 +4,14 @@
 
 ---
 
+## [0.39.2] - 21 août 2026
+
+### 🔺 Sous-modules
+
+- **HUB_base** → v3.34.1 : stabilité SSE — heartbeat serveur 30 s → 15 s (Firefox coupe une connexion SSE ~25-29 s après le dernier octet reçu ; les pings à 30 s arrivaient trop tard → déconnexions toutes les ~55 s en boucle). Frontend : polling de badges en repli uniquement pendant les coupures SSE, suppression de la double reconnexion post-coupure, et fix du TypeError au clic « Nouvelle préférence » (référence à `tagFormM2mEndpoint` disparue du modal). Test de régression sur la cadence du heartbeat ajouté.
+
+---
+
 ## [0.39.1] - 20 août 2026
 
 ### 🔺 Sous-modules
