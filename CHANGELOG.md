@@ -2,6 +2,14 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.39.5] - 23 août 2026
+
+### 🔺 Sous-modules
+
+- **HUB_base v3.34.3** — fix régression « opérations en masse » utilisateurs (data-args apostrophés, bouton Analyser CSV mort, handlers CSP-bloqués) ; complétion de la migration CSP `data-action` (156 handlers inline restants sur 25 fichiers, 176 attributs collés, retrait de l'escape-hatch `new Function`) avec support `data-arg1..9` dans le délégateur ; coercions `parseInt` sur 16 récepteurs d'ids (boutons Modifier muits) ; UX backups des apps lien only (badge + actions masquées, `is_unmanaged` exposé API) ; `js/window-close.js` CSP-safe pour les pages autonomes.
+
+---
+
 ## [0.39.4] - 22 août 2026
 
 ### 🔺 Sous-modules
