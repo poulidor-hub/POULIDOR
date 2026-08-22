@@ -1,6 +1,6 @@
 ---
 name: migrate-app-template
-description: Use when a Hub app was created with an older version of HUBapp_TEMPLATE_base and needs to be updated to the current template version. Triggers on "mettre à jour l'app avec le template", "migrer l'app vers le nouveau template", "mon app est en retard sur le template", "upgrade template app", "sync app with template", or when you notice an app's VERSION is far behind the template's VERSION (2.8.0). Also use when adding template features (M2M, notifications SSE, backup/restore, bulk operations, badge search) to an app that lacks them.
+description: Use when a Hub app was created with an older version of HUBapp_TEMPLATE_base and needs to be updated to the current template version. Triggers on "mettre à jour l'app avec le template", "migrer l'app vers le nouveau template", "mon app est en retard sur le template", "upgrade template app", "sync app with template", or when you notice an app's VERSION is far behind the template's VERSION (2.8.0). Also use when adding template features (M2M, notifications SSE, backup/restore, bulk operations, badge search) to an app that lacks them, or when uploads/backups fail with PermissionError on /app/uploads after a template migration.
 argument-hint: 'Path to the app to migrate (e.g., APPS/mon-app)'
 ---
 
@@ -188,6 +188,43 @@ make logs-api       # Vérifier "Application startup complete"
 ```
 
 **Si `make build` échoue** : vérifier que les Dockerfiles n'ont pas de variables manquantes héritées de l'ancien `.env`. Comparer `ARG` dans le nouveau Dockerfile avec le `.env` de l'app.
+
+### B.6 — ⚠️ Volumes pré-existants possédés par root et image non-root (re-chown obligatoire)
+
+Depuis le durcissement sécurité du template (≥ 2.15), le conteneur API tourne en
+**`appuser` (uid 1000)** avec `cap_drop: ALL` (cf. `Dockerfile.backend` : `USER appuser`).
+Un volume nommé créé **avant** ce durcissement (quand l'API tournait en root) reste
+possédé par `root:root` : le montage masque le `/app/uploads` chown-é de l'image →
+**toute écriture échoue** (`PermissionError: [Errno 13]`) : uploads de fichiers,
+backups… avec un HTTP 500 côté client. Le bug est **latent** : il ne se manifeste
+qu'à la première écriture, souvent bien après la migration.
+
+**Incident de référence** (2026-08-22, exemple-app) : upload d'un message vocal mp3
+→ 500 « Échec de l'upload du message vocal », stack trace
+`PermissionError: [Errno 13] Permission denied: '/app/uploads/voicemail_….mp3'`.
+Le volume datait du 14/08 (créé quand l'API tournait en root), le durcissement était
+arrivé le 21/08 avec la migration template — l'app semblait saine pendant une semaine.
+
+**Re-chown après `make up`** — l'API n'a plus `CAP_CHOWN`, un `docker exec -u 0` ne
+fonctionne pas : passer par un conteneur one-shot sur le volume nommé.
+
+```bash
+# 1. Détection : le process est appuser mais le montage est-il encore root ?
+docker exec <slug>-api id                          # uid=1000(appuser)
+docker exec <slug>-api ls -ld /app/uploads         # si "root root" → re-chown requis
+
+# 2. Re-chown du volume nommé (nom : <slug>-uploads-data, cf. docker volume ls)
+docker run --rm -v <slug>-uploads-data:/data alpine chown -R 1000:1000 /data
+
+# 3. Vérification — test d'écriture réel en appuser (un simple ls ne suffit pas)
+docker exec <slug>-api touch /app/uploads/.rw_test \
+  && docker exec <slug>-api rm /app/uploads/.rw_test && echo "ECRITURE OK"
+```
+
+**Non concerné** : `postgres_data` — l'image postgres conserve CHOWN/FOWNER/SETGID/SETUID
+(cf. compose) et corrige son datadir seule. Seuls les volumes montés dans le service
+`api` (typiquement `uploads_data`) sont impactés. Si le volume n'existe pas encore
+(première création par `make up`), il hérite du chown de l'image → rien à faire.
 
 ## Phase C — Backend core
 
@@ -687,6 +724,7 @@ Avant de déclarer la migration terminée, vérifier :
 - [ ] Le frontend est accessible et fonctionnel
 - [ ] **Bug « onglet qui se referme » corrigé** : AuthContext URL-first + purge refresh token (cf. D.3.1) — 1er clic depuis le dashboard ouvre l'app sans fermeture, pas de `refresh 401` dans les logs hub-api après un launch
 - [ ] **SSE authentifié** : `events/stream?token=` présent dans l'AuthContext (cf. D.3.2) — SSE 200 dans les logs hub-api quand l'app est ouverte, pas de boucle 401
+- [ ] **Volumes re-chown-és** : `/app/uploads` appartient à `appuser:appuser` et le test d'écriture passe (cf. B.6) — pas de `PermissionError` dans les logs api au premier upload/backup
 - [ ] Les composants métier de l'app sont préservés
 - [ ] Les nouvelles fonctionnalités template sont opérationnelles
 - [ ] Les skills `.opencode/` sont chargeables
