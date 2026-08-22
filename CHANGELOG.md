@@ -2,6 +2,14 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.40.0] - 23 août 2026
+
+### 🔺 Sous-modules
+
+- **HUBapp_TEMPLATE_base v2.16.0** — garde de fraîcheur d'image pour `make test-docker` / `test-docker-cov` : script `ACTIONS/PYTHON/check_image_freshness.py` (stdlib, codes de sortie 0/1/2) + cible make interne `ensure-api-fresh` (auto-rebuild `sync-env` → `build api` → `up -d api` quand les sources sont plus récentes que l'image ; dry-run respecté ; mode dev ignoré sans jamais recréer le conteneur). Stamp `.api-image.stamp` corrigeant la boucle de rebuild infinie quand BuildKit réutilise le cache. Fix `backend/VERSION` parasite (mountpoint créé par le montage `./VERSION:/app/VERSION:ro` du compose dev, qui écrasait `/app/VERSION` au `COPY backend/` → crash FastAPI) : exclusion `.dockerignore` + `COPY VERSION` après `COPY backend/` + `.gitignore`.
+
+---
+
 ## [0.39.5] - 23 août 2026
 
 ### 🔺 Sous-modules
