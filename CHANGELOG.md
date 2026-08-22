@@ -2,6 +2,12 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.39.4] - 22 août 2026
+
+### 🔺 Sous-modules
+
+- **HUBapp_TEMPLATE_base v2.15.2** — conformité HUBCSS du template (audit complet) : badges `.role-*`/`.category-*` en tokens `*-soft` (fix illisibilité dark mode), suppression des overrides `[data-theme="dark"]` manuels, rgba/hex/radius/shadows/mono → tokens `--hub-*`, `alert()` éradiqué (MessageBanner + feedback inline), emojis UI → Lucide, styles inline M2MTests/FormDemo → classes.
+
 ---
 
 ## [0.39.3] - 22 août 2026
