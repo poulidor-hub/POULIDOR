@@ -4,6 +4,20 @@
 
 ---
 
+## [0.39.3] - 22 août 2026
+
+### 🔺 Sous-modules
+
+- **HUB_base v3.34.2** — self-healing M2M : sélection du SA *propriétaire* au ré-enregistrement (corrige la rotation du secret d'un SA étranger pour les apps partagées) + recréation automatique du SA disparu (audit `m2m_sa_recreated`).
+- **HUBapp_TEMPLATE_base v2.15.1** — client : `_recover_credentials` via register trusted (voie `regenerate-secret` morte post-H9), payload recover complet.
+
+### 📦 Apps
+
+- **exemple-app-7 v1.7.1** (repo dédié) — creds M2M persistés en volume + self-healing via register + fix slug d'accès frontend (`exemple-app` → `exemple-app`). Incident 401 du 20/08 clos : app sur l'identité officielle (9003/4206), données migrées.
+- **exemple-app v2.15.4** (repo dédié) — alias réseau `backend` remplaçant le lien Docker legacy (crash-loop frontend à chaque recréation api).
+
+---
+
 ## [0.39.2] - 21 août 2026
 
 ### 🔺 Sous-modules
