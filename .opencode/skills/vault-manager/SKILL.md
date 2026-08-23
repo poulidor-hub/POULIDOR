@@ -26,6 +26,8 @@ Vault (coffre.py)                       # chiffrement Fernet + scrypt (MAGIC=b"H
 ├── get_file(rel) / list_files()
 ├── get_entry(key) / list_entries()
 └── change_passphrase(new_pw)
+├── generate_passphrase()   # passphrase forte (token_urlsafe 32)
+└── unlock_stored()         # déverrouillage via parc.vault.key (store/load_passphrase)
 
 VaultManager (vault_manager.py)
 ├── backup_all(on_log=)        # sync() + capture HUB_base/secrets/* + save()
@@ -43,8 +45,12 @@ VaultManager (vault_manager.py)
 
 ## Règles de cycle (NON-négociables)
 
-1. **Passphrase obligatoire à chaque démarrage** (prod ET dev). Création forcée si aucun coffre.
-   Si l'utilisateur fait Échap → `SystemExit` (on ne démarre pas sans coffre).
+1. **Coffre obligatoire à chaque démarrage** (prod ET dev). Création forcée si aucun coffre.
+   La passphrase est **auto-générée** (`coffre.generate_passphrase()`) et conservée dans
+   `hubctl_cli/vault/parc.vault.key` (chmod 0600, gitignoré) → déverrouillage silencieux
+   via `Vault.unlock_stored()`. Si l'utilisateur fait Échap (repli saisie) → `SystemExit`
+   (on ne démarre pas sans coffre). Kit PRA : la clé est répliquée avec le coffre et lue
+   par `pra-restore`.
 2. **Capture automatique au démarrage** : après déverrouillage, `backup_all()` est appelé.
 3. **Bouton « 💾 Sauvegarder maintenant »** (coffre UI) → `backup_all()`.
 4. **Bouton « ⬇ Récupérer (export) »** → `export_recovery()` écrit `hubctl_cli/recovery/<stamp>/`
