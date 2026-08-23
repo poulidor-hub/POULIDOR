@@ -2,6 +2,22 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.42.0] - 23 août 2026
+
+### 🚀 Uptime utilisateur fiable + présence par application
+
+- **HUB_base → 3.37.0** (depuis 3.35.0) : fiabilisation complète du suivi d'uptime — stabilisation
+  sessions/segments (v3.35.1 : heartbeats perdus, fermetures SSE non committées, timestamps futurs,
+  dédoublonnage, cleanup au boot), présence par application via le heartbeat SSE `?app=<slug>`
+  (v3.36.0 : segments parallèles par couple (session, app), fermeture ciblée `disconnect`), traçage
+  SSO OIDC (v3.37.0 : `ensure_session_presence` sur authorize/launch). E2E validé en prod.
+- **HUBapp_TEMPLATE_base → 2.17.0** : l'URL SSE construite par les apps porte `&app=<slug>`
+  (`VITE_APP_SLUG`) — rétrocompatible, déployable avant le HUB. **Rollout parc requis** pour
+  activer la présence par app (14 stacks, phase 4 du plan — `docs/superpowers/plans/
+  2026-08-23-uptime-utilisateur-fiable.md`, spec heatmap incluse).
+- UI Audit : « Activité de la journée » refonte en heatmap app × tranches 3h (design validé),
+  répartition une barre par app, KPI « Segments ».
+
 ## [0.41.0] - 23 août 2026
 
 ### 🚀 Atelier — test de mise à jour + déploiement prod (hubctl v0.6.1)
