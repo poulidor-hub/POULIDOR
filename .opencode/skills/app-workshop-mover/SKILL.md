@@ -187,7 +187,7 @@ pas avoir cette clé — recréer l'atelier pour en bénéficier.
 | `APP_SLUG` | `{slug}-ws` — pilote le projet compose, les conteneurs et le volume |
 | `API_PORT` / `FRONTEND_PORT` / `FRONTEND_HTTPS_PORT` | ports atelier alloués dans les plages dédiées |
 | `WS_REF` / `WS_COMMIT` | ref + commit du code testé (tracing du cycle `--maj`/`--prod`) ; `n/a` si `APPS/X` n'a pas de remote git |
-| `APP_SUBNET` | subnet `/24` dédié du réseau `-ws` (pool `10.210.x`) — depuis cette release ; recréer un atelier legacy pour l'obtenir |
+| `APP_SUBNET` | subnet `/24` dédié du réseau `-ws` (pool `10.210.x`) — écrite si un subnet libre est trouvé (repli subnet prod + warning si pool épuisé) ; recréer un atelier legacy pour l'obtenir |
 
 ### Commandes
 
