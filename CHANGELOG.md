@@ -2,6 +2,21 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.41.0] - 23 août 2026
+
+### 🚀 Atelier — test de mise à jour + déploiement prod (hubctl v0.6.0)
+
+- L'atelier peut désormais **tester une montée de version** : `./hubctl atelier X --maj` récupère
+  `origin/main` (ou `--ref <branche|tag>`) et la rebuild sur le clone de DB — migrations rejouées au
+  boot, zéro risque prod. `./hubctl atelier X --prod` déploie le main validé (garde-fous : atelier
+  sain, commit testé == origin/main) puis supprime l'atelier ; échec prod → rollback, atelier conservé.
+- Subnet atelier dédié (pool `198.51.100.0/24` – `198.51.100.10/24`, overlap vérifié) : prod et atelier
+  coexistent sur les apps du template actuel (subnet épinglé).
+- Skill `app-workshop-mover` mis à jour (cycle complet maj/ship, garde-fous, dry-run global,
+  récupération post-interruption) + README hubctl.
+- Spec : `docs/superpowers/specs/2026-08-23-workshop-update-ship-design.md` —
+  plan : `docs/superpowers/plans/2026-08-23-workshop-update-ship.md`.
+
 ## [0.40.2] - 23 août 2026
 
 ### ⚡ MCP hub standalone robuste au contexte de lancement
