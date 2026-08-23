@@ -2,6 +2,14 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.40.1] - 23 août 2026
+
+### 🔺 Sous-modules
+
+- **HUB_base v3.35.0** — refonte UI de la vue Préférences (visible par tous les utilisateurs) : composants de sélection à seuil automatique (chips ≤ 12 valeurs / sélecteur avec recherche insensible aux accents > 12), autosave avec indicateur d'état (debounce 600 ms, fin du bouton « Enregistrer mes choix »), sommaire sticky avec pastilles de progression, onglets admin-only (les non-admin voient le contenu directement). Fixes : toggle chips cassé par le `preventDefault` du délégateur `data-action`, SSE `tags_updated` bruyant à chaque autosave (refresh token silencieux — tags dans les claims JWT — + re-render limité aux actions `category_*`), création de catégorie CSV en 422 (`m2m_endpoint: null` refusé par le schéma depuis `211d622`). Aucun changement backend.
+
+---
+
 ## [0.40.0] - 23 août 2026
 
 ### 🔺 Sous-modules
