@@ -11,7 +11,7 @@
   "mcp": {
     "hub": {
       "type": "local",
-      "command": ["bash", "-c", "cd hub-mcp && exec python3 -m hub_mcp.server"],
+      "command": ["bash", "mcp-hub.sh"],
       "enabled": true
     },
     "zai-mcp-server": {

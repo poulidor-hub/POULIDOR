@@ -2,6 +2,16 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.40.2] - 23 août 2026
+
+### ⚡ MCP hub standalone robuste au contexte de lancement
+
+- **Ajouté** : `mcp-hub.sh` (racine) — wrapper autonome du serveur MCP `hub` : chemins résolus depuis la position du script (insensible au cwd d'opencode), source `.secrets` avant lancement (`set -a`/`set +a`, même pattern que le wrapper `hubctl` → indépendant du shell appelant), avertissement stderr explicite dès le démarrage si `.secrets` est absent. Aucun secret committé (`.secrets` reste gitignoré).
+- **Corrigé** : `opencode.json` — la commande MCP `hub` (`cd hub-mcp && python3 -m hub_mcp.server`, chemin relatif + creds hérités de `~/.bashrc`) listait bien les outils mais faisait échouer **chaque appel** quand opencode était lancé hors shell interactif bash (IDE, lanceur graphique, autre shell : `HUB_BASE_URL`/`HUB_ADMIN_USERNAME`/`HUB_ADMIN_PASSWORD` absents → `StandaloneHubClient` levait « variables d'environnement manquantes »). La commande devient `["bash", "mcp-hub.sh"]`.
+- **Vérifié** : probe protocole MCP complet (initialize → tools/list → tools/call) lancé depuis un cwd étranger avec les 3 variables retirées de l'env → 65 outils exposés, `hub_health` et `hub_app_list` (login admin via `.secrets` sourcé par le wrapper) OK ; régression OK en conditions normales ; mode dégradé sans `.secrets` → avertissement stderr + erreur explicite à l'appel.
+
+---
+
 ## [0.40.1] - 23 août 2026
 
 ### 🔺 Sous-modules
