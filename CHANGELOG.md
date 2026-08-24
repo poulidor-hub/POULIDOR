@@ -2,6 +2,23 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.43.0] - 24 août 2026
+
+### 🔐 Fin de la saisie manuelle de la passphrase du coffre
+
+- **hubctl_src → 0.7.0** (depuis 0.6.1) : la passphrase du coffre (`parc.vault.enc`) est désormais
+  **générée automatiquement** (`secrets.token_urlsafe`) et conservée dans
+  `hubctl_cli/vault/parc.vault.key` (chmod 0600, gitignoré) — plus aucune saisie à l'installation
+  ni au démarrage : déverrouillage silencieux dans le TUI, le sous-menu Coffre et `hubctl vault …`.
+- **Migration douce** : les coffres existants (passphrase saisie à la main) demandent la passphrase
+  une dernière fois puis la mémorisent ; « 🔑 Changer la passphrase » resynchronise la clé.
+- **Kit PRA** : `parc.vault.key` est répliqué avec le coffre sur l'emplacement secondaire (sans elle
+  le kit serait indéchiffrable) ; `pra-restore` lit la clé du kit (repli saisie pour les kits anciens).
+- **Sécurité (assumée)** : la clé vit en clair à côté du coffre — le coffre est une sauvegarde
+  lecture-seule, pas une frontière (les `.env` sont déjà en clair sur disque). 479 tests (+19).
+- **Docs** : skill agent `vault-manager` mis à jour (règle de cycle §1, API `unlock_stored` /
+  `generate_passphrase`).
+
 ## [0.42.0] - 23 août 2026
 
 ### 🚀 Uptime utilisateur fiable + présence par application
