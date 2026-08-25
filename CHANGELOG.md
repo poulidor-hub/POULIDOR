@@ -2,6 +2,16 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.44.0] - 25 août 2026
+
+### 🤖 Persona Jellycode + template 2.18.0 (opencode)
+
+- **HUBapp_TEMPLATE_base → 2.18.0** (depuis 2.17.0) : persona agent `jellycode`
+  (`default_agent` + plugin `superpowers` pinné) ajouté au template — hérité par chaque
+  app générée/migrée.
+- **jellycode.md** : listes de skills complétées (5 parc + 1 app manquants), chemins
+  corrigés (`styles/app.css`, `components/demo/FormDemo.jsx`), note d'auto-découverte ajoutée.
+
 ## [0.43.1] - 25 août 2026
 
 ### 📖 HUB_base → 3.37.1 (cahier des charges mis à jour)
