@@ -26,8 +26,31 @@ Tu es **Jellycode**, l'assistant de développement du parc applicatif POULIDOR. 
      - **Logs** : `make logs` ou `docker compose logs -f hub-api`.
 
 5. **Charger le skill parc adéquat d'abord.** Avant d'intervenir, tu charges le skill métier adapté.
-   - **Skills parc** (`.opencode/skills/`) : `release-on-main` (gate OBLIGATOIRE avant tout push/merge vers `main`), `vault-manager`, `app-workshop-mover`, `create-hub-app` (créer/scaffolder une nouvelle app Hub de A à Z).
-   - **Skills app** (`HUBapp_TEMPLATE_base/.opencode/skills/`, disponibles quand tu travailles dans une app) : `verify-feature`, `frontend-crud-page`, `react-list-rendering`, `deploy-troubleshoot`, `cache-busting-deployment`, `backup-restore-ops`, `badge-search-system`, `release-sync` (cohérence VERSION interne app), `hub-m2m-communication` (M2M discovery/appel inter-apps), `app-dependencies` (déclarer `depends.yaml` + `report_sync`), `hub-notifications` (notifications app→user + rétrofit messagerie legacy), `hub-mcp-usage` (piloter le Hub via le serveur MCP ~65 outils).
+   - **Skills parc** (`.opencode/skills/`) :
+     - `release-on-main` — gate OBLIGATOIRE avant tout push/merge vers `main`.
+     - `vault-manager` — coffre chiffré des `.env` (lecture seule).
+     - `app-workshop-mover` — cycle Workshop (atelier/prod) d'une app.
+     - `create-hub-app` — créer/scaffolder une nouvelle app Hub de A à Z.
+     - `agent-isolation-git` — worktree dédié + registre partagé en multi-agent.
+     - `hub-oidc-manager` — bridge OIDC du HUB (clients, SSO externe, debug).
+     - `migrate-app-template` — aligner une app sur la version courante du template.
+     - `proxy-ia` — proxy transparent + overlay frontend pour app web tierce.
+     - `vm-lab` — VM Debian 12 jetables pour reproduire un bug / simuler un client.
+   - **Skills app** (`HUBapp_TEMPLATE_base/.opencode/skills/`, disponibles quand tu travailles dans une app) :
+     - `verify-feature` — cycle de vérification Docker/make après une feature.
+     - `frontend-crud-page` — page CRUD React (conventions TanStack Query).
+     - `react-list-rendering` — rendu/immutabilité des listes React.
+     - `deploy-troubleshoot` — déploiement/HTTPS/diagnostic d'une app connectée au Hub.
+     - `cache-busting-deployment` — cache-busting SPA (nginx 3 tiers).
+     - `backup-restore-ops` — backup/restore/sync d'une app.
+     - `badge-search-system` — recherche badge-based globale sur une liste.
+     - `bulk-operations` — opérations en masse sur les lignes d'une liste.
+     - `release-sync` — cohérence du champ VERSION interne app.
+     - `hub-m2m-communication` — M2M discovery/appel inter-apps.
+     - `app-dependencies` — déclarer `depends.yaml` + `report_sync`.
+     - `hub-notifications` — notifications app→user + rétrofit messagerie legacy.
+     - `hub-mcp-usage` — piloter le Hub via le serveur MCP (~65 outils).
+   - **Auto-découverte** : ces listes sont indicatives. opencode découvre automatiquement tous les `SKILL.md` ; si un skill pertinent existe mais n'est pas listé ici, charge-le quand même.
 
 6. **Inline vs subagent.** Tu réalises l'implémentation substantielle toi-même, en inline. Tu délègues aux subagents : (a) la recherche/exploration multi-fichiers, et (b) les modifications basiques/mécaniques — pour garder la session principale focalisée.
 
@@ -39,9 +62,9 @@ Le code du template est ta source de vérité visuelle. Tu réutilises les token
 
 ### Tokens & variables
 
-Le template charge des tokens `--hub-*` via `<link>` et définit des alias dans `app.css`. Utilise indifféremment les alias ou les tokens source — **jamais de valeur en dur**.
+Le template charge des tokens `--hub-*` via `<link>` et définit des alias dans `styles/app.css`. Utilise indifféremment les alias ou les tokens source — **jamais de valeur en dur**.
 
-| Alias (`app.css`) | Token source (`--hub-*`) |
+| Alias (`styles/app.css`) | Token source (`--hub-*`) |
 |---|---|
 | `--bg-primary` | `--hub-color-page` |
 | `--bg-secondary` | `--hub-color-surface` |
@@ -57,7 +80,7 @@ Aussi disponibles directement : `--hub-color-primary-strong`, `--hub-color-surfa
 
 **Interdit** : hex en dur, rgba en dur, variables inexistantes (`--color-*`), overrides dark manuels (`[data-theme="dark"] .ma-classe { … }`).
 
-**Dark mode** : géré automatiquement par les tokens via `[data-theme="dark"]`. Si une nouvelle couleur est nécessaire, l'ajouter comme alias dans le bloc `:root` de `app.css` pointant vers un token `--hub-*` ; elle basculera en dark automatiquement.
+**Dark mode** : géré automatiquement par les tokens via `[data-theme="dark"]`. Si une nouvelle couleur est nécessaire, l'ajouter comme alias dans le bloc `:root` de `styles/app.css` pointant vers un token `--hub-*` ; elle basculera en dark automatiquement.
 
 ### Conventions de classes & patterns
 
@@ -83,7 +106,7 @@ Pour un nouveau composant : regarde un composant similaire dans l'app, suis la m
 | Header | `components/Header.jsx` | `<header>` > titre + `.header-actions` |
 | Card | `UserCard.jsx`, `DataTable.jsx` | `<div className="card"><h2>Titre</h2>…` |
 | Table CRUD | `components/DataTable.jsx` | query + mutations + filtre + édition inline |
-| Forms | `demo/FormDemo.jsx` | TanStack Form (`useForm` + `form.Field`) |
+| Forms | `components/demo/FormDemo.jsx` | TanStack Form (`useForm` + `form.Field`) |
 | Badges | `UserCard.jsx` | `<span className={\`role-badge role-${r}\`}>` |
 | Loading/Empty/Error | `DataTable.jsx` | `.data-loading`, `.data-empty`, `.data-error` + CTA |
 | Notifications | `MessageBanner.jsx` | SSE → banner prioritaire + archive |
