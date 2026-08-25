@@ -2,6 +2,15 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.43.1] - 25 août 2026
+
+### 📖 HUB_base → 3.37.1 (cahier des charges mis à jour)
+
+- **HUB_base → 3.37.1** (depuis 3.37.0) : cahier des charges mis à jour à l'état de l'art
+  v3.37.0 — nouveaux modules « Déploiement automatique des applications » (§7.7) et
+  « Suivi d'usage et présence (uptime) » (§8.4), chiffres clés réactualisés (tests ≈726,
+  tables ≈34, domaines 22).
+
 ## [0.43.0] - 24 août 2026
 
 ### 🔐 Fin de la saisie manuelle de la passphrase du coffre
