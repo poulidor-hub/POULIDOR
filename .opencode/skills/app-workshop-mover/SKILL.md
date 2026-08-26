@@ -52,6 +52,7 @@ subnet diffèrent.
 | MAJ de l'atelier (test montée de version) | ✅ Implémenté | `./hubctl atelier X --maj [--ref R]` |
 | Déploiement atelier → prod (`ship`) | ✅ Implémenté | `./hubctl atelier X --prod` |
 | Supprimer l'atelier | ✅ Implémenté (menu) | `./hubctl atelier X` → choix 3 |
+| Pilotage UI vue santé | ✅ Implémenté | vue Santé (admin) ou API `/api/apps/{slug}/workshop*` |
 | Copie DB atelier → prod (`--copy-db`) | ❌ Non implémenté (non voulu) | — |
 | Multi-slug (`work X,Y,Z`) | ❌ Non implémenté | un seul slug à la fois |
 | Blue-green deploy (`deploy`) | ❌ Non implémenté | — |
@@ -162,6 +163,31 @@ Le slug atelier est `{slug}-ws`. Il est piloté par `APP_SLUG` dans `.workshop.e
 réseau du projet `-ws` : c'est ce qui permet à prod et atelier de cohabiter sur
 les apps du template courant. Les ateliers créés avant cette release peuvent ne
 pas avoir cette clé — recréer l'atelier pour en bénéficier.
+
+## Pilotage UI (HUB_base ≥ 3.38.0)
+
+Les 4 opérations du cycle (créer / mettre à jour / déployer / supprimer) sont
+pilotables depuis la vue **« Santé des Applications »** du HUB (admin), en plus
+de `hubctl` :
+
+| Voie | Usage |
+|------|-------|
+| UI HUB (admin) | Bloc atelier des cartes santé — endpoints `GET\|POST\|DELETE /api/apps/{slug}/workshop[...]` |
+| CLI `hubctl` | `./hubctl atelier X` — reste **l'outil de secours** quand le HUB est down |
+
+- **Exécution** : par `hub-api` (`hub/app/workshop_service.py`), sur le pattern
+  `deploy_service` : **une opération atelier à la fois** (garde-fou global, 409),
+  suivi pas-à-pas en DB (table `workshop_operations`), purge de l'historique
+  après 30 j, opérations en vol annulées au shutdown de l'API.
+- **Dualité UI/CLI** : `APPS/X/.workshop.env` (7 clés) est le **contrat partagé**
+  entre hubctl et `workshop_service` — figé par des contract tests des deux côtés.
+- **Garde-fous identiques à hubctl v0.6.1** : ship = `origin/main` uniquement
+  (refusé si l'atelier teste autre chose), commit testé exigé, **atelier conservé**
+  si le déploiement prod échoue.
+- **Warning mtime** : si `.workshop.env` a été modifié il y a **moins de 60 s**,
+  l'opération journalise un warning (« hubctl a peut-être agi récemment »).
+- **PAS de lockfile inter-outils en v1** : ne jamais lancer hubctl et l'UI
+  simultanément sur la même app.
 
 ## Quick Reference
 
