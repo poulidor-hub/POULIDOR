@@ -60,6 +60,25 @@ Outil unique pour administrer tout le parc :
 
 ---
 
+## Documentation
+
+- **`docs/guide-parc-poulidor.md`** — Guide de référence du parc : démarcation
+  HUB_base / hubctl / template, toutes les commandes, cas d'usage (création d'app,
+  déploiement, sinistre, secrets). Point d'entrée pour nouveaux développeurs/admins.
+
+| Document | Contenu |
+|----------|---------|
+| `docs/guide-hub/hubctl.html` | Guide complet de `hubctl` (TUI + CLI) |
+| `docs/guide-hub/make.html` | Référence des commandes `make` par app |
+| `docs/guide-hub/architecture.html` | Architecture du parc |
+| `docs/canvas-poulidor.html` | Présentation visuelle (canvas client) |
+| `HUB_base/docs/GUIDE_ADMIN.md` | Guide administrateur Hub |
+| `HUB_base/docs/ARCHITECTURE.md` | Architecture interne du Hub |
+| `HUBapp_TEMPLATE_base/docs/API.md` | Conventions API d'une app |
+| `HUBapp_TEMPLATE_base/README.md` | Documentation du template |
+
+---
+
 ## Démarrage rapide
 
 ```bash
@@ -97,21 +116,6 @@ Si les prérequis sont déjà installés, ou pour un déploiement ciblé du Hub 
 ```
 
 Voir `HUB_base/docs/GUIDE_INSTALLATION.md` pour l'installation manuelle détaillée.
-
----
-
-## Documentation
-
-| Document | Contenu |
-|----------|---------|
-| `docs/guide-hub/hubctl.html` | Guide complet de `hubctl` (TUI + CLI) |
-| `docs/guide-hub/make.html` | Référence des commandes `make` par app |
-| `docs/guide-hub/architecture.html` | Architecture du parc |
-| `docs/canvas-poulidor.html` | Présentation visuelle (canvas client) |
-| `HUB_base/docs/GUIDE_ADMIN.md` | Guide administrateur Hub |
-| `HUB_base/docs/ARCHITECTURE.md` | Architecture interne du Hub |
-| `HUBapp_TEMPLATE_base/docs/API.md` | Conventions API d'une app |
-| `HUBapp_TEMPLATE_base/README.md` | Documentation du template |
 
 ---
 
