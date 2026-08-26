@@ -53,7 +53,8 @@ Squelette standard pour toute nouvelle app du parc :
 Outil unique pour administrer tout le parc :
 - **TUI interactif** : dashboard avec statut des apps, menus de configuration, coffre de secrets
 - **CLI non-interactive** : `start`/`stop`, `update`, `init`, `atelier`, `export` (park-export), `restore` (park-restore), `pra-restore`, `vpn`, `vault`, `seed`, `debug`
-- **Blue-green deploy** : déploiement zéro downtime avec validation humaine (`--validate`)
+- **Blue-green deploy** : déploiement zéro downtime avec validation humaine en
+  atelier (`./hubctl atelier <app> --maj` pour tester, `--prod` pour basculer)
 - **Atelier de développement** : bac à sable parallèle par app (clone DB prod à la demande)
 - **Coffre chiffré** : sauvegarde des secrets du parc (Fernet + scrypt), export de recovery
 - **Park export/restore** : archivage chiffré du parc complet pour disaster recovery
@@ -97,7 +98,8 @@ sudo ./install.sh
 #    Les credentials admin s'affichent dans le récapitulatif final.
 
 # 4. Créer une nouvelle application
-#    Via le TUI : ./hubctl → Apps → Ajouter
+#    ./scripts/create_app.sh <nom> puis python INITIALISE.py
+#    (guide : docs/guide-parc-poulidor.md §4.4/§5.1)
 #    Ou via l'IA : « Crée une app mon-outil dans POULIDOR »
 ```
 
