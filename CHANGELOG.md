@@ -2,6 +2,19 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.46.0] - 27 août 2026
+
+### 🚀 Configurer le dépôt git d'une app depuis l'UI (HUB_base v3.39.0)
+
+- Bouton « Configurer le dépôt git » dans la vue Santé (apps sans remote, avec ou sans
+  atelier) : modale configurer-**et-tester** — enregistre l'URL en DB, configure `origin`
+  du repo local, teste `ls-remote` immédiat avec verdict (✓ N branches / ✗ cause git).
+  HTTPS uniquement (SSH refusé). Le form admin synchronise le remote best-effort.
+- **PAT GitHub branché dans les fetch du cycle atelier** : mises à jour/déploiements
+  d'atelier fonctionnent désormais sur les repos **privés** (token `github_token`
+  existant, jamais affiché). Validé en live contre un repo privé GitHub du parc.
+- Fix verdict : la cause git utile est conservée (préfixe technique retiré).
+
 ## [0.45.2] - 27 août 2026
 
 ### ⚡ HUB_base → 3.38.2 (page Audit : heatmap quasi instantanée, plage limitée au mois)
