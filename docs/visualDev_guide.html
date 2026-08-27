@@ -247,6 +247,22 @@
   th { background: var(--hub-color-surface-muted); font-weight: 600; color: var(--hub-color-text); }
   tr:last-child td { border-bottom: none; }
   
+  .mermaid-box {
+    background: var(--hub-color-surface);
+    border: 1px solid var(--hub-color-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 1.5rem 0 2rem;
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+    text-align: center;
+  }
+  .mermaid-caption {
+    font-size: 0.8125rem; color: var(--hub-color-muted);
+    margin-top: 0.75rem; text-align: center;
+  }
+  .resource-table td:first-child { font-weight: 600; white-space: nowrap; }
+
   /* Responsive */
   .mobile-menu-btn { display: none; background: none; border: none; cursor: pointer; color: var(--hub-color-text); }
   @media (max-width: 1024px) {
@@ -311,14 +327,24 @@
       <svg class="callout-icon" width="24" height="24"><use href="#icon-shield"/></svg>
       <div>
         <p><strong>Référence technique centrale</strong></p>
-        <p>Ce guide rassemble le fonctionnement architectural, le pilotage via <code>hubctl</code>, et le développement avec le template d'application. Valable pour la version de parc <code>0.44.x</code>.</p>
+        <p>Ce guide rassemble le fonctionnement architectural, le pilotage via <code>hubctl</code>, et le développement avec le template d'application. Valable pour la version de parc <code>0.45.x</code> / Hub <code>3.38.x</code> — les fichiers <code>VERSION</code> font foi. Version textuelle complète : <a href="guide-parc-poulidor.md">guide-parc-poulidor.md</a>.</p>
       </div>
     </div>
 
     <!-- SECTION 1: ARCHITECTURE -->
     <section id="architecture">
       <h2>1. Architecture globale et Flux</h2>
-      <p>Le parc POULIDOR est composé d'un cerveau central (le <strong>Hub</strong>) et d'une multitude d'applications métier satellites (issues du <strong>Template</strong>). Voici comment ils s'articulent :</p>
+      <p>Le parc POULIDOR est composé d'un cerveau central (le <strong>Hub</strong>) et d'une multitude d'applications métier satellites (issues du <strong>Template</strong>). Le Hub lui-même est une stack Docker de 4 services :</p>
+
+      <table>
+        <thead><tr><th>Service</th><th>Conteneur</th><th>Rôle</th></tr></thead>
+        <tbody>
+          <tr><td><code>db</code></td><td><code>hub-db</code></td><td>PostgreSQL 16 « hub_auth » (~36 tables)</td></tr>
+          <tr><td><code>hub-api</code></td><td><code>hub-api</code></td><td>FastAPI — 21 routeurs : SSO, registre d'apps, M2M/OIDC, messagerie SSE, backups/snapshots, audit, VPN</td></tr>
+          <tr><td><code>hub-frontend</code></td><td><code>hub-frontend</code></td><td>Nginx — SPA vanilla JS + console admin, terminaison TLS</td></tr>
+          <tr><td><code>wireguard-server</code></td><td><code>hub-wireguard</code></td><td>VPN WireGuard (profil compose — démarré seulement si activé)</td></tr>
+        </tbody>
+      </table>
       
       <div class="diagram-container">
         <!-- HUB Box -->
@@ -393,6 +419,46 @@
           </div>
         </div>
       </div>
+
+      <h3>Le flux SSO — le mot de passe ne quitte jamais le Hub</h3>
+      <div class="mermaid-box">
+<pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor U as Utilisateur
+    participant N as Navigateur / SPA
+    participant H as Hub (hub-api)
+    participant A as App (backend FastAPI)
+    U->>N: ouvre l'app
+    N->>H: POST /api/auth/login (identifiants)
+    Note over H: émet un JWT signé RS256<br/>avec sa clé PRIVÉE
+    H-->>N: JWT (30 min) + refresh token (rotation)
+    N->>A: requête API — Authorization: Bearer JWT
+    A->>H: GET /api/auth/.well-known/jwks.json<br/>(clé PUBLIQUE, mise en cache)
+    Note over A: vérifie la signature en local
+    A-->>N: 200 — données métier
+</pre>
+        <p class="mermaid-caption">L'app ne connaît jamais le mot de passe : elle ne voit que le JWT, qu'elle valide avec la clé publique du Hub (JWKS).</p>
+      </div>
+
+      <h3>Le flux M2M — une app appelle une autre via le Hub</h3>
+      <div class="mermaid-box">
+<pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant A as App A (Service Account)
+    participant H as Hub (hub-api)
+    participant B as App B (service partagé)
+    A->>H: POST /api/auth/token (client_credentials)
+    H-->>A: token M2M (identité SA)
+    A->>H: GET /api/apps/discover
+    H-->>A: catalogue — App B expose tel endpoint
+    A->>B: appel M2M (Bearer token SA)
+    B-->>A: réponse métier
+    Note over A,B: échec après tous les retries<br/>→ outbox : livraison garantie, retry auto
+</pre>
+        <p class="mermaid-caption">Les credentials SA sont chiffrés côté Hub (Fernet). Si l'app B est down, le message part en outbox et sera livré automatiquement.</p>
+      </div>
     </section>
 
     <section id="hubctl">
@@ -433,6 +499,34 @@
             <span class="function">./hubctl</span> vault status<br>
             <span class="function">./hubctl</span> vault backup
           </div>
+        </div>
+      </div>
+
+      <h3>Les 12 sous-commandes CLI</h3>
+      <p>Exécutées à la racine du parc. Le flag global <code>--dry-run</code> (placé <strong>avant</strong> la sous-commande) simule sans exécuter.</p>
+      <table>
+        <thead><tr><th>Commande</th><th>Effet</th></tr></thead>
+        <tbody>
+          <tr><td><code>start / stop [all|prod|dev]</code></td><td>Cycle de vie du parc. <code>dev</code> = ateliers uniquement ; <code>stop dev</code> préserve les volumes.</td></tr>
+          <tr><td><code>update</code></td><td>Maj Hub + apps actives : snapshot DB préalable, pull → build → up, <strong>rollback automatique</strong> si échec.</td></tr>
+          <tr><td><code>atelier &lt;app&gt; [--maj [--ref R] | --prod]</code></td><td>Cycle atelier blue-green (§7) : création avec clone DB, test de <code>origin/main</code>, déploiement validé.</td></tr>
+          <tr><td><code>init [--force]</code></td><td>Bootstrap d'un Hub neuf : <code>.env</code> + secrets aléatoires, clés JWT, santé, marker shell.</td></tr>
+          <tr><td><code>export [--app S] [--passphrase-stdin]</code></td><td>Archive chiffrée du parc complet (DB + .env + secrets), magic <code>PARKEV1</code> → <code>exports/</code>.</td></tr>
+          <tr><td><code>restore &lt;archive&gt;</code></td><td>Restaure un park-export — <strong>uniquement sur un Hub vierge</strong>.</td></tr>
+          <tr><td><code>pra-restore [kit]</code></td><td>PRA sur machine nue : wizard en 7 étapes depuis le kit (§8).</td></tr>
+          <tr><td><code>debug [app] [--rw|--setup]</code></td><td>Agent IA local de debug (Ollama + MCP <code>hub-debug</code>), coupé par <code>--off</code>.</td></tr>
+          <tr><td><code>vpn sync|status|on|off</code></td><td>WireGuard : l'état voulu vit en DB, le conteneur est réconcilié par <code>sync</code>.</td></tr>
+          <tr><td><code>vault backup|restore|status|…</code></td><td>Coffre chiffré Fernet+scrypt des .env/secrets (§8) + réplication PRA.</td></tr>
+          <tr><td><code>seed [fichier.yaml] [--prune]</code></td><td>Déploiement déclaratif batch (clone/configure/converge) ; <code>seed export</code> génère le YAML.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Le TUI — un dashboard, pas un menu</h3>
+      <div class="callout">
+        <svg class="callout-icon" width="24" height="24"><use href="#icon-activity"/></svg>
+        <div>
+          <p><strong>./hubctl sans sous-commande (avec TTY)</strong> ouvre un dashboard 4 quadrants : bannière (version, mode DEV/PROD, badge PRA), ressources système, statut des services et apps, raccourcis.</p>
+          <p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--hub-color-muted);">Raccourcis mode PROD : <code>1</code> tout démarrer · <code>2</code> tout arrêter · <code>3</code> mise à jour · <code>4</code> Coffre · <code>0</code>/<code>Esc</code> quitter. Mode DEV : <code>1/2</code> prod, <code>3/4</code> ateliers, <code>5</code> update, <code>6</code> Coffre. ⚠️ Depuis Hub 3.38.0, l'atelier se pilote aussi depuis l'UI Santé — ne pas lancer hubctl et l'UI simultanément sur la même app.</p>
         </div>
       </div>
     </section>
@@ -487,6 +581,19 @@
           </div>
         </div>
       </div>
+
+      <h3>Prod vs atelier — des ressources étanches</h3>
+      <p>Chaque app de production possède un jumeau d'atelier sur des plages dédiées : aucune collision possible, les deux peuvent tourner en parallèle.</p>
+      <table class="resource-table">
+        <thead><tr><th>Ressource</th><th>Production</th><th>Atelier (projet compose <code>-ws</code>)</th></tr></thead>
+        <tbody>
+          <tr><td>Port API</td><td>9000 – 9499</td><td>10000 – 10499</td></tr>
+          <tr><td>Port frontend</td><td>4200 – 4699</td><td>5200 – 5699</td></tr>
+          <tr><td>Subnet Docker</td><td>pool du Hub (par groupe d'apps)</td><td>dédié <code>10.210.x</code> (64 max)</td></tr>
+          <tr><td>Base de données</td><td>volume <code>postgres-data</code></td><td>clone <code>-ws-postgres-data</code></td></tr>
+          <tr><td>Marqueur</td><td>—</td><td><code>.workshop.env</code> (sa présence = atelier actif)</td></tr>
+        </tbody>
+      </table>
     </section>
 
     <section id="conventions">
@@ -601,6 +708,23 @@ router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span 
           </ol>
         </div>
       </div>
+
+      <div class="mermaid-box">
+<pre class="mermaid">
+flowchart TD
+    P["PROD seule<br/>(origin/main)"] -->|"atelier app"| W["ATELIER créé<br/>clone DB + .workshop.env<br/>ports 10000+ / subnet 10.210.x"]
+    W -->|"atelier app --maj"| M["origin/main testé<br/>itérativement sur le clone"]
+    M -->|"tests OK"| S["atelier app --prod"]
+    M -->|"échec"| RB["rollback git<br/>atelier conservé (diagnostic)"]
+    S -->|"garde anti-drift OK"| P2["PROD à jour<br/>atelier supprimé"]
+    S -->|"échec"| RB2["rollback prod + rebuild<br/>atelier conservé"]
+    style P fill:#dcfce7,stroke:#16a34a
+    style P2 fill:#dcfce7,stroke:#16a34a
+    style RB fill:#fef2f2,stroke:#dc2626
+    style RB2 fill:#fef2f2,stroke:#dc2626
+</pre>
+        <p class="mermaid-caption">--prod exige que l'atelier ait testé exactement le commit courant d'origin/main (anti-drift). Échec = rien n'est perdu : rollback et atelier conservé. Depuis Hub 3.38.0, ce cycle est aussi pilotable depuis la vue Santé de l'UI admin.</p>
+      </div>
     </section>
 
     <section id="pra">
@@ -620,6 +744,51 @@ router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span 
             <span class="function">./hubctl</span> pra-restore
           </div>
           <p class="card-desc">Exécute un wizard en 7 étapes restaurant le Hub puis réinjectant chaque backup applicatif via API.</p>
+        </div>
+      </div>
+
+      <h3>Sinistre — quel outil pour quelle situation ?</h3>
+      <div class="mermaid-box">
+<pre class="mermaid">
+flowchart TD
+    Q{"Qu'avez-vous perdu ?"} -->|"Secrets / .env divergents<br/>(Hub et apps sains)"| V["./hubctl vault restore"]
+    Q -->|"Hub perdu ou corrompu<br/>apps à réinstaller"| R["./hubctl restore &lt;archive&gt;"]
+    Q -->|"Machine hôte perdue<br/>(sinistre total)"| PR["./hubctl pra-restore [kit]"]
+    V --> V2["coffre → disque + DB ciblées<br/>snapshot live + rollback si échec"]
+    R --> R2["Hub VIERGE uniquement —<br/>cloner les apps d'abord (seed)"]
+    PR --> PR2["machine nue + Docker —<br/>kit hors disque obligatoire"]
+    style V fill:#e0f2fe,stroke:#0284c7
+    style R fill:#e0f2fe,stroke:#0284c7
+    style PR fill:#e0f2fe,stroke:#0284c7
+</pre>
+        <p class="mermaid-caption">Règle d'or : on remonte du plus léger au plus lourd. Le restore park-export refuse de tourner sur un Hub non vierge (garde de sécurité).</p>
+      </div>
+
+      <h3>Les couches de résilience</h3>
+      <div class="mermaid-box">
+<pre class="mermaid">
+flowchart LR
+    B1["Backup applicatif<br/>ZIP données + fichiers<br/>poussé via M2M au Hub"] --> B2["Snapshot système<br/>DB Hub + secrets + code APPS<br/>chiffré zstd + AES, S3 option"]
+    B2 --> B3["Kit PRA — hors disque<br/>coffre + clé + dernier snapshot<br/>répliqué à chaque vault backup"]
+    B1 -.->|"à la demande"| E["park-export<br/>archive parc chiffrée<br/>PARKEV1 → exports/"]
+    style B1 fill:#f0fdf4,stroke:#16a34a
+    style B2 fill:#eff6ff,stroke:#2563eb
+    style B3 fill:#fefce8,stroke:#ca8a04
+    style E fill:#faf5ff,stroke:#9333ea
+</pre>
+        <p class="mermaid-caption">Chaque couche couvre un périmètre plus large : l'app → le Hub entier → le parc complet (y compris les .env et le code des apps).</p>
+      </div>
+
+      <div class="callout">
+        <svg class="callout-icon" width="24" height="24"><use href="#icon-code"/></svg>
+        <div>
+          <p><strong>Pour aller plus loin</strong></p>
+          <p style="font-size: 0.9375rem;">
+            <a href="guide-parc-poulidor.md">guide-parc-poulidor.md</a> — référence textuelle complète (commandes exhaustives, pièges, cas d'usage) ·
+            <a href="../HUB_base/INTEGRATION.md">INTEGRATION.md</a> — contrat d'intégration Hub ↔ apps ·
+            <a href="guide-developpement-template.md">guide-developpement-template.md</a> — développer une app de bout en bout ·
+            <a href="../HUB_base/docs/GUIDE_ADMIN.md">GUIDE_ADMIN.md</a> — administration quotidienne du Hub
+          </p>
         </div>
       </div>
     </section>
@@ -664,6 +833,46 @@ router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span 
       });
     });
   });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+        fontSize: '14px',
+        primaryColor: '#e0f2fe',
+        primaryBorderColor: '#0ea5e9',
+        primaryTextColor: '#0f172a',
+        secondaryColor: '#f8f9fa',
+        tertiaryColor: '#ffffff',
+        lineColor: '#94a3b8',
+        textColor: '#0f172a',
+        mainBkg: '#e0f2fe',
+        nodeBorder: '#0ea5e9',
+        clusterBkg: '#f8f9fa',
+        clusterBorder: '#e2e8f0',
+        edgeLabelBackground: '#ffffff',
+        actorBkg: '#e0f2fe',
+        actorBorder: '#0ea5e9',
+        actorTextColor: '#0f172a',
+        actorLineColor: '#94a3b8',
+        signalColor: '#0f172a',
+        signalTextColor: '#0f172a',
+        labelBoxBkgColor: '#e0f2fe',
+        labelBoxBorderColor: '#0ea5e9',
+        labelTextColor: '#0f172a',
+        loopTextColor: '#0f172a',
+        noteBkgColor: '#fefce8',
+        noteBorderColor: '#ca8a04',
+        noteTextColor: '#0f172a',
+        sequenceNumberColor: '#ffffff'
+      }
+    });
+  }
 </script>
 
 </body>
