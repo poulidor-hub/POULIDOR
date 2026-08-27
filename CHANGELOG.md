@@ -2,6 +2,18 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.45.2] - 27 août 2026
+
+### ⚡ HUB_base → 3.38.2 (page Audit : heatmap quasi instantanée, plage limitée au mois)
+
+- **HUB_base → 3.38.2** (depuis 3.38.1) : heatmap d'activité de la page Audit réécrite en
+  O(sessions + heures couvertes) et exécutée hors event loop (`anyio.to_thread`) — mesuré
+  sur la prod (~3 700 sessions) : **13,3 s → 5 ms** à 90 j. La vue d'ensemble
+  (KPIs/alertes/sessions live) ne bloque plus sur le graphique (chargement découplé +
+  garde anti-réponse-périmée). Bouton 90j retiré du sélecteur de période (plage
+  24h/7j/30j), endpoint API inchangé. +2 tests backend : équivalence stricte vs
+  référence naïve (propriété) et garde-fou perf 90 j / 4 000 sessions < 1 s.
+
 ## [0.45.0] - 27 août 2026
 
 ### 🚀 Atelier pilotable depuis l'UI HUB (HUB_base v3.38.0)
