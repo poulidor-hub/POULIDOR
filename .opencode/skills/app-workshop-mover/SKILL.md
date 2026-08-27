@@ -189,6 +189,22 @@ de `hubctl` :
 - **PAS de lockfile inter-outils en v1** : ne jamais lancer hubctl et l'UI
   simultanément sur la même app.
 
+## Configurer le dépôt git d'une app (HUB_base ≥ 3.39.0)
+
+Pour une app **sans remote git** (avec ou sans atelier) : bouton **« Configurer
+le dépôt git »** dans la vue Santé (admin), ou `POST /api/apps/{slug}/git-config`.
+
+- **Effet** : enregistre l'URL en DB, configure `origin` du repo local
+  `APPS/X/`, puis **teste immédiatement** la connexion (`ls-remote`) — verdict
+  OK / échec (cause git conservée) affiché dans la modale.
+- **HTTPS uniquement** : les URLs SSH sont refusées (400).
+- **Repos privés** : PAT GitHub **déjà enregistré** requis (`github_token` en
+  DB settings — jamais affiché/rappelé par l'API). Sans PAT : verdict d'échec
+  auth sur le test.
+- **Form admin** : l'enregistrement d'une app y synchronise aussi le remote
+  local **best-effort** (`git_sync` dans la réponse — warning non bloquant si
+  le repo local est absent ou cassé).
+
 ## Quick Reference
 
 | Ressource | Emplacement |
