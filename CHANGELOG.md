@@ -2,6 +2,23 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.45.0] - 27 août 2026
+
+### 🚀 Atelier pilotable depuis l'UI HUB (HUB_base v3.38.0)
+
+- Le cycle atelier complet (créer / mettre à jour / déployer en prod / supprimer) est
+  pilotable depuis la vue « Sante des Applications » (admin) : bloc d'état sur chaque carte
+  (`main @ commit · version`), confirmations renforcées (ship / suppression), modal de
+  progression avec polling 2 s. 6 endpoints admin `/api/apps/{slug}/workshop*` exécutés par
+  `workshop_service` (pattern deploy : une opération à la fois, suivi en DB, purge 30 j).
+- Dualité UI/CLI assumée : hubctl v0.6.1 reste l'outil de secours HUB-down ; `.workshop.env`
+  (7 clés) = contrat partagé figé par contract tests. Garde-fous parité hubctl : ship
+  `origin/main` uniquement, commit testé, atelier conservé si échec prod. Subnet atelier
+  dédié (pool `10.210.x`, plages ports hubctl) → coexistence prod + atelier.
+- Skill `app-workshop-mover` mis à jour (section Pilotage UI).
+- Spec : `docs/superpowers/specs/2026-08-23-workshop-ui-sante-design.md` —
+  plan : `docs/superpowers/plans/2026-08-23-workshop-ui-sante.md`.
+
 ## [0.44.0] - 25 août 2026
 
 ### 🤖 Persona Jellycode + template 2.18.0 (opencode)
