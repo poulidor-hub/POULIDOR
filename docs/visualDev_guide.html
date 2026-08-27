@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POULIDOR — Guide Détaillé & Architecture</title>
+<style>
+  :root {
+    --hub-color-page: #f4f5f7;
+    --hub-color-surface: #ffffff;
+    --hub-color-surface-muted: #f8f9fa;
+    --hub-color-surface-code: #1e1e1e;
+    --hub-color-border: #e2e8f0;
+    --hub-color-border-dark: #334155;
+    --hub-color-text: #0f172a;
+    --hub-color-muted: #64748b;
+    --hub-color-primary: #0ea5e9;
+    --hub-color-primary-strong: #0284c7;
+    --hub-color-primary-soft: #e0f2fe;
+    --hub-color-accent: #6366f1;
+    --hub-color-success: #10b981;
+    --hub-color-warning: #f59e0b;
+    --hub-color-danger: #ef4444;
+    
+    --hub-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --hub-font-mono: 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+    
+    --radius: 12px;
+    --radius-sm: 6px;
+    --radius-full: 9999px;
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    
+    --t-base: 200ms;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    
+    --sidebar-width: 280px;
+    --header-height: 64px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--hub-font-sans);
+    background: var(--hub-color-page);
+    color: var(--hub-color-text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  h1, h2, h3, h4 { font-weight: 700; color: var(--hub-color-text); margin-bottom: 1rem; line-height: 1.2; }
+  h1 { font-size: 2.25rem; letter-spacing: -0.02em; }
+  h2 { font-size: 1.5rem; margin-top: 2.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--hub-color-border); }
+  h3 { font-size: 1.125rem; margin-top: 1.5rem; }
+  p { margin-bottom: 1rem; color: var(--hub-color-text); }
+  a { color: var(--hub-color-primary); text-decoration: none; font-weight: 500; }
+  a:hover { text-decoration: underline; }
+  
+  .header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--header-height);
+    background: var(--hub-color-surface);
+    border-bottom: 1px solid var(--hub-color-border);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    z-index: 50;
+    justify-content: space-between;
+  }
+  .header-brand { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.01em;}
+  .header-brand .logo-dots {
+    display: grid; grid-template-columns: repeat(2, 10px); gap: 3px;
+    background: var(--hub-color-text); padding: 5px; border-radius: 6px;
+  }
+  .header-brand .logo-dots i { background: #fff; border-radius: 2px; width: 10px; height: 10px; display: block; }
+  
+  .layout {
+    display: flex;
+    margin-top: var(--header-height);
+    flex: 1;
+  }
+  
+  .sidebar {
+    width: var(--sidebar-width);
+    position: fixed;
+    top: var(--header-height);
+    bottom: 0;
+    left: 0;
+    background: var(--hub-color-surface);
+    border-right: 1px solid var(--hub-color-border);
+    overflow-y: auto;
+    padding: 1.5rem 1rem;
+    z-index: 40;
+  }
+  
+  .nav-group { margin-bottom: 1.5rem; }
+  .nav-group-title {
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--hub-color-muted);
+    margin-bottom: 0.5rem; padding: 0 0.5rem;
+  }
+  .nav-link {
+    display: block; padding: 0.5rem; font-size: 0.875rem;
+    color: var(--hub-color-text); border-radius: var(--radius-sm);
+    transition: all var(--t-base) var(--ease);
+  }
+  .nav-link:hover { background: var(--hub-color-surface-muted); color: var(--hub-color-primary); text-decoration: none;}
+  .nav-link.active { background: var(--hub-color-primary-soft); color: var(--hub-color-primary-strong); font-weight: 600; }
+  
+  .main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 2.5rem 3rem;
+    max-width: 1000px;
+  }
+
+  .callout {
+    display: flex; gap: 1rem; padding: 1rem 1.25rem;
+    background: var(--hub-color-surface); border-left: 4px solid var(--hub-color-primary);
+    border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);
+    margin: 1.5rem 0;
+  }
+  .callout p { margin: 0; font-size: 0.9375rem; }
+  .callout-icon { color: var(--hub-color-primary); flex-shrink: 0; }
+  
+  .tag {
+    display: inline-flex; align-items: center; padding: 0.125rem 0.5rem;
+    background: var(--hub-color-surface-muted); border: 1px solid var(--hub-color-border);
+    border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600;
+    color: var(--hub-color-muted); font-family: var(--hub-font-mono);
+  }
+  .tag.blue { background: var(--hub-color-primary-soft); color: var(--hub-color-primary-strong); border-color: rgba(14, 165, 233, 0.2); }
+  .tag.green { background: #dcfce7; color: #166534; border-color: rgba(34, 197, 94, 0.2); }
+
+  .diagram-container {
+    background: var(--hub-color-surface);
+    border: 1px solid var(--hub-color-border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+  }
+  
+  /* Architecture Global Diagram */
+  .arch-hub {
+    border: 2px dashed var(--hub-color-primary);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    background: var(--hub-color-primary-soft);
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  .arch-title { font-weight: 700; color: var(--hub-color-primary-strong); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;}
+  .arch-hub-services { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+  .arch-node {
+    background: #fff; padding: 0.75rem 1rem; border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm); font-size: 0.875rem; font-weight: 500;
+    display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--hub-color-border);
+  }
+  
+  .arch-arrows { display: flex; justify-content: space-around; margin: -1rem 0 1rem 0; color: var(--hub-color-muted); font-size: 0.75rem; font-weight: 600; }
+  .arch-arrows .arrow-col { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+  .arch-arrows svg { color: var(--hub-color-primary); }
+
+  .arch-app {
+    border: 2px solid var(--hub-color-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    background: #fff;
+  }
+  .arch-app-layers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  .arch-layer {
+    background: var(--hub-color-surface-muted); border: 1px solid var(--hub-color-border);
+    padding: 1rem; border-radius: var(--radius-sm); text-align: center;
+  }
+  .arch-layer h4 { font-size: 0.875rem; margin-bottom: 0.5rem; color: var(--hub-color-text); }
+  .arch-layer ul { list-style: none; padding: 0; font-size: 0.75rem; color: var(--hub-color-muted); }
+  .arch-layer ul li { margin-bottom: 0.25rem; }
+
+  .grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .card {
+    background: var(--hub-color-surface);
+    border: 1px solid var(--hub-color-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: transform var(--t-base), box-shadow var(--t-base);
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+  .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .card-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--hub-color-primary-soft); color: var(--hub-color-primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-title { font-weight: 700; font-size: 1rem; margin: 0; }
+  .card-desc { font-size: 0.875rem; color: var(--hub-color-muted); margin-bottom: 1rem; }
+  
+  .code-block {
+    background: var(--hub-color-surface-code);
+    color: #e2e8f0;
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    font-family: var(--hub-font-mono);
+    font-size: 0.875rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    line-height: 1.5;
+  }
+  .code-block .comment { color: #64748b; }
+  .code-block .keyword { color: #c678dd; }
+  .code-block .string { color: #98c379; }
+  .code-block .function { color: #61afef; }
+  .code-block .operator { color: #56b6c2; }
+
+  .timeline { position: relative; margin: 2rem 0; padding-left: 2rem; }
+  .timeline::before {
+    content: ''; position: absolute; left: 7px; top: 0; bottom: 0;
+    width: 2px; background: var(--hub-color-border);
+  }
+  .timeline-item { position: relative; margin-bottom: 2rem; }
+  .timeline-dot {
+    position: absolute; left: -2rem; top: 0.25rem; width: 16px; height: 16px;
+    background: var(--hub-color-primary); border: 3px solid var(--hub-color-surface);
+    border-radius: 50%;
+  }
+  .timeline-content h4 { margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+  .timeline-content p { font-size: 0.9375rem; color: var(--hub-color-muted); }
+
+  /* Table styling */
+  table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: var(--hub-color-surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+  th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--hub-color-border); font-size: 0.875rem; }
+  th { background: var(--hub-color-surface-muted); font-weight: 600; color: var(--hub-color-text); }
+  tr:last-child td { border-bottom: none; }
+  
+  /* Responsive */
+  .mobile-menu-btn { display: none; background: none; border: none; cursor: pointer; color: var(--hub-color-text); }
+  @media (max-width: 1024px) {
+    .sidebar { transform: translateX(-100%); transition: transform var(--t-base); }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; padding: 1.5rem; max-width: 100%; }
+    .mobile-menu-btn { display: block; }
+    .arch-app-layers { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<svg style="display: none;">
+  <symbol id="icon-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></symbol>
+  <symbol id="icon-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></symbol>
+  <symbol id="icon-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></symbol>
+  <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></symbol>
+  <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></symbol>
+  <symbol id="icon-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></symbol>
+  <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></symbol>
+  <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></symbol>
+  <symbol id="icon-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></symbol>
+</svg>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="logo-dots"><i></i><i></i><i></i><i></i></div>
+    POULIDOR <span style="font-weight: 400; color: var(--hub-color-muted); font-size: 1rem;">| Guide Technique</span>
+  </div>
+  <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+    <svg width="24" height="24"><use href="#icon-menu"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <div class="nav-group">
+        <div class="nav-group-title">Vue d'ensemble</div>
+        <a href="#architecture" class="nav-link active">1. Architecture et Flux</a>
+        <a href="#hubctl" class="nav-link">2. Pilotage avec hubctl</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">Développement App</div>
+        <a href="#lifecycle" class="nav-link">3. Cycle de vie d'une App</a>
+        <a href="#conventions" class="nav-link">4. Conventions Backend</a>
+        <a href="#database" class="nav-link">5. Base de données & SQL</a>
+        <a href="#makefile" class="nav-link">6. Makefile & Commandes</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">Cas d'usage</div>
+        <a href="#bluegreen" class="nav-link">7. Déploiement Blue-Green</a>
+        <a href="#pra" class="nav-link">8. PRA & Sauvegardes</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    
+    <div class="callout">
+      <svg class="callout-icon" width="24" height="24"><use href="#icon-shield"/></svg>
+      <div>
+        <p><strong>Référence technique centrale</strong></p>
+        <p>Ce guide rassemble le fonctionnement architectural, le pilotage via <code>hubctl</code>, et le développement avec le template d'application. Valable pour la version de parc <code>0.44.x</code>.</p>
+      </div>
+    </div>
+
+    <!-- SECTION 1: ARCHITECTURE -->
+    <section id="architecture">
+      <h2>1. Architecture globale et Flux</h2>
+      <p>Le parc POULIDOR est composé d'un cerveau central (le <strong>Hub</strong>) et d'une multitude d'applications métier satellites (issues du <strong>Template</strong>). Voici comment ils s'articulent :</p>
+      
+      <div class="diagram-container">
+        <!-- HUB Box -->
+        <div class="arch-hub">
+          <div class="arch-title">
+            <svg width="20" height="20"><use href="#icon-server"/></svg>
+            HUB POULIDOR (HUB_base/)
+          </div>
+          <div class="arch-hub-services">
+            <div class="arch-node"><span class="tag blue">SSO</span> Auth (JWT, OIDC)</div>
+            <div class="arch-node"><span class="tag blue">M2M</span> Registre & Discovery</div>
+            <div class="arch-node"><span class="tag blue">SSE</span> Messagerie & Notifs</div>
+            <div class="arch-node"><span class="tag blue">S3</span> Backups & Snapshots</div>
+          </div>
+        </div>
+
+        <!-- Arrows -->
+        <div class="arch-arrows">
+          <div class="arrow-col">
+            <span>Validation JWT (JWKS)</span>
+            <svg width="20" height="20"><use href="#icon-arrow-down"/></svg>
+          </div>
+          <div class="arrow-col">
+            <span>Flux temps réel (SSE)</span>
+            <svg width="20" height="20"><use href="#icon-arrow-down"/></svg>
+          </div>
+          <div class="arrow-col">
+            <span>Appels M2M</span>
+            <svg width="20" height="20"><use href="#icon-arrow-down"/></svg>
+          </div>
+        </div>
+
+        <!-- APP Box -->
+        <div class="arch-app">
+          <div class="arch-title" style="color: var(--hub-color-text); justify-content: flex-start; margin-bottom: 1.5rem;">
+            <svg width="20" height="20"><use href="#icon-layers"/></svg>
+            Application (Issue du Template)
+          </div>
+          <div class="arch-app-layers">
+            <div class="arch-layer">
+              <h4>Nginx proxy</h4>
+              <ul>
+                <li>80/443 internes (publiés : ports alloués par le Hub)</li>
+                <li>/api/ → FastAPI</li>
+                <li>/hub/ → Proxy SSE</li>
+              </ul>
+            </div>
+            <div class="arch-layer">
+              <h4>Frontend (React)</h4>
+              <ul>
+                <li>Vite + HMR</li>
+                <li>TanStack Query v5</li>
+                <li>HUBCSS Design</li>
+              </ul>
+            </div>
+            <div class="arch-layer">
+              <h4>Backend (FastAPI)</h4>
+              <ul>
+                <li>Validation Hub auth</li>
+                <li>RBAC (Rôles)</li>
+                <li>Client M2M Outbox</li>
+              </ul>
+            </div>
+            <div class="arch-layer">
+              <h4>PostgreSQL 15</h4>
+              <ul>
+                <li>Données métiers</li>
+                <li>schema_migrations</li>
+                <li>File outbox (table)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="hubctl">
+      <h2>2. Pilotage du parc avec hubctl</h2>
+      <p>L'outil <code>hubctl</code> est le CLI/TUI d'administration transversal. Exécuté à la racine du parc, il gère le démarrage, la mise à jour, les secrets et la résilience.</p>
+      
+      <div class="grid-cards">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><svg width="20" height="20"><use href="#icon-terminal"/></svg></div>
+            <h3 class="card-title">Démarrage & Arrêt</h3>
+          </div>
+          <p class="card-desc">Contrôle global des conteneurs via make et docker compose.</p>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="function">./hubctl</span> start [all|prod|dev]<br>
+            <span class="function">./hubctl</span> stop [all|prod|dev]
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><svg width="20" height="20"><use href="#icon-activity"/></svg></div>
+            <h3 class="card-title">Mise à jour sécurisée</h3>
+          </div>
+          <p class="card-desc">Pull, rebuild et restart, avec snapshot BDD préalable et rollback auto.</p>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="function">./hubctl</span> update
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><svg width="20" height="20"><use href="#icon-shield"/></svg></div>
+            <h3 class="card-title">Le Coffre (Vault)</h3>
+          </div>
+          <p class="card-desc">Archive Fernet+scrypt des <code>.env</code> et clés, synchronisée au kit PRA.</p>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="function">./hubctl</span> vault status<br>
+            <span class="function">./hubctl</span> vault backup
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="lifecycle">
+      <h2>3. Cycle de vie d'une Application</h2>
+      <p>Toute application naît d'une copie du <code>HUBapp_TEMPLATE_base</code> et s'intègre automatiquement au Hub. Le processus d'échafaudage est automatisé.</p>
+      
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h4><span class="tag blue">1. Scaffold</span> Création depuis la racine</h4>
+            <p>Le script valide le nom et copie le template sans son dossier <code>.git</code>.</p>
+            <div class="code-block" style="margin-top: 0.5rem; padding: 0.75rem;">
+              scripts/create_app.sh mon-app
+            </div>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h4><span class="tag blue">2. Personnalisation</span> Script INITIALISE</h4>
+            <p>S'exécute dans le dossier de l'app. Construit le <code>.env</code>, modifie les package.json et Dockerfiles, génère les scripts d'action.</p>
+            <div class="code-block" style="margin-top: 0.5rem; padding: 0.75rem;">
+              <span class="keyword">cd</span> APPS/mon-app<br>
+              <span class="function">python</span> INITIALISE.py --clean
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h4><span class="tag blue">3. Allocation</span> Ports et Sous-réseau</h4>
+            <p>L'app interroge le Hub central pour recevoir des ports uniques (ex: 9005 pour l'API) évitant toute collision Docker.</p>
+            <div class="code-block" style="margin-top: 0.5rem; padding: 0.75rem;">
+              <span class="function">make</span> sync-env
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h4><span class="tag blue">4. Démarrage</span> Hot-reload ou Prod</h4>
+            <p>Le développement quotidien utilise <code>make dev</code> pour profiter du Hot Module Replacement (HMR) sur React et Uvicorn reload sur FastAPI.</p>
+            <div class="code-block" style="margin-top: 0.5rem; padding: 0.75rem;">
+              <span class="function">make</span> dev <span class="comment"># ou make up pour la prod</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="conventions">
+      <h2>4. Conventions Backend (FastAPI)</h2>
+      <p>Le backend s'appuie sur FastAPI et valide la sécurité via les composants partagés du Hub. Le pattern standard utilise l'injection de dépendances pour les contrôles d'accès.</p>
+
+      <div class="code-block">
+<span class="comment"># backend/routes/mon_domaine.py</span>
+<span class="keyword">from</span> fastapi <span class="keyword">import</span> APIRouter, Depends, HTTPException, status
+<span class="keyword">from</span> ..hub_auth <span class="keyword">import</span> get_current_user, require_role
+
+router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span class="string">"Items"</span>])
+
+<span class="function">@router.post</span>(<span class="string">"/"</span>, status_code=status.HTTP_201_CREATED)
+<span class="keyword">async def</span> create_item(
+    data: ItemCreate,
+    current_user=Depends(require_role(<span class="string">"user"</span>)) <span class="comment"># Exige le rôle user ou +</span>
+):
+    <span class="comment"># Validation via JWKS du hub transparente</span>
+    <span class="keyword">pass</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Dépendance d'auth</th>
+            <th>Accès requis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>get_current_user()</code></td>
+            <td>Tout token JWT valide (Utilisateur ou Service Account M2M)</td>
+          </tr>
+          <tr>
+            <td><code>require_role("viewer")</code></td>
+            <td>Rôle Viewer minimum</td>
+          </tr>
+          <tr>
+            <td><code>require_role("admin")</code></td>
+            <td>Administrateur d'application uniquement</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="callout" style="border-color: var(--hub-color-warning);">
+        <svg class="callout-icon" width="24" height="24" style="color: var(--hub-color-warning);"><use href="#icon-activity"/></svg>
+        <div>
+          <p><strong>Contrainte de temps (UTC Strict)</strong></p>
+          <p>Il est interdit d'utiliser <code>datetime.utcnow()</code>. Utilisez toujours <code>datetime.now(timezone.utc)</code> dans le code Python et <code>TIMESTAMPTZ</code> dans PostgreSQL.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="database">
+      <h2>5. Base de données et Migrations</h2>
+      <p>Les applications n'utilisent <strong>pas</strong> Alembic. Un script interne léger exécute des migrations SQL pures au démarrage du backend FastAPI.</p>
+
+      <div class="grid-cards" style="grid-template-columns: 1fr;">
+        <div class="card" style="display: flex; gap: 1.5rem; align-items: flex-start;">
+          <div class="card-icon" style="background: #fef3c7; color: #d97706; padding: 1rem;"><svg width="32" height="32"><use href="#icon-database"/></svg></div>
+          <div style="flex:1;">
+            <h3 class="card-title" style="margin-bottom: 0.5rem;">Fichiers séquentiels</h3>
+            <p class="card-desc">Placés dans <code>backend/migrations/</code>, ils sont nommés avec 3 chiffres : <code>001_init.sql</code>, <code>002_add_field.sql</code>.</p>
+            <div class="code-block" style="padding: 1rem; margin: 0;">
+<span class="keyword">BEGIN</span>;
+    <span class="keyword">CREATE TABLE IF NOT EXISTS</span> projets (
+        id <span class="keyword">SERIAL PRIMARY KEY</span>,
+        titre <span class="keyword">VARCHAR</span>(255) <span class="keyword">NOT NULL</span>,
+        proprietaire_id <span class="keyword">INTEGER NOT NULL REFERENCES</span> users(id),
+        created_at <span class="keyword">TIMESTAMPTZ NOT NULL DEFAULT NOW</span>()
+    );
+<span class="keyword">COMMIT</span>;
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size: 0.875rem; color: var(--hub-color-muted);">Le runner trace les exécutions dans la table <code>schema_migrations</code>. Chaque statement est isolé par un <code>SAVEPOINT</code> : un statement déjà appliqué (ex. colonne existante) est ignoré avec un warning, sans avorter le démarrage.</p>
+    </section>
+
+    <section id="makefile">
+      <h2>6. Référence Makefile (Apps)</h2>
+      <p>Exécutées depuis le dossier de l'application (<code>APPS/mon-app/</code>), les commandes standardisent le cycle de développement.</p>
+      
+      <table>
+        <thead><tr><th>Commande</th><th>Effet</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag">make dev</span></td><td>Lance Docker en mode <strong>hot-reload</strong> (Vite HMR, Uvicorn --reload).</td></tr>
+          <tr><td><span class="tag">make up</span></td><td>Démarre les conteneurs de l'app en production.</td></tr>
+          <tr><td><span class="tag">make restart-api</span></td><td>Redémarre uniquement le conteneur FastAPI (rapide). ⚠️ Les dépendances pip sont bakées dans l'image : une nouvelle dépendance exige <code>make build</code> puis <code>make up</code>.</td></tr>
+          <tr><td><span class="tag">make logs</span></td><td>Affiche les logs fusionnés frontend/backend/db.</td></tr>
+          <tr><td><span class="tag">make test</span></td><td>Lance Pytest sur l'hôte en mémoire RAM (très rapide).</td></tr>
+          <tr><td><span class="tag">make db-shell</span></td><td>Ouvre une console interactive <code>psql</code> connectée à la base.</td></tr>
+          <tr><td><span class="tag">make bump-patch</span></td><td>Synchronise un bump de version (v1.0.0 → v1.0.1) dans tous les fichiers liés.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="bluegreen">
+      <h2>7. L'Atelier (Déploiement Blue-Green)</h2>
+      <p>Pour tester une montée de version en sécurité sans casser la production, <code>hubctl</code> permet de générer un "Atelier".</p>
+
+      <div class="callout" style="background: var(--hub-color-primary-soft); border-color: var(--hub-color-primary);">
+        <svg class="callout-icon" width="24" height="24"><use href="#icon-code"/></svg>
+        <div>
+          <p><strong>Cycle de l'atelier</strong></p>
+          <ol style="margin-top: 0.5rem; padding-left: 1.5rem; font-size: 0.9375rem;">
+            <li><code>./hubctl atelier mon-app</code> : Clône la Base de données en direct et assigne de nouveaux ports (ex: API sur 10005).</li>
+            <li><code>./hubctl atelier mon-app --maj</code> : Pulle la nouvelle version <code>origin/main</code> dans cet espace isolé.</li>
+            <li>Test fonctionnel sur l'URL de l'atelier.</li>
+            <li><code>./hubctl atelier mon-app --prod</code> : Bascule le code vérifié en production et détruit l'atelier proprement.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="pra">
+      <h2>8. PRA (Plan de Reprise d'Activité)</h2>
+      <p>En cas de sinistre total de la machine hôte, POULIDOR est conçu pour se relever avec une commande unique, à condition d'avoir externalisé le kit.</p>
+
+      <div class="grid-cards">
+        <div class="card">
+          <h3 class="card-title">Le Kit PRA</h3>
+          <p class="card-desc" style="margin-top: 0.5rem;">Contient l'archive du coffre (Fernet), la clé de déchiffrement, et le dernier snapshot système complet (tar.zst chiffré).</p>
+          <p class="card-desc"><strong>Doit résider hors du disque</strong> (Clé USB, NAS, etc.).</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Restauration</h3>
+          <p class="card-desc" style="margin-top: 0.5rem;">Sur un serveur Linux nu avec Docker installé :</p>
+          <div class="code-block" style="padding: 0.75rem; margin-top: 0.5rem;">
+            <span class="function">./hubctl</span> pra-restore
+          </div>
+          <p class="card-desc">Exécute un wizard en 7 étapes restaurant le Hub puis réinjectant chaque backup applicatif via API.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Intersection Observer pour activer les liens de la sidebar au scroll
+  document.addEventListener('DOMContentLoaded', () => {
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -60% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${id}`) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(sec => observer.observe(sec));
+    
+    // Fermeture du menu mobile au clic
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if(window.innerWidth <= 1024) {
+          document.querySelector('.sidebar').classList.remove('open');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
