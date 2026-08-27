@@ -98,6 +98,35 @@
 
 ---
 
+## [0.45.1] - 27 août 2026
+
+### 📖 Guide du parc — carte du territoire pour développeurs & admins
+
+- **Nouveau `docs/guide-parc-poulidor.md`** (~1080 lignes, 6 sections) : démarcation
+  HUB_base / hubctl / template, **toutes les commandes** (12 sous-commandes hubctl,
+  6 cibles Makefile Hub, 35 cibles template, options exactes vérifiées dans le code),
+  inventaire des fonctionnalités (21 routeurs en 8 blocs, 12 blocs clé-en-main du
+  template, 13 skills), 4 cas d'usage pas-à-pas (créer une app, déployer via atelier,
+  sinistre — arbre vault/restore/pra-restore, secrets), cheat-sheet 28 commandes,
+  matrice « quel doc pour quel besoin », pièges classiques. 6 schémas conceptuels ASCII
+  (architecture Hub, SSO/JWT, parc vu par hubctl, coffre & kit PRA, cycle atelier,
+  anatomie d'une app). Construit tâche par tâche avec revues : 12 faits transversaux
+  échantillonnés en revue finale — 0 erreur ; 21/21 liens validés.
+- **Nouveau `docs/visualDev_guide.html`** (guide visuel compagnon, navigateur) :
+  5 diagrammes **Mermaid** validés par parsing réel (séquences SSO/JWT et M2M,
+  flowcharts atelier+rollbacks, décision sinistre, couches de résilience), table des
+  12 sous-commandes, TUI réel (raccourcis PROD/DEV, garde UI 3.38.0), pools prod vs
+  atelier, services du Hub, footer renvois. Correctifs factuels : PostgreSQL 15 (pas
+  16) pour les apps, table `outbox`, deps pip → `make build` (pas restart-api),
+  SAVEPOINT par statement, ports Nginx internes.
+- **README** : section « Documentation » (fusionnée avec l'existante) ; corrections
+  `--validate` fantôme → `atelier --maj/--prod`, TUI « Apps → Ajouter » obsolète →
+  `create_app.sh` + INITIALISE.
+- Note guide : pilotage atelier UI (Hub 3.38.0+) — ne pas lancer hubctl et l'UI
+  simultanément sur la même app.
+- **Submodule `HUB_base` → v3.38.1** (atelier UI + fixes retour terrain ; le pointeur
+  0.45.0 avait été omis dans 8c5825f).
+
 ## [0.40.1] - 23 août 2026
 
 ### 🔺 Sous-modules
