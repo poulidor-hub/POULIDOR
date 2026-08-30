@@ -2,6 +2,14 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.46.1] - 30 août 2026
+
+### ⚡ Pointeur sous-module HUBapp_TEMPLATE_base v2.18.1
+
+- Fix boot apps sur hub legacy : `HUB_API_PORT`/`HUB_FRONTEND_PORT` vides → fallback
+  8000/80 (validator pydantic + défauts docker compose) au lieu d'un crash uvicorn.
+  Détail : CHANGELOG HUBapp_TEMPLATE_base [2.18.1].
+
 ## [0.46.0] - 27 août 2026
 
 ### 🚀 Configurer le dépôt git d'une app depuis l'UI (HUB_base v3.39.0)
