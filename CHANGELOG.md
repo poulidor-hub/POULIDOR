@@ -2,6 +2,23 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.48.0] - 31 août 2026
+
+### 🌐 Pointeur sous-module HUB_base v3.44.0 — changement d'IP validé par l'admin
+
+- **HUB_base 3.43.0** : correctifs de la gestion des ports (injection compose des
+  pools, `Settings.hub_api_port`, `instance_id` exposée, Makefile override, hygiène)
+- **HUB_base 3.44.0** : changement d'IP du Hub validé par l'admin — état réseau,
+  `PUT/DELETE /api/config/network/hub-host` (persistance + mutation à chaud +
+  override boot), plan de propagation (`GET/POST propagation-plan`, validation par
+  liste de slugs), `POST /api/apps/{slug}/recreate` (`--force-recreate` + health),
+  onglet admin « Réseau »
+- **HUBapp_TEMPLATE_base 2.19.0** : sync-env propage ports + garde `HUB_INSTANCE_ID`
+- **hubctl 0.7.1** : `OIDC_ISSUER` réécrit au changement de port, résumé ports réels
+- Source : diagnostic banc de coexistence — docs/superpowers/specs/2026-08-31-hub-port-change-lab-rapport.md
+
+---
+
 ## [0.47.0] - 31 août 2026
 
 ### 🔧 Correctifs gestion des ports du HUB (diagnostic banc)
