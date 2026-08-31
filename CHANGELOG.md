@@ -2,6 +2,18 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.48.1] - 31 août 2026
+
+### 🔧 Pointeur sous-module HUB_base v3.44.0 → v3.44.3
+
+- **3.44.1** : badge de version navbar dynamique (servi par `/health` — source
+  unique de vérité), `sync_version.py` durci (attributs tolérés)
+- **3.44.2** : détection de l'IP LAN du serveur (`GET /api/config/network/detect-host-ip`,
+  conteneur jetable en réseau host + iproute2) — bouton « Détecter » de l'onglet Réseau
+- **3.44.3** : hygiène — `secrets/hub_instance_id` retiré du dépôt (artefact runtime,
+  gitignoré)
+
+---
 ## [0.48.0] - 31 août 2026
 
 ### 🌐 Pointeur sous-module HUB_base v3.44.0 — changement d'IP validé par l'admin
