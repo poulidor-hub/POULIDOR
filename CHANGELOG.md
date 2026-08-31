@@ -2,6 +2,18 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.47.0] - 31 août 2026
+
+### 🔧 Correctifs gestion des ports du HUB (diagnostic banc)
+
+- HUB_base 3.43.0 : injection compose des pools, Settings hub_api_port,
+  instance_id exposée, hub-host renvoie les ports, Makefile override, hygiène
+- HUBapp_TEMPLATE_base 2.19.0 : sync-env propage les ports + garde d'instance
+  (exit 1 sur hub différent, fini la validation silencieuse du mauvais hub)
+- hubctl 0.7.1 : OIDC_ISSUER réécrit au changement de port, résumé ports réels
+- Source : docs/superpowers/specs/2026-08-31-hub-port-change-lab-rapport.md
+  (18 écarts du banc POULIDOR-lab)
+
 ## [0.46.2] - 31 août 2026
 
 ### ⚡ Pointeur sous-module HUBapp_TEMPLATE_base v2.18.2
