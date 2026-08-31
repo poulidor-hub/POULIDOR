@@ -2,6 +2,20 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.46.2] - 31 août 2026
+
+### ⚡ Pointeur sous-module HUBapp_TEMPLATE_base v2.18.2
+
+- Audit complet de la chaîne des ports du template (.env → compose → backend →
+  frontend/nginx) : plus aucun port hôte en dur. Fixes inclus (détail : CHANGELOG
+  HUBapp_TEMPLATE_base [2.18.2]) :
+  - certs PKI écrits dans `/app/ssl` (SSL_DIR) — atteignaient `/ssl` hors volume,
+    nginx ne voyait jamais le renouvellement en prod ;
+  - `POSTGRES_PORT` réellement dynamique (PGPORT sur le conteneur postgres) ;
+  - actions générées `START`/`UPDATE` passent par sync-env (plus d'échec au
+    premier démarrage avec ports vides) ;
+  - `depends.yaml` résolu dans `backend/` (visible en conteneur).
+
 ## [0.46.1] - 30 août 2026
 
 ### ⚡ Pointeur sous-module HUBapp_TEMPLATE_base v2.18.1
