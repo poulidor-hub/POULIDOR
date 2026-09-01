@@ -2,6 +2,19 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.48.2] - 1er septembre 2026
+
+### 🐛 Pointeur sous-module HUB_base v3.44.3 → v3.44.4
+
+- **3.44.4** : retrait du rate-limit IP sur `/api/oidc/token` — en SSO hub-only,
+  l'échange code→token est server-to-server (une seule IP source pour tous les
+  utilisateurs d'une app) ; le plafond 10 req/min/IP provoquait des
+  `429 Too Many Requests` sur les connexions Vikunja rapprochées. Protection
+  conservée : client secret, codes one-shot, PKCE + rate-limit 5/min/IP sur la
+  saisie de mot de passe. Tests OIDC mis à jour, cahier des charges aligné.
+
+---
+
 ## [0.48.1] - 31 août 2026
 
 ### 🔧 Pointeur sous-module HUB_base v3.44.0 → v3.44.3
