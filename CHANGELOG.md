@@ -2,6 +2,20 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.49.0] - 1er septembre 2026
+
+### 🛡️ Pointeur sous-module HUB_base v3.44.4 → v3.45.0
+
+- **3.45.0** : throttle anti-abus sur `/api/oidc/token` — après le retrait du
+  rate-limit IP (3.44.4), frein posé sur les **échecs** (400/401) par
+  `client_id` : 30 échecs / 60 s → 429 + `Retry-After`. Les succès ne sont
+  jamais comptés (SSO légitime incapable d'être pénalisé), garbage sans
+  client_id plafonné par IP, isolation par client, log WARNING d'observabilité.
+  Motivé par l'audit du risque résiduel post-3.44.4 (hammering bcrypt/DB sans
+  plafond).
+
+---
+
 ## [0.48.2] - 1er septembre 2026
 
 ### 🐛 Pointeur sous-module HUB_base v3.44.3 → v3.44.4
