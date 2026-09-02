@@ -114,31 +114,23 @@ if $NEED_REPO_UPDATE; then
     say "  Ajout du dépôt Docker officiel..."
     install -m 0755 -d /etc/apt/keyrings
 
-    # Détecter la distribution : Debian a son propre dépôt Docker, Ubuntu/Mint le dépôt ubuntu
-    DISTRO_ID="$(. /etc/os-release && echo "$ID")"                    # debian | ubuntu | linuxmint
-    DISTRO_REPO="$DISTRO_ID"
-    [ "$DISTRO_ID" = "linuxmint" ] && DISTRO_REPO="ubuntu"
+    # Détecter le codename Ubuntu (Mint est basé sur Ubuntu, on remappe)
     CODENAME="$(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")"
-    if [ -z "$CODENAME" ] && [ "$DISTRO_ID" = "linuxmint" ]; then
+    if [ -z "$CODENAME" ]; then
         # Fallback : Linux Mint ne fournit pas toujours UBUNTU_CODENAME
         CODENAME="$(. /etc/os-release && echo "$DEBIAN_CODENAME")"
     fi
+    # Linux Mint 22.x = Ubuntu 24.04 = "noble"
     if [ -z "$CODENAME" ]; then
-        if [ "$DISTRO_ID" = "debian" ]; then
-            warn "Codename introuvable, utilisation de 'bookworm' (Debian 12)."
-            CODENAME="bookworm"
-        else
-            # Linux Mint 22.x = Ubuntu 24.04 = "noble"
-            warn "Codename Ubuntu introuvable, utilisation de 'noble' (Ubuntu 24.04)."
-            CODENAME="noble"
-        fi
+        warn "Codename Ubuntu introuvable, utilisation de 'noble' (Ubuntu 24.04)."
+        CODENAME="noble"
     fi
 
-    if curl -fsSL "https://download.docker.com/linux/${DISTRO_REPO}/gpg" | gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg 2>/dev/null && \
+    if curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null && \
        chmod a+r /etc/apt/keyrings/docker.gpg && \
-       echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${DISTRO_REPO} $CODENAME stable" > "$DOCKER_REPO_FILE" && \
+       echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $CODENAME stable" > "$DOCKER_REPO_FILE" && \
        apt-get update -qq; then
-        ok "Dépôt Docker ajouté (${DISTRO_REPO}/${CODENAME})"
+        ok "Dépôt Docker ajouté ($CODENAME)"
     else
         warn "Échec d'ajout du dépôt Docker officiel — utilisation du paquet docker.io système (moins récent)"
         DOCKER_FROM_REPO=false
@@ -166,39 +158,19 @@ if $DOCKER_FROM_REPO; then
         "rsync"
     )
 else
-    # Fallback paquets système. Debian bookworm n'a pas docker-compose-v2
-    # (paquet Ubuntu) — compose v1 (docker-compose) y est le seul recours ;
-    # la vérification "docker compose v2" plus bas échouera alors avec un
-    # message clair (le fallback est déjà signalé comme dégradé).
-    if [ "$(. /etc/os-release && echo "$ID")" = "debian" ]; then
-        PACKAGES=(
-            "docker.io"
-            "docker-compose"
-            "python3"
-            "python3-venv"
-            "python3-pip"
-            "git"
-            "make"
-            "openssl"
-            "curl"
-            "iproute2"
-            "rsync"
-        )
-    else
-        PACKAGES=(
-            "docker.io"
-            "docker-compose-v2"
-            "python3"
-            "python3-venv"
-            "python3-pip"
-            "git"
-            "make"
-            "openssl"
-            "curl"
-            "iproute2"
-            "rsync"
-        )
-    fi
+    PACKAGES=(
+        "docker.io"
+        "docker-compose-v2"
+        "python3"
+        "python3-venv"
+        "python3-pip"
+        "git"
+        "make"
+        "openssl"
+        "curl"
+        "iproute2"
+        "rsync"
+    )
 fi
 
 INSTALLED=0
@@ -215,7 +187,7 @@ else
         else
             apt-get install -y -qq "$pkg" >/dev/null 2>&1 || {
                 warn "Échec installation $pkg — tentative sans -qq..."
-                apt-get install -y "$pkg" || err "Impossible d'installer le paquet $pkg (voir messages apt ci-dessus)."
+                apt-get install -y "$pkg" >/dev/null
             }
             INSTALLED=$((INSTALLED + 1))
         fi
@@ -231,13 +203,6 @@ command -v git &>/dev/null || err "git introuvable après installation."
 command -v python3 &>/dev/null || err "python3 introuvable après installation."
 python3 -c "import venv" 2>/dev/null || err "python3-venv non fonctionnel."
 ok "Vérifications : docker, git, python3-venv — OK"
-
-# 1f. Initialiser les sous-modules (hubctl_src, hub-mcp, etc.)
-say "  Initialisation des sous-modules git…"
-if ! sudo -u "$REAL_USER" git submodule update --init --recursive; then
-    err "Échec de l'initialisation des sous-modules git. Vérifiez l'accès SSH aux repos GitHub."
-fi
-ok "Sous-modules initialisés"
 say ""
 
 # ── Phase 2 : Services ───────────────────────────────────────────────────────
@@ -296,25 +261,6 @@ if docker info &>/dev/null; then
     ok "Docker Engine opérationnel (${DOCKER_VER})"
 else
     err "Docker daemon injoignable. Vérifie : systemctl status docker"
-fi
-
-# 2f. Firewall VPN WireGuard (cloisonnement hub + apps uniquement)
-#     Les clients VPN (wg0) ne peuvent atteindre que les ports publiés par
-#     Docker (DNAT) — pas le LAN, pas les réseaux internes, pas l'hôte.
-#     Script + unit systemd idempotents ; inoffensif si le VPN est désactivé.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -f "$SCRIPT_DIR/scripts/hub-vpn-firewall.sh" ]; then
-    install -m 0755 "$SCRIPT_DIR/scripts/hub-vpn-firewall.sh" /usr/local/sbin/hub-vpn-firewall.sh
-    install -m 0644 "$SCRIPT_DIR/scripts/systemd/hub-vpn-firewall.service" /etc/systemd/system/hub-vpn-firewall.service
-    systemctl daemon-reload
-    systemctl enable --now hub-vpn-firewall.service >/dev/null 2>&1
-    if systemctl is-active --quiet hub-vpn-firewall.service; then
-        ok "Cloisonnement VPN installé et actif (hub-vpn-firewall.service)"
-    else
-        warn "Cloisonnement VPN installé mais inactif — vérifie : systemctl status hub-vpn-firewall"
-    fi
-else
-    warn "scripts/hub-vpn-firewall.sh introuvable — cloisonnement VPN non installé"
 fi
 say ""
 

@@ -11,6 +11,7 @@
 <nav class="topnav">
   <span class="brand">Guide HUB</span>
   <a href="index.html">Accueil</a>
+  <a href="presentation.html">Présentation</a>
   <a href="hubctl.html">hubctl</a>
   <a href="make.html">make</a>
   <a href="architecture.html">Architecture</a>
@@ -19,81 +20,109 @@
   <div class="breadcrumb"><a href="index.html">Accueil</a> › hubctl</div>
   <h1>Prendre en main <code>hubctl</code></h1>
   <p><code>hubctl</code> est le poste de pilotage du parc : un menu interactif
-  lancé dans le terminal du serveur.</p>
+  lancé dans le terminal du serveur, complété par des sous-commandes
+  non interactives pour les scripts.</p>
 
   <h2>Lancer l'outil</h2>
-  <div class="code"><pre>./hubctl                 # menu interactif (avec intro animée)
-./hubctl --no-anim        # sans l'intro animée
-./hubctl --anim random    # choisit une animation d'intro au hasard
-./hubctl --dry-run        # affiche les commandes sans les exécuter
-./hubctl --init           # clone les dépôts manquants du parc
-./hubctl --dev            # force le mode DÉVELOPPEMENT (APP_Workshop/)
-./hubctl --prod           # force le mode PRODUCTION (APPS/)</pre></div>
+  <div class="code"><pre>./hubctl                 # menu interactif (intro animée)
+./hubctl --no-anim       # sans l'intro animée
+./hubctl --dry-run       # affiche les commandes sans les exécuter
+./hubctl --dev           # force le mode DÉVELOPPEMENT (atelier)
+./hubctl --prod          # force le mode PRODUCTION</pre></div>
   <div class="info">
-    <strong>Astuce</strong>
-    <code>--dry-run</code> est idéal pour découvrir sans risque : rien n'est
-    réellement exécuté.
+    <strong>Mode auto-détecté</strong>
+    Sans <code>--dev</code>/<code>--prod</code>, le mode est détecté
+    automatiquement : DEV dès qu'une app de <code>APPS/</code> possède un
+    fichier <code>.workshop.env</code> (atelier actif), PROD sinon. On peut
+    aussi forcer via la variable d'environnement <code>HUBCTL_MODE=dev</code>
+    ou <code>HUBCTL_MODE=prod</code>.
   </div>
   <div class="info">
     <strong>Sans terminal interactif</strong> (pipe, cron, SSH non interactif),
     <code>hubctl</code> affiche simplement l'état du hub puis quitte — le menu
-    requiert un vrai terminal (TTY). On peut aussi forcer le mode via la
-    variable d'environnement <code>HUBCTL_MODE=dev</code> ou
-    <code>HUBCTL_MODE=prod</code>.
+    requiert un vrai terminal (TTY). Utiliser les sous-commandes CLI ci-dessous.
   </div>
 
+  <h2>Le menu interactif (TUI)</h2>
+  <p>Un menu plat dont les touches dépendent du mode courant :</p>
+  <table>
+    <tr><th>Mode</th><th>Touche</th><th>Action</th></tr>
+    <tr><td rowspan="5">PROD</td><td><kbd>1</kbd></td><td>Démarrer tout (Hub + apps)</td></tr>
+    <tr><td><kbd>2</kbd></td><td>Arrêter tout</td></tr>
+    <tr><td><kbd>3</kbd></td><td>Mettre à jour (git pull + rebuild, santé vérifiée)</td></tr>
+    <tr><td><kbd>4</kbd></td><td>Coffre (secrets chiffrés)</td></tr>
+    <tr><td><kbd>0</kbd> / <kbd>Échap</kbd></td><td>Quitter</td></tr>
+    <tr><td rowspan="7">DEV</td><td><kbd>1</kbd></td><td>Démarrer prod</td></tr>
+    <tr><td><kbd>2</kbd></td><td>Arrêter prod</td></tr>
+    <tr><td><kbd>3</kbd></td><td>Démarrer dev (ateliers)</td></tr>
+    <tr><td><kbd>4</kbd></td><td>Arrêter dev</td></tr>
+    <tr><td><kbd>5</kbd></td><td>Mettre à jour</td></tr>
+    <tr><td><kbd>6</kbd></td><td>Coffre</td></tr>
+    <tr><td><kbd>0</kbd> / <kbd>Échap</kbd></td><td>Quitter</td></tr>
+  </table>
+  <p>Le tableau de bord affiche en permanence l'état des services, le disque,
+  les apps (version, git, statut) et une alerte <code>⚠ PRA</code> si
+  l'emplacement de secours est absent ou non synchronisé depuis 7+ jours.</p>
+
   <h2>Sous-commandes CLI (non interactives)</h2>
-  <p>Piloter le parc depuis un script ou sans entrer dans le menu. Toutes ces
-  commandes sont non interactives (sauf <code>ship</code>) et peuvent être
-  automatisées.</p>
+  <div class="code"><pre>hubctl [-h] [--no-anim] [--dry-run] [--dev | --prod]
+       {start,stop,update,atelier,init,export,restore,pra-restore,
+        debug,vpn,vault,seed}</pre></div>
+  <p><code>--dry-run</code> est un flag <strong>global</strong> : il se place
+  <em>avant</em> la sous-commande (<code>./hubctl --dry-run atelier X --maj</code>).</p>
 
   <h3>Pilotage quotidien</h3>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
-    <tr><td><code>./hubctl status</code></td><td>Vue d'ensemble texte du parc (Hub + apps + mode courant).</td></tr>
-    <tr><td><code>./hubctl start hub</code></td><td>Démarre le hub central.</td></tr>
-    <tr><td><code>./hubctl start &lt;slug&gt;</code></td><td>Démarre une app.</td></tr>
-    <tr><td><code>./hubctl stop hub</code></td><td>Arrête le hub central.</td></tr>
-    <tr><td><code>./hubctl stop &lt;slug&gt;</code></td><td>Arrête une app.</td></tr>
-    <tr><td><code>./hubctl update hub</code></td><td>Met à jour le hub : stop → git pull → build → up → health check, avec <strong>rollback automatique</strong> (git reset + restauration DB) si la santé ne revient pas.</td></tr>
-    <tr><td><code>./hubctl update &lt;slug&gt;</code></td><td>Idem pour une app (sans snapshot DB).</td></tr>
-    <tr><td><code>./hubctl deploy hub</code></td><td>Déploiement <strong>blue-green</strong> (zéro downtime) : instance verte sur ports+1 → health check → swap. <code>--validate</code> pour validation humaine avant swap.</td></tr>
-    <tr><td><code>./hubctl deploy &lt;slug&gt;</code></td><td>Idem pour une app.</td></tr>
-    <tr><td><code>./hubctl work &lt;slug&gt;</code></td><td>Met une app en atelier : clone code + DB vers <code>APP_Workshop/&lt;slug&gt;-ws</code> et démarre.</td></tr>
-    <tr><td><code>./hubctl work X,Y,Z</code></td><td>Multi-slug : met plusieurs apps en atelier en une passe (séparées par virgules).</td></tr>
-    <tr><td><code>./hubctl ship &lt;slug&gt;</code></td><td>Déploie le <strong>code</strong> de l'atelier vers la prod via <code>git pull</code>. <strong>DB prod préservée</strong> (défaut).</td></tr>
-    <tr><td><code>./hubctl ship &lt;slug&gt; --copy-db</code></td><td>Avancé — écrase la DB prod par celle de l'atelier (destructif, confirmation par saisie).</td></tr>
+    <tr><td><code>./hubctl start [all|prod|dev]</code></td><td>Démarre la stack (défaut : <code>all</code>).</td></tr>
+    <tr><td><code>./hubctl stop [all|prod|dev]</code></td><td>Arrête toutes les apps et le Hub.</td></tr>
+    <tr><td><code>./hubctl update</code></td><td>Mise à jour du Hub <strong>et de toutes les apps</strong> : git pull + rebuild + health check (sans argument).</td></tr>
+    <tr><td><code>./hubctl init [--force]</code></td><td>Bootstrap automatique du Hub : génère le <code>.env</code>, démarre, vérifie la santé.</td></tr>
   </table>
 
-  <h3>Sauvegarde / restauration du parc</h3>
+  <h3>Atelier (workshop)</h3>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
-    <tr><td><code>./hubctl park-export</code></td><td>Archive tout le parc (Hub + apps) dans un <code>tar.gz</code> chiffré par passphrase.</td></tr>
-    <tr><td><code>./hubctl park-export --app &lt;slug&gt;</code></td><td>Archive une seule app.</td></tr>
-    <tr><td><code>./hubctl park-export --no-encrypt</code></td><td>Archive <strong>non chiffrée</strong> (legacy, secrets en clair).</td></tr>
-    <tr><td><code>./hubctl park-export --passphrase-stdin</code></td><td>Lit la passphrase sur stdin (CI / reprise après sinistre).</td></tr>
-    <tr><td><code>./hubctl park-restore &lt;archive&gt;</code></td><td>Restaure le parc depuis une archive — <strong>uniquement sur un Hub vierge</strong>.</td></tr>
-    <tr><td><code>./hubctl park-restore &lt;archive&gt; --passphrase-stdin</code></td><td>Restauration automatisée (passphrase via stdin).</td></tr>
+    <tr><td><code>./hubctl atelier &lt;app&gt;</code></td><td>Crée l'atelier de l'app ; s'il existe déjà, ouvre un menu (mettre à jour / déployer en prod / supprimer / annuler).</td></tr>
+    <tr><td><code>./hubctl atelier &lt;app&gt; --maj</code></td><td>Met à jour l'atelier : git fetch + checkout + rebuild du projet <code>-ws</code> (défaut : <code>main</code>).</td></tr>
+    <tr><td><code>./hubctl atelier &lt;app&gt; --maj --ref &lt;branche|tag&gt;</code></td><td>Teste une branche ou un tag précis.</td></tr>
+    <tr><td><code>./hubctl atelier &lt;app&gt; --prod</code></td><td>Déploie <code>origin/main</code> validé en prod, puis supprime l'atelier.</td></tr>
+  </table>
+  <div class="info">
+    <strong>Anciennes commandes disparues</strong> — <code>work</code>,
+    <code>ship</code>, <code>deploy</code>, le multi-slug et
+    <code>--copy-db</code> n'existent plus : tout le cycle est porté par
+    <code>atelier</code> et ses flags.
+  </div>
+
+  <h3>Sauvegarde / restauration du parc (PRA)</h3>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>./hubctl export [--app &lt;slug&gt;]</code></td><td>Archive tout le parc (ou une seule app) dans un <code>tar.gz</code> chiffré par passphrase.</td></tr>
+    <tr><td><code>./hubctl export --no-encrypt</code></td><td>Archive <strong>non chiffrée</strong> (legacy, secrets en clair).</td></tr>
+    <tr><td><code>./hubctl export --passphrase-stdin</code></td><td>Lit la passphrase sur stdin (CI / DR).</td></tr>
+    <tr><td><code>./hubctl restore &lt;archive&gt;</code></td><td>Restaure le parc depuis une archive — <strong>uniquement sur un Hub vierge</strong>.</td></tr>
+    <tr><td><code>./hubctl pra-restore [kit]</code></td><td>Assistant de restauration PRA depuis un kit (coffre + dernier snapshot), scan auto du kit. Fanions : <code>--snapshot</code>, <code>--apps all|none|a,b</code>, <code>--admin-user</code>, <code>--yes</code>, <code>--force</code>, <code>--dry-run</code>.</td></tr>
   </table>
 
-  <h3>Agent de debug Granite / Ollama</h3>
+  <h3>Coffre &amp; VPN</h3>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
-    <tr><td><code>./hubctl debug --setup</code></td><td>Installe Ollama et le modèle Granite.</td></tr>
-    <tr><td><code>./hubctl debug --status</code></td><td>Vérifie la disponibilité de l'agent.</td></tr>
-    <tr><td><code>./hubctl debug &lt;app&gt;</code></td><td>Lance le diagnostic IA en lecture seule sur une app.</td></tr>
-    <tr><td><code>./hubctl debug &lt;app&gt; --rw</code></td><td>Mode semi-auto (peut proposer/appliquer des correctifs).</td></tr>
-    <tr><td><code>./hubctl debug &lt;app&gt; --model 2b</code></td><td>Force un modèle (<code>8b</code> par défaut, ou <code>2b</code> plus léger).</td></tr>
-    <tr><td><code>./hubctl debug --off</code></td><td>Désactive l'agent.</td></tr>
+    <tr><td><code>./hubctl vault backup</code></td><td>Synchronise et sauvegarde le coffre.</td></tr>
+    <tr><td><code>./hubctl vault restore</code></td><td>Restaure les <code>.env</code> depuis le coffre.</td></tr>
+    <tr><td><code>./hubctl vault status</code></td><td>Vérifie les divergences entre coffre et disque.</td></tr>
+    <tr><td><code>./hubctl vault export &lt;dest&gt;</code> / <code>import &lt;src&gt;</code></td><td>Exporter / importer le coffre.</td></tr>
+    <tr><td><code>./hubctl vault app list</code> / <code>app set-url &lt;slug&gt; &lt;url&gt;</code></td><td>Apps suivies dans le coffre / URL git d'une app.</td></tr>
+    <tr><td><code>./hubctl vpn sync|status|on|off</code></td><td>Gestion WireGuard (config clients, tunnel).</td></tr>
   </table>
 
-  <h3>Dev (cibles granulaires)</h3>
+  <h3>Seed &amp; debug IA</h3>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
-    <tr><td><code>./hubctl logs &lt;cible&gt; [--api|--db|--frontend]</code></td><td>Logs de la cible (filtrés par service si flag).</td></tr>
-    <tr><td><code>./hubctl restart &lt;cible&gt; [api|frontend]</code></td><td>Redémarrer un service précis (défaut : tous).</td></tr>
-    <tr><td><code>./hubctl health &lt;cible&gt; [--detailed]</code></td><td><code>GET /api/health</code> (+ détaillé). Exit 0 si sain.</td></tr>
-    <tr><td><code>./hubctl db-shell &lt;app&gt;</code></td><td>Shell PostgreSQL interactif d'une app.</td></tr>
+    <tr><td><code>./hubctl seed &lt;fichier.yaml&gt;</code></td><td>Déploie/converge les apps décrites par un fichier seed. <code>--prune</code> supprime les apps non listées, <code>--dry-run</code> simule.</td></tr>
+    <tr><td><code>./hubctl seed export [-o &lt;fichier&gt;] [--force]</code></td><td>Exporte l'état du parc vers un seed YAML (défaut : <code>seed-export-YYYY-MM-DD.yaml</code>).</td></tr>
+    <tr><td><code>./hubctl debug &lt;app&gt;</code></td><td>Agent de diagnostic IA local (Ollama) en lecture seule. Voir <a href="../debug-agent.md">debug-agent</a>.</td></tr>
+    <tr><td><code>./hubctl debug --setup</code> / <code>--status</code> / <code>--off</code></td><td>Installer / vérifier / désactiver l'agent. <code>--rw</code> : mode semi-auto, <code>--model 8b|2b</code> : choix du modèle.</td></tr>
   </table>
 
   <h2>Se déplacer dans le menu</h2>
@@ -105,40 +134,25 @@
     <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Interrompre l'action en cours et revenir au menu</td></tr>
   </table>
 
-  <h2>L'arbre du menu</h2>
+  <h2>Le sous-menu Coffre</h2>
   <table>
-    <tr><th>Touche</th><th>Menu</th><th>Contient</th></tr>
-    <tr><td><kbd>1</kbd></td><td>Apps</td><td>Update app · Ajouter une app · Supprimer une app · Logs app · Atelier (workshop)*</td></tr>
-    <tr><td><kbd>2</kbd></td><td>Hub</td><td>Update hub · Réparer/Diagnostiquer · Start/Stop HUB · Apps (Vue+Disque) · Logs hub</td></tr>
-    <tr><td><kbd>3</kbd></td><td>Configuration</td><td>Quick setup · Réseau · Admin · Mode &amp; avancé · Coffre · Workshop*</td></tr>
-    <tr><td><kbd>4</kbd></td><td>Scénarios</td><td>Quick diag · Full update · App rescue · Health check</td></tr>
-    <tr><td><kbd>5</kbd></td><td>Bascule</td><td>Passer en DEV / en PROD</td></tr>
-    <tr><td><kbd>0</kbd></td><td>Quitter</td><td>—</td></tr>
-  </table>
-  <p><small>* <strong>Atelier (workshop)</strong> apparaît dans le menu Apps et dans Configuration en mode DÉVELOPPEMENT.</small></p>
-
-  <h3>Détail des sous-choix internes</h3>
-  <table>
-    <tr><th>Entrée</th><th>Sous-choix / détail</th></tr>
-    <tr><td>Apps › Update app</td><td>Choix de l'app puis mise à jour (stop → pull → build → up → health, rollback auto).</td></tr>
-    <tr><td>Apps › Ajouter une app</td><td><em>Cloner depuis une URL git</em> ou <em>Rattacher une app existante</em> (déjà présente sur disque).</td></tr>
-    <tr><td>Apps › Supprimer une app</td><td>Sync coffre + backup <code>tar.gz</code> + arrêt + corbeille.</td></tr>
-    <tr><td>Hub › Start/Stop HUB</td><td>Au choix : <code>start</code>, <code>stop</code> ou <code>restart</code>.</td></tr>
-    <tr><td>Configuration › Coffre</td><td><em>Sauvegarder maintenant</em>, <em>Récupérer (export)</em>, <em>Changer la passphrase</em>, ou révéler une entrée.</td></tr>
-    <tr><td>Apps › Atelier (workshop)</td><td>Gestion complète du cycle atelier : <code>[→]</code> mettre en atelier (avec suggestions automatiques des dépendances 🔗), <code>[←]</code> déployer vers la prod (<code>git pull</code> code-only, DB préservée), <code>[×]</code> supprimer l'atelier, <code>[→→]</code> multi-sélection, <code>[→+]</code> ajouter à l'atelier existant. <strong>Mode DEV seulement.</strong></td></tr>
-    <tr><td>Scénarios</td><td>4 séquences enregistrées : Quick diag · Full update · App rescue · Health check.</td></tr>
+    <tr><th>Entrée</th><th>Rôle</th></tr>
+    <tr><td>💾 Sauvegarder maintenant</td><td>Synchronise les <code>.env</code> et secrets dans le coffre chiffré.</td></tr>
+    <tr><td>⬇ Récupérer (export)</td><td>Exporte le coffre vers un fichier.</td></tr>
+    <tr><td>🔄 Emplacement PRA</td><td>Kit de secours hors disque : statut, changer l'emplacement, répliquer maintenant, retirer la config.</td></tr>
+    <tr><td>🔑 Changer la passphrase</td><td>Rotation de la passphrase maître du coffre.</td></tr>
   </table>
 
   <h2>Les garde-fous</h2>
   <div class="attention">
     <strong>hubctl vous protège</strong>
     <ul>
-      <li>Chaque action destructrice demande une confirmation <strong>Oui/Non</strong>.</li>
+      <li>Chaque action destructrice demande une confirmation <strong>Oui/Non</strong> (jamais de saisie libre).</li>
       <li>Une app supprimée part en corbeille (<code>hubctl_cli/_trash/</code>), jamais un <code>rm -rf</code>.</li>
       <li>Une archive <code>tar.gz</code> est créée avant toute suppression.</li>
-      <li><code>update</code> capture le commit git courant + un snapshot DB (pour le hub) et <strong>rollback automatique</strong> (git reset + restauration DB) si le health check échoue.</li>
-      <li><code>ship &lt;slug&gt;</code> (défaut) déploie le code uniquement via <code>git pull</code> — <strong>la DB de prod n'est jamais touchée</strong>. Seul <code>--copy-db</code> (explicite) écrase la DB, avec confirmation par saisie du slug.</li>
+      <li><code>atelier --prod</code> exige que l'atelier ait testé <code>main</code> au commit courant d'<code>origin/main</code> ; rollback git automatique en cas d'échec, atelier conservé si le déploiement prod échoue.</li>
       <li>Garde disque : avertissement sous <strong>15 %</strong> d'espace libre, refus sous <strong>5 %</strong>.</li>
+      <li><code>--dry-run</code> global pour simuler sans risque.</li>
     </ul>
   </div>
 
@@ -146,13 +160,16 @@
     <summary>En coulisse (technique)</summary>
     <p>Les opérations s'appuient sur les <code>Makefile</code> du parc :
     <code>make -C HUB_base …</code> pour le hub central et
-    <code>make -C APPS/&lt;nom&gt; …</code> pour les apps. Au premier lancement,
-    <code>hubctl</code> crée un environnement Python
-    (<code>hubctl_cli/.venv</code>) et installe <code>rich</code> et
-    <code>cryptography</code>. Sans terminal interactif (pipe, cron), il affiche
+    <code>make -C APPS/&lt;nom&gt; …</code> pour les apps — y compris l'atelier,
+    qui tourne <strong>dans le même dossier</strong> via un 2ᵉ projet Docker
+    Compose (<code>-p &lt;app&gt;-ws</code>) piloté par
+    <code>APPS/&lt;app&gt;/.workshop.env</code>. Au premier lancement, le
+    launcher crée l'environnement Python (<code>hubctl_cli/.venv</code>) et
+    installe les dépendances (<code>rich</code>, <code>cryptography</code>,
+    <code>mcp</code>, <code>pyyaml</code>). Sans terminal interactif, il affiche
     l'état du hub puis quitte.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.14.0</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.48.1</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

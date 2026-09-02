@@ -2,6 +2,53 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.51.0] - 2 septembre 2026
+
+### ⚙️ Restructuration repo + resynchronisation doc & skills + fix MCP z.ai
+
+- **Restructuration hubctl** : le wrapper `hubctl` de la racine devient un symlink
+  `hubctl → hubctl_src/hubctl` (résolution de symlinks gérée côté wrapper), le symlink
+  `hubctl_cli` est supprimé (références doc migrées vers `hubctl_src/hubctl_cli`).
+  Pointeur sous-module `hubctl_src` : v0.7.1 → **v0.7.2** (wrapper symlink-safe, `.secrets`
+  lu depuis `PARC_ROOT`, slug atelier strict `_`→`-` pour la résolution des rôles JWT,
+  subnet IPAM None-safe).
+- **`install.sh` épuré** : support restreint à Ubuntu/Debian-like via repo Docker
+  (Mint remappé sur `noble`), retrait de l'init des submodules et de l'installation du
+  firewall VPN — la gestion VPN est prise en charge par `hubctl vpn` (volume
+  `hub_base_vpn-config`, toggle `vpn_enabled` en DB).
+- **`opencode.json`** :
+  - MCP hub lancé en direct (`python3 -m hub_mcp.server` dans `hub-mcp/`).
+  - **Corrigé** MCP `zai-mcp-server` : clé invalide `env` → `environment` (clé
+    attendue par le schéma `McpLocalConfig`), placeholder `"your_api_key"` →
+    interpolation `{env:Z_AI_API_KEY}` (la clé ne transite jamais dans git).
+    Nouveau script `scripts/set-zai-key.sh` : persistance idempotente de la clé dans
+    `~/.bashrc` (bloc marqué), modes `--show`/`--mode ZAI|GLM`.
+- **`.gitignore`** : les seeds ne sont plus ignorés — `seed-apps.yaml` (déploiement
+  déclaratif de 4 apps) et `seed-export-2026-07-31.yaml` (export de parc) sont
+  committés, URLs git SSH uniquement (aucun secret).
+- **Guide HTML (`docs/guide-hub/`)** : vague de resynchronisation (0.23.4 → 0.51.0) —
+  nouvelle page `presentation.html` (liée depuis la nav de toutes les pages), hubctl
+  0.7.x documenté fidèlement (touches par mode PROD/DEV, sous-commandes, atelier via
+  `APPS/<slug>/.workshop.env` + projet compose `-p X-ws`, coffre/PRA), footers de
+  version resynchronisés.
+- **Docs parc** : `guide-parc-poulidor.md` (instantané à jour, 24 routeurs Hub),
+  `guide-developpement-template.md` (modes `INITIALISE`, `APP_SUBNET`,
+  `POSTGRES_PORT`), `README.md` (arborescence `APP_Workshop/`, CLI hubctl re-listé),
+  `docs/debug-agent.md` (Ollama, 3 nouveaux outils MCP), archivage de
+  `DEV_MODE_MIGRATION.md`.
+- **Skills & charte agent** : `AGENTS.md` + `agent/jellycode.md` allégés (référentiel
+  visuel migré vers HUBCSS, sections obsolètes retirées) ; réécriture
+  `app-workshop-mover` (modèle sandbox `APP_Workshop/<slug>-ws` + déploiement
+  code-only par défaut, `--copy-db` destructif CLI-only) ; `create-hub-app` (Phase E
+  conventions backend, Phase F renvois skills) ; `hub-oidc-manager` autoportant
+  (diagramme IdP, vars OIDC, endpoints) ; `release-on-main` (question patchnote
+  systématique) ; `vault-manager` (entrée coffre `ws:<nom>`).
+- **Journal SDD** (`.superpowers/sdd/`) : trace les 3 projets récents (refonte UI admin
+  v1.7.0, banc lab coexistence v1/v2 + changement de port HUB, plan correctifs
+  gestion IP/port).
+- **`.secrets.example`** : retrait du bloc documentaire `HUB_BASE_URL`/`HUB_ADMIN_*`
+  (placeholders, plus d'actualité).
+
 ## [0.50.0] - 2 septembre 2026
 
 ### 🔐 Skill migrate-app-template : fusion automatique du `.env` (B.0) + pointeur HUBapp_TEMPLATE_base v2.19.0 → v2.20.0

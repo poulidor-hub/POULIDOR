@@ -1,6 +1,10 @@
-# Agent de debug Granite/Ollama
+# Agent de debug IA (Ollama)
 
 Assistant IA local pour le debug des applications POULIDOR.
+
+> **⚠ Non encore déployé** — l'agent de debug IA n'est pas encore en place sur
+> le parc. Ce guide décrit l'installation prévue ; les commandes
+> `./hubctl debug` existent déjà côté CLI.
 
 ## Installation (une fois)
 
@@ -10,22 +14,22 @@ Assistant IA local pour le debug des applications POULIDOR.
 curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-### 2. Installer le modele Granite
+### 2. Installer le modele
 
 ```bash
-hubctl debug --setup
+./hubctl debug --setup
 ```
 
 L'installeur detecte votre GPU et propose le modele adequat :
-- **GPU avec >= 8 Go VRAM** : granite3.2:8b (meilleur raisonnement)
-- **CPU seul ou GPU faible** : granite3.2:2b (plus leger)
+- **GPU avec >= 8 Go VRAM** : modele 8b (meilleur raisonnement)
+- **CPU seul ou GPU faible** : modele 2b (plus leger)
 
-Vous pouvez forcer un modele : `hubctl debug --setup --model 2b`
+Vous pouvez forcer un modele : `./hubctl debug --setup --model 2b`
 
 ### 3. Verifier l'installation
 
 ```bash
-hubctl debug --status
+./hubctl debug --status
 ```
 
 ## Utilisation
@@ -33,7 +37,7 @@ hubctl debug --status
 ### Session de debug (lecture seule par defaut)
 
 ```bash
-hubctl debug exemple-app
+./hubctl debug exemple-app
 ```
 
 L'IA analyse les logs, configs et statut des conteneurs, puis propose des
@@ -42,7 +46,7 @@ commandes a executer manuellement (copier-coller).
 ### Session de debug (semi-auto)
 
 ```bash
-hubctl debug exemple-app --rw
+./hubctl debug exemple-app --rw
 ```
 
 L'IA peut executer des actions non-destructives (restart, recreate) directement.
@@ -51,7 +55,7 @@ Les actions destructives (down, rm, reset) demandent confirmation.
 ### Forcer un modele
 
 ```bash
-hubctl debug exemple-app --model 2b
+./hubctl debug exemple-app --model 2b
 ```
 
 ## Desactivation
@@ -72,6 +76,7 @@ export POULIDOR_AI_ENABLED=true
 - `docker_inspect` — inspecter un conteneur
 - `docker_stats` — stats ressources
 - `db_query_select` — requete SQL SELECT
+- `db_dump_inspect` — dump de la base de donnees pour inspection (pg_dump, lecture seule)
 - `app_status` — statut global
 - `read_file` — lire un fichier
 
@@ -79,8 +84,10 @@ export POULIDOR_AI_ENABLED=true
 - `docker_restart` — redemarrer un service
 - `docker_recreate` — reconstruire un service
 - `docker_down` — arreter l'app (confirmation)
+- `docker_prune` — supprimer les images et conteneurs inutilises (confirmation)
 - `docker_rm` — supprimer un conteneur (double confirmation)
 - `db_reset` — reinitialiser la base (double confirmation)
+- `volume_delete` — supprimer un volume Docker (double confirmation)
 
 ## Securite
 

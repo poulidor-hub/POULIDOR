@@ -11,6 +11,7 @@
 <nav class="topnav">
   <span class="brand">Guide HUB</span>
   <a href="index.html">Accueil</a>
+  <a href="presentation.html">Présentation</a>
   <a href="hubctl.html">hubctl</a>
   <a href="make.html">make</a>
   <a href="architecture.html">Architecture</a>
@@ -21,10 +22,12 @@
   <p>Le parc possède <strong>deux</strong> familles de <code>Makefile</code> :</p>
   <ul>
     <li><code>HUB_base/Makefile</code> — pour le <strong>hub central</strong> (api, db…).</li>
-    <li>le <code>Makefile</code> d'<strong>app</strong> (hérité du template <code>HUBapp_TEMPLATE_base</code>), présent dans chaque <code>APPS/&lt;nom&gt;</code> et <code>APP_Workshop/&lt;nom&gt;</code>.</li>
+    <li>le <code>Makefile</code> d'<strong>app</strong> (hérité du template <code>HUBapp_TEMPLATE_base</code>), présent dans chaque <code>APPS/&lt;nom&gt;</code>.</li>
   </ul>
   <p>Les commandes se lancent depuis le dossier concerné, ou via
-  <code>make -C &lt;dossier&gt; &lt;cible&gt;</code>.</p>
+  <code>make -C &lt;dossier&gt; &lt;cible&gt;</code>. Dans chaque Makefile,
+  <code>make help</code> (ou <code>make</code> sans cible) liste les cibles
+  disponibles.</p>
 
   <h2><code>HUB_base/Makefile</code> — hub central</h2>
   <p>À lancer depuis <code>HUB_base/</code> (ou <code>make -C HUB_base &lt;cible&gt;</code>).</p>
@@ -39,17 +42,15 @@
   </table>
 
   <h2>Le <code>Makefile</code> d'app</h2>
-  <p>Valable pour chaque app dans <code>APPS/</code> et <code>APP_Workshop/</code>,
-  hérité de <code>HUBapp_TEMPLATE_base/Makefile</code>. À lancer depuis le
-  dossier de l'app. <strong>Raccourci :</strong> les cibles <code>logs</code>,
-  <code>restart</code>, <code>health</code>, <code>db-shell</code> sont aussi
-  exposées via <code>hubctl</code> (voir guide hubctl) pour cibler hub ou une
-  app sans <code>cd</code>.</p>
+  <p>Valable pour chaque app dans <code>APPS/</code>, hérité de
+  <code>HUBapp_TEMPLATE_base/Makefile</code>. À lancer depuis le dossier de
+  l'app.</p>
 
   <h3>SSL &amp; environnement</h3>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
     <tr><td><code>make sync-env</code></td><td>Alloue les ports via le Hub (<code>allocate_ports.py</code>) et synchronise <code>FRONTEND_HTTPS_PORT</code> + <code>APP_VERSION</code> dans le <code>.env</code>. À lancer après toute modif du <code>.env</code> ou de <code>VERSION</code>.</td></tr>
+    <tr><td><code>make sync-hub-host</code></td><td>Synchronise l'adresse IP du Hub dans le <code>.env</code> de l'app (découverte auto, ou forcer : <code>make sync-hub-host HUB_HOST=192.168.x.x</code>). Utile après un changement d'IP du serveur.</td></tr>
     <tr><td><code>make ssl</code></td><td>Génère les certificats SSL locaux (<code>scripts/generate-ssl.sh</code>).</td></tr>
   </table>
 
@@ -150,6 +151,6 @@ make bump-major    # X.0.0  (changement majeur)</pre></div>
     avant de réécrire le <code>.env</code>.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.14.0</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.48.1</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

@@ -2,6 +2,5 @@
   "HUB_base": "git@github.com:POULIDOR-Audit-Developpement/HUB_base.git",
   "HUBCSS": "git@github.com:POULIDOR-Audit-Developpement/HUBCSS.git",
   "hub-mcp": "git@github.com:POULIDOR-Audit-Developpement/hub-mcp.git",
-  "HUBapp_TEMPLATE_base": "git@github.com:POULIDOR-Audit-Developpement/HUBapp_TEMPLATE_base.git",
-  "hubctl_src": "git@github.com:POULIDOR-Audit-Developpement/Hubctl.git"
+  "HUBapp_TEMPLATE_base": "git@github.com:POULIDOR-Audit-Developpement/HUBapp_TEMPLATE_base.git"
 }

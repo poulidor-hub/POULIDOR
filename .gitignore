@@ -9,7 +9,6 @@ dist/
 .worktrees/
 APPS/*
 !APPS/README.md
-!APPS/.gitkeep
 APP_Workshop/*
 !APP_Workshop/README.md
 
@@ -23,10 +22,6 @@ hubctl_cli/.config.toml
 exports/
 docs/superpowers/
 *.vault.enc
-
-# Seed — fichiers generes localement, jamais committes
-seed-apps.yaml
-seed-export-*.yaml
 
 # Secrets API IA (source unique) — ne jamais committer (.secrets.example reste suivi)
 .secrets

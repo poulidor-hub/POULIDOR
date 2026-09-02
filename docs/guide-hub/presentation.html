@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide du HUB — Présentation</title>
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="assets/guide.js"></script>
+</head>
+<body>
+<nav class="topnav">
+  <span class="brand">Guide HUB</span>
+  <a href="index.html">Accueil</a>
+  <a href="presentation.html">Présentation</a>
+  <a href="hubctl.html">hubctl</a>
+  <a href="make.html">make</a>
+  <a href="architecture.html">Architecture</a>
+</nav>
+<main class="wrap">
+  <div class="breadcrumb"><a href="index.html">Accueil</a> › Présentation</div>
+  <h1>Le HUB POULIDOR en un coup d'œil</h1>
+  <p>POULIDOR est une <strong>plateforme d'applications métier</strong> : un Hub
+  central fournit l'authentification, la messagerie, les sauvegardes et
+  l'administration, et chaque application — générée depuis un template commun —
+  tourne dans son propre environnement Docker. Tout se pilote depuis
+  <code>./hubctl</code> ou l'interface web du Hub.</p>
+
+  <div class="cards">
+    <a class="card" href="architecture.html"><h3>Une stack homogène</h3><p>FastAPI · React 18 / Vite · PostgreSQL · Docker Compose — identique pour toutes les apps.</p></a>
+    <a class="card" href="hubctl.html"><h3>Un seul outil de pilotage</h3><p><code>hubctl</code> : menu interactif + 12 sous-commandes pour tout administrer.</p></a>
+    <a class="card" href="index.html"><h3>Un parc vivant</h3><p>Une douzaine d'applications en production, toutes reliées au même SSO.</p></a>
+  </div>
+
+  <h2 id="demarrer">Bien démarrer en 5 étapes</h2>
+  <table>
+    <tr><th>#</th><th>Étape</th><th>Comment</th></tr>
+    <tr><td>1</td><td>Installer le serveur</td><td><code>sudo ./install.sh</code> (prérequis + Hub), ou <code>./hubctl init</code> si les prérequis existent.</td></tr>
+    <tr><td>2</td><td>Ouvrir le Hub</td><td><code>https://&lt;IP serveur&gt;</code> — connexion admin créée à l'installation.</td></tr>
+    <tr><td>3</td><td>Lancer hubctl</td><td><code>./hubctl</code> — tableau de bord, démarrage/arrêt, mise à jour, coffre.</td></tr>
+    <tr><td>4</td><td>Ajouter une app</td><td>Fichier <code>seed</code> YAML, <code>scripts/create_app.sh</code>, ou avec l'assistant IA.</td></tr>
+    <tr><td>5</td><td>Aller plus loin</td><td>Suivre les renvois « voir … » de chaque section ci-dessous.</td></tr>
+  </table>
+
+  <h2 id="catalogue">Les fonctionnalités du HUB</h2>
+
+  <h3>1. SSO — authentification unique</h3>
+  <p>Une seule connexion ouvre toutes les apps : le Hub émet des jetons
+  <span class="term">JWT<span class="tip">JSON Web Token : jeton signé présenté
+  par l'utilisateur à chaque app.</span></span> signés (RSA), vérifiés par les
+  apps via <span class="term">JWKS<span class="tip">Clés publiques exposées par
+  le Hub.</span></span> — zéro couplage, chaque app reste autonome. Le Hub gère
+  aussi les utilisateurs, les rôles par app et les demandes de compte.
+  <strong>Voir :</strong> <code>HUB_base/docs/GUIDE_ADMIN.md</code>,
+  <code>HUB_base/docs/ARCHITECTURE.md</code>.</p>
+
+  <h3>2. Bridge OIDC pour apps externes</h3>
+  <p>Le Hub fait office de <strong>fournisseur d'identité</strong> (OpenID
+  Connect) pour des outils tiers : discovery, clients OIDC auto-enregistrables,
+  <code>id_token</code>, déconnexion back-channel. Pratique pour rattacher
+  Vikunja, Nextcloud ou Grafana au SSO du parc.
+  <strong>Voir :</strong> <code>HUB_base/docs/</code> (intégration OIDC).</p>
+
+  <h3>3. Registre des applications &amp; M2M</h3>
+  <p>Chaque app s'enregistre au démarrage auprès du Hub (annuaire). Les apps
+  communiquent entre elles via des identifiants
+  <span class="term">M2M<span class="tip">Machine-to-Machine : credentials
+  client_credentials pour les appels de service à service.</span></span> et un
+  catalogue de services partagés découvrable.
+  <strong>Voir :</strong> <code>HUBapp_TEMPLATE_base/docs/API.md</code>.</p>
+
+  <h3>4. Messagerie &amp; notifications temps réel</h3>
+  <p>Messagerie inter-applications et vers les utilisateurs, notifications
+  <span class="term">SSE<span class="tip">Server-Sent Events : flux poussé du
+  serveur vers le navigateur.</span></span>, badges de messages non lus : le
+  socle commun d'alerting du parc.
+  <strong>Voir :</strong> <code>HUB_base/docs/ARCHITECTURE.md</code>.</p>
+
+  <h3>5. Sauvegardes des apps</h3>
+  <p>Backups automatiques planifiés et manuels par app (ZIP téléchargeable),
+  restauration guidée, suivi des orphelins. Config par app depuis l'UI admin.
+  <strong>Voir :</strong> <code>HUBapp_TEMPLATE_base/docs/BACKUP_RESTORE.md</code>,
+  <code>HUB_base/docs/BACKUP.md</code>.</p>
+
+  <h3>6. Coffre chiffré &amp; kit PRA</h3>
+  <p>Tous les secrets (<code>.env</code>, clés) dans un coffre chiffré
+  (Fernet + scrypt), passphrase auto-gérée, réplication automatique vers un
+  emplacement de secours hors disque (<strong>Emplacement PRA</strong>).
+  <strong>Voir :</strong> <a href="attention-coffre.html">page Coffre</a>.</p>
+
+  <h3>7. Export / restore &amp; disaster recovery</h3>
+  <p>Archive chiffrée du parc complet (<code>./hubctl export</code>), restauration
+  sur serveur neuf (<code>restore</code>) et assistant PRA
+  (<code>pra-restore</code> : coffre + dernier snapshot + réinjection des apps).
+  <strong>Voir :</strong> <a href="attention-park.html">page export / restore</a>.</p>
+
+  <h3>8. Ateliers de développement</h3>
+  <p>Bac à sable par app : copie de la DB, ports et réseau dédiés,
+  <strong>prod qui continue de tourner</strong>. Cycle complet pilotable depuis
+  l'UI HUB (vue Santé) ou le CLI (<code>./hubctl atelier</code>) : créer,
+  tester une montée de version, déployer en prod (DB préservée), supprimer.
+  <strong>Voir :</strong> <a href="attention-workshop.html">page Atelier</a>,
+  skill <code>app-workshop-mover</code>.</p>
+
+  <h3>9. Déploiement &amp; cycle de vie des apps</h3>
+  <p>Création depuis le template, configuration du dépôt git depuis l'UI
+  (PAT GitHub incluse, repos privés OK), mise à jour du parc en une commande
+  (<code>./hubctl update</code>), recréation d'une app, gestion des ports alloués
+  par le Hub, HTTPS/PKI avec re-sync automatique des certificats.
+  <strong>Voir :</strong> <a href="make.html">guide make</a>,
+  <code>docs/guide-developpement-template.md</code>.</p>
+
+  <h3>10. VPN WireGuard</h3>
+  <p>Accès distant sécurisé au parc intégré au Hub : génération de config
+  clients, activation/désactivation, synchronisation —
+  <code>./hubctl vpn sync|status|on|off</code>.
+  <strong>Voir :</strong> <code>./hubctl vpn --help</code>.</p>
+
+  <h3>11. Administration &amp; observabilité</h3>
+  <p>Dashboard santé des apps (statut, versions, ateliers, disque), page
+  <strong>Audit</strong> (sessions live, heatmap d'activité, alertes), onglet
+  <strong>Réseau</strong> (changement d'IP validé par l'admin avec plan de
+  propagation, détection d'IP LAN), gestion des utilisateurs, déploiement par
+  fichier seed.
+  <strong>Voir :</strong> <code>HUB_base/docs/GUIDE_ADMIN.md</code>.</p>
+
+  <h3>12. Debug assisté par IA</h3>
+  <p>Un agent IA local (Ollama) diagnostique une app en panne :
+  logs, DB (lecture seule par défaut), conteneurs — avec garde-fous et
+  confirmations pour toute action. Modèle en cours de déploiement.
+  <strong>Voir :</strong> <code>docs/debug-agent.md</code>.</p>
+
+  <h3>13. Écosystème développeur</h3>
+  <p>Template canonique (backend async, frontend React, tests, conventions UTC
+  strictes), design system <strong>HUBCSS</strong> partagé, serveur MCP pour
+  piloter le Hub depuis un assistant IA, et skills opencode embarqués
+  (<code>release-on-main</code>, <code>create-hub-app</code>,
+  <code>vault-manager</code>…).
+  <strong>Voir :</strong> <code>docs/guide-developpement-template.md</code>,
+  <code>HUBapp_TEMPLATE_base/docs/HUB_MCP.md</code>.</p>
+
+  <h2 id="renvois">Où trouver la doc détaillée</h2>
+  <table>
+    <tr><th>Document</th><th>Contenu</th></tr>
+    <tr><td><a href="hubctl.html">guide hubctl</a> (ce dossier)</td><td>Menu TUI + 12 sous-commandes CLI, garde-fous.</td></tr>
+    <tr><td><a href="make.html">guide make</a> (ce dossier)</td><td>Cibles Makefile du Hub et des apps.</td></tr>
+    <tr><td><a href="architecture.html">architecture</a> (ce dossier)</td><td>Composants du parc, prod vs atelier, coffre.</td></tr>
+    <tr><td><code>docs/guide-parc-poulidor.md</code></td><td>Référence complète du parc (instantané daté).</td></tr>
+    <tr><td><code>docs/guide-developpement-template.md</code></td><td>Guide de développement d'une app (conventions, tests, release).</td></tr>
+    <tr><td><code>HUB_base/docs/GUIDE_ADMIN.md</code></td><td>Administration du Hub au quotidien.</td></tr>
+    <tr><td><code>HUB_base/docs/GUIDE_INSTALLATION.md</code></td><td>Installation détaillée / manuelle.</td></tr>
+    <tr><td><code>HUBapp_TEMPLATE_base/README.md</code> + <code>docs/</code></td><td>Template : API, HTTPS, backups, M2M, MCP.</td></tr>
+    <tr><td><code>docs/debug-agent.md</code></td><td>Agent de debug IA.</td></tr>
+    <tr><td><code>docs/canvas-poulidor.html</code></td><td>Présentation visuelle (canvas client).</td></tr>
+  </table>
+
+  <div class="info">
+    <strong>Besoin d'aide ?</strong>
+    L'assistant IA du parc connaît ces documents : demandes en langage naturel
+    (« mets X en atelier », « crée une app … », « restaure le coffre ») —
+    les skills listés dans <code>AGENTS.md</code> encadrent ces opérations.
+  </div>
+</main>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.48.1</span> · <a href="index.html">Accueil</a></footer>
+</body>
+</html>

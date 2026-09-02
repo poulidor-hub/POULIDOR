@@ -26,7 +26,8 @@ POULIDOR/
 ├── hubctl_cli/               ← Code métier (menu, coffre, blue-green, park-export)
 ├── HUB_base/                 ← Hub SSO (auth, registry, messaging, backups)
 ├── HUBapp_TEMPLATE_base/     ← Template canonique pour toute nouvelle app
-├── APPS/                     ← Applications en production (ateliers inclus, via .workshop.env)
+├── APPS/                     ← Applications en production
+├── APP_Workshop/             ← Applications en développement (mode bac à sable)
 └── exports/                  ← Archives park-export
 ```
 
@@ -52,40 +53,18 @@ Squelette standard pour toute nouvelle app du parc :
 ### Pilotage (`hubctl`)
 Outil unique pour administrer tout le parc :
 - **TUI interactif** : dashboard avec statut des apps, menus de configuration, coffre de secrets
-- **CLI non-interactive** : `start`/`stop`, `update`, `init`, `atelier`, `export` (park-export), `restore` (park-restore), `pra-restore`, `vpn`, `vault`, `seed`, `debug`
-- **Blue-green deploy** : déploiement zéro downtime avec validation humaine en
-  atelier (`./hubctl atelier <app> --maj` pour tester, `--prod` pour basculer)
+- **CLI non-interactive** : `work`, `ship`, `update`, `start`/`stop`, `deploy`, `logs`, `health`, `db-shell`, `vpn`, `status`, `park-export`, `park-restore`, `debug`, `init`
+- **Blue-green deploy** : déploiement zéro downtime avec validation humaine (`--validate`)
 - **Atelier de développement** : bac à sable parallèle par app (clone DB prod à la demande)
 - **Coffre chiffré** : sauvegarde des secrets du parc (Fernet + scrypt), export de recovery
 - **Park export/restore** : archivage chiffré du parc complet pour disaster recovery
 
 ---
 
-## Documentation
-
-- **`docs/guide-parc-poulidor.md`** — Guide de référence du parc : démarcation
-  HUB_base / hubctl / template, toutes les commandes, cas d'usage (création d'app,
-  déploiement, sinistre, secrets). Point d'entrée pour nouveaux développeurs/admins.
-
-| Document | Contenu |
-|----------|---------|
-| `docs/guide-hub/hubctl.html` | Guide complet de `hubctl` (TUI + CLI) |
-| `docs/guide-hub/make.html` | Référence des commandes `make` par app |
-| `docs/guide-hub/architecture.html` | Architecture du parc |
-| `docs/canvas-poulidor.html` | Présentation visuelle (canvas client) |
-| `HUB_base/docs/GUIDE_ADMIN.md` | Guide administrateur Hub |
-| `HUB_base/docs/ARCHITECTURE.md` | Architecture interne du Hub |
-| `HUBapp_TEMPLATE_base/docs/API.md` | Conventions API d'une app |
-| `HUBapp_TEMPLATE_base/README.md` | Documentation du template |
-
----
-
 ## Démarrage rapide
 
 ```bash
-# 1. Cloner le dépôt (nécessite une clé SSH enregistrée sur l'org GitHub ;
-#    accepter la host key GitHub au premier connect — ou pré-remplir :
-#    ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts)
+# 1. Cloner le dépôt
 git clone --recurse-submodules git@github.com:POULIDOR-Audit-Developpement/POULIDOR.git
 cd POULIDOR
 
@@ -98,16 +77,9 @@ sudo ./install.sh
 #    Les credentials admin s'affichent dans le récapitulatif final.
 
 # 4. Créer une nouvelle application
-#    ./scripts/create_app.sh <nom> puis python INITIALISE.py
-#    (guide : docs/guide-parc-poulidor.md §4.4/§5.1)
+#    Via le TUI : ./hubctl → Apps → Ajouter
 #    Ou via l'IA : « Crée une app mon-outil dans POULIDOR »
 ```
-
-> **Réseau des apps** — à l'installation, `hubctl init` autorise
-> (`APP_WHITELIST_NETWORKS`) le réseau Docker des apps + le subnet LAN
-> détecté du serveur. Pour autoriser d'autres réseaux (allocation de ports,
-> auto-enregistrement), éditer `HUB_base/.env` puis
-> `docker compose up -d hub-api` (⚠️ `restart` ne recharge pas le `.env`).
 
 ### Installation manuelle (alternative)
 
@@ -118,6 +90,21 @@ Si les prérequis sont déjà installés, ou pour un déploiement ciblé du Hub 
 ```
 
 Voir `HUB_base/docs/GUIDE_INSTALLATION.md` pour l'installation manuelle détaillée.
+
+---
+
+## Documentation
+
+| Document | Contenu |
+|----------|---------|
+| `docs/guide-hub/hubctl.html` | Guide complet de `hubctl` (TUI + CLI) |
+| `docs/guide-hub/make.html` | Référence des commandes `make` par app |
+| `docs/guide-hub/architecture.html` | Architecture du parc |
+| `docs/canvas-poulidor.html` | Présentation visuelle (canvas client) |
+| `HUB_base/docs/GUIDE_ADMIN.md` | Guide administrateur Hub |
+| `HUB_base/docs/ARCHITECTURE.md` | Architecture interne du Hub |
+| `HUBapp_TEMPLATE_base/docs/API.md` | Conventions API d'une app |
+| `HUBapp_TEMPLATE_base/README.md` | Documentation du template |
 
 ---
 

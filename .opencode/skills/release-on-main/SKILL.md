@@ -42,20 +42,21 @@ Détecter la source de version dans cet ordre :
 4. **Sinon (aucune source de version)** :
    - Créer `VERSION` = `0.1.0` et un `CHANGELOG.md` initial, puis traiter comme cas 2.
 
-## 4. Patchnote utilisateur — UNIQUEMENT sur demande explicite
+## 4. Patchnote utilisateur — DEMANDER d'abord
 
-Par défaut, le CHANGELOG reste **purement technique** (étape 3 seule). Ne **jamais** demander ni proposer de patchnote utilisateur.
+Poser **une seule** question : « Cette app est-elle publiée ? Dois-je rédiger le patchnote utilisateur pour cette version ? » (oui/non).
 
-Seulement si l'utilisateur le demande **explicitement** (ex: « rédige le patchnote », « ajoute une section utilisateur », « pour les utilisateurs »), ajouter dans la **même entrée** CHANGELOG, en tête :
+- **Oui** → dans la **même entrée** CHANGELOG, ajouter en tête une section :
+  ```
+  ### 📣 Pour les utilisateurs
+  - **Ajouté** : …
+  - **Amélioré** : …
+  - **Corrigé** : …
+  ```
+  Langage simple, sans jargon technique.
+- **Non** → ne rien ajouter (l'entrée technique de l'étape 3 suffit).
 
-```
-### 📣 Pour les utilisateurs
-- **Ajouté** : …
-- **Amélioré** : …
-- **Corrigé** : …
-```
-
-Langage simple, sans jargon technique. Cette section se place **avant** la section technique.
+Pas de mémorisation : la question est reposée à chaque push.
 
 ## 5. Finalisation
 

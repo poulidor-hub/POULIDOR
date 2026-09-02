@@ -125,8 +125,10 @@ git submodule update --init HUBapp_TEMPLATE_base
 
 ```bash
 cd APPS/mon-app
-python INITIALISE.py --clean    # Mode standard (sans contenu de démo)
-# ou python INITIALISE.py --demo   # Garder la démo pour explorer
+python INITIALISE.py --clean        # Mode standard (sans contenu de démo)
+# ou python INITIALISE.py --demo    # Garder la démo pour explorer
+# ou python INITIALISE.py "Mon App" --demo   # Mode auto : nom en argument positionnel
+python INITIALISE.py --profile client.json --yes   # Non-interactif (scripts/CI)
 ```
 
 | Mode | Usage |
@@ -134,6 +136,8 @@ python INITIALISE.py --clean    # Mode standard (sans contenu de démo)
 | `--clean` (défaut) | Supprime modèles/routes/composants de démo → squelette minimal |
 | `--demo` | Conserve `Item`, `TestData`, composants de test → exploration |
 | `--profile fic.json` | Mode non-interactif : lit les infos depuis une fiche client JSON |
+| `"Mon App"` (positionnel) | Mode auto : nom de l'app en argument positionnel, sans questions |
+| `--yes` | Non-interactif : confirme automatiquement (requis si stdin fermé — scripts/CI) |
 
 **Ce que fait INITIALISE (14 étapes) :**
 
@@ -726,6 +730,8 @@ make health                       # Vérifier que l'API répond
 | `HTTPS_ENABLED` | `false` | Activer HTTPS |
 | `ENABLE_DEMO_ENDPOINTS` | `false` | Activer les endpoints de démo |
 | `IS_SHARED` | `false` | App accessible en M2M par les autres apps |
+| `APP_SUBNET` | *(alloué par le Hub)* | Sous-réseau Docker de l'app (CIDR), pris du pool `APP_SUBNET_POOL` du Hub lors de `make up`/`make build` |
+| `POSTGRES_PORT` | `5432` | Port PostgreSQL alloué dynamiquement par le Hub (depuis 2.18.2), propagé à l'API et au conteneur postgres |
 
 ### Interdépendances
 
@@ -733,6 +739,13 @@ make health                       # Vérifier que l'API répond
 - `APP_VERSION` est synchronisé depuis `VERSION` par `sync-env`
 - `POSTGRES_HOST` dans `.env` doit correspondre au `container_name` du service postgres dans `docker-compose.yml`
 - Si l'app et le Hub sont sur la même machine, `APP_HOST` est auto-détecté par `entrypoint.sh` au démarrage
+
+### Features template récentes
+
+- **Ports dynamiques `POSTGRES_PORT`** (2.18.2) : le port PostgreSQL est alloué par le Hub (défaut `5432`) et propagé à l'API et au conteneur — idem `APP_SUBNET` pour le sous-réseau Docker.
+- **`VITE_APP_SLUG`** (2.17.0) : injecté dans le frontend ; l'URL SSE porte `&app=<slug>` (présence utilisateur par app côté Hub, HUB ≥ 3.36.0).
+- **Re-sync automatique des certificats** (2.12.0) : `backend/cert_sync.py` — boucle de fond démarrée au lancement, resynchronise les certificats PKI du Hub toutes les 6 h ; no-op si `HTTPS_ENABLED=false`.
+- **Garde `HUB_INSTANCE_ID`** (2.19.0) : `sync-env` mémorise l'identité du Hub dans `.env` et refuse un `.env` pointant vers un autre Hub (protection contre les allocations croisées).
 
 ---
 
@@ -745,7 +758,7 @@ make health                       # Vérifier que l'API répond
 | `make dev` | `docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d && docker compose logs -f` | Lancement hot-reload avec logs en direct |
 | `make up-dev` | `docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d` | Lancement hot-reload en arrière-plan |
 | `make build` | `docker compose build` | Build des images production |
-| `make up` | `docker compose up -d` | Démarrage production |
+| `make up` | `docker compose up -d` (overlay `docker-compose.https.yml` si HTTPS activé) | Démarre en prod (sync-env préalable, HTTPS si activé) |
 | `make down` | `docker compose down` | Arrêt des services |
 | `make down-dev` | `docker compose -f docker-compose.yml -f docker-compose.dev.yml down` | Arrêt des services dev |
 | `make restart` | `docker compose restart` | Redémarrage de tous les services |
@@ -762,7 +775,7 @@ make health                       # Vérifier que l'API répond
 | `make health` | `curl /api/health` (retry 5×, 2s intervalle) |
 | `make health-detailed` | Health check détaillé |
 | `make version` | Affiche la version actuelle (`cat VERSION`) |
-| `make ps` | Statut des conteneurs |
+| `docker compose ps` | Statut des conteneurs |
 
 ### Tests
 
@@ -807,16 +820,21 @@ make health                       # Vérifier que l'API répond
 
 ```
 backend/tests/
-├── conftest.py          # Fixtures partagées
-├── test_auth.py         # Authentification
-├── test_items.py        # CRUD Items (démo)
-├── test_preferences.py  # Préférences utilisateur
-├── test_m2m.py          # M2M communication
-├── test_m2m_catalog.py  # Catalogue M2M
-├── test_backup.py       # Backup/Restore
-├── test_services.py     # Tests services Hub
-├── test_outbox.py       # Pattern outbox
-└── test_hub_client_depends.py
+├── conftest.py                 # Fixtures partagées
+├── test_auth.py                # Authentification
+├── test_auth_tagging.py        # Tagging __auth_level__ des closures d'auth
+├── test_items.py               # CRUD Items (démo)
+├── test_preferences.py         # Préférences utilisateur
+├── test_m2m.py                 # M2M communication
+├── test_m2m_catalog.py         # Catalogue M2M
+├── test_backup.py              # Backup/Restore
+├── test_cert_sync.py           # Re-synchro périodique des certificats PKI
+├── test_config_env.py          # Tolérance aux variables Hub vides (settings)
+├── test_services.py            # Tests services Hub
+├── test_outbox.py              # Pattern outbox
+├── test_hub_depends.py         # Résolution du fichier depends.yaml
+├── test_hub_client_depends.py  # Dépendances FastAPI liées au Hub
+└── test_hub_client_selfheal.py # Auto-récupération des credentials M2M
 ```
 
 ### 8.2 Fixtures essentielles (`conftest.py`)
@@ -979,10 +997,10 @@ python -c "from backend.database import engine; print('OK')"
 
 | Document | Lignes | Contenu |
 |----------|--------|---------|
-| `HUBapp_TEMPLATE_base/README.md` | 517 | Onboarding, endpoints, tests, versionnage, backup |
+| `HUBapp_TEMPLATE_base/README.md` | 552 | Onboarding, endpoints, tests, versionnage, backup |
 | `HUBapp_TEMPLATE_base/docs/API.md` | 1116 | Référence exhaustive de tous les endpoints |
 | `HUBapp_TEMPLATE_base/docs/DATA_FETCHING.md` | 421 | Patterns TanStack Query obligatoires |
-| `HUBapp_TEMPLATE_base/docs/HUB_MESSAGES.md` | 585 | Intégration notifications et messages |
+| `HUBapp_TEMPLATE_base/docs/HUB_MESSAGES.md` | 584 | Intégration notifications et messages |
 | `HUBapp_TEMPLATE_base/docs/BACKUP_RESTORE.md` | 481 | Backup/restore générique |
 | `HUBapp_TEMPLATE_base/docs/REMOTE_APPS.md` | 227 | Déploiement distant |
 | `HUBapp_TEMPLATE_base/docs/HTTPS.md` | 203 | Configuration SSL/HTTPS |

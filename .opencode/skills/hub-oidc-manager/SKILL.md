@@ -62,13 +62,30 @@ standard (discovery, authorize, token, userinfo), et gère le cycle de vie des c
 
 ## Architecture — Le HUB est l'IdP
 
-Le HUB POULIDOR implémente OIDC 1.0 from-scratch dans `hub-api` (`pyjwt[crypto]`, zéro dépendance externe). Il émet des `id_token` RS256 signés avec sa clé JWT existante et expose les endpoints standard (discovery, authorize, token, userinfo).
+```
+┌──────────────────────────────────────────────────────────┐
+│  HUB POULIDOR (hub-api, FastAPI)                         │
+│                                                          │
+│  SSO JWT maison (inchangé)    │   Bridge OIDC (v3.13+)   │
+│  Apps template (M2M)          │   Apps externes (OIDC)    │
+│                               │                          │
+│  • JWT en localStorage        │   • /.well-known/...      │
+│  • hub_token Bearer           │   • /oidc/authorize       │
+│  • Pas de cookie navigateur   │   • /api/oidc/token       │
+│                               │   • /api/oidc/userinfo    │
+│                               │   • /api/oidc/launch/{id} │
+│                               │   • /api/oidc/clients CRUD│
+│                               │   • Cookie hub_oidc_session│
+│                               │   • JWKS RS256 (clé existante)│
+│                                                          │
+│  Postgres : oauth_clients, oauth_authorization_codes,    │
+│             oauth_refresh_tokens                         │
+└──────────────────────────────────────────────────────────┘
+```
 
 **Deux mécanismes SSO coexistent** sans interférence :
-1. **SSO JWT maison** — apps template (`hub_client.py`, M2M, `grant_type=client_credentials`, JWT en localStorage).
-2. **Bridge OIDC** — apps externes (Authorization Code Flow + PKCE S256, cookie `hub_oidc_session`, tables `oauth_clients` / `oauth_authorization_codes` / `oauth_refresh_tokens`).
-
-> Schéma détaillé des endpoints/tables : `HUB_base/hub/app/routes/oidc.py` + `HUB_base/hub/app/models.py` (lignes 755+).
+1. **SSO JWT maison** — apps template (`hub_client.py`, M2M, `grant_type=client_credentials`)
+2. **Bridge OIDC** — apps externes (Authorization Code Flow + PKCE, `hub_oidc_session` cookie)
 
 ---
 
@@ -95,9 +112,18 @@ curl -s http://$HUB_HOST:$HUB_API_PORT/.well-known/openid-configuration | python
 cd HUB_base && docker compose restart hub-api
 ```
 
-### Variables OIDC
+### Variables OIDC (toutes ont des defaults docker-compose)
 
-`OIDC_ISSUER` est la **seule** var obligatoire (non vide). Les 7 autres (`OIDC_ENABLED`, `OIDC_CODE_TTL_SECONDS`, `OIDC_ID_TOKEN_TTL_MINUTES`, `OIDC_ACCESS_TOKEN_TTL_MINUTES`, `OIDC_REFRESH_TOKEN_DAYS`, `OIDC_BACKCHANNEL_LOGOUT_ENABLED`, `OIDC_EMAIL_TEMPLATE`) ont des defaults corrects dans `HUB_base/docker-compose.yml` (block OIDC) — **voir le source pour les valeurs actuelles**.
+| Variable | Default | Rôle |
+|---|---|---|
+| `OIDC_ENABLED` | `true` | Kill-switch global |
+| `OIDC_ISSUER` | `""` ⚠️ | **Obligatoire** — URL publique du HUB |
+| `OIDC_EMAIL_TEMPLATE` | `{username}@hub.internal` | Claim email synthétique |
+| `OIDC_CODE_TTL_SECONDS` | `30` | TTL des codes OIDC |
+| `OIDC_ID_TOKEN_TTL_MINUTES` | `10` | TTL des id_tokens |
+| `OIDC_ACCESS_TOKEN_TTL_MINUTES` | `15` | TTL des access_tokens |
+| `OIDC_REFRESH_TOKEN_DAYS` | `30` | TTL des refresh_tokens |
+| `OIDC_BACKCHANNEL_LOGOUT_ENABLED` | `true` | Back-channel logout OIDC |
 
 ---
 
@@ -134,15 +160,29 @@ curl -s -X POST http://$HUB_HOST:$HUB_API_PORT/api/oidc/clients \
 
 ### Lister / modifier / supprimer
 
-Toutes les opérations CRUD sur `/api/oidc/clients` (admin JWT) :
+```bash
+# Lister
+curl -s http://$HUB_HOST:$HUB_API_PORT/api/oidc/clients \
+  -H "Authorization: Bearer $HUB_TOKEN" | python3 -m json.tool
 
-| Opération | Méthode + endpoint |
-|---|---|
-| Lister | `GET /api/oidc/clients` |
-| Modifier (redirect_uris, app_id…) | `PUT /api/oidc/clients/<id>` body JSON |
-| Régénérer le secret (l'ancien invalide immédiatement) | `POST /api/oidc/clients/<id>/regenerate-secret` |
-| Activer/désactiver (kill-switch) | `PATCH /api/oidc/clients/<id>/toggle-active` |
-| Supprimer | `DELETE /api/oidc/clients/<id>` |
+# Modifier (redirect_uris, app_id, etc.)
+curl -s -X PUT http://$HUB_HOST:$HUB_API_PORT/api/oidc/clients/<id> \
+  -H "Authorization: Bearer $HUB_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"redirect_uris": ["http://nouvelle-url/callback"]}'
+
+# Régénérer le secret (l'ancien est immédiatement invalide)
+curl -s -X POST http://$HUB_HOST:$HUB_API_PORT/api/oidc/clients/<id>/regenerate-secret \
+  -H "Authorization: Bearer $HUB_TOKEN"
+
+# Activer/désactiver (kill-switch)
+curl -s -X PATCH http://$HUB_HOST:$HUB_API_PORT/api/oidc/clients/<id>/toggle-active \
+  -H "Authorization: Bearer $HUB_TOKEN"
+
+# Supprimer
+curl -s -X DELETE http://$HUB_HOST:$HUB_API_PORT/api/oidc/clients/<id> \
+  -H "Authorization: Bearer $HUB_TOKEN"
+```
 
 ---
 
@@ -196,7 +236,16 @@ Toutes les opérations CRUD sur `/api/oidc/clients` (admin JWT) :
 
 ### Claims OIDC fournis par le HUB
 
-Claims standards (`sub` = username, `preferred_username`, `name`, `email` synthétique `{username}@hub.internal`, `email_verified: true`, `nonce` rejoué). Source de vérité : `HUB_base/hub/app/oidc_helpers.py::create_id_token`.
+| Claim | Scope | Source HUB |
+|---|---|---|
+| `sub` | openid | `User.username` |
+| `preferred_username` | profile | `User.username` |
+| `name` | profile | `User.username` |
+| `email` | email | `{username}@hub.internal` (synthétique) |
+| `email_verified` | email | `true` |
+| `iss` | — | `OIDC_ISSUER` |
+| `aud` | — | `client_id` du client OIDC |
+| `nonce` | — | Rejoué depuis authorize |
 
 ---
 
@@ -341,23 +390,29 @@ curl -s -X POST http://$HUB_HOST:$HUB_API_PORT/api/oidc/backchannel-logout/<clie
 
 ---
 
-## Référence code (endpoints, tables, claims)
+## Quick Reference — Endpoints OIDC
 
-La liste exhaustive des endpoints OIDC (`/.well-known/openid-configuration`, `/oidc/authorize`, `/api/oidc/token`, `/api/oidc/userinfo`, `/api/oidc/launch/{id}`, JWKS, CRUD `/api/oidc/clients`, backchannel-logout), les tables DB (`oauth_clients`, `oauth_authorization_codes`, `oauth_refresh_tokens`) et les claims émis **sont dans le source** — ils évoluent avec le code :
+| Endpoint | Méthode | Auth | Rôle |
+|---|---|---|---|
+| `/.well-known/openid-configuration` | GET | Public | Discovery document |
+| `/oidc/authorize` | GET | Cookie `hub_oidc_session` | Authorization endpoint |
+| `/api/oidc/token` | POST | client_secret (basic ou post) | Token endpoint (code→tokens, refresh→tokens) |
+| `/api/oidc/userinfo` | GET/POST | Bearer access_token | UserInfo endpoint |
+| `/api/oidc/launch/{client_id}` | GET | access_token query | **Spécifique HUB** : shortcut JWT→code OIDC |
+| `/api/auth/.well-known/jwks.json` | GET | Public | JWKS (clés publiques RS256) |
+| `/api/oidc/clients` | GET/POST | Admin JWT | CRUD clients OIDC |
+| `/api/oidc/clients/{id}` | PUT/DELETE | Admin JWT | Modifier / supprimer un client |
+| `/api/oidc/clients/{id}/toggle-active` | PATCH | Admin JWT | Kill-switch client |
+| `/api/oidc/clients/{id}/regenerate-secret` | POST | Admin JWT | Régénérer le secret |
+| `/api/oidc/backchannel-logout/{client_id}` | POST | Admin JWT | DC user d'une app |
 
-| Objet | Source de vérité |
+## Quick Reference — Tables DB
+
+| Table | Rôle |
 |---|---|
-| Routes OIDC | `HUB_base/hub/app/routes/oidc.py` |
-| Helpers (id_token, claims) | `HUB_base/hub/app/oidc_helpers.py` |
-| Modèles SQLAlchemy | `HUB_base/hub/app/models.py` (lignes 755+) |
-| Config (vars OIDC) | `HUB_base/hub/app/config.py` (lignes 211-219) + `HUB_base/docker-compose.yml` (block OIDC) |
-| Migrations SQL | `HUB_base/hub/migrations/039_add_oauth_clients.sql` à `041_*.sql` |
-| Cookie session OIDC | `HUB_base/hub/app/routes/auth.py:316-325` |
-| JWKS endpoint | `HUB_base/hub/app/routes/auth.py:768-813` |
-| Discovery document live | `curl http://$HUB_HOST:$HUB_API_PORT/.well-known/openid-configuration` |
-| Tests (47) | `HUB_base/hub/tests/test_oidc_*.py` |
-| Intégration de référence (Vikunja) | `APPS/vikunja-service/` + `docs/superpowers/specs/2026-07-22-vikunja-hub-integration-design.md` |
-| Spec OIDC 1.0 externe | https://openid.net/specs/openid-connect-core-1_0.html |
+| `oauth_clients` | Clients OIDC (client_id, secret hashé bcrypt, redirect_uris, scopes) |
+| `oauth_authorization_codes` | Codes one-shot (hash SHA256, TTL 30s, PKCE) |
+| `oauth_refresh_tokens` | Refresh tokens (hash SHA256, révocables, rotation) |
 
 > Pas de table pour access_tokens/id_tokens : ils sont **stateless** (signés JWKS RS256).
 
@@ -385,3 +440,23 @@ La liste exhaustive des endpoints OIDC (`/.well-known/openid-configuration`, `/o
 - **Toujours** vérifier que le `redirect_uri` correspond exactement (égalité stricte).
 - **Toujours** stocker le `client_secret` immédiatement après création (visible 1 fois).
 - Si 3+ échecs de debug sur une intégration OIDC : vérifier que l'app externe supporte bien OIDC 1.0 (Authorization Code Flow + PKCE S256).
+
+---
+
+## Références
+
+| Ressource | Chemin |
+|---|---|
+| Routes OIDC (HUB_base) | `HUB_base/hub/app/routes/oidc.py` |
+| Helpers OIDC | `HUB_base/hub/app/oidc_helpers.py` |
+| Modèles SQLAlchemy (OAuthClient, etc.) | `HUB_base/hub/app/models.py` (lignes 755+) |
+| Config OIDC (Settings) | `HUB_base/hub/app/config.py` (lignes 211-219) |
+| Migrations SQL (039-041) | `HUB_base/hub/migrations/039_add_oauth_clients.sql` etc. |
+| Cookie session OIDC | `HUB_base/hub/app/routes/auth.py:316-325` |
+| JWKS endpoint | `HUB_base/hub/app/routes/auth.py:768-813` |
+| docker-compose OIDC vars | `HUB_base/docker-compose.yml:86-94` |
+| Tests OIDC (47 tests) | `HUB_base/hub/tests/test_oidc_*.py` |
+| Design Vikunja (référence intégration) | `docs/superpowers/specs/2026-07-22-vikunja-hub-integration-design.md` |
+| Plan 2 déploiement Vikunja | `docs/superpowers/plans/2026-07-22-plan-2-vikunja-deploy.md` |
+| App Vikunja déployée (référence) | `APPS/vikunja-service/` |
+| Spécifications OIDC | https://openid.net/specs/openid-connect-core-1_0.html |
