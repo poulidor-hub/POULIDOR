@@ -2,6 +2,16 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.51.6] - 3 septembre 2026
+
+### 🧪 Pointeur HUBapp_TEMPLATE_base 2.20.3 → 2.20.4 — tests « démarrage depuis zéro » `update_env.py`
+
+- **Template 2.20.4** : suite portée à 10 cas — **8a** : `.env` inexistant → refus
+  propre (exit 1, aucune création, aucun backup — règle « fusion, jamais
+  régénération » verrouillée) ; **8b** : flow premier boot sanctionné
+  (`cp .env.example .env` → `update-env` complète `FRONTEND_HTTPS_PORT` et
+  `APP_SUBNET`, conserve les placeholders INITIALISE, zéro duplication).
+
 ## [0.51.5] - 3 septembre 2026
 
 ### ⚡ Doc POULIDOR resynchronisée + pointeur hubctl 0.7.3 (coffre retrouvé)
