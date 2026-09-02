@@ -9,8 +9,6 @@ dist/
 .worktrees/
 APPS/*
 !APPS/README.md
-APP_Workshop/*
-!APP_Workshop/README.md
 
 # hubctl (CLI de pilotage) — artefacts locaux jamais suivis
 hubctl_cli/.venv/

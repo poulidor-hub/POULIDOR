@@ -1,257 +1,287 @@
 ---
 name: app-workshop-mover
-description: Utiliser pour le cycle Workshop (mode DEV) — mettre une app en atelier (sandbox avec clone DB), déployer le code de l'atelier vers la prod via git pull (défaut, DB préservée), ou exceptionnellement écraser la DB prod (--copy-db, avancé CLI-only), et supprimer l'atelier. La prod n'est jamais supprimée pendant l'atelier (modèle sandbox + deploy). Utiliser quand on demande "mettre en atelier", "déployer l'atelier vers la prod", "shipper le code", "copier la BDD de l'atelier (--copy-db)", "supprimer l'atelier", ou pour implémenter ces actions dans hubctl.
+description: Utiliser pour le cycle Workshop (mode DEV) — mettre une app en atelier (sandbox avec clone DB), tester une montée de version (--maj), déployer en prod (--prod) ou supprimer l'atelier. L'atelier tourne via un 2e projet docker compose (-p X-ws) à côté de la prod, piloté par APPS/X/.workshop.env. La prod reste en place pendant l'atelier. Utiliser quand on demande "mettre en atelier", "mettre à jour l'atelier", "tester une montée de version", "déployer en prod", "supprimer l'atelier", "mode dev", ou pour implémenter ces actions dans hubctl.
 ---
 
 # app-workshop-mover
 
 ## Overview
 
-Le Workshop (mode DEV uniquement) suit un modèle **« sandbox + deploy »** :
-l'app de production `APPS/X` reste **en place** (stopée, jamais supprimée) pendant
-qu'un atelier `APP_Workshop/X-ws` sandbox tourne à côté avec un clone de sa DB.
+Le Workshop (mode DEV uniquement) fait tourner une **sandbox à côté de la prod**
+sans déplacer les fichiers. L'app de production `APPS/X` reste **en place**
+(jamais supprimée) pendant qu'un 2e projet docker compose nommé `X-ws`
+tourne avec un clone de sa DB.
 
-- **`[→] Mettre en atelier`** : clone la prod (code + DB) vers `X-ws`, stoppe la prod.
-- **`[←] Déployer vers la prod`** (défaut) : `git pull` code-only sur la prod, **DB intacte**.
-- **`[←] --copy-db`** (avancé, CLI-only) : écrase la DB prod par celle de l'atelier (destructif).
-- **`[×] Supprimer l'atelier`** : détruit la sandbox (`down -v` + backup), redémarre la prod.
+- **[→] Mettre en atelier** : `./hubctl atelier X` clone la DB de prod (`X-postgres-data`
+  → `X-ws-postgres-data`), alloue 2 ports libres (API `[10000-10499]`, frontend
+  `[5200-5699]`) + un subnet `/24` dédié (pool `198.51.100.0/24`..`198.51.100.10/24`),
+  écrit `APPS/X/.workshop.env`, démarre le projet `X-ws`.
+- **[↻] MAJ de l'atelier** : `./hubctl atelier X --maj [--ref R]` — teste une montée
+  de version sur le clone (git fetch + checkout + rebuild `-ws`, migrations
+  rejouées au boot).
+- **[⇧] Déployer en prod** : `./hubctl atelier X --prod` — déploie `origin/main`
+  validé en atelier, puis supprime l'atelier.
+- **[×] Supprimer l'atelier** : re-`./hubctl atelier X` (menu 4 choix) → choix 3 —
+  `docker compose -p X-ws down -v` + suppression de `.workshop.env`.
 
-**Règle d'or** : on ne touche JAMAIS à la DB de prod par défaut. La copie DB est
-l'exception explicite (`--copy-db`), jamais le cycle standard.
+**Règle d'or** : la prod `APPS/X` n'est jamais supprimée, et sa DB
+(`X-postgres-data`) jamais touchée. Le code de l'atelier vit dans le même dossier
+`APPS/X/` (working tree **partagé** avec la prod) : il n'est modifié que via
+`./hubctl atelier X --maj` (tracé `WS_REF`/`WS_COMMIT` + rollback git), jamais
+par des `git pull`/`git checkout` manuels. Seule la DB est clonée ; ports et
+subnet diffèrent.
 
 ## When to Use
 
-- "Mets exemple-app-2 en atelier pour travailler dessus" → `[→]`
-- "Déploie / shippe le code de l'atelier vers la prod" → `[←]` (git pull)
-- "Copie la BDD de l'atelier vers la prod" → `[←] --copy-db` (avancé)
-- "Supprime l'atelier X-ws" → `[×]`
-- Implémenter ces actions dans `hubctl` (`actions.py` + `menu.py`)
+- "Mets exemple-app-2 en atelier pour travailler dessus" → `./hubctl atelier exemple-app-2`
+- "Teste la montée en version d'exemple-app-2" → `./hubctl atelier exemple-app-2 --maj`
+- "Déploie exemple-app-2 en prod après validation atelier" → `./hubctl atelier exemple-app-2 --prod`
+- "Supprime l'atelier d'exemple-app-2" → re-`./hubctl atelier exemple-app-2` puis choix 3
+- Implémenter des évolutions du cycle atelier dans `hubctl` (`actions.py`)
 
 **Ne PAS utiliser pour :**
-- Créer une nouvelle app → `create_app.sh` / skill `create-hub-app`
-- Déployer une MAJ code-only en prod (hors atelier) → `action_update()`
-- Déploiement blue-green zéro-downtime → `action_deploy()`
-- Redémarrer une app → `make restart`
+- Créer une nouvelle app → `scripts/create_app.sh` / skill `create-hub-app`
+- Déployer une MAJ code-only en prod (hors atelier) → `./hubctl update`
+- Redémarrer une app → `make restart` dans `APPS/X`
+
+## État de l'implémentation (important)
+
+| Fonctionnalité | Statut | Commande réelle |
+|---|---|---|
+| Mettre en atelier (clone DB) | ✅ Implémenté | `./hubctl atelier X` |
+| MAJ de l'atelier (test montée de version) | ✅ Implémenté | `./hubctl atelier X --maj [--ref R]` |
+| Déploiement atelier → prod (`ship`) | ✅ Implémenté | `./hubctl atelier X --prod` |
+| Supprimer l'atelier | ✅ Implémenté (menu) | `./hubctl atelier X` → choix 3 |
+| Pilotage UI vue santé | ✅ Implémenté | vue Santé (admin) ou API `/api/apps/{slug}/workshop*` |
+| Copie DB atelier → prod (`--copy-db`) | ❌ Non implémenté (non voulu) | — |
+| Multi-slug (`work X,Y,Z`) | ❌ Non implémenté | un seul slug à la fois |
+| Blue-green deploy (`deploy`) | ❌ Non implémenté | — |
+
+> Les anciennes documentations (specs `docs/superpowers/specs/2026-07-*`, plans
+> historiques, anciens README) référencent les commandes `work`, `ship`,
+> `deploy`, multi-slug, `--copy-db` et blue-green. **Aucune de ces commandes
+> n'existe dans le parser actuel** (`hubctl_src/hubctl_cli/__main__.py`) :
+> le cycle complet est porté par le subparser `atelier` (création, `--maj`,
+> `--prod`, suppression via menu). Les specs sont conservées comme archives
+> de design.
 
 ## Prérequis (non négociables)
 
 | Prérequis | Vérification |
 |-----------|-------------|
-| Mode dev actif | `test -f HUB_base/.dev-mode` (ou via hubctl) |
 | Docker running | `docker info > /dev/null 2>&1` |
-| `[→]` : `APPS/X` existe, `APP_Workshop/X-ws` absent | Pas d'écrasement d'atelier existant |
-| `[←]` : `APPS/X` ET `APP_Workshop/X-ws` existent | La prod doit être en place pour un git pull |
+| `APPS/X` existe | `test -d APPS/X` |
+| Hub opérationnel | `./hubctl health` ou `curl http://localhost:8000/api/health` |
+| Pour supprimer : `APPS/X/.workshop.env` existe | `test -f APPS/X/.workshop.env` |
 
-**Violer un prérequis = tout arrêter.** Ne jamais contourner.
+## Action `[→]` Mettre en atelier
 
-## Action `[→]` : Mettre en atelier (`action_workshop_create`)
-
-```
-1. CHECK    .dev-mode + Docker ; refuser si X-ws existe déjà
-2. STOP     docker compose stop sur APPS/X   ← prod stoppée, dir + volume LAISSÉS EN PLACE
-3. COPY     APPS/X → APP_Workshop/X-ws        (shutil.copytree)
-4. VOLUME   X-postgres-data → X-ws-postgres-data  (clone DB, alpine cp)
-5. SLUG     APP_SLUG=X → X-ws dans l'.env atelier
-6. BUILD-UP atelier
-7. HEALTH   atelier (via _health_check, port_override=API_PORT atelier)
-             └ échec → down atelier + rmtree + RESTART prod (rollback)
-```
-
-**Pas de backup, pas de suppression de source.** La prod est stoppée mais conservée.
-
-## Action `[←]` Défaut : Déployer code-only (`action_prod_deploy`, `copy_db=False`)
+Implémentée par `_create_workshop` (`actions.py`), appelée via
+`action_atelier` quand `APPS/X/.workshop.env` est absent (et sans flags).
 
 ```
-1. CHECK    .dev-mode + Docker ; APPS/X et APP_Workshop/X-ws doivent exister
-2. GIT-HYGIÈNE (warnings non bloquants sur le dépôt atelier) :
-   - changements non commités → ⚠
-   - commits non poussés → ⚠ "git pull ne ramènera rien"
-3. CAPTURE prev_commit = git -C APPS/X rev-parse HEAD   (pour rollback)
-4. PULL     git -C APPS/X pull --recurse-submodules
-5. BUILD    make -C APPS/X build
-6. UP       make -C APPS/X up
-7. HEALTH   _health_check(X)  └ échec → _rollback(snapshot=None) : git reset --hard + build + up
+1. CHECK    Docker + Hub + APPS/X existe
+2. PORTS    Alloue API_PORT dans [10000-10499], FRONTEND_PORT dans [5200-5699]
+3. SUBNET   Alloue le 1er /24 libre du pool [198.51.100.0/24 .. 198.51.100.10/24]
+            (overlap vérifié contre les réseaux docker existants + ateliers)
+4. ENV      Écrit APPS/X/.workshop.env : APP_SLUG, API_PORT, FRONTEND_PORT,
+            FRONTEND_HTTPS_PORT, WS_REF, WS_COMMIT, APP_SUBNET (7 clés)
+5. VOLUME   docker volume create X-ws-postgres-data
+            + alpine cp -a /from/. /to/ depuis X-postgres-data
+6. BUILD-UP docker compose -p X-ws -f APPS/X/docker-compose.yml build (timeout 600 s)
+            + up -d — .workshop.env injecté dans l'environnement,
+            APP_VERSION injectée depuis APPS/X/VERSION
+7. HEALTH   curl http://localhost:{API_PORT_atelier}/api/health (timeout 30 s)
+            └ échec → down atelier + rm .workshop.env + rm volume (rollback)
 ```
 
-**La DB prod (volume `X-postgres-data`) n'est JAMAIS touchée.** Atelier conservé.
+La prod `APPS/X` **n'est pas stoppée** : grâce au subnet dédié (`APP_SUBNET`),
+prod et atelier **cohabitent** sur les apps du template courant (subnet épinglé
+dans leur compose). `WS_REF`/`WS_COMMIT` tracent le code testé ; si `APPS/X`
+n'a pas de remote git, l'atelier est créé avec `WS_REF=n/a` (`--maj`/`--prod`
+seront refusés — recréer l'atelier après mise en place du remote).
 
-## Action `[←] --copy-db` : Écraser la DB prod (avancé, CLI-only)
+## Action `[×]` Supprimer l'atelier
 
-⚠️ Destructif. **Jamais exposé dans le menu TUI** — uniquement `hubctl ship X --copy-db`.
-
-```
-1. CONFIRM   input() : doit taper le slug exact (gate forte)
-2. STOP       prod APPS/X
-3. BACKUP     volume X-postgres-data → alpine tar czf (filet de sécurité)
-              └ si rc != 0 : backup_path=None (rollback skippera la restore)
-4. OVERWRITE  docker volume rm X-postgres-data + create + alpine cp (X-ws → X)
-5. PULL       git -C APPS/X pull (migrations cohérentes avec la DB migrée)
-6. BUILD-UP   prod
-7. HEALTH     └ échec → alpine restore volume depuis backup (mount SYMÉTRIQUE /data, -C /)
-                 + git reset (rollback lourd)
-```
-
-**Symétrie backup/restore** : le backup monte `dst_vol:/data` et archive `/data`
-(entrées `data/...`) ; la restore monte `dst_vol:/data` et extrait `-C /` pour que
-`data/...` atterrisse **dans le volume**. Un montage `/to` casserait la restore.
-
-## Action `[×]` : Supprimer l'atelier (`action_workshop_remove`)
+Implémentée par `_remove_workshop` (`actions.py`), atteinte via le **menu 4 choix**
+de `action_atelier` (choix 3) quand `APPS/X/.workshop.env` existe — ou appelée
+automatiquement par `_ship_workshop` à la fin d'un `--prod` réussi.
 
 ```
-1. CONFIRM   widgets.confirm(default=False)
-2. DOWN-V    docker compose down -v sur APP_Workshop/X-ws   ← SEUL usage légitime de -v
-3. BACKUP    tar.gz X-ws → hubctl_cli/backups/
-4. TRASH     shutil.move X-ws → hubctl_cli/_trash/
-5. RESTART   prod APPS/X (make up) si elle existe ; sinon warning
+1. MENU     ./hubctl atelier X → 4 choix : 1) mettre à jour  2) déployer en prod
+            3) supprimer  4) annuler — précédé de l'état :
+            « teste WS_REF @ WS_COMMIT[:8] (code VERSION) »
+2. DOWN-V   docker compose -p X-ws down -v   ← SEUL usage légitime de -v dans le cycle
+3. UNLINK   rm APPS/X/.workshop.env
 ```
 
-C'est le **seul** endroit du cycle où `down -v` est permis (destruction explicite
-de la sandbox). Partout ailleurs, `down -v` est INTERDIT.
+C'est le **seul** endroit du cycle où `down -v` est permis (destruction
+explicite du volume cloné de la sandbox). Partout ailleurs, `down -v` est
+INTERDIT ( risquerait de destroy la DB prod `X-postgres-data`).
+
+## Cycle de test de mise à jour (implémenté)
+
+```bash
+./hubctl atelier X                # 1. créer l'atelier (clone DB + 2e instance -ws, build 600 s)
+./hubctl atelier X --maj          # 2. tester origin/main sur le clone (migrations rejouées, build 600 s)
+./hubctl atelier X --maj --ref feat/xyz   # (option) tester une branche candidate avant merge
+# …validation manuelle de l'app sur les ports atelier…
+./hubctl atelier X --prod         # 3. déployer origin/main validé + supprimer l'atelier
+
+./hubctl --dry-run atelier X --maj   # (option) simuler — --dry-run est un flag GLOBAL,
+                                      # il se place AVANT le subcommand (la forme
+                                      # « atelier X --dry-run » est rejetée par argparse)
+```
+
+- `--maj` exige un working tree propre (`git status` vide, pas de commits non poussés).
+- `--prod` déploie UNIQUEMENT `origin/main` : refuse si l'atelier teste un autre ref
+  (mergez via release-on-main d'abord), ou si main a avancé depuis le test
+  (relancez `--maj` et revalidez).
+- Échec `--maj` : rollback git (l'atelier reste sur l'ancien commit) ; la DB du clone
+  peut être migrée → recréer l'atelier pour repartir du clone propre.
+- Échec `--prod` : rollback prod, **atelier conservé** pour diagnostic.
+- Interruption (Ctrl-C) : rollback best-effort ; récupération manuelle via `git reflog`
+  et `WS_COMMIT` dans `.workshop.env`.
+
+> **DB préservée** : ce cycle ne touche jamais au volume `X-postgres-data` de prod.
+> Les migrations sont rejouées sur le clone au boot (alembic via `make up`) ;
+> c'est `--prod` qui redémarre ensuite la prod sur le nouveau code.
+
+> **Garde grossière** : le health check du ship (`/api/health`) ne vérifie pas la DB
+> sur le template courant (répond « healthy » même DB down). La validation manuelle
+> sur l'atelier reste donc la vraie porte de qualité avant `--prod`.
 
 ## Slug renaming
 
-Le slug est dans le `.env` (`APP_SLUG`). Pour l'atelier, `X` → `X-ws` :
+Le slug atelier est `{slug}-ws`. Il est piloté par `APP_SLUG` dans `.workshop.env`
+(et NON dans `.env` — `.env` reste `{slug}` pour la prod). Le `-ws` pilote :
+- `container_name` (nginx, db, api ont `-ws` en suffixe)
+- nom du volume (`X-ws-postgres-data`)
+- entrypoint du conteneur DB
 
-```bash
-# Via hubctl (recommandé) — env_manager.write_env gère l'upsert atomique
-# Manuel :
-sed -i 's/^APP_SLUG=.*/APP_SLUG=X-ws/' APP_Workshop/X-ws/.env
-```
+`APP_SUBNET` (7e clé, ajoutée par cette release) épingle le subnet `/24` du
+réseau du projet `-ws` : c'est ce qui permet à prod et atelier de cohabiter sur
+les apps du template courant. Les ateliers créés avant cette release peuvent ne
+pas avoir cette clé — recréer l'atelier pour en bénéficier.
 
-Le slug pilote `container_name`, le nom du volume (`{slug}-postgres-data`), et le
-network dans `docker-compose.yml` (qui référence `${APP_SLUG}`). Le `[←]` code-only
-ne change **pas** le slug de la prod (il reste `X`).
+## Pilotage UI (HUB_base ≥ 3.38.0)
 
-## Multi-app & dépendances
+Les 4 opérations du cycle (créer / mettre à jour / déployer / supprimer) sont
+pilotables depuis la vue **« Santé des Applications »** du HUB (admin), en plus
+de `hubctl` :
 
-Le workshop supporte la mise en atelier de **plusieurs apps en une passe**, avec
-suggestions automatiques basées sur les dépendances déclarées (`depends.yaml`).
-Cf. skill `app-dependencies` (côté template) pour la création des fichiers.
+| Voie | Usage |
+|------|-------|
+| UI HUB (admin) | Bloc atelier des cartes santé — endpoints `GET\|POST\|DELETE /api/apps/{slug}/workshop[...]` |
+| CLI `hubctl` | `./hubctl atelier X` — reste **l'outil de secours** quand le HUB est down |
 
-### Trois modes de mise en atelier
+- **Exécution** : par `hub-api` (`hub/app/workshop_service.py`), sur le pattern
+  `deploy_service` : **une opération atelier à la fois** (garde-fou global, 409),
+  suivi pas-à-pas en DB (table `workshop_operations`), purge de l'historique
+  après 30 j, opérations en vol annulées au shutdown de l'API.
+- **Dualité UI/CLI** : `APPS/X/.workshop.env` (7 clés) est le **contrat partagé**
+  entre hubctl et `workshop_service` — figé par des contract tests des deux côtés.
+- **Garde-fous identiques à hubctl v0.6.1** : ship = `origin/main` uniquement
+  (refusé si l'atelier teste autre chose), commit testé exigé, **atelier conservé**
+  si le déploiement prod échoue.
+- **Warning mtime** : si `.workshop.env` a été modifié il y a **moins de 60 s**,
+  l'opération journalise un warning (« hubctl a peut-être agi récemment »).
+- **PAS de lockfile inter-outils en v1** : ne jamais lancer hubctl et l'UI
+  simultanément sur la même app.
 
-| Option TUI | Comportement |
-|---|---|
-| `[→] X` | Met X en atelier. Si X a des deps non présentes en atelier, propose de les emmener (menu `select` : Oui / Non). |
-| `[→→] Multi-sélection` | `widgets.multiselect` (checkbox). Calcule l'union des `resolve_group` et propose le groupe final. |
-| `[→+] Ajouter à l'atelier` | Ajoute une app à un atelier existant sans toucher au reste. Visible si atelier non vide. |
+## Configurer le dépôt git d'une app (HUB_base ≥ 3.39.0)
 
-### CLI multi-slug
+Pour une app **sans remote git** (avec ou sans atelier) : bouton **« Configurer
+le dépôt git »** dans la vue Santé (admin), ou `POST /api/apps/{slug}/git-config`.
 
-```bash
-./hubctl work X,Y,Z          # met X, Y, Z en atelier (un par un, clone DB)
-./hubctl work "alpha , beta" # whitespace stripped automatiquement
-```
-
-Le split sur virgule se fait dans `action_work`. Chaque slug déclenche un
-`action_workshop_create` indépendant (avec son propre rollback sur échec).
-
-### Logique de suggestion (`resolve_group`)
-
-`hubctl_cli/dependencies.py::resolve_group(slug)` fait un DFS transitif :
-si `exemple-apps` dépend de `exemple-app-2` qui dépend de `HUBVault`, alors
-`resolve_group("exemple-apps")` → `{exemple-apps, exemple-app-2, HUBVault}`.
-
-Le menu propose d'emmener tout le groupe. Si l'utilisateur refuse, un warning
-clair s'affiche :
-
-> ⚠ exemple-app sera en atelier sans exemple-app-2. Les appels M2M pointeront vers la prod.
-
-### Offline-first
-
-La lecture disque (`build_graph()`) ne dépend **ni du hub ni de Docker**. Le menu
-workshop peut proposer des groupes même si le hub est down ou les apps stoppées.
-Le graphe hub (`app_dependencies`) sert uniquement au dashboard prod (via
-`GET /api/apps/dependencies`) et à l'affichage de `last_sync_at`.
+- **Effet** : enregistre l'URL en DB, configure `origin` du repo local
+  `APPS/X/`, puis **teste immédiatement** la connexion (`ls-remote`) — verdict
+  OK / échec (cause git conservée) affiché dans la modale.
+- **HTTPS uniquement** : les URLs SSH sont refusées (400).
+- **Repos privés** : PAT GitHub **déjà enregistré** requis (`github_token` en
+  DB settings — jamais affiché/rappelé par l'API). Sans PAT : verdict d'échec
+  auth sur le test.
+- **Form admin** : l'enregistrement d'une app y synchronise aussi le remote
+  local **best-effort** (`git_sync` dans la réponse — warning non bloquant si
+  le repo local est absent ou cassé).
 
 ## Quick Reference
 
 | Ressource | Emplacement |
 |-----------|------------|
-| Apps production | `APPS/` |
-| Apps workshop | `APP_Workshop/` |
-| Slug workshop | `{slug}-ws` |
-| Volume pattern | `{slug}-postgres-data` |
-| Marqueur dev-mode | `HUB_base/.dev-mode` |
-| Backup dir | `hubctl_cli/backups/` |
-| Corbeille | `hubctl_cli/_trash/` |
+| Code prod | `APPS/X/` |
+| Override atelier | `APPS/X/.workshop.env` (généré par `hubctl atelier`) |
+| Projet docker compose atelier | `X-ws` (via `-p X-ws`) |
+| Slug atelier | `{slug}-ws` |
+| Subnet atelier | 1er `/24` libre du pool `198.51.100.0/24`..`198.51.100.10/24` (clé `APP_SUBNET`, overlap-check) |
+| Volume DB prod | `X-postgres-data` |
+| Volume DB atelier | `X-ws-postgres-data` |
+| Ports atelier | API `[10000-10499]`, frontend `[5200-5699]` |
+| Ref testé en atelier | `WS_REF` + `WS_COMMIT` dans `.workshop.env` (lignes d'état du menu et garde-fous `--prod`) |
+| Marqueur atelier actif | `APPS/X/.workshop.env` existe |
 | Health endpoint | `http://localhost:{API_PORT}/api/health` |
-| Fichier deps par app | `APPS/X/depends.yaml` |
-| Module graphe hubctl | `hubctl_cli/dependencies.py` |
-| CLI multi-slug | `./hubctl work X,Y,Z` |
+| Code hubctl | `hubctl_src/hubctl_cli/actions.py::_create_workshop`, `_update_workshop`, `_ship_workshop`, `_remove_workshop`, `action_atelier` |
 
-### Commandes hubctl
+### Variables `.workshop.env` (7 clés)
+
+| Clé | Rôle |
+|-----|------|
+| `APP_SLUG` | `{slug}-ws` — pilote le projet compose, les conteneurs et le volume |
+| `API_PORT` / `FRONTEND_PORT` / `FRONTEND_HTTPS_PORT` | ports atelier alloués dans les plages dédiées |
+| `WS_REF` / `WS_COMMIT` | ref + commit du code testé (tracing du cycle `--maj`/`--prod`) ; `n/a` si `APPS/X` n'a pas de remote git |
+| `APP_SUBNET` | subnet `/24` dédié du réseau `-ws` (pool `10.210.x`) — écrite si un subnet libre est trouvé (repli subnet prod + warning si pool épuisé) ; recréer un atelier legacy pour l'obtenir |
+
+### Commandes
 
 ```bash
-./hubctl work X              # [→] mettre X en atelier (clone DB)
-./hubctl work X,Y,Z          # multi-slug : met X, Y, Z en atelier en une passe
-./hubctl ship X              # [←] déployer code-only vers la prod (git pull, DB préservée) — DÉFAUT
-./hubctl ship X --copy-db    # [←] avancé : écraser la DB prod (destructif, gate input)
-# [×] Supprimer l'atelier : via menu TUI (touch 6 en mode dev)
-# --dry-run global supporté sur work/ship
+./hubctl atelier X                  # [→] créer l'atelier (si .workshop.env absent)
+                                    # menu 4 choix si présent : maj / prod / supprimer / annuler
+./hubctl atelier X --maj [--ref R]  # MAJ atelier : git fetch + checkout origin/main (ou R) + rebuild -ws
+./hubctl atelier X --prod           # déployer origin/main validé en prod + supprimer l'atelier
+./hubctl --dry-run atelier X --maj  # simuler — --dry-run est GLOBAL (avant le subcommand)
 ```
 
-### Commandes Docker brutes (référence)
+### Commandes Docker brutes (debug)
 
 ```bash
-# Check dev-mode
-test -f HUB_base/.dev-mode && echo "OK: dev mode" || echo "ERREUR: mode prod!"
+# Lister les ateliers actifs
+for f in APPS/*/.workshop.env; do echo "→ $(dirname "$f")"; done
 
-# Stop prod sans détruire (préserve volume + container pour restart rapide)
-docker compose -f APPS/X/docker-compose.yml stop
+# Voir les conteneurs atelier
+docker ps --filter "name=-ws" --format "{{.Names}}\t{{.Status}}"
 
-# Cloner un volume (APPS → atelier)
+# Stop un atelier sans le supprimer
+docker compose -p X-ws -f APPS/X/docker-compose.yml stop
+
+# Cloner un volume manuellement (debug)
 docker volume create X-ws-postgres-data
 docker run --rm -v X-postgres-data:/from:ro -v X-ws-postgres-data:/to alpine cp -a /from/. /to/
-
-# Backup volume en tar (pour --copy-db)
-docker run --rm -v X-postgres-data:/data:ro alpine tar czf - /data > backup.tar.gz
-
-# Restore volume depuis tar (SYMÉTRIQUE : mount /data, -C /)
-docker volume rm X-postgres-data && docker volume create X-postgres-data
-docker run --rm -i -v X-postgres-data:/data alpine tar xzf - -C / < backup.tar.gz
 ```
 
-## Guide hubctl (implémentation)
+## Implémentation dans hubctl
 
-### Trois fonctions dans `actions.py`
+### Point d'entrée
 
+`hubctl_src/hubctl_cli/__main__.py:52` déclare le subparser :
 ```python
-def action_workshop_create(console, app_name: str, *, dry_run: bool = False) -> None:
-    """[→] APPS/X → APP_Workshop/X-ws (clone DB). Prod stoppée mais laissée en place."""
-
-def action_prod_deploy(console, slug: str, *, copy_db: bool = False, dry_run: bool = False) -> None:
-    """[←] Déployer l'atelier X-ws vers la prod APPS/X.
-    copy_db=False (défaut) : git pull code-only, DB préservée.
-    copy_db=True          : écrase la DB prod (destructif, délégué à action_prod_deploy_copy_db).
-    """
-    # `slug` est le slug BASE (sans -ws).
-
-def action_prod_deploy_copy_db(con, slug, prod_dir, ws_dir, compose_file, *, dry_run):
-    """Chemin --copy-db (interne) : backup + overwrite volume + git pull + rollback restore."""
-
-def action_workshop_remove(console, app_name: str, *, dry_run: bool = False) -> None:
-    """[×] Supprimer l'atelier X-ws (down -v + backup + trash + restart prod)."""
-    # `app_name` est le slug ATELIER (avec -ws).
+atelier_parser = sub.add_parser("atelier", help="Creer, mettre a jour, deployer en prod ou supprimer l'atelier d'une app")
+atelier_parser.add_argument("app", help="Slug de l'app")
+# groupe mutuellement exclusif : --maj / --prod ; + --ref REF (avec --maj seulement)
+# --dry-run est un flag GLOBAL du parser principal (pas du subparser atelier)
 ```
 
-### Wrappers CLI (`actions.py`)
+### Fonctions helpers dans `actions.py`
 
-- `action_work(console, slug, *, dry_run=False)` → `action_workshop_create`
-- `action_ship(console, slug, *, copy_db=False, dry_run=False)` → `action_prod_deploy(copy_db=...)`
-  (la gate `input()` est DANS `action_prod_deploy_copy_db`, pas dans `action_ship`)
-
-### Menu TUI (`menu.py::_workshop_menu`)
-
-```
-── APP_Workshop/ (développement) ──
-  [←] X-ws   → déployer vers la prod (git pull)     # action_prod_deploy(base slug)
-  [×] X-ws   → supprimer l'atelier                  # action_workshop_remove(ws slug)
-── APPS/ (production) ──
-  [→] Y      → mettre en atelier        (si Y-ws absent)
-  ⏸  X       (en atelier — prod stoppée) (si X-ws existe, pas de [→])
-ℹ Copie DB (avancé) : hubctl ship <slug> --copy-db
-```
+- `_ws_project(app_slug) -> str` → `"X-ws"`
+- `_ws_env_path(app_slug) -> Path` → `APPS/X/.workshop.env`
+- `_ws_exists(app_slug) -> bool`, `_ws_read_env`, `_ws_compose_env`
+- Allocation : `_ws_used_ports()`, `_ws_used_subnets()`, `_find_free_subnet()` (pool `10.210.x.0/24`)
+- Git (cycle maj/ship) : `_ws_git_state`, `_ws_resolve_ref`, `_ws_git_restore`
+- `_create_workshop(console, app_slug, *, dry_run=False) -> bool` (ligne ~2115)
+- `_update_workshop(console, app_slug, ref="main", *, dry_run=False) -> bool` (ligne ~1852)
+- `_ship_workshop(console, app_slug, *, dry_run=False) -> bool` (ligne ~1996)
+- `_remove_workshop(console, app_slug, *, dry_run=False) -> bool` (ligne ~2297)
+- `action_atelier(console, app_slug, *, dry_run=False, maj=False, prod=False, ref=None) -> None` (ligne ~2321) : dispatch flags → création → menu 4 choix
 
 ### Réutilisation de l'existant
 
@@ -259,32 +289,25 @@ def action_workshop_remove(console, app_name: str, *, dry_run: bool = False) -> 
 |--------|--------------|
 | Shell + dry-run | `utils.run_shell()` |
 | Health check | `_health_check(target, console, timeout, port_override)` |
-| Rollback code-only | `_rollback(target, path, prev_commit, snapshot=None, ...)` |
-| Capture HEAD | `_git_previous_commit(path, console)` |
-| Liste apps | `hub_state.get_apps()` / `get_workshop_apps()` |
 | `.env` read/write | `env_manager.read_env()` / `write_env()` |
-| Confirmation TUI | `widgets.confirm()` / `widgets.confirm_by_typing()` |
-| Confirmation CLI | `input()` (builtins, pas de canvas) |
+| Liste apps | `hub_state.get_apps()` / `get_workshop_apps()` |
+| Détection mode dev | `hub_state.auto_detect_mode()` (dev si au moins 1 `.workshop.env`) |
+| Confirmation TUI | `widgets.confirm()` |
 
 ## Common Mistakes
 
 | Erreur | Conséquence | Correction |
 |--------|-------------|------------|
-| `docker compose down -v` hors de `action_workshop_remove` | **Destruction irréversible des volumes** | `-v` UNIQUEMENT dans `[×]` ; partout ailleurs `stop` ou `down` sans `-v` |
-| `[←]` par défaut qui touche à la DB | Écrasement accidentel de la DB prod | Le défaut est code-only (`git pull`) ; `--copy-db` est explicite |
-| Restore volume `--copy-db` avec mount asymétrique (`/to` vs backup `/data`) | Restore silencieuse → prod garde la DB écrasée | Mount SYMÉTRIQUE `dst_vol:/data` + `-C /` |
-| `[→]` sans stopper la prod d'abord | DB/source en cours d'écriture, clone incohérent | `stop` avant `copytree` + clone volume |
-| Oublier le renommage du slug à l'atelier | Collision `container_name`, deux apps ne tournent pas | `APP_SLUG=X-ws` systématique |
-| `[←]` alors que l'atelier a des commits non poussés | `git pull` ne ramène rien, dev confus | Warnings git-hygiène ; le dev pousse d'abord |
-| Faire l'opération en mode prod | Casser la production | Check `.dev-mode` étape 1, toujours |
+| `docker compose down -v` sur la prod | **Destruction irréversible de la DB prod** | `-v` UNIQUEMENT via `./hubctl atelier X` (menu → supprimer) ; jamais sur le projet default |
+| Éditer `.env` au lieu de `.workshop.env` pour l'atelier | L'atelier écrase la config prod | L'atelier lit `.env` (commun) + override par `.workshop.env` (spécifique atelier) |
+| Lancer `git pull`/`git checkout` manuels dans `APPS/X` pendant que l'atelier tourne | Code modifié à chaud pour l'atelier ET la prod (working tree partagé), sans tracing | Utiliser `./hubctl atelier X --maj` (hygiène + rollback + tracing `WS_REF`/`WS_COMMIT`) |
+| Confondre "atelier actif" et "mode dev" | Le mode dev est global au parc, l'atelier est par-app | Mode dev = `auto_detect_mode()` retourne "dev" si ≥1 atelier actif |
+| Supprimer `APPS/X/.workshop.env` à la main | Atelier zombie (conteneurs tournent sans override) | Toujours passer par `./hubctl atelier X` pour cleanup propre |
 
 ## Red Flags — STOP et corriger
 
-- "Le `[←]` copie la DB par défaut, non ?" → **Faux.** Le défaut est `git pull` code-only. `--copy-db` est explicite.
-- "`down -v` pour être sûr de nettoyer" → **Faux.** Sauf dans `action_workshop_remove`, c'est une destruction de volume.
-- "On supprime la prod à l'atelier, comme avant" → **Faux.** La prod reste en place (stopée). C'est le modèle sandbox + deploy.
-- "La restore `--copy-db`, je monte n'importe comment" → **Faux.** Montage symétrique obligatoire (cf. section `[←] --copy-db`).
-- "Pas besoin de git-hygiène, je pousse toujours" → **Faux.** Les warnings existent justement pour les oublis.
-- "Le mode dev c'est optionnel" → **Faux.** Obligatoire ; proposé à l'activation mais refus = abort.
-
-**Tous ces drapeaux : revenir à l'action correspondante et suivre l'ordre strict.**
+- "Le déploiement atelier→prod se fait via la commande `ship`" → **Faux.** `ship` n'existe pas (archive de spec). Le déploiement implémenté est `./hubctl atelier X --prod` (déploie `origin/main` validé puis supprime l'atelier ; rollback prod avec atelier conservé en cas d'échec).
+- "L'atelier copie la DB prod par défaut" → **Faux.** L'atelier clone la DB dans un nouveau volume `X-ws-postgres-data`. La prod `X-postgres-data` n'est jamais touchée.
+- "`down -v` pour être sûr de nettoyer" → **Faux.** Sauf dans `_remove_workshop`, c'est une destruction de volume. Sur la prod = perte de DB.
+- "On peut lancer plusieurs ateliers en une commande (`work X,Y,Z`)" → **Faux.** Un slug à la fois. Le multi-slug est documenté dans les specs historiques mais pas implémenté.
+- "L'atelier déplace les fichiers vers un dossier dédié (schéma legacy)" → **Faux.** Schéma legacy abandonné. L'atelier vit dans `APPS/X/` avec override `.workshop.env`.

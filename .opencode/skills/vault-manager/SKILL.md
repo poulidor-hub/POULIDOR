@@ -39,8 +39,11 @@ VaultManager (vault_manager.py)
 |---|---|
 | `"hub"` | `HUB_base/.env` |
 | `"app:<nom>"` | `APPS/<nom>/.env` |
-| `"ws:<nom>"` | `APP_Workshop/<nom>/.env` |
+| `"ws:<nom>"` | `APPS/<nom>/.workshop.env` (config atelier — slug/ports/subnet ; pas de secrets) |
 | `"__files__"` (base64) | `HUB_base/secrets/*` (clés JWT/backup, SA) |
+
+> Entrées legacy `ws:` issues de l'ancien schéma atelier (dossier dédié) : conservées dans
+> le coffre mais **plus restaurées** par `export_recovery` (cf. `vault_manager.py`).
 
 ## Règles de cycle (NON-négociables)
 

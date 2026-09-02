@@ -63,7 +63,7 @@ Ce que fait le script (`scripts/create_app.sh`, 67 lignes) :
 - Si le submodule n'est pas initialisé, `create_app.sh` échoue avec un message clair — ne pas contourner.
 - Le dossier `APPS/` doit exister.
 
-**Mode atelier (dev)** : si `.dev-mode` existe dans `HUB_base/`, l'app est destinée au développement. Copier vers `APP_Workshop/<slug>-ws` plutôt que `APPS/<slug>`, et suffixer le slug avec `-ws`. Voir aussi le skill `app-workshop-mover` pour basculer un workshop existant vers la prod.
+**Mode atelier (dev)** : une app se crée toujours dans `APPS/<slug>`. Le bac à sable est un cycle séparé, créé après coup : `./hubctl atelier <slug>` (ou la vue Santé du Hub) démarre un 2e projet compose `<slug>-ws` avec un clone de la DB, piloté par `APPS/<slug>/.workshop.env`. Voir le skill `app-workshop-mover`.
 
 ## Phase C — INITIALISE
 
@@ -118,7 +118,7 @@ make dev     # docker compose -f docker-compose.yml -f docker-compose.dev.yml up
              # Rebuild + hot-reload + HMR, logs foreground
 make up      # docker compose up -d (mode prod, pas de hot-reload)
 ```
-Choix : `make dev` si `.dev-mode` ou workshop, `make up` sinon.
+Choix : `make dev` pour développer avec hot-reload, `make up` pour un démarrage en mode prod. (Le bac à sable atelier est un cycle séparé : `./hubctl atelier <slug>`, cf. skill `app-workshop-mover`.)
 
 **Étape D.3 — Healthcheck**
 ```bash

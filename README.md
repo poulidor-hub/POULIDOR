@@ -22,12 +22,11 @@ Plateforme de développement et d'exécution pour applications métier, avec **S
 
 ```
 POULIDOR/
-├── hubctl                    ← CLI de pilotage (TUI + CLI non-interactif)
-├── hubctl_cli/               ← Code métier (menu, coffre, blue-green, park-export)
+├── hubctl                    ← CLI de pilotage (TUI + CLI non-interactif, symlink → hubctl_src)
+├── hubctl_src/               ← Code métier hubctl (menu, coffre, atelier, export/restore)
 ├── HUB_base/                 ← Hub SSO (auth, registry, messaging, backups)
 ├── HUBapp_TEMPLATE_base/     ← Template canonique pour toute nouvelle app
 ├── APPS/                     ← Applications en production
-├── APP_Workshop/             ← Applications en développement (mode bac à sable)
 └── exports/                  ← Archives park-export
 ```
 
@@ -53,9 +52,8 @@ Squelette standard pour toute nouvelle app du parc :
 ### Pilotage (`hubctl`)
 Outil unique pour administrer tout le parc :
 - **TUI interactif** : dashboard avec statut des apps, menus de configuration, coffre de secrets
-- **CLI non-interactive** : `work`, `ship`, `update`, `start`/`stop`, `deploy`, `logs`, `health`, `db-shell`, `vpn`, `status`, `park-export`, `park-restore`, `debug`, `init`
-- **Blue-green deploy** : déploiement zéro downtime avec validation humaine (`--validate`)
-- **Atelier de développement** : bac à sable parallèle par app (clone DB prod à la demande)
+- **CLI non-interactive** : `start`, `stop`, `update`, `atelier`, `init`, `export`, `restore`, `pra-restore`, `debug`, `vpn`, `vault`, `seed`
+- **Atelier de développement** : bac à sable par app (`./hubctl atelier <slug>`) — 2e projet compose `<slug>-ws` avec clone de la DB prod, piloté par `APPS/<slug>/.workshop.env` ; `--maj` teste une montée de version, `--prod` déploie ce qui a été validé
 - **Coffre chiffré** : sauvegarde des secrets du parc (Fernet + scrypt), export de recovery
 - **Park export/restore** : archivage chiffré du parc complet pour disaster recovery
 

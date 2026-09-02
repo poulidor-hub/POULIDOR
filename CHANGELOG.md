@@ -2,6 +2,38 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.51.1] - 2 septembre 2026
+
+### 🔧 Alignement doc/skills sur le modèle atelier implémenté (`hubctl atelier`)
+
+La vague v0.51.0 avait introduit une régression documentaire : skills et README décrivaient
+un modèle atelier **jamais implémenté** (copie physique `APP_Workshop/<slug>-ws`,
+commandes `work`/`ship`/`deploy`, `--copy-db`, multi-slug, marqueur `.dev-mode`,
+déploiement blue-green). Alignement de tous les documents sur le code réel
+(`hubctl_src` v0.7.2, `actions.py` + `__main__.py`) et sur le contrat partagé avec le
+Hub (`workshop_service`, `.workshop.env` 7 clés) :
+
+- **Skill `app-workshop-mover`** : restauration de la version exacte — cycle
+  `./hubctl atelier X` / `--maj [--ref R]` / `--prod` / suppression via menu, projet
+  compose `-p X-ws`, override `APPS/X/.workshop.env`, working tree partagé (jamais de
+  `git pull` manuel), Red Flags anti-`work`/`ship`/`--copy-db` rétablis.
+- **Skill `create-hub-app`** : suppression du mode « copie vers `APP_Workshop/<slug>-ws` »
+  et du marqueur fictif `.dev-mode` — une app se crée toujours dans `APPS/<slug>` ;
+  l'atelier est un cycle séparé (`./hubctl atelier`). Étape D.2 rewordée (`make dev` =
+  choix hot-reload, pas un marqueur).
+- **Skill `vault-manager`** : entrée coffre `ws:<nom>` → `APPS/<nom>/.workshop.env`
+  (aligné sur `_target_path` de `vault_manager.py`) ; note sur les entrées legacy
+  `ws:` conservées mais plus restaurées par `export_recovery`.
+- **`README.md`** : liste de commandes remplacée par les 12 sous-commandes réelles
+  (`start stop update atelier init export restore pra-restore debug vpn vault seed`) ;
+  suppression du blue-green fictif ; arborescence `hubctl_src/` (le symlink racine
+  `hubctl` pointe vers `hubctl_src/hubctl`), retrait d'`APP_Workshop/`.
+- **`docs/guide-parc-poulidor.md`** : retrait du terme « blue-green » (sections 3.4/5.2
+  et entrée de glossaire) — l'atelier est une sandbox de test, pas une bascule de trafic.
+  Les `make db-shell` (cible Makefile du template) restent valides.
+- **`APP_Workshop/`** : dossier vide (héritage du schéma legacy) supprimé du disque,
+  règles `.gitignore` associées retirées.
+
 ## [0.51.0] - 2 septembre 2026
 
 ### ⚙️ Restructuration repo + resynchronisation doc & skills + fix MCP z.ai
