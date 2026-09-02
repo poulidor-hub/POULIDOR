@@ -75,7 +75,7 @@ sudo ./install.sh
 #    Les credentials admin s'affichent dans le récapitulatif final.
 
 # 4. Créer une nouvelle application
-#    Via le TUI : ./hubctl → Apps → Ajouter
+#    Fichier seed YAML : ./hubctl seed apps.yaml  (ou scripts/create_app.sh)
 #    Ou via l'IA : « Crée une app mon-outil dans POULIDOR »
 ```
 
@@ -95,9 +95,14 @@ Voir `HUB_base/docs/GUIDE_INSTALLATION.md` pour l'installation manuelle détaill
 
 | Document | Contenu |
 |----------|---------|
+| `docs/guide-hub/presentation.html` | **Présentation du HUB** — tour d'horizon de toutes les fonctionnalités |
 | `docs/guide-hub/hubctl.html` | Guide complet de `hubctl` (TUI + CLI) |
 | `docs/guide-hub/make.html` | Référence des commandes `make` par app |
 | `docs/guide-hub/architecture.html` | Architecture du parc |
+| `docs/guide-parc-poulidor.md` | Référence complète du parc (instantané daté) |
+| `docs/guide-developpement-template.md` | Développer une app (conventions, tests, release) |
+| `docs/debug-agent.md` | Agent de debug IA |
+| `docs/visualDev_guide.html` | Guide visuel (architecture, cycle de vie, atelier, PRA) |
 | `docs/canvas-poulidor.html` | Présentation visuelle (canvas client) |
 | `HUB_base/docs/GUIDE_ADMIN.md` | Guide administrateur Hub |
 | `HUB_base/docs/ARCHITECTURE.md` | Architecture interne du Hub |
@@ -113,9 +118,11 @@ Le parc intègre des **skills IA** (`.opencode/skills/`) pour le développement 
 | Skill | Usage |
 |-------|-------|
 | `release-on-main` | Versionnage et CHANGELOG avant push sur `main` |
-| `vault-manager` | Gestion du coffre de secrets chiffré |
 | `create-hub-app` | Création/scaffold d'une nouvelle app de A à Z |
-| `app-workshop-mover` | Mise en atelier / déploiement d'une app |
+| `app-workshop-mover` | Cycle atelier : mise en atelier, test, déploiement en prod |
+| `migrate-app-template` | Montée de version d'une app vers le template (fusion `.env` incluse) |
+| `vault-manager` | Gestion du coffre de secrets chiffré |
+| `hub-oidc-manager` | Pont OIDC du HUB : clients, apps externes, debug SSO |
 
 ---
 

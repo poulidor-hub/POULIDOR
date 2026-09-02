@@ -2,6 +2,27 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.51.5] - 3 septembre 2026
+
+### ⚡ Doc POULIDOR resynchronisée + pointeur hubctl 0.7.3 (coffre retrouvé)
+
+- **hubctl_src 0.7.2 → 0.7.3** : chemins runtime (`vault/`, `backups/`,
+  `recovery/`) résolus depuis le paquet (`hubctl_src/hubctl_cli/`) avec repli
+  legacy — la suppression du symlink racine `hubctl_cli` (0.51.0) rendait le
+  coffre introuvable (traité comme neuf : prompt passphrase au lieu du
+  déverrouillage par `parc.vault.key`, risque d'orphelinage au `vault backup`).
+- **Doc guide-hub** : instantané de versions à jour (méta 0.51.4, Hub 3.45.0,
+  template 2.20.0, hubctl 0.7.2), cible `make update-env` documentée
+  (template 2.20.0), throttle anti-abus OIDC (HUB_base 3.45.0), slug atelier
+  normalisé (hubctl 0.7.2), chemins `hubctl_src/hubctl_cli/…` après
+  restructuration (coffre, backups, _trash, .venv), note « blue-green »
+  résiduelle du guide visuel retirée (atelier = sandbox), `presentation.html`
+  reliée depuis toutes les navs.
+- **README** : création d'app documentée via seed/`create_app.sh` (l'entrée
+  TUI « Apps → Ajouter » n'existe plus), tables Documentation et Skills
+  complétées (`presentation.html`, guide-parc, guide-template, debug-agent,
+  `migrate-app-template`, `hub-oidc-manager`).
+
 ## [0.51.4] - 3 septembre 2026
 
 ### 🧪 Pointeur HUBapp_TEMPLATE_base 2.20.2 → 2.20.3 — tests de non-duplication `update_env.py`

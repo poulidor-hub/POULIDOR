@@ -56,7 +56,8 @@
   <h3>2. Bridge OIDC pour apps externes</h3>
   <p>Le Hub fait office de <strong>fournisseur d'identité</strong> (OpenID
   Connect) pour des outils tiers : discovery, clients OIDC auto-enregistrables,
-  <code>id_token</code>, déconnexion back-channel. Pratique pour rattacher
+  <code>id_token</code>, déconnexion back-channel, échange de tokens protégé
+  contre l'abus (throttle des échecs par client). Pratique pour rattacher
   Vikunja, Nextcloud ou Grafana au SSO du parc.
   <strong>Voir :</strong> <code>HUB_base/docs/</code> (intégration OIDC).</p>
 
@@ -160,6 +161,6 @@
     les skills listés dans <code>AGENTS.md</code> encadrent ces opérations.
   </div>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.48.1</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.51.1</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

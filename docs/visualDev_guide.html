@@ -315,7 +315,7 @@
       </div>
       <div class="nav-group">
         <div class="nav-group-title">Cas d'usage</div>
-        <a href="#bluegreen" class="nav-link">7. Déploiement Blue-Green</a>
+        <a href="#bluegreen" class="nav-link">7. L'atelier (bac à sable)</a>
         <a href="#pra" class="nav-link">8. PRA & Sauvegardes</a>
       </div>
     </nav>
@@ -509,7 +509,7 @@ sequenceDiagram
         <tbody>
           <tr><td><code>start / stop [all|prod|dev]</code></td><td>Cycle de vie du parc. <code>dev</code> = ateliers uniquement ; <code>stop dev</code> préserve les volumes.</td></tr>
           <tr><td><code>update</code></td><td>Maj Hub + apps actives : snapshot DB préalable, pull → build → up, <strong>rollback automatique</strong> si échec.</td></tr>
-          <tr><td><code>atelier &lt;app&gt; [--maj [--ref R] | --prod]</code></td><td>Cycle atelier blue-green (§7) : création avec clone DB, test de <code>origin/main</code>, déploiement validé.</td></tr>
+          <tr><td><code>atelier &lt;app&gt; [--maj [--ref R] | --prod]</code></td><td>Cycle atelier bac à sable (§7) : création avec clone DB, test de <code>origin/main</code>, déploiement validé en prod (DB préservée).</td></tr>
           <tr><td><code>init [--force]</code></td><td>Bootstrap d'un Hub neuf : <code>.env</code> + secrets aléatoires, clés JWT, santé, marker shell.</td></tr>
           <tr><td><code>export [--app S] [--passphrase-stdin]</code></td><td>Archive chiffrée du parc complet (DB + .env + secrets), magic <code>PARKEV1</code> → <code>exports/</code>.</td></tr>
           <tr><td><code>restore &lt;archive&gt;</code></td><td>Restaure un park-export — <strong>uniquement sur un Hub vierge</strong>.</td></tr>
@@ -693,7 +693,7 @@ router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span 
     </section>
 
     <section id="bluegreen">
-      <h2>7. L'Atelier (Déploiement Blue-Green)</h2>
+      <h2>7. L'Atelier (bac à sable → production)</h2>
       <p>Pour tester une montée de version en sécurité sans casser la production, <code>hubctl</code> permet de générer un "Atelier".</p>
 
       <div class="callout" style="background: var(--hub-color-primary-soft); border-color: var(--hub-color-primary);">

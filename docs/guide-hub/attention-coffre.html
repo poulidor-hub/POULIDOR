@@ -46,7 +46,8 @@
 
   <h2>La passphrase : auto-gérée depuis hubctl 0.7</h2>
   <p>La passphrase maître est désormais <strong>auto-générée au premier besoin</strong>
-  et <strong>mémorisée</strong> dans <code>hubctl_cli/vault/parc.vault.key</code>
+  et <strong>mémorisée</strong> dans
+  <code>hubctl_src/hubctl_cli/vault/parc.vault.key</code>
   (chmod 0600, à côté du coffre) : les démarrages suivants déverrouillent le coffre
   <strong>sans saisie</strong>. Une ancienne passphrase saisie manuellement est
   migrée automatiquement (mémorisée pour les prochains accès).</p>
@@ -72,7 +73,7 @@
     <summary>En coulisse (technique)</summary>
     <p>Les secrets sont chiffrés (<span class="term">Fernet<span class="tip">Chiffrement
     symétrique authentifié.</span></span> + dérivation scrypt) dans
-    <code>hubctl_cli/vault/parc.vault.enc</code>. Sources lues :
+    <code>hubctl_src/hubctl_cli/vault/parc.vault.enc</code>. Sources lues :
     <code>HUB_base/.env</code>, <code>APPS/*/.env</code>,
     <code>HUB_base/secrets/</code>. Une sauvegarde automatique est faite avant
     toute suppression d'app.</p>
@@ -86,6 +87,6 @@
     présente : le déverrouillage est silencieux.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.48.1</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.51.1</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

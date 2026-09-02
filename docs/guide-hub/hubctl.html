@@ -148,7 +148,7 @@
     <strong>hubctl vous protège</strong>
     <ul>
       <li>Chaque action destructrice demande une confirmation <strong>Oui/Non</strong> (jamais de saisie libre).</li>
-      <li>Une app supprimée part en corbeille (<code>hubctl_cli/_trash/</code>), jamais un <code>rm -rf</code>.</li>
+      <li>Une app supprimée part en corbeille (<code>hubctl_src/hubctl_cli/_trash/</code>), jamais un <code>rm -rf</code>.</li>
       <li>Une archive <code>tar.gz</code> est créée avant toute suppression.</li>
       <li><code>atelier --prod</code> exige que l'atelier ait testé <code>main</code> au commit courant d'<code>origin/main</code> ; rollback git automatique en cas d'échec, atelier conservé si le déploiement prod échoue.</li>
       <li>Garde disque : avertissement sous <strong>15 %</strong> d'espace libre, refus sous <strong>5 %</strong>.</li>
@@ -164,12 +164,12 @@
     qui tourne <strong>dans le même dossier</strong> via un 2ᵉ projet Docker
     Compose (<code>-p &lt;app&gt;-ws</code>) piloté par
     <code>APPS/&lt;app&gt;/.workshop.env</code>. Au premier lancement, le
-    launcher crée l'environnement Python (<code>hubctl_cli/.venv</code>) et
+    launcher crée l'environnement Python (<code>hubctl_src/hubctl_cli/.venv</code>) et
     installe les dépendances (<code>rich</code>, <code>cryptography</code>,
     <code>mcp</code>, <code>pyyaml</code>). Sans terminal interactif, il affiche
     l'état du hub puis quitte.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.48.1</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.51.1</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

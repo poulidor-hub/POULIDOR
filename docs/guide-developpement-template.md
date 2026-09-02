@@ -746,6 +746,7 @@ make health                       # Vérifier que l'API répond
 - **`VITE_APP_SLUG`** (2.17.0) : injecté dans le frontend ; l'URL SSE porte `&app=<slug>` (présence utilisateur par app côté Hub, HUB ≥ 3.36.0).
 - **Re-sync automatique des certificats** (2.12.0) : `backend/cert_sync.py` — boucle de fond démarrée au lancement, resynchronise les certificats PKI du Hub toutes les 6 h ; no-op si `HTTPS_ENABLED=false`.
 - **Garde `HUB_INSTANCE_ID`** (2.19.0) : `sync-env` mémorise l'identité du Hub dans `.env` et refuse un `.env` pointant vers un autre Hub (protection contre les allocations croisées).
+- **Fusion `.env` après montée de template** (2.20.0) : `scripts/update_env.py` + cible `make update-env` — ajoute au `.env` existant les nouvelles clés du `.env.example` sans jamais toucher aux valeurs existantes ni aux clés propres à l'app ; sauvegarde horodatée (`.env.pre-update-<stamp>`) et rapport détaillé. À lancer après chaque montée de template (le skill `migrate-app-template` l'orchestre — étape B.0).
 
 ---
 
@@ -808,6 +809,7 @@ make health                       # Vérifier que l'API répond
 | `make clean-all` | Nettoyage complet (+ images Docker) |
 | `make ssl` | Génère certificats SSL auto-signés |
 | `make sync-env` | Alloue les ports via le Hub + synchronise `FRONTEND_HTTPS_PORT` et `APP_VERSION` |
+| `make update-env` | Fusionne les nouvelles clés du `.env.example` dans le `.env` (après montée de template ; valeurs existantes préservées) |
 | `make ai-index` | Régénère `AI_INDEX.md` |
 | `make refresh-design-seed` | Copie HUBCSS dist → `frontend/public/design-system/current` |
 | `make sync-hub-tooling` | Synchronise `hub_mcp/` + plugin OpenCode |
