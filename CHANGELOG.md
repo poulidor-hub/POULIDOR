@@ -2,6 +2,16 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.51.4] - 3 septembre 2026
+
+### 🧪 Pointeur HUBapp_TEMPLATE_base 2.20.2 → 2.20.3 — tests de non-duplication `update_env.py`
+
+- **Template 2.20.3** : `scripts/test_update_env.py` — 8 cas autonomes (sans Docker
+  ni pytest) verrouillant la fusion B.0 : clés existantes avec valeur intouchées,
+  orphelines préservées, clé vide remplacée en place, clé absente ajoutée une seule
+  fois (régression fix 2.20.2), détecteur réseau indisponible, idempotence
+  (2ᵉ exécution = no-op), invariant « chaque clé exactement une fois ». 8/8 OK.
+
 ## [0.51.3] - 3 septembre 2026
 
 ### 🔧 Pointeur HUBapp_TEMPLATE_base 2.20.1 → 2.20.2 — fix `update_env.py`
