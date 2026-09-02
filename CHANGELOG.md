@@ -2,6 +2,24 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.51.2] - 2 septembre 2026
+
+### 🔧 Pointeur HUBapp_TEMPLATE_base 2.20.0 → 2.20.1 — skill `app-dependencies` aligné sur l'atelier réel
+
+- **Template 2.20.1** : skill `app-dependencies` resynchronisé sur le modèle atelier
+  implémenté — retrait des références fictives (menu « APPS → Atelier » avec sélection
+  `[→]`, groupe de deps emmené automatiquement, vérification dans `APP_Workshop/`,
+  `resolve_group`, `hubctl_cli/dependencies.py::build_graph()`) ; la section devient
+  « Dépendances et atelier » : l'atelier `-ws` tourne à côté de la prod (qui reste en
+  place), les appels M2M résolvent vers les instances prod, pas de groupe à emmener.
+  `report_sync` / `depends.yaml` / endpoints Hub (réels) inchangés.
+- **Propagation aux copies d'apps** (repos indépendants, releases patch poussées) :
+  exemple-app 0.3.1, exemple-app 0.12.1, exemple-app 0.9.1, exemple-app 1.10.1,
+  exemple-app 0.10.1 (master) — cette dernière avec réparation du frontmatter YAML
+  du skill (absent → skill non chargé). **Non propagé** : exemple-app (atelier
+  actif + working tree dirty — à resynchroniser après clôture de l'atelier) ;
+  copie dans `hubctl_src/hubctl_cli/_trash/` ignorée (corbeille).
+
 ## [0.51.1] - 2 septembre 2026
 
 ### 🔧 Alignement doc/skills sur le modèle atelier implémenté (`hubctl atelier`)
