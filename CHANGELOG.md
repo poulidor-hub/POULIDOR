@@ -2,6 +2,19 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.51.3] - 3 septembre 2026
+
+### 🔧 Pointeur HUBapp_TEMPLATE_base 2.20.1 → 2.20.2 — fix `update_env.py`
+
+- **Template 2.20.2** : `scripts/update_env.py` perdait silencieusement les clés
+  dérivées (`FRONTEND_HTTPS_PORT`, `APP_SUBNET`) **absentes** (pas seulement vides)
+  du `.env` — `re.sub` ne remplaçait aucune ligne mais le rapport annonçait
+  « ✅ fusionné ». Correctif : `re.subn` + ajout en fin de fichier. Cas réel validé
+  (exemple-app : `APP_SUBNET` désormais écrit, valeurs critiques inchangées).
+- **exemple-app v1.15.0** (repo indépendant) : `make update-env` câblé (B.0),
+  clé `FRONTEND_HTTPS_PORT` ajoutée au `.env.example` personnalisé, hygiène
+  `.gitignore` `.env.pre-*` (backups = secrets).
+
 ## [0.51.2] - 2 septembre 2026
 
 ### 🔧 Pointeur HUBapp_TEMPLATE_base 2.20.0 → 2.20.1 — skill `app-dependencies` aligné sur l'atelier réel
