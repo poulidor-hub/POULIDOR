@@ -2,6 +2,20 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.50.0] - 2 septembre 2026
+
+### 🔐 Skill migrate-app-template : fusion automatique du `.env` (B.0) + pointeur HUBapp_TEMPLATE_base v2.19.0 → v2.20.0
+
+- **Skill `migrate-app-template`** : nouvelle étape **B.0 — Migration du `.env`** (obligatoire, avant tout rebuild). Le `.env` d'une app existante contient des valeurs absentes du `.env.example` (`HUB_INSTANCE_ID`…) et il lui manque les nouvelles clés du template ; `make sync-env` ne fusionne rien. Règle : **fusion, jamais régénération** (`cp .env.example .env` casse les identifiants DB du volume existant).
+  - Voie automatisée : `scripts/update_env.py` (copié depuis le template) / `make update-env` — sauvegarde horodatée, ajout des clés manquantes, valeurs existantes et orphelines préservées, vérification des variables requises du compose (`${VAR:?}`) avec exit 1 explicite, dérivées recalculées (`FRONTEND_HTTPS_PORT`, `APP_SUBNET` relu sur le réseau Docker existant). Fonctionne sans Hub ni make (serveurs de déploiement).
+  - Voie manuelle conservée en repli + table des valeurs critiques à ne jamais changer (`POSTGRES_*`, ports, `APP_SLUG`, `APP_SUBNET`, `HUB_INSTANCE_ID`).
+  - Incident réel documenté (déploiement client) : compose neuf tiré par git + `.env` ancien → `APP_SUBNET` manquant, puis `cp .env.example .env` hasardeux.
+  - Description du skill enrichie (triggers : `.env` obsolète, base inaccessible après migration).
+- **2.20.0** : `scripts/update_env.py` + cible `make update-env` dans le template, `.gitignore` `.env.pre-*` (sauvegardes de `.env` = secrets).
+- Application du parc migrée avec ce processus : **exemple-app** (UI HUBCSS 0.2.0, fix tables 0.2.1, update-env 0.3.0 — dépôt `exemple50/exemple-app`, indépendant du méta-repo).
+
+---
+
 ## [0.49.0] - 1er septembre 2026
 
 ### 🛡️ Pointeur sous-module HUB_base v3.44.4 → v3.45.0
