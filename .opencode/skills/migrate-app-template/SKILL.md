@@ -1,12 +1,12 @@
 ---
 name: migrate-app-template
-description: Use when a Hub app was created with an older version of HUBapp_TEMPLATE_base and needs to be updated to the current template version. Triggers on "mettre à jour l'app avec le template", "migrer l'app vers le nouveau template", "mon app est en retard sur le template", "upgrade template app", "sync app with template", or when you notice an app's VERSION is far behind the template's VERSION (2.8.0). Also use when adding template features (M2M, notifications SSE, backup/restore, bulk operations, badge search) to an app that lacks them, or when uploads/backups fail with PermissionError on /app/uploads after a template migration.
+description: Use when a Hub app was created with an older version of HUBapp_TEMPLATE_base and needs to be updated to the current template version. Triggers on "mettre à jour l'app avec le template", "migrer l'app vers le nouveau template", "mon app est en retard sur le template", "upgrade template app", "sync app with template", or when you notice an app's VERSION is far behind the template's VERSION (2.8.0). Also use when adding template features (M2M, notifications SSE, backup/restore, bulk operations, badge search) to an app that lacks them, when uploads/backups fail with PermissionError on /app/uploads after a template migration, or when the app's .env is stale after a migration (missing new template keys, obsolete variables, database unreachable because POSTGRES_PASSWORD no longer matches the existing volume).
 argument-hint: 'Path to the app to migrate (e.g., APPS/mon-app)'
 ---
 
 # Migrate App Template
 
-Workflow end-to-end pour auditer et mettre à jour une application existante créée avec une ancienne version de `HUBapp_TEMPLATE_base` vers le template canonique actuel. **Ne jamais écraser à l'aveugle** : chaque fichier du template est comparé, les modifications métier de l'app sont préservées, les ajouts du template sont fusionnés.
+Workflow end-to-end pour auditer et mettre à jour une application existante créée avec une ancienne version de `HUBapp_TEMPLATE_base` vers le template canonique actuel. **Ne jamais écraser à l'aveugle** : chaque fichier du template est comparé, les modifications métier de l'app sont préservées, les ajouts du template sont fusionnés — et le `.env` suit la même règle que le code : **fusion, jamais régénération** (étape B.0).
 
 ## Prérequis
 
@@ -25,7 +25,7 @@ Avant toute migration, vérifier :
 | Phase | Étape | Vérification |
 |-------|-------|-------------|
 | **A** | Audit — diff complet template vs app | Analyse catégorisée des écarts |
-| **B** | Infrastructure — Docker, nginx, Makefile | `make build && make up && make health` |
+| **B** | Infrastructure — **`.env` (B.0)**, Docker, nginx, Makefile | B.0 : `update_env.py` exit 0 + données accessibles ; puis `make build && make up && make health` |
 | **C** | Backend core — config, auth, hub_client, outbox | `make test-docker` |
 | **D** | Frontend core — package.json, vite, providers, hooks | Frontend accessible, pas d'erreur console |
 | **E** | Features — M2M, notifications, backup, bulk, badges | Test feature-by-feature sur Docker |
@@ -130,7 +130,84 @@ Aucune action nécessaire. Les lister pour confirmer l'alignement.
 
 ## Phase B — Infrastructure
 
-Mettre à jour les fichiers Docker, nginx et Makefile. Ces fichiers sont **majoritairement template** (peu/pas de code métier), donc le remplacement est généralement sûr.
+### B.0 — ⚠️ Migration du `.env` (OBLIGATOIRE, avant tout rebuild)
+
+Le `.env` d'une app existante contient des valeurs que le `.env.example` ne liste **pas toutes** (ex. `HUB_INSTANCE_ID`) et il lui manque les nouvelles clés du template. `make sync-env` ne crée le `.env` depuis `.env.example` qu'au **premier démarrage** et ne recalcule ensuite que `FRONTEND_HTTPS_PORT` et `APP_VERSION` — il ne fusionne **rien**. Si la fusion n'est pas faite : l'app tourne avec un `.env` obsolète (variables du nouveau compose non définies, ex. `APP_SUBNET`) — ou pire, un `.env` régénéré dont le `POSTGRES_PASSWORD` ne correspond plus au volume → base inaccessible, données « perdues ».
+
+> **Anti-rationalisation** : « le `.env` est bon, ne pas y toucher » est FAUX. Il faut le **mettre à jour** (ajouter les nouvelles clés) tout en **préservant** les valeurs existantes. « Ne pas toucher » et « régénérer » (`cp .env.example .env`) sont tous deux des erreurs.
+
+**Voie automatisée (recommandée — le script vit dans le template, copie-le d'abord s'il n'est pas encore dans l'app)** :
+
+```bash
+cd APPS/<slug>
+
+# 0. Le script fait partie du template : le copier dans l'app s'il y est absent
+cp ../../HUBapp_TEMPLATE_base/scripts/update_env.py scripts/   # + cible update-env dans le Makefile
+
+# Fusion : sauvegarde horodatée + ajout des clés manquantes + vérification
+# des variables requises par le compose (${VAR:?}) — valeurs existantes inchangées.
+# Pendant une migration, pointer sur l'exemple DU TEMPLATE (celui de l'app
+# peut encore être ancien à ce stade) :
+python3 scripts/update_env.py --example ../../HUBapp_TEMPLATE_base/.env.example
+
+# En exploitation courante (l'app pullée a son .env.example à jour) :
+make update-env            # ou : python3 scripts/update_env.py
+```
+
+L'outil recalcule aussi les valeurs dérivées (`FRONTEND_HTTPS_PORT = FRONTEND_PORT + 1`, `APP_SUBNET` lu sur le réseau Docker existant de l'app si détectable) et sort en erreur (exit 1) avec un message explicite si une variable requise reste vide — **ne passe pas à la suite tant qu'il n'est pas en 0**. Fonctionne sans `make` (serveur de déploiement : `python3 scripts/update_env.py`).
+
+> **Incident typique** (réel, déploiement client) : le serveur tire le nouveau compose par git alors que son `.env` est ancien → `error while interpolating ... APP_SUBNET is missing a value`. Mauvais réflexe vu sur le terrain : `cp .env.example .env` (injecte les valeurs de démo : mot de passe DB, slug, ports vides). Bon réflexe : repartir de l'ancien `.env` (`.env.old` / `.env.pre-update-*` / coffre) puis `python3 scripts/update_env.py` — le subnet réel est relu sur le réseau Docker existant.
+
+Penser aussi à **fusionner le `.env.example` de l'app** (ajouter les nouvelles clés du template, garder les valeurs INITIALISE : slug, nom, ports, version) — c'est lui que `update_env.py` utilisera lors des prochaines mises à jour tirées par `git pull` sur les serveurs de déploiement.
+
+**Voie manuelle (apps plus anciennes sans le script)** (depuis `APPS/<slug>/`) :
+
+```bash
+# 1. SAUVEGARDE horodatée de l'ancien .env (référence de restauration)
+cp .env ".env.pre-migration-$(date +%Y%m%d-%H%M)"
+
+# 2. DIFF DES CLÉS uniquement (jamais les valeurs dans un log/commit)
+grep -oE '^[A-Z_]+' .env | sort > /tmp/env_old.txt
+grep -oE '^[A-Z_]+' ../../HUBapp_TEMPLATE_base/.env.example | sort > /tmp/env_new.txt
+comm -13 /tmp/env_old.txt /tmp/env_new.txt   # clés du template à AJOUTER au .env
+comm -23 /tmp/env_old.txt /tmp/env_new.txt   # clés orphelines à CONSERVER
+
+# 3. FUSION : ajouter chaque clé manquante au .env avec la valeur par défaut
+#    du nouveau .env.example. NE JAMAIS régénérer le .env complet.
+#    (éditer .env — une clé par ligne, en fin de fichier)
+
+# 4. VÉRIFIER que les valeurs critiques sont identiques à la sauvegarde
+#    (le diff doit être VIDE) :
+diff <(grep -E '^(POSTGRES_|APP_SLUG|API_PORT|FRONTEND_PORT|APP_SUBNET|HUB_)' .env) \
+     <(grep -E '^(POSTGRES_|APP_SLUG|API_PORT|FRONTEND_PORT|APP_SUBNET|HUB_)' .env.pre-migration-*)
+
+# 5. Recalculer les valeurs dérivées, redémarrer, vérifier
+make sync-env && make up && make health
+```
+
+**Valeurs critiques — à ne JAMAIS changer** (le diff de l'étape 4 doit être vide) :
+
+| Variable | Pourquoi |
+|---|---|
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Le volume `postgres_data` a été initialisé avec ces valeurs au premier boot. Les changer rend la base **inaccessible** : les données existent toujours mais plus personne ne peut les lire. |
+| `POSTGRES_HOST` | Contient le slug (`<slug>-postgres`) — doit correspondre au service du compose. |
+| `APP_SLUG` | Identité Hub, noms de volumes/conteneurs, URLs enregistrées. |
+| `API_PORT` / `FRONTEND_PORT` | Enregistrés dans le Hub (liens du dashboard) ; les changer casse les URLs publiées. |
+| `APP_SUBNET` | Réseau Docker de l'app ; le changer force une recréation du réseau (conflits VPN/pool). |
+| `HUB_INSTANCE_ID` / secrets d'enregistrement | Identité de l'app auprès du Hub — absents du `.env.example`, donc perdus si régénération. |
+| `FRONTEND_HTTPS_PORT` | Dérivé (`FRONTEND_PORT + 1`) — recalculé par `make sync-env`, ne pas le deviner. |
+
+**Récupération « au cas où »** : le coffre (`skill parc` `vault-manager`) capture `APPS/<slug>/.env` en lecture seule (automatique au démarrage de hubctl, ou `backup_all`). Pour récupérer une ancienne version : `export_recovery` écrit une copie en clair sous `hubctl_cli/recovery/<stamp>/` **sans jamais toucher au disque**. La sauvegarde horodatée de l'étape 1 reste la référence la plus directe.
+
+**Vérification données après redémarrage** (obligatoire quand un volume existe) :
+
+```bash
+# La base répond avec les identifiants d'origine :
+docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\dt'
+# + un endpoint métier avec des données attendues (l'app doit retrouver SES données)
+```
+
+Le reste de la phase met à jour les fichiers Docker, nginx et Makefile. Ces fichiers sont **majoritairement template** (peu/pas de code métier), donc le remplacement est généralement sûr.
 
 ### B.1 — Fichiers à copier depuis le template (safe replace)
 
@@ -344,6 +421,8 @@ Si les tests échouent : vérifier les imports, les dépendances manquantes, les
 | `psycopg.OperationalError` | Postgres pas prêt | Attendre le healthcheck, `make logs-db` |
 | `sqlalchemy.exc.ProgrammingError` | Migration non exécutée | Vérifier `backend/migrations/`, exécuter manuellement |
 | `RuntimeError: Hub auth failed` | `HUB_*` manquant dans `.env` | Vérifier `.env` vs `.env.example` |
+| `password authentication failed for user` (postgres) | `.env` régénéré depuis `.env.example` : `POSTGRES_PASSWORD` ne correspond plus au volume existant | Restaurer les `POSTGRES_*` depuis `.env.pre-migration-*` (B.0) — les données sont intactes |
+| Compose warning `The "X" variable is not set` / variable vide dans le conteneur | Nouvelle clé du `.env.example` jamais fusionnée dans le `.env` | Compléter la fusion B.0, `make sync-env && make up` |
 
 ## Phase D — Frontend core
 
@@ -725,6 +804,7 @@ Avant de déclarer la migration terminée, vérifier :
 - [ ] **Bug « onglet qui se referme » corrigé** : AuthContext URL-first + purge refresh token (cf. D.3.1) — 1er clic depuis le dashboard ouvre l'app sans fermeture, pas de `refresh 401` dans les logs hub-api après un launch
 - [ ] **SSE authentifié** : `events/stream?token=` présent dans l'AuthContext (cf. D.3.2) — SSE 200 dans les logs hub-api quand l'app est ouverte, pas de boucle 401
 - [ ] **Volumes re-chown-és** : `/app/uploads` appartient à `appuser:appuser` et le test d'écriture passe (cf. B.6) — pas de `PermissionError` dans les logs api au premier upload/backup
+- [ ] **`.env` migré (B.0)** : sauvegarde horodatée `.env.pre-migration-*` présente ; toutes les clés du nouveau `.env.example` présentes dans le `.env` (diff de clés vide dans le sens template → app) ; `POSTGRES_*`, ports, `APP_SLUG`, `APP_SUBNET`, `HUB_INSTANCE_ID` **identiques** à la sauvegarde ; données accessibles (endpoint métier ou comptage SQL sur la base existante)
 - [ ] Les composants métier de l'app sont préservés
 - [ ] Les nouvelles fonctionnalités template sont opérationnelles
 - [ ] Les skills `.opencode/` sont chargeables
