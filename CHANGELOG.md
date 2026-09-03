@@ -2,6 +2,21 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.51.7] - 3 septembre 2026
+
+### 🐛 Pointeur HUB_base 3.45.0 → 3.45.1 — dropdown rôle du dashboard + toggles checkboxes
+
+- **HUB_base 3.45.1** : le délégué click global (`app.js`) ne dispatche plus les
+  champs de formulaire (`SELECT`, `INPUT`, `TEXTAREA`, `OPTION`…) — un `<select>`
+  natif émet un `click` à l'ouverture de sa liste, ce qui relançait
+  `updateMyAppRole` + `loadApps()` sur le dashboard : le re-render remplaçait le
+  `<select>` pendant que sa liste était ouverte (dropdown « refermé tout seul »,
+  obligeant à maintenir le bouton enfoncé).
+- Effet secondaire corrigé : le `preventDefault()` du délégué click bloquait le
+  toggle natif des checkboxes `data-action` (sélection de messages, select-all
+  docker, confirmations restore/import…) et déclenchait leurs actions sur un
+  état périmé — toggle natif + `change` rétablis.
+
 ## [0.51.6] - 3 septembre 2026
 
 ### 🧪 Pointeur HUBapp_TEMPLATE_base 2.20.3 → 2.20.4 — tests « démarrage depuis zéro » `update_env.py`
