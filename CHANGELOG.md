@@ -2,6 +2,17 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.53.1] - 5 septembre 2026
+
+### 🛡️ Pointeur HUB_base 3.47.0 → 3.47.1 — backup/restore des ancres identitaires
+
+- **HUB_base 3.47.1** (9f29457..ed0449b) : `UserExport` porte désormais le quatuor
+  identitaire (`uuid`, `oidc_sub`, `prenom`, `nom`). Un restore sur hub vide ne
+  régénère plus d'identifiants : les liaisons exemple-app-16 (`user_uuid`) et les
+  liaisons OIDC des renommés survivent à un disaster recovery, prénom/nom préservés.
+  Backups legacy rétrocompatibles (fallback génération) ; branche update inchangée.
+- Clôture du follow-up backup/restore du projet identité utilisateur + OIDC sub immuable.
+
 ## [0.53.0] - 5 septembre 2026
 
 ### 🔗 Pointeur HUB_base 3.46.0 → 3.47.0 — OIDC `sub` immuable (`oidc_sub`)
