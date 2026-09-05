@@ -2,6 +2,23 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.52.1] - 5 septembre 2026
+
+### 📄 Handover — centralisation des synchronisations des apps
+
+- Nouveau `docs/handover/2026-09-05-sync-centralisation.md` : transfert de connaissances
+  de la session exemple-app-16_API_v3 (v1.12.0, incluse dans la 1.13.0 déployée) à
+  destination du chantier d'orchestrateur central de synchronisation : topologie des
+  flux (exemple-app → exemple-app / exemple-app-7 → exemple-app), invariants de
+  sécurité (liaison matricule-only, fiabilité `match_confidence >= 100`, homonymes →
+  refus, seuil de désactivation à 3 syncs), réconciliation assistée des matricules,
+  purge admin avec dry-run, incident de format d'identifiant divergent (`000xxx` vs
+  `S00xxx`) et détection d'un jeu de données de démo, état final prod vérifié, suivi
+  planifié en place (rapport quotidien observation-only) et recommandations
+  priorisées pour l'orchestrateur (P1 identifiant canonique / fiabilité / idempotence,
+  P2 planification + outbox + observabilité, P3 détection démo, contract tests,
+  sécurité M2M, cycle de vie des départs).
+
 ## [0.52.0] - 5 septembre 2026
 
 ### 🆔 Pointeur HUB_base 3.46.0 — identité utilisateur : UUID stable, nom éditable, renommage du login
