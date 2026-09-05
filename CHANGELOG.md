@@ -2,6 +2,21 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.53.0] - 5 septembre 2026
+
+### 🔗 Pointeur HUB_base 3.46.0 → 3.47.0 — OIDC `sub` immuable (`oidc_sub`)
+
+- **HUB_base 3.47.0** (9fcc77c..9f29457) : le `sub` OIDC devient un identifiant
+  immuable (`users.oidc_sub`, backfill = username — les liaisons clients existantes
+  restent valides, zéro bascule). Émission (`id_token`/`access_token`/`userinfo`)
+  et résolutions (cookie session, authorize, back-channel logout, SLO poste partagé)
+  basculées sur `oidc_sub` avec fallback username pour les sessions pré-déploiement.
+  Email synthétique figé `{oidc_sub}@hub.internal`. **Le renommage d'un login est
+  désormais invisible pour les clients OIDC (Vikunja…) — rattachement automatique,
+  plus de réassociation manuelle.** Migration additive automatique, rollback trivial.
+- Docs : `docs/superpowers/specs/2026-09-05-oidc-sub-immuable-design.md`,
+  `docs/superpowers/plans/2026-09-05-oidc-sub-immuable.md`.
+
 ## [0.52.1] - 5 septembre 2026
 
 ### 📄 Handover — centralisation des synchronisations des apps
