@@ -2,6 +2,25 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.52.0] - 5 septembre 2026
+
+### 🆔 Pointeur HUB_base 3.46.0 — identité utilisateur : UUID stable, nom éditable, renommage du login
+
+- **HUB_base 3.46.0** (2b568d3..9fcc77c) : `users.uuid` (identifiant stable immuable,
+  backfillé au démarrage) + `users.prenom`/`users.nom` éditables par les admins ;
+  claims `uid`/`prenom`/`nom` dans les JWT applicatifs et OIDC (`sub` inchangé) ;
+  endpoint `POST /api/users/{id}/rename` (409 unicité, révocation tokens applicatifs
+  ET OAuth refresh tokens, audit, force_logout) ; UI admin (champs état civil +
+  renommage d'identifiant avec suggestion `pnom`). Migration additive automatique —
+  aucun action manuelle, rollback trivial.
+- Apps du parc (hors submodules, releases indépendantes synchronisées sur la feature) :
+  **exemple-app-16_API_v3 1.13.0** — matching contact par `user_uuid` (fallback legacy
+  `sam_account_name` + backfill à la connexion), préférences immunes au renommage,
+  nom hub priorisé à l'affichage ; **exemple-app_v3 0.3.0 → 0.3.1** — ré-import CSV :
+  `nom_usuel`/`prenom` rafraîchis si fournis (propagation mariage depuis la paie).
+- Specs + plan : `docs/superpowers/specs/2026-09-05-identite-utilisateur-rename-uuid-design.md`,
+  `docs/superpowers/plans/2026-09-05-identite-utilisateur-rename-uuid.md`.
+
 ## [0.51.7] - 3 septembre 2026
 
 ### 🐛 Pointeur HUB_base 3.45.0 → 3.45.1 — dropdown rôle du dashboard + toggles checkboxes
