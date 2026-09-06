@@ -2,6 +2,18 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.53.4] - 6 septembre 2026
+
+### 🔧 Pointeur hubctl_src 0.7.3 → 0.7.4 — atelier : allowlist env compose (parité hub-api 3.47.3)
+
+- **hubctl 0.7.4** (dabf196..7572afe) : `_ws_compose_env` ne transmet plus
+  l'env du shell hôte au `docker compose` atelier (allowlist PATH/HOME/
+  locales + `DOCKER_*` + `.workshop.env`) ; les 4 fallbacks
+  `dict(os.environ)` passent à `_compose_base_env()`. Même cause que le fix
+  hub-api 3.47.3 : collision de nom `HUB_HTTPS_ENABLED` (deux sens opposés)
+  → atelier en « Mode dégradé ». Actif immédiatement (CLI interprété via le
+  symlink `./hubctl`). 492 tests hubctl passés.
+
 ## [0.53.3] - 6 septembre 2026
 
 ### 🔧 Pointeur HUB_base 3.47.2 → 3.47.3 — atelier : fuite d'env hub + fiches -ws fantômes
