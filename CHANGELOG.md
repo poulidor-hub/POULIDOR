@@ -2,6 +2,17 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.53.7] - 6 septembre 2026
+
+### 🔧 Pointeur HUB_base 3.47.5 → 3.48.0 — atelier : socle accès par utilisateur
+
+- **HUB_base 3.48.0** (9c9f4ab..89a7a7a) : merge de `feat/atelier-user-access`
+  (rebasée, 27 tests de l'état fusionné passants) — migration 058
+  `user_workshop_access` (activation référencant l'app de base, survit aux
+  cycles atelier), modèle + helpers de visibilité `-ws`, 9 tests. Spec :
+  `docs/superpowers/specs/2026-09-06-atelier-user-access-design.md`.
+  Lots suivants (endpoints + UI) à venir sur le même sillage.
+
 ## [0.53.6] - 6 septembre 2026
 
 ### 🔧 Pointeur HUB_base 3.47.4 → 3.47.5 — snapshots : exclusion auto-référence du dump
