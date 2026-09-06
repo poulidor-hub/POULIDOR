@@ -2,6 +2,18 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.53.6] - 6 septembre 2026
+
+### 🔧 Pointeur HUB_base 3.47.4 → 3.47.5 — snapshots : exclusion auto-référence du dump
+
+- **HUB_base 3.47.5** (e6fffd1..9c9f4ab) : `run_pg_dump` ajoute
+  `--exclude-table=hub_snapshots` — la ligne du snapshot en cours (statut
+  `running` au dump) n'embarque plus dans l'archive ; au restore, le
+  kill-switch ne la requalifiait plus `failed`. Effet bord assumé :
+  l'historique des snapshots ne transite plus par l'archive ; la ligne
+  manuelle du runbook bare-metal survit au `pg_restore --clean`.
+- **hub-legacy 3.9.1** (e8074a4..0562af8) : même fix porté au hub legacy.
+
 ## [0.53.5] - 6 septembre 2026
 
 ### 🔧 Pointeur HUB_base 3.47.3 → 3.47.4 — fix 413 imports backups + réconciliation snapshot legacy
