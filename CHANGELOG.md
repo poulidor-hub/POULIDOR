@@ -2,6 +2,17 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.53.2] - 5 septembre 2026
+
+### 🔁 Pointeur HUB_base 3.47.1 → 3.47.2 — SLO poste partagé : revoke distant normalisé
+
+- **HUB_base 3.47.2** (ed0449b..fca45e5) : `propagate_remote_revoke` résout
+  l'identifiant du cookie (désormais un `oidc_sub` immuable) vers l'utilisateur et
+  révoque par **username courant d'abord puis oidc_sub** (double appel best-effort
+  dédupliqué). Pour un utilisateur renommé, la révocation des sessions distantes
+  (traducteurs exemple-app) ne manque plus la session indexée sous le nouveau nom.
+  Best-effort préservé : 404/500 loggés, jamais bloquants.
+
 ## [0.53.1] - 5 septembre 2026
 
 ### 🛡️ Pointeur HUB_base 3.47.0 → 3.47.1 — backup/restore des ancres identitaires
