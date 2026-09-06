@@ -218,8 +218,28 @@ cp HUBapp_TEMPLATE_base/Dockerfile.frontend.dev APPS/<slug>/Dockerfile.frontend.
 cp HUBapp_TEMPLATE_base/nginx.conf            APPS/<slug>/nginx.conf
 cp HUBapp_TEMPLATE_base/nginx-ssl.conf        APPS/<slug>/nginx-ssl.conf
 cp HUBapp_TEMPLATE_base/.dockerignore         APPS/<slug>/.dockerignore
-cp HUBapp_TEMPLATE_base/opencode.json         APPS/<slug>/opencode.json
+cp HUBapp_TEMPLATE_base/docker-compose.dev.yml  APPS/<slug>/docker-compose.dev.yml
+cp HUBapp_TEMPLATE_base/docker-compose.https.yml APPS/<slug>/docker-compose.https.yml
 ```
+
+**Dépendances du Makefile 2.20** (à copier aussi, sinon `sync-env`/`ensure-api-fresh` cassés) :
+```bash
+# ACTIONS nouvelle génération (allocation ports Hub, synchro HUB_HOST, fraîcheur image)
+cp -r HUBapp_TEMPLATE_base/ACTIONS/PYTHON/{sync_hub_host,allocate_ports,check_image_freshness,INITIALISE}.py APPS/<slug>/ACTIONS/PYTHON/
+cp HUBapp_TEMPLATE_base/INITIALISE.{py,sh,bat} APPS/<slug>/
+# Scripts : fusion .env (B.0), bump, SSL, index IA
+cp HUBapp_TEMPLATE_base/scripts/{update_env.py,test_update_env.py,bump_version.py,generate_ai_index.py,generate-ssl.sh,install-hooks.sh} APPS/<slug>/scripts/
+cp -r HUBapp_TEMPLATE_base/scripts/git-hooks APPS/<slug>/scripts/
+```
+
+⚠️ **Allocation locale (station de dev sans Hub gérant l'app)** : `APP_SUBNET` est
+requis par le compose (`${APP_SUBNET:?}`) et les ports doivent être libres.
+Avant d'allouer : `ss -tlnp | grep :<port>` + `docker network inspect` (subnets pris).
+Tenir un **registre** par station : subnets du pool Hub `10.50.N.0/24` (N incrémenté)
+et paires API/FRONTEND ports. Le premier boot (pas de `.env` existant) se fait par :
+`cp .env.example .env` puis `APP_SUBNET=<alloué>` puis `make sync-env`/`update_env.py`
+(→ v0.53.4 : `update_env.py` ne lit le subnet que sur un réseau Docker **existant** ;
+première install = allocation manuelle).
 
 ### B.2 — Makefile : comparer et fusionner
 
@@ -329,6 +349,7 @@ cp HUBapp_TEMPLATE_base/backend/hub_client.py   APPS/<slug>/backend/hub_client.p
 cp HUBapp_TEMPLATE_base/backend/hub_auth.py     APPS/<slug>/backend/hub_auth.py
 cp HUBapp_TEMPLATE_base/backend/m2m_catalog.py  APPS/<slug>/backend/m2m_catalog.py
 cp HUBapp_TEMPLATE_base/backend/outbox.py       APPS/<slug>/backend/outbox.py
+cp HUBapp_TEMPLATE_base/backend/cert_sync.py    APPS/<slug>/backend/cert_sync.py
 cp HUBapp_TEMPLATE_base/backend/storage.py      APPS/<slug>/backend/storage.py
 cp HUBapp_TEMPLATE_base/backend/utils.py        APPS/<slug>/backend/utils.py
 cp HUBapp_TEMPLATE_base/backend/database.py     APPS/<slug>/backend/database.py
@@ -379,7 +400,16 @@ cp HUBapp_TEMPLATE_base/backend/routes/backup.py      APPS/<slug>/backend/routes
 cp HUBapp_TEMPLATE_base/backend/routes/hub_data.py    APPS/<slug>/backend/routes/hub_data.py
 cp HUBapp_TEMPLATE_base/backend/routes/tests.py       APPS/<slug>/backend/routes/tests.py
 cp HUBapp_TEMPLATE_base/backend/routes/docs.py        APPS/<slug>/backend/routes/docs.py
+cp HUBapp_TEMPLATE_base/backend/routes/items.py       APPS/<slug>/backend/routes/items.py
+cp HUBapp_TEMPLATE_base/backend/routes/test_data.py   APPS/<slug>/backend/routes/test_data.py
 ```
+
+⚠️ `items.py` et `test_data.py` sont importés par le `main.py` template (le second
+sous gating `ENABLE_DEMO_ENDPOINTS`) : les copier **même si l'app les avait
+supprimés**, sinon `ModuleNotFoundError: No module named 'routes.items'` au boot.
+Exception : si `routes/preferences.py` de l'app est une **variante métier**
+(ex. `DIPECUserPreference` + CRUD lieux), la conserver — ne pas écraser par le
+template — et retirer `test_preferences.py` du socle si inapplicable (le documenter).
 
 ### C.5 — Migrations SQL
 
@@ -810,6 +840,82 @@ Avant de déclarer la migration terminée, vérifier :
 - [ ] Les skills `.opencode/` sont chargeables
 - [ ] `VERSION` et `CHANGELOG.md` sont à jour
 - [ ] Aucune erreur dans les logs
+
+## Annexe — Retour d'expérience des migrations réelles (sept. 2026, 8 apps APPS/MIGRATION)
+
+### Règle d'or des fusions : TEMPLATE D'ABORD, métier réinjecté ensuite
+
+Pour `main.py`, `config.py`, `schemas.py`, `conftest.py`, `config.js`, `vite.config.js`,
+`docker-compose.yml` : **partir du fichier template et y réinjecter les blocs métier**,
+jamais patcher l'original. Patch incremental sur l'original = il manque silencieusement
+worker outbox, cert_sync, items_router, endpoints démo gated, validateurs → symptômes :
+`Settings has no attribute ENABLE_DEMO_ENDPOINTS`, `main has no attribute outbox_service`,
+404 sur `/api/items`, suite de tests socle en échec. (Erreur commise 3× sur 8 apps.)
+
+### Qualification A/B : échec pré-existant vs régression de migration
+
+Tout test métier qui échoue après migration doit être qualifié **avant** d'être corrigé :
+```bash
+git worktree add /tmp/ab_head HEAD            # code d'avant migration
+docker cp /tmp/ab_head/backend/. <slug>-api:/app/   # écrase le code du conteneur
+docker compose exec api sh -c "cd /app && find . -name __pycache__ -type d -exec rm -rf {} + 2>/dev/null; python -m pytest <tests> -q"
+git worktree remove --force /tmp/ab_head
+docker compose up -d --force-recreate api     # le docker cp survit au restart : recréer depuis l'image
+```
+- Échec aussi sur HEAD → **pré-existant** : ne pas corriger dans la migration, documenter au CHANGELOG.
+- Échec seulement sur fusionné → **régression** : la corriger avant de finir.
+Attention : `docker compose restart` ne recharge pas le code baked dans l'image ; utiliser
+`--build` ou `--force-recreate`.
+
+### Table symptôme → cause → correction (observés en réel)
+
+| Symptôme (boot/tests) | Cause | Correction |
+|---|---|---|
+| `ModuleNotFoundError: cert_sync` / `routes.items` | fichier template oublié dans les copies (C.2/C.4) | compléter les copies (cf. listes) |
+| `Settings has no attribute ENABLE_DEMO_ENDPOINTS` | `config.py` original patché au lieu de template+patchs | refaire : template puis injecter slug/ports/champs métier |
+| `main has no attribute outbox_service`, endpoints `/api/public` etc. 404 | `main.py` original patché au lieu de template+patchs | idem |
+| `NameError: date/Union/List/Any/Decimal/Literal/timezone/JSON/Index/enum/re` au boot | imports « union » non complétés après fusion de blocs métier | compléter `from typing`/`datetime`/`decimal`/`sqlalchemy`/`pydantic`/`import re/enum` en scannant les symboles des blocs injectés |
+| `Table 'app_settings'/'items' already defined` | modèle réinjecté en double (bloc métier + template) | retirer le doublon ; ne réinjecter que les classes absentes |
+| `ImportError: cannot import name '_validate_email_format'` etc. | l'extraction des blocs schemas par `^class` rate les **fonctions et constantes** top-level métier | extraire aussi `def ...` et `CONST = ...` du HEAD (bornes : jusqu'à la prochaine définition top-level) |
+| `NameError: BeneficiaireSearchResult is not defined` | blocs réinjectés dans un ordre qui casse les références | conserver l'**ordre original** du fichier app (git show HEAD) |
+| 307/404 inexpliqués sur routes métier dans les tests | pré-existant (tests obsolètes) — qualifier par A/B | documenter, corriger hors migration |
+| `TypeError: TokenPayload got unexpected keyword 'roles'` | le TokenPayload 2.20 n'a pas de champ `roles` | retirer `roles=` des fixtures/tests métier ; garder `UserInfo.roles` (schemas) |
+| 403 « Accès réservé aux service accounts » sur test multi-clients | fixtures partageant `mock_hub_auth.decode_token` — la dernière fixture écrase le token | réassigner `decode_token.return_value = mock_m2m_token` avant l'appel M2M dans le test |
+| `TypeError: unhashable type: 'list'` dans `require_any_role` | appels métier `require_any_role(["a","b"])` (liste) vs variadique template | tolérance locale : déplier `roles[0]` si list/tuple (patch documenté) |
+| `TypeError: a coroutine was expected, got AsyncGeneratorContextManager` | `@asynccontextmanager` orphelin collé à une fonction après extraction de blocs | retirer le décorateur orphelin |
+| `Bind for 0.0.0.0:9045 failed: port is already allocated` | conflit avec une autre app locale (ou l'app elle-même pré-migrée) | vérifier `ss -tlnp` avant allocation ; ports uniques par app sur la station |
+| `FRONTEND_HTTPS_PORT=4251, attendu=4146` (frontend en boucle) | `FRONTEND_HTTPS_PORT` ≠ `FRONTEND_PORT + 1` après changement de ports | `FRONTEND_HTTPS_PORT = FRONTEND_PORT + 1` dans `.env` (le entrypoint frontend valide) |
+| `host not found in upstream "backend"` (frontend en boucle) | section `links: api:backend` perdue pendant la fusion compose (proxy nginx `/api` → `backend`) | rétablir `links: - api:backend` sur le service frontend + `up -d --force-recreate frontend` |
+| `make health` échoue juste après `up` | boot long (migrations, RGPD, seed) | attendre/retry avant de conclure à un crash ; vérifier `docker logs` |
+| CHANGELOG.md « not found » au build frontend/backend | `.dockerignore` template exclut `*.md` | ajouter `!CHANGELOG.md` si l'app le copie dans l'image (route `/api/docs`) |
+
+### Conftest : fusion en 4 éléments
+
+`conftest.py` fusionné = **template** + (1) slug app dans les `apps={...}` des mocks,
+(2) `import models  # noqa` après `from config import get_settings` (enregistrement
+Base.metadata pour les tests isolés), (3) **restaurer les fixtures métier** du conftest
+app (`manager_client`, `global_roles`, `mock_m2m_token` avec `token_type="service"`),
+(4) adapter les tests socle au slug (`test_m2m.py` contient le slug en dur). Ne jamais
+écraser un test app enrichi (ex. `test_m2m.py` métier) par la version template sans diff
+préalable — vérifier ce que contient la version app (`grep -c mon-app`, fixtures utilisées).
+
+### Frontend : les 6 vérifications
+
+1. `package.json` : `@tanstack/react-query` + `lucide-react` **`^0.460.0`** (corriger les
+   `^1.x` incohérents) + devtools ; garder tailwind/router métier si présents.
+2. `config.js` : remplacer par le template (sinon `"APP_VERSION" is not exported` au build)
+   puis réinjecter le slug INITIALISE.
+3. `main.jsx` : arbre `ErrorBoundary > ConfigProvider > AuthProvider > QueryClientProvider`
+   autour de l'`App` métier + imports `index.css` **et** `app.css`.
+4. `index.html` : 3 `<link>` `/design-system/current/*` ; `App.jsx` : monter `<MessageBanner />`.
+5. `vite.config.js` : template (proxy `/api` + `/hub`, `loadEnv`) + plugin tailwind app.
+6. Seed HUBCSS : si `HUBCSS/dist` absent du submodule, copier le seed depuis une app déjà
+   migrée (`APPS/<app>/frontend/public/design-system/current/`) — le seed est commité.
+
+### Bump final
+
+`bump_version.py minor` (migration = feat) puis **vérifier** que `/api/health` affiche la
+nouvelle version — sinon rebuild api (APP_VERSION est baked au build).
 
 ## Références
 

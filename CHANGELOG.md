@@ -1,3 +1,22 @@
+## [0.53.8] - 6 septembre 2026
+
+### ⚡ Skill migrate-app-template enrichi (retour d'expérience 8 migrations réelles)
+
+- **Règle d'or documentée** : fusion « template d'abord, métier réinjecté » pour
+  `main.py`/`config.py`/`schemas.py`/`conftest.py`/`config.js`/`vite.config.js`/compose
+  (patcher l'original = worker outbox/cert_sync/items perdus silencieusement).
+- **Table symptôme → cause → correction** (17 entrées réelles) : imports union manquants
+  (`date`/`Union`/`timezone`/`JSON`…), doublons de modèles, helpers/constantes top-level
+  ratés à l'extraction, mock `decode_token` écrasé en multi-clients, `require_any_role`
+  avec liste, `@asynccontextmanager` orphelin, conflits de ports, `links: api:backend`
+  perdu, validation `FRONTEND_HTTPS_PORT`, `.dockerignore` vs `CHANGELOG.md`.
+- **Méthode de qualification A/B** (worktree + `docker cp` + `--force-recreate`) pour
+  distinguer échec de test pré-existant vs régression de migration.
+- **Compléments ciblés** : `cert_sync.py` ajouté aux copies C.2, `items.py`/`test_data.py`
+  à C.4 (imports obligatoires du `main.py` template), dépendances ACTIONS/scripts du
+  Makefile 2.20 en B.1, registre d'allocation ports/subnets en premier boot, checklist
+  frontend en 6 points, bump final vérifié via `/api/health`.
+
 # Changelog - POULIDOR (HUB stack)
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
