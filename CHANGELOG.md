@@ -2,6 +2,23 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.53.5] - 6 septembre 2026
+
+### 🔧 Pointeur HUB_base 3.47.3 → 3.47.4 — fix 413 imports backups + réconciliation snapshot legacy
+
+- **HUB_base 3.47.4** (ccb208c..e6fffd1) :
+  - **Fix 413 nginx** : `client_max_body_size 50M` sur les 3 server blocks
+    (`nginx.conf` :80, `nginx-ssl.conf` :80/:443) — les imports de backups
+    chiffrés > 1 Mo étaient rejetés par le reverse proxy (défaut nginx 1 Mio)
+    avant d'atteindre l'API. Cohérent avec `nginx-philia-ng.conf`.
+  - **Réconciliation snapshots legacy** : `_reconcile_forked_migrations()` dans
+    `restore_snapshot.py` — purge de `schema_migrations` des migrations
+    homonymes divergentes (fourche 027 : `add_port_allocations` vs
+    normalisation de données legacy), détectées par l'absence de la table
+    attendue ; no-op prouvé sur restore normal (3 tests SQLite). Requis pour
+    la migration legacy → hub neuf.
+  - Déployé et vérifié sur le hub de production locale (images rebâties).
+
 ## [0.53.4] - 6 septembre 2026
 
 ### 🔧 Pointeur hubctl_src 0.7.3 → 0.7.4 — atelier : allowlist env compose (parité hub-api 3.47.3)
