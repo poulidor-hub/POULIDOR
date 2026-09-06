@@ -21,6 +21,15 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.53.8] - 6 septembre 2026
+
+### 🔧 Pointeur HUBapp_TEMPLATE 2.20.5 → 2.20.6 — restore : cycles FK + resync séquences
+
+- **HUBapp_TEMPLATE 2.20.6** (ae57c00..4bd31fa) : suite du fix restore —
+  `session_replication_role=replica` pendant l'import (cycles de FK non
+  déferrables) + resynchronisation des séquences après import (ids
+  explicites). 155 tests passants. Porté sur exemple-app 1.12.2.
+
 ## [0.53.7] - 6 septembre 2026
 
 ### 🔧 Pointeur HUB_base 3.47.5 → 3.48.0 — atelier : socle accès par utilisateur
