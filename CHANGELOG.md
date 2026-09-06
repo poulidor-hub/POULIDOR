@@ -1,3 +1,20 @@
+## [0.53.11] - 7 septembre 2026
+
+### 🐛 Pointeur HUB_base 3.48.1 — fix envoi de messages avec `expires_at` timezone-aware
+
+- **HUB_base 3.48.1** (89a7a7a..f340b5e) : `POST /api/messages/send` (admin) et
+  `/api/messages/m2m/send` (apps) répondaient 500 (`asyncpg DataError: can't
+  subtract offset-naive and offset-aware datetimes`) dès que `expires_at` ou
+  `scheduled_at` était envoyé en ISO 8601 avec `Z`/offset — Pydantic v2 produit
+  un datetime aware que asyncpg refuse pour les colonnes `TIMESTAMP WITHOUT
+  TIME ZONE`. Tout broadcast/ciblage admin avec expiration était impossible.
+- Fix à la source dans `schemas.py` : helper `to_naive_utc()` (vrai décalage
+  `astimezone(UTC)`, pas un strip) + `field_validator` sur `MessageCreate`
+  (`expires_at`, `scheduled_at`) et `MessageM2MCreate` (`expires_at`).
+  Régression : `test_message_schemas_tz.py` 4 failed avant fix → 7 passed ;
+  non-régression 62 tests messages/M2M. **Rebuild `hub-api` requis** (code
+  copié dans l'image, non monté en volume).
+
 ## [0.53.10] - 6 septembre 2026
 
 ### 🔧 Pointeur HUBapp_TEMPLATE 2.20.7 → 2.20.8 — resync séquences robuste (validé terrain)
