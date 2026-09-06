@@ -1,3 +1,13 @@
+## [0.53.9] - 6 septembre 2026
+
+### 🔧 Pointeurs HUBapp_TEMPLATE 2.20.7 (+ fix transaction abortée restore)
+
+- **HUBapp_TEMPLATE 2.20.7** (4bd31fa..0ce9319) : pré-check
+  `pg_get_serial_sequence` avant `setval` + reset
+  `session_replication_role` tolérant — le restore des apps ne rollback
+  plus générallement après l'import des données. Porté sur
+  exemple-app 1.12.3 (parité).
+
 ## [0.53.8] - 6 septembre 2026
 
 ### ⚡ Skill migrate-app-template enrichi (retour d'expérience 8 migrations réelles)
