@@ -2,6 +2,20 @@
 
 > Historique des versions du méta-dépôt agrégeant le HUB et les applications du parc.
 
+## [0.53.3] - 6 septembre 2026
+
+### 🔧 Pointeur HUB_base 3.47.2 → 3.47.3 — atelier : fuite d'env hub + fiches -ws fantômes
+
+- **HUB_base 3.47.3** (fca45e5..ccb208c) : deux fixes du cycle atelier piloté
+  depuis la vue Santé — (1) plus aucune variable d'environnement du conteneur
+  hub-api ne fuite vers les apps (allowlist `env_base` dans `_run_cmd`) : la
+  collision `HUB_HTTPS_ENABLED` (hub = « sert du HTTPS » ≠ app = « joindre
+  l'API en HTTPS ») cassait l'enregistrement et l'auth des ateliers (« Mode
+  dégradé », invisibles du hub) — couvre aussi `_op_recreate` vers les apps
+  prod ; (2) la suppression d'atelier (remove/ship) supprime désormais la fiche
+  `Application {slug}-ws` (fini les lignes fantômes qui ouvraient la mauvaise
+  app après réattribution des ports). 10 nouveaux tests, 43/43 workshop.
+
 ## [0.53.2] - 5 septembre 2026
 
 ### 🔁 Pointeur HUB_base 3.47.1 → 3.47.2 — SLO poste partagé : revoke distant normalisé
