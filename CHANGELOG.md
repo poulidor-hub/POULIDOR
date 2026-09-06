@@ -1,3 +1,18 @@
+## [0.53.10] - 6 septembre 2026
+
+### 🔧 Pointeur HUBapp_TEMPLATE 2.20.7 → 2.20.8 — resync séquences robuste (validé terrain)
+
+- **HUBapp_TEMPLATE 2.20.8** (0ce9319..7a1e2b4) : le resync des séquences
+  abortait la transaction sur les tables sans colonne `id`
+  (`schema_migrations`) → COMMIT d'une transaction abortée = rollback
+  général des données restaurées. Structure corrigée : reset du rôle avant
+  le resync, savepoint par table, pré-check colonne via
+  `information_schema`. 155 tests passants.
+- **exemple-app 1.12.4** (repo dédié) : même fix — backup b6d61ff0 restauré
+  506/506 lignes (181 phone_users, 1 groupement, 2 voicemails, 313
+  import_changes, 2 csv_imports), séquences resynchronisées. La migration
+  de save exemple-app fonctionne de bout en bout.
+
 ## [0.53.9] - 6 septembre 2026
 
 ### 🔧 Pointeurs HUBapp_TEMPLATE 2.20.7 (+ fix transaction abortée restore)
