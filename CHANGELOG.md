@@ -1,3 +1,17 @@
+## [0.53.14] - 7 septembre 2026
+
+### ✨ Pointeur HUB_base 3.48.3 → 3.49.0 — onglets admin à 2 niveaux
+
+- **HUB_base 3.49.0** (152e47b..c47f9b7) : la page Administration est
+  réorganisée en 2 niveaux — 4 onglets principaux (Applications,
+  Sauvegardes, VPN, Configuration) + 5 sous-onglets en pilules derrière
+  « Configuration » (Groupes, Service Accounts, Clients OIDC, Apps GitHub,
+  Réseau). Dernier sous-onglet utilisé mémorisé (localStorage
+  `hub.admin.subtab`), badges et lazy-load intacts, aucune modification des
+  modules métier. Design et plan dans
+  `docs/superpowers/specs/2026-09-07-admin-tabs-regroupement-design.md`
+  et `docs/superpowers/plans/2026-09-07-admin-tabs-regroupement.md`.
+
 ## [0.53.13] - 7 septembre 2026
 
 ### ✨ Pointeur HUB_base 3.48.2 → 3.48.3 — accès atelier par utilisateur
