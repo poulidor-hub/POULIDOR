@@ -1,3 +1,21 @@
+## [0.53.20] - 7 septembre 2026
+
+### 📣 Pour les utilisateurs
+- **Corrigé** : le numéro de version affiché en haut à gauche du Hub (à côté du logo) est de nouveau fiable — il reste correct même après une mise à jour du Hub, sans avoir à recharger plusieurs fois la page.
+
+### ⚡ Pointeur HUB_base 3.50.1 — badge de version navbar fiable (/api/health)
+
+- **HUB_base 3.50.1** : le badge de version de la navbar fetchait `/health`,
+  non proxifié par nginx (fallback SPA → `index.html` en 200 `text/html`) →
+  `resp.json()` en SyntaxError, catch silencieux → badge figé sur le fallback
+  statique baked au build, périmé après bump `VERSION` + restart API sans
+  rebuild image frontend. Fix : `fetch('/api/health')` (même handler,
+  proxifié nginx, convention `/api/*`) dans `init.js` (badge) et
+  `admin-snapshots.js` (polling post-restore qui déclarait le Hub
+  « opérationnel » même API down — nginx répondait 200 sur du HTML).
+- **Validation** : en prod locale — `/api/health` 200 JSON `3.50.1`, badge
+  statique servi `v3.50.1`, JS corrigé servi, conteneurs healthy.
+
 ## [0.53.19] - 7 septembre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.21.1 — self-healing M2M compatible Hub legacy
