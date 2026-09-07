@@ -1,3 +1,19 @@
+## [0.53.19] - 7 septembre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base 2.21.1 — self-healing M2M compatible Hub legacy
+
+- **hub_client (template 2.21.1)** : `_recover_credentials` gère les Hubs
+  legacy sans rotation M2M au register (ex. exemple pré-H9) — register 200 sans
+  `client_secret` → fallback `POST /api/apps/me/regenerate-secret`
+  (`X-Slug`/`X-Client-ID`, whitelist réseau Docker). Corrige la déconnexion
+  Hub des apps à jour du template après perte de credentials sur un Hub
+  legacy (log « Hub sans correctif T1 ? »).
+- **Validation** : TDD (2 tests, suite template 157 passed) + E2E poulidor-lab
+  contre le hub legacy `exemple-lab` (recovery OK, token M2M réel) — voir
+  `build/vm-lab/poulidor-lab/journal.md` session 3.
+- **APPS/exemple-app v0.4.0** (dépôt séparé, hors pointeurs) : hub_client
+  synchronisé + release incluant rôles manager / édition conditionnelle.
+
 ## [0.53.18] - 7 septembre 2026
 
 ### 📣 Pour les utilisateurs
