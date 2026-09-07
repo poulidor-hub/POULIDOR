@@ -1,3 +1,13 @@
+## [0.53.15] - 7 septembre 2026
+
+### 🐛 Pointeur HUB_base 3.49.0 → 3.49.1 — modale droits : ligne app/rôle/Atelier
+
+- **HUB_base 3.49.1** (c47f9b7..18bfd16) : la colonne « Atelier » (3.48.3)
+  faisait déborder `.app-role-row` dans la modale des droits — nom, rôle,
+  Atelier, indice profil et badge « Modifié » se compressaient. Fix : flex-wrap
+  structuré (2e ligne dédiée aux badges profil/override), nom shrinkable,
+  rôle/Atelier fixes. Handlers insensibles à la nouvelle hiérarchie DOM.
+
 ## [0.53.14] - 7 septembre 2026
 
 ### ✨ Pointeur HUB_base 3.48.3 → 3.49.0 — onglets admin à 2 niveaux
