@@ -1,3 +1,18 @@
+## [0.53.17] - 7 septembre 2026
+
+### ✨ Pointeurs HUB_base → 3.50.0 + HUBapp_TEMPLATE_base → 2.21.0 — fin des fermetures d'onglets
+
+- **HUB_base 3.50.0** (fc92c59..68be54c) : période de grâce 60 s sur la
+  rotation des refresh tokens (migration 059 `replaced_by_token`) — un
+  double refresh (course d'onglets, SSE `user_permissions_changed`) ne
+  produit plus de 401 « Refresh token invalide ou expiré » ; access token
+  porté à 8 h (LAN, aligné cookie OIDC). 6 tests dédiés + validation terrain
+  (double refresh réel 200/200, post-grâce 401).
+- **HUBapp_TEMPLATE_base 2.21.0** (7a1e2b4..dd123cf) : `refreshAccessToken`
+  sous verrou Web Locks inter-onglets + adoption du token de l'onglet rival,
+  synchronisation d'état via événement `storage`, re-lecture localStorage
+  avant logout (désormais dernier recours).
+
 ## [0.53.16] - 7 septembre 2026
 
 ### ✨ Pointeur HUB_base 3.49.1 → 3.49.2 — modale droits : layout compact une ligne
