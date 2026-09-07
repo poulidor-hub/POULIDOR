@@ -1,3 +1,17 @@
+## [0.53.13] - 7 septembre 2026
+
+### ✨ Pointeur HUB_base 3.48.2 → 3.48.3 — accès atelier par utilisateur
+
+- **HUB_base 3.48.3** (c45149a..152e47b) : un admin peut activer, par
+  utilisateur et par app de base, la visibilité de l'atelier `{slug}-ws`
+  (table `user_workshop_access`, socle 3.48.0) — indépendamment du rôle sur
+  la prod. Dynamique : l'atelier apparaît dès sa création (SSE), l'activation
+  persiste après suppression. Tokens utilisateurs (7 sites) portent
+  `{slug}-ws: "user"` ; gardes `/launch` et `/sso` étendus ; API admin
+  `workshop_access` en full-sync ; checkbox « Atelier » dans la modale des
+  droits. Opérations atelier toujours admin. 17 tests dédiés, suite
+  intégrale 1000 passed.
+
 ## [0.53.12] - 7 septembre 2026
 
 ### 🔧 Pointeur HUB_base 3.48.1 → 3.48.2 — « Mon rôle » idempotent sous concurrence
