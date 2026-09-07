@@ -1,3 +1,12 @@
+## [0.53.16] - 7 septembre 2026
+
+### ✨ Pointeur HUB_base 3.49.1 → 3.49.2 — modale droits : layout compact une ligne
+
+- **HUB_base 3.49.2** (18bfd16..fc92c59) : lignes de la modale des droits en
+  layout compact (variante B validée en companion visuel) — checkbox + nom
+  (ellipsis, mini-badges profil/override en icônes) + reset + rôle + « Atelier »
+  sur une seule ligne alignée, même avec profil + override.
+
 ## [0.53.15] - 7 septembre 2026
 
 ### 🐛 Pointeur HUB_base 3.49.0 → 3.49.1 — modale droits : ligne app/rôle/Atelier
