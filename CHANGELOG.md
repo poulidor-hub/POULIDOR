@@ -1,3 +1,32 @@
+## [0.53.18] - 7 septembre 2026
+
+### 📣 Pour les utilisateurs
+- **Corrigé** : après une mise à jour (`git pull`), la nouvelle version du Hub
+  ne s'appliquait pas forcément — numéro de version absent du bandeau du Hub
+  et nouveautés invisibles. L'installation (`sudo ./install.sh`) met désormais
+  tout le monde d'accord : composants internes resynchronisés et Hub relancé
+  avec la bonne version.
+- **Amélioré** : la procédure de mise à jour est documentée pas à pas dans le
+  README (les composants du parc sont des « sous-modules » : un simple
+  `git pull` ne suffit plus).
+
+### 🐛 Mise à jour du parc : synchro submodules + reconvergence install.sh
+
+- **install.sh — synchro submodules (Phase 3a-prec)** : `git submodule
+  update --init --recursive` avant toute initialisation — un simple
+  `git pull` du méta-repo ne déplace pas le pointeur des submodules
+  (HUB_base resté sur un vieux commit : badge de version absent de la
+  navbar, commits « manquants »).
+- **install.sh — reconvergence si hub déjà opérationnel (Phase 3b)** :
+  au lieu de skipper entièrement, `make -C HUB_base build` + `up-prod`
+  (cache Docker) — en prod les fichiers statiques du frontend sont cuits
+  dans l'image (`COPY public/`), un restart sans rebuild sert l'ancienne
+  version même avec le code à jour.
+- **README.md** : nouvelle section « Mise à jour du parc » — procédure
+  correcte (`git pull --recurse-submodules` → `git submodule update
+  --init --recursive` → `./hubctl update`) et explication du piège
+  pull/submodules + image frontend.
+
 ## [0.53.17] - 7 septembre 2026
 
 ### ✨ Pointeurs HUB_base → 3.50.0 + HUBapp_TEMPLATE_base → 2.21.0 — fin des fermetures d'onglets

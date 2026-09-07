@@ -272,6 +272,18 @@ say ""
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
+# 3a-prec. Synchroniser les submodules (HUB_base, HUBapp_TEMPLATE_base, etc.)
+# Un simple `git pull` ne déplace PAS les submodules : sans cette étape, le code
+# reste à un ancien pointeur (badge de version absent, commits « manquants »).
+if git rev-parse --is-inside-work-tree &>/dev/null; then
+    say "  Synchronisation des submodules..."
+    if sudo -u "$REAL_USER" git submodule update --init --recursive; then
+        ok "Submodules synchronisés"
+    else
+        warn "Échec de synchro des submodules (clé SSH ?). Vérifie : git submodule update --init --recursive"
+    fi
+fi
+
 # 3a. Vérifier si le Hub est déjà opérationnel (idempotence)
 API_PORT="$(grep -E '^HUB_API_PORT=' HUB_base/.env 2>/dev/null | cut -d= -f2 || echo "8000")"
 HUB_ALREADY_RUNNING=false
@@ -284,6 +296,15 @@ fi
 # 3b. Lancer ./hubctl init (ou skip si déjà running et pas --force)
 if $HUB_ALREADY_RUNNING && ! $FORCE; then
     ok "Hub déjà opérationnel — phase init skippée"
+    # Le code a pu évoluer depuis le dernier démarrage (git pull) : en prod les
+    # fichiers statiques sont cuits dans l'image frontend (COPY public/), un
+    # simple restart ne suffit pas → rebuild + relance pour converger.
+    say "  Reconvergence du Hub (build + up-prod, cache Docker)..."
+    if sudo -u "$REAL_USER" make -C HUB_base build && sudo -u "$REAL_USER" make -C HUB_base up-prod; then
+        ok "Hub reconvergé avec le code à jour"
+    else
+        warn "Reconvergence échouée — le Hub reste sur l'ancienne image. Vérifie : make -C HUB_base build"
+    fi
     warn "Pour forcer la réinit : sudo ./install.sh --force"
 else
     say "  Lancement de ./hubctl init..."

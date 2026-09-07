@@ -91,6 +91,27 @@ Voir `HUB_base/docs/GUIDE_INSTALLATION.md` pour l'installation manuelle détaill
 
 ---
 
+## Mise à jour du parc
+
+⚠️ **Un simple `git pull` ne suffit pas** : les composants (HUB_base, HUBapp_TEMPLATE_base…)
+sont des **submodules** — `git pull` ne déplace pas leur pointeur. Et en prod, les fichiers
+statiques du frontend sont **cuits dans l'image Docker** (`COPY public/`) : un restart sans
+rebuild sert l'ancienne version (badge de version absent, nouveautés invisibles).
+
+```bash
+# 1. Pull du méta-repo + mise à jour des submodules
+git pull --recurse-submodules
+git submodule update --init --recursive
+
+# 2. Rebuild + relance du Hub et des apps (build → up → health check)
+./hubctl update
+```
+
+Alternative : relancer `sudo ./install.sh` — il resynchronise les submodules et
+reconverge le Hub (build + up-prod, cache Docker) même s'il tourne déjà.
+
+---
+
 ## Documentation
 
 | Document | Contenu |
