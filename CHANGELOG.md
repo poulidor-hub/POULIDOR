@@ -1,3 +1,14 @@
+## [0.53.12] - 7 septembre 2026
+
+### 🔧 Pointeur HUB_base 3.48.1 → 3.48.2 — « Mon rôle » idempotent sous concurrence
+
+- **HUB_base 3.48.2** (f340b5e..c45149a) : `update_my_role`
+  (`PUT /api/apps/me/role/{slug}`) ne renvoie plus 500 sous concurrence —
+  double-émission du sélecteur « Mon rôle » : le second PUT percute
+  l'unicité `(user_id, app_id)` posée par le premier. Fix idempotent
+  (rollback → reprise de la ligne concurrente → 200), course réelle couverte
+  par test (2 connexions, INSERT pendant la fenêtre).
+
 ## [0.53.11] - 7 septembre 2026
 
 ### 🐛 Pointeur HUB_base 3.48.1 — fix envoi de messages avec `expires_at` timezone-aware
