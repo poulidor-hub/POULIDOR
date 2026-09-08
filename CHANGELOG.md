@@ -1,3 +1,27 @@
+## [0.53.21] - 8 septembre 2026
+
+### ⚡ Pointeur HUB_base 3.50.2 — allocation de subnets : réseaux Docker épinglés manuellement exclus
+
+- **HUB_base 3.50.2** : `POST /api/apps/allocate-ports` pouvait attribuer un
+  sous-réseau déjà occupé par un réseau Docker créé hors Hub (épinglage
+  manuel, stack tiers) — constaté sur exemple-app : allocation de
+  `198.51.100.41/24` alors que `exemple-app-network` l'occupe → `docker compose up`
+  en échec « Pool overlaps with other one on this address space ». Les ports
+  étaient déjà filtrés par scan Docker du réel ; ce n'était pas le cas des
+  sous-réseaux (seule la table `port_allocations` était consultée).
+- **Fix** : `DockerScanner.get_used_network_subnets()` (scan IPAM best-effort,
+  symétrique de `get_used_host_ports`) + `docker_occupied_subnets()`
+  (flag `subnet_scan_docker_enabled`, host local, thread) fusionné dans
+  `allocate_ports_for_app` (allocation neuve **et** backfill paresseux).
+  6 tests TDD, suite port_allocation 26/26.
+- **Validation** : rebuild `hub-api` en prod locale — allocation exemple-app
+  renvoie désormais `198.51.100.43/24` en sautant 10.50.5/.6/.7 épinglés
+  manuellement ; allocations orphelines exemple-app purgées du registre.
+- **Nettoyage parc** : instance doublon `hubv2-exemple-app` (dépôt POULIDOR-lab)
+  supprimée (containers + volumes + réseau 198.51.100.44/24) ; reliques de volumes
+  `lab-exemple-app-*` supprimées ; exemple-app ré-épinglée sur `198.51.100.42/24`
+  (premier slot libre du pool au moment du fix).
+
 ## [0.53.20] - 7 septembre 2026
 
 ### 📣 Pour les utilisateurs
