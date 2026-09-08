@@ -1,3 +1,17 @@
+## [0.53.22] - 8 septembre 2026
+
+### ⚡ Pointeur HUB_base 3.50.3 — suite de tests verte (1015/1015)
+
+- **HUB_base 3.50.3** : les 11 échecs résiduels de la suite Hub sont corrigés —
+  `croniter` installé dans l'env locale de dev (déjà dans `requirements.txt`,
+  8 tests), chemins container `/code/*` rendus monkeypatchables dans
+  `snapshot_engine` (constante `SNAPSHOT_STORAGE_DIR`, comportement inchangé),
+  `test_oidc_launch` aligné sur la feature de purge de session Vikunja
+  (`ff8d2a4`), `test_hub_host` déterministe hors container.
+- **Validation** : suite complète Hub **1015 passed, 0 failed** (avant :
+  1004 passed, 11 failed). Aucun changement de comportement runtime → pas de
+  rebuild hub-api requis (la prochaine release déployée synchronisera).
+
 ## [0.53.21] - 8 septembre 2026
 
 ### ⚡ Pointeur HUB_base 3.50.2 — allocation de subnets : réseaux Docker épinglés manuellement exclus
