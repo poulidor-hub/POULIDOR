@@ -1,3 +1,18 @@
+## [0.54.0] - 9 septembre 2026
+
+### ⚡ Sous-module HUBsocle + hubctl 0.8.0 — socle applicatif versionné (phase 1)
+
+- **HUBsocle 2.22.0** (nouveau sous-module) : socle applicatif versionné du parc —
+  factory `create_app()` (paquet pip `hub-socle`), paquet npm `@poulidor/hub-socle`,
+  images de base `poulidor/socle-api` / `poulidor/socle-web`, pipeline offline-first
+  (`hubctl socle build/status`). 171 tests verts, boot offline prouvé en conteneur.
+  Spec : `docs/superpowers/specs/2026-09-09-socle-versionne-design.md`.
+- **hubctl 0.8.0** (pointeur `hubctl_src` → `08189d4`) : commandes `socle build
+  [--force]` (construction locale des images de base, cache par tag) et `socle
+  status` (drift flotte `APP_SOCLE_VERSION` par app).
+- Les apps existantes ne changent pas (forks template) ; les nouvelles apps
+  naîtront « fines » via INITIALISE v2 (phase 3, à venir).
+
 ## [0.53.22] - 8 septembre 2026
 
 ### ⚡ Pointeur HUB_base 3.50.3 — suite de tests verte (1015/1015)

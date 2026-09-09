@@ -17,3 +17,8 @@
 [submodule "hubctl_src"]
 	path = hubctl_src
 	url = git@github.com:POULIDOR-Audit-Developpement/Hubctl.git
+
+[submodule "HUBsocle"]
+	path = HUBsocle
+	url = git@github.com:POULIDOR-Audit-Developpement/HUBsocle.git
+	branch = main
