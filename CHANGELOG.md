@@ -1,3 +1,14 @@
+## [0.54.1] - 9 septembre 2026
+
+### ⚡ Pointeur HUBsocle 2.22.1 — services_overrides storage câblé
+
+- **HUBsocle 2.22.1** (tag `v2.22.1` publié) : `create_app(services_overrides=
+  {"storage": impl})` fonctionnel (setattr module + registre) ;
+  `routes/backup.py` résout `storage_manager` à l'appel via proxy lazy —
+  8 sites d'usage inchangés. 175 tests. Pré-requis du pilote phase 2.
+- **Pilote phase 2 déployé** : exemple-app 1.3.0 en prod sur le socle
+  (`APP_SOCLE_VERSION=2.22.1`) — première app « à jour » de `hubctl socle status`.
+
 ## [0.54.0] - 9 septembre 2026
 
 ### ⚡ Sous-module HUBsocle + hubctl 0.8.0 — socle applicatif versionné (phase 1)
