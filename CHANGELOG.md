@@ -1,3 +1,15 @@
+## [0.54.2] - 11 septembre 2026
+
+### ⚡ update-hub.sh — mise à jour + déploiement du HUB en une commande
+
+- **Nouveau script `./update-hub.sh`** (racine POULIDOR) : enchaîne `git pull --ff-only`
+  + `git submodule update --init --recursive` + `make build` + déploiement du HUB
+  (prod par défaut, `--dev` pour le stack DEV détaché ; `--dry-run` pour prévisualiser).
+- Health check final `/api/health` avec comparaison version déployée ↔ VERSION du repo
+  (prod : bloquant si KO) — cible le cycle exécuté manuellement après chaque release.
+- Testé en réel : dry-run (prod/dev), config compose DEV validée (`config -q`),
+  exécution complète prod → HUB opérationnel 3.50.10.
+
 ## [0.54.1] - 9 septembre 2026
 
 ### ⚡ Pointeur HUBsocle 2.22.1 — services_overrides storage câblé
