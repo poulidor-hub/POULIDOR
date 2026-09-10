@@ -1,3 +1,18 @@
+## [0.54.3] - 11 septembre 2026
+
+### ⚡ hub.sh — CLI d'exploitation du HUB depuis la racine POULIDOR
+
+- **Nouveau `./hub.sh`** : sous-commandes `update` / `start` / `stop` / `restart` /
+  `rebuild` / `logs` / `status` (+ `--dev`, `--dry-run`, `--help`) — plus besoin
+  d'aller dans HUB_base pour piloter le hub.
+- `stop` = compose down **jamais -v** (règle d'or : volumes préservés) ;
+  `rebuild` = make build + up sans git pull ; `status` = conteneurs + health + version.
+- **`update-hub.sh` devient un alias** rétrocompatible de `hub.sh update`.
+- Fix au passage : le refactor initial exécutait compose depuis la racine du
+  méta-repo (echec « no such file ») — le cd dans HUB_base est désormais global.
+- Testé en réel : dry-runs (5 commandes), start, restart, rebuild, logs, status
+  → HUB opérationnel v3.50.10 à chaque étape.
+
 ## [0.54.2] - 11 septembre 2026
 
 ### ⚡ update-hub.sh — mise à jour + déploiement du HUB en une commande
