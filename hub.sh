@@ -47,6 +47,8 @@ Commandes :
   stop     [--dev] [--dry-run]  arrête le stack (down — les volumes sont préservés)
   restart  [--dev] [--dry-run]  redémarre les conteneurs (compose restart)
   rebuild  [--dev] [--dry-run]  make build + up -d (sans git pull)
+  selftest [--dev] [--dry-run]  cycle stop→start avec assertions + récupération auto
+                              (indisponibilité ~1 min, volumes préservés)
   logs     [--dev]              suit les logs (logs -f --tail=100, Ctrl-C pour sortir)
   status   [--dev]              conteneurs + health API + version déployée
 
@@ -179,6 +181,66 @@ case "$CMD" in
         run docker compose $COMPOSE up -d
         [ "$DRY_RUN" = "1" ] && exit 0
         wait_health 1
+        ;;
+
+    # ── selftest : cycle stop→start avec assertions + récupération auto ──
+    selftest)
+        echo "🧪 SELFTEST du cycle stop→start (mode $MODE) — indisponibilité ~1 min, volumes préservés (jamais -v)."
+        if [ "$DRY_RUN" = "1" ]; then
+            echo "+ [1/4] état initial (health + version)"
+            echo "+ [2/4] docker compose $COMPOSE down   → assertion : 0 conteneur running"
+            echo "+ [3/4] docker compose $COMPOSE up -d   → assertion : hub-api healthy"
+            echo "+ [4/4] si le start échoue : up -d --force-recreate + retry, sinon logs d'erreur"
+            echo "✅ Dry-run terminé — rien n'a été exécuté."
+            exit 0
+        fi
+        selftest_fail() { echo "❌ SELFTEST ÉCHOUÉ : $*" >&2; exit 1; }
+
+        # [1/4] État initial
+        info "[1/4] État initial"
+        if curl -sf http://localhost:8000/api/health > /dev/null 2>&1; then
+            ok "hub-api répond au départ"
+        else
+            info "hub-api ne répond pas au départ — le test continue (le START devra le remonter)."
+        fi
+
+        # [2/4] STOP + assertion
+        info "[2/4] STOP (down — volumes préservés)"
+        docker compose $COMPOSE down
+        # Assertion sur les services CŒUR du hub. Le VPN (wireguard-server)
+        # est volontairement hors cycle : son cycle de vie est géré par hubctl
+        # vpn (boot hook), pas par le stop/start compose.
+        RUNNING="$(docker compose $COMPOSE ps --services --filter status=running \
+            | grep -cE '^(hub-api|hub-db|hub-frontend)$' || true)"
+        [ "$RUNNING" = "0" ] || selftest_fail "des services cœur tournent encore après down ($RUNNING)"
+        ok "assertion stop : services cœur (api/db/frontend) arrêtés"
+
+        # [3/4] START + assertion (avec récupération automatique)
+        info "[3/4] START (up -d)"
+        docker compose $COMPOSE up -d
+        HEALTH_OK=0
+        for _ in $(seq 1 30); do
+            if curl -sf http://localhost:8000/api/health > /dev/null 2>&1; then HEALTH_OK=1; break; fi
+            sleep 2
+        done
+        if [ "$HEALTH_OK" != "1" ]; then
+            echo "⚠ START n'a pas remonté hub-api — récupération automatique (up -d --force-recreate)…"
+            docker compose $COMPOSE up -d --force-recreate
+            for _ in $(seq 1 30); do
+                if curl -sf http://localhost:8000/api/health > /dev/null 2>&1; then HEALTH_OK=1; break; fi
+                sleep 2
+            done
+            if [ "$HEALTH_OK" != "1" ]; then
+                docker compose $COMPOSE logs --tail 50 hub-api
+                selftest_fail "récupération impossible — le HUB est DOWN, inspecte manuellement (docker compose ps / logs)."
+            fi
+            ok "récupération automatique : hub-api remonté"
+        fi
+        ok "assertion start : hub-api healthy"
+
+        # [4/4] Verdict
+        RUN_VERSION="$(curl -sf http://localhost:8000/api/health | sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' || true)"
+        ok "[4/4] SELFTEST RÉUSSI — cycle stop→start validé. Version déployée : ${RUN_VERSION:-inconnue}"
         ;;
 
     # ── logs (attaché) ───────────────────────────────────────────────────

@@ -1,3 +1,19 @@
+## [0.54.4] - 11 septembre 2026
+
+### ⚡ hub.sh selftest — validation réelle du cycle stop→start
+
+- **Nouvelle sous-commande `./hub.sh selftest`** : état initial → stop (assertion :
+  services cœur api/db/frontend arrêtés) → start (assertion : hub-api healthy) →
+  verdict avec version déployée. En cas d'échec du start : récupération
+  automatique (up -d --force-recreate + retry health), sinon logs d'erreur
+  hub-api et verdict ÉCHEC explicite. Indisponibilité ~1 min, volumes
+  préservés (jamais -v).
+- Assertion stop ciblée sur les **services cœur** : le VPN (wireguard-server)
+  est volontairement hors cycle (cycle de vie géré par hubctl vpn + boot hook)
+  et reste up pendant un down.
+- Testé en réel sur le hub de prod local : cycle complet stop→start validé,
+  version 3.50.10 confirmée au health final.
+
 ## [0.54.3] - 11 septembre 2026
 
 ### ⚡ hub.sh — CLI d'exploitation du HUB depuis la racine POULIDOR
