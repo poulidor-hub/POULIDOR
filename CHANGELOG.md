@@ -10,6 +10,18 @@
 - Testé en réel : dry-run (prod/dev), config compose DEV validée (`config -q`),
   exécution complète prod → HUB opérationnel 3.50.10.
 
+## [0.55.0] - 10 septembre 2026
+
+### ⚡ HUBsocle 2.23.0 — INITIALISE v2 (générateur d'apps fines)
+
+- **HUBsocle 2.23.0** (tag `v2.23.0`) : `INITIALISE.py` génère une app fine
+  nouvelle en une commande (pattern canari/pilote embarqué : ordre d'init
+  settings, commits explicites, herméticité tests, frontend socle via
+  `file:`/`additional_contexts`). `docs/REFERENCE-APP-FINE.md` = doc vivante
+  du pattern. 188 tests.
+- Pilote phase 2b déployé : exemple-app 1.4.1 (frontend socle + ticket
+  get_db, socle 2.22.5).
+
 ## [0.54.1] - 9 septembre 2026
 
 ### ⚡ Pointeur HUBsocle 2.22.1 — services_overrides storage câblé
