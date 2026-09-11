@@ -1,3 +1,18 @@
+## [0.55.3] - 11 septembre 2026
+
+### ⚡ Pointeur HUB_base v3.52.0 — fixes de sécurité M2M (AN-1/AN-2, banc 2026-09-10)
+
+- HUB_base v3.52.0 : deux tickets 🔴 de la campagne de banc du socle traités.
+  **AN-1** — `/api/apps/me/credentials` retourne désormais l'app propriétaire
+  du service account (par `client_id` du token), plus jamais une app
+  arbitraire de la relation N-N (409 en cas d'ambiguïté réelle).
+  **AN-2** — périmètre M2M minimal : parité atelier↔prod systématique sur
+  les partages `IS_SHARED`, claim JWT `apps` filtré (actives + approuvées +
+  même contexte), purge one-shot des liens croisés existants (13 retirés sur
+  l'instance). Impact parc : les SA d'ateliers n'ont plus d'accès M2M aux
+  apps prod (et inversement) ; le discovery prod↔prod est préservé.
+- Voir le CHANGELOG HUB_base v3.52.0 pour le détail technique.
+
 ## [0.55.2] - 11 septembre 2026
 
 ### ⚡ Pointeur HUB_base v3.51.0 — page admin « Droits Philia » (phase 1)
