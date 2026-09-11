@@ -1,3 +1,15 @@
+## [0.55.4] - 11 septembre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base v2.21.2 — alignement socle 2.23.2
+
+- HUBapp_TEMPLATE_base v2.21.2 : portage des fixes HUBsocle 2.21.1→2.23.2
+  applicables au template monolithique — propagation IS_SHARED au register
+  cache (AN-3) + deadlock flock ré-entrant, backup list triée/métadonnées
+  cohérentes (AN-4), health/detailed discovery LIVE (AN-5), erreurs restore
+  surfacées (AN-7), formatApiError front. Les futures apps créées depuis le
+  template naissent avec le fix AN-3 ; suite template 165 tests verts.
+- Voir le CHANGELOG HUBapp_TEMPLATE_base v2.21.2 pour le détail.
+
 ## [0.55.3] - 11 septembre 2026
 
 ### ⚡ Pointeur HUB_base v3.52.0 — fixes de sécurité M2M (AN-1/AN-2, banc 2026-09-10)
