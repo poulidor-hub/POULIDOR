@@ -41,6 +41,16 @@
 - Testé en réel : dry-run (prod/dev), config compose DEV validée (`config -q`),
   exécution complète prod → HUB opérationnel 3.50.10.
 
+## [0.55.1] - 10 septembre 2026
+
+### ⚡ Pointeur HUBsocle 2.23.2 — fixes de la campagne de banc
+
+- **HUBsocle 2.23.2** (tag `v2.23.2`) : propagation `IS_SHARED` au register
+  caché, fix deadlock flock M2M, liste backups triée/cohérente,
+  `discovered_count` live, erreurs restore surfacées, conftest hermétique —
+  191 tests. Campagne de banc : 24✅/0❌/4⚠️ (2 tickets 🔴 filés HUB_base).
+- **exemple-app 1.4.2** en prod sur ce socle (pilote à jour).
+
 ## [0.55.0] - 10 septembre 2026
 
 ### ⚡ HUBsocle 2.23.0 — INITIALISE v2 (générateur d'apps fines)
