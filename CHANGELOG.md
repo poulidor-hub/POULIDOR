@@ -1,3 +1,16 @@
+## [0.55.5] - 12 septembre 2026
+
+### ⚡ Pointeur HUB_base v3.52.1 — bloc atelier visible pour les apps au dossier ≠ slug
+
+- HUB_base v3.52.1 : le Hub résolvait le dossier d'une app par `APPS/{slug}/` ;
+  pour les apps dont le dossier technique diffère du slug (ex. `APPS/exemple-app`
+  pour « philia-proxy »), l'atelier apparaissait inexistant dans la vue Santé
+  (pas de bloc « Atelier : … », absent du filtre « Atelier actif ») et les
+  opérations atelier depuis le Hub étaient vouées à l'échec. Nouveau résolveur
+  `_app_dir` (scan des `APP_SLUG` des `.env`, repli historique), branché sur
+  les 8 points d'appel du workshop_service. Tests workshop : 29 verts.
+- Voir le CHANGELOG HUB_base v3.52.1 pour le détail.
+
 ## [0.55.4] - 11 septembre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base v2.21.2 — alignement socle 2.23.2
