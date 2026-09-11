@@ -1,3 +1,13 @@
+## [0.55.2] - 11 septembre 2026
+
+### ⚡ Pointeur HUB_base v3.51.0 — page admin « Droits Philia » (phase 1)
+
+- HUB_base v3.51.0 : nouvel onglet Admin > « Droits Philia » — lecture des
+  périmètres PhiliaNG (habilitations mo + agences/groupes) et suppression
+  d'un droit, exécutée via l'app philia-proxy (proxy Hub→app authentifié par
+  token de service TTL 90 s, audit des deux côtés).
+- Voir le CHANGELOG HUB_base v3.51.0 pour le détail technique.
+
 ## [0.54.4] - 11 septembre 2026
 
 ### ⚡ hub.sh selftest — validation réelle du cycle stop→start
