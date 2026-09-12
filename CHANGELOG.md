@@ -1,3 +1,15 @@
+## [0.55.6] - 12 septembre 2026
+
+### ⚡ Pointeur HUB_base v3.52.2 — passage en atelier depuis la vue santé (apps au dossier ≠ slug)
+
+- HUB_base v3.52.2 : les routes atelier contrôlaient le dépôt git sur
+  `APPS/{slug}/` — pour les apps dont le dossier diffère du slug
+  (ex. `exemple-app` → « exemple-app »), le bouton « Créer l'atelier »
+  de la vue Santé échouait en 400 « pas de repo git ». Tous les contrôles
+  passent désormais par le résolveur `_app_dir(slug)` (v3.52.1) : le passage
+  en atelier fonctionne de bout en bout pour ces applications.
+- Voir le CHANGELOG HUB_base v3.52.2 pour le détail.
+
 ## [0.55.5] - 12 septembre 2026
 
 ### ⚡ Pointeur HUB_base v3.52.1 — bloc atelier visible pour les apps au dossier ≠ slug
