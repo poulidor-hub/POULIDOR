@@ -1,3 +1,15 @@
+## [0.56.1] - 14 septembre 2026
+
+### ⚡ Docs : runbook de portage du fix socle jsonb (exemple-app, exemple-app)
+
+- Nouveau `docs/runbook-portage-socle-jsonb.md` : procédure complète (TDD :
+  test porté, RED, patch exact, GREEN ; release-on-main app ; déploiement
+  prod ; vérifications ; rollback) pour publier le fix HUBsocle v2.23.4
+  dans les releases futures de `exemple-app` et `exemple-app`
+  (ces apps embarquent une copie historique de `routes/backup.py`).
+- Procédure validée sur clone scratch (RED vérifié, 7/7 GREEN, patch depuis
+  les extraits de la doc elle-même).
+
 ## [0.56.0] - 14 septembre 2026
 
 ### ⚡ Ajouté : `scripts/install_runner_ci.sh` — installation dédiée du runner CI
