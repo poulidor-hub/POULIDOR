@@ -1,3 +1,16 @@
+## [0.56.0] - 14 septembre 2026
+
+### ⚡ Ajouté : `scripts/install_runner_ci.sh` — installation dédiée du runner CI
+
+- Mini-script autonome extrait de la Phase 3.5 d'`install.sh` : installe le
+  runner GitHub Actions self-hosted **sans relancer toute l'installation**.
+- Résolution du PAT de parc (DB du hub → variable `GH_PAT` → prompt),
+  auto-détection du repo depuis le remote, service systemd
+  (`User=RUNNER_USER`, labels `POULIDOR`), idempotent.
+- `DRY_RUN=true` prévisualise les commandes sans root ; options
+  `--repo OWNER/NAME` et `--user USER`.
+- Tester avant usage : `DRY_RUN=true bash scripts/install_runner_ci.sh`.
+
 ## [0.55.8] - 14 septembre 2026
 
 ### ⚡ Runner CI GitHub self-hosted intégré à l'installation
