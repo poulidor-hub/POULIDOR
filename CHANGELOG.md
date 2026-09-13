@@ -1,3 +1,23 @@
+## [0.55.7] - 14 septembre 2026
+
+### ⚡ Pointeur HUBsocle v2.23.4 — restore : colonnes jsonb/json rejetées par asyncpg
+
+- HUBsocle v2.23.4 : `_import_table_data` passait aux requêtes les dict/list
+  reconstruits par `_deserialize_value` (contenu JSON des colonnes jsonb) ;
+  asyncpg exige une **chaîne JSON** pour ces types → DataError
+  « invalid input for query argument $N: {} » → ligne rejetée et
+  « importés: 0 » rapporté en succès par le restore.
+- Corrigé dans le socle : `_normalize_db_value()` (dict/list → `json.dumps`,
+  scalaires inchangés) branchée sur chaque valeur importée. TDD :
+  `backend/tests/test_backup_jsonb_values.py` (7 tests), suite complète
+  **203 passed**.
+- Détecté par les tests de transfert des bancs isolés (13-14/09) :
+  `exemple-app`, `exemple-app`, `exemple-app` ; image
+  `poulidor/socle-api:2.23.4` construite, apps bancs reconstruites.
+- Note : les apps embarquant une copie historique de `routes/backup.py`
+  (exemple-app, exemple-app) devront porter le fix à leur
+  prochaine release.
+
 ## [0.55.6] - 12 septembre 2026
 
 ### ⚡ Pointeur HUB_base v3.52.2 — passage en atelier depuis la vue santé (apps au dossier ≠ slug)
