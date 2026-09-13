@@ -1,3 +1,20 @@
+## [0.56.2] - 14 septembre 2026
+
+### ⚡ Seed app Exports + hubctl 0.8.1 (APP_SUBNET dès l'allocation) + specs
+
+- **Nouvelle app au seed** : `POULIDOR-Audit-Developpement/Exports` —
+  centralisation des exports des plateformes externes (v0.1.0, déployée et
+  testée en réel : 1594 devices CLYD ingérés).
+- **hubctl 0.8.1** (sous-module) : le seed écrit désormais `APP_SUBNET` dans le
+  `.env` dès l'allocation officielle du Hub (ports préservés par slug+host +
+  subnet) — supprime l'échec de `make build` (« APP_SUBNET manquant ») sur les
+  apps à compose récent.
+- **Specs** : migration 060 + colonnes TIMESTAMP naive-UTC (alignement
+  conventions dépôt) ; console de suivi logs/surveillance avec recherche par
+  termes.
+
+---
+
 ## [0.56.1] - 14 septembre 2026
 
 ### ⚡ Docs : runbook de portage du fix socle jsonb (exemple-app, exemple-app)
@@ -776,22 +793,7 @@ Hub (`workshop_service`, `.workshop.env` 7 clés) :
 - Application du parc migrée avec ce processus : **exemple-app** (UI HUBCSS 0.2.0, fix tables 0.2.1, update-env 0.3.0 — dépôt `exemple50/exemple-app`, indépendant du méta-repo).
 
 
-## [0.56.2] - 14 septembre 2026
-
-### ⚡ Seed app Exports + hubctl 0.8.1 (APP_SUBNET dès l'allocation) + specs
-
-- **Nouvelle app au seed** : `POULIDOR-Audit-Developpement/Exports` —
-  centralisation des exports des plateformes externes (v0.1.0, déployée et
-  testée en réel : 1594 devices CLYD ingérés).
-- **hubctl 0.8.1** (sous-module) : le seed écrit désormais `APP_SUBNET` dans le
-  `.env` dès l'allocation officielle du Hub (ports préservés par slug+host +
-  subnet) — supprime l'échec de `make build` (« APP_SUBNET manquant ») sur les
-  apps à compose récent.
-- **Specs** : migration 060 + colonnes TIMESTAMP naive-UTC (alignement
-  conventions dépôt) ; console de suivi logs/surveillance avec recherche par
-  termes.
-
-------
+---
 
 ## [0.49.0] - 1er septembre 2026
 
