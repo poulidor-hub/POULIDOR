@@ -1,3 +1,17 @@
+## [0.55.8] - 14 septembre 2026
+
+### ⚡ Runner CI GitHub self-hosted intégré à l'installation
+
+- `install.sh` : nouvelle **Phase 3.5** — installe un runner GitHub Actions
+  self-hosted en service systemd (User=REAL_USER, labels `POULIDOR`), pour
+  exécuter la CI du méta sans consommer de minutes Actions (org free) et
+  permettre le job « Health des hubs » (LAN-only).
+- Sources du PAT de parc : DB du hub (`app_settings.github_token`), variable
+  `GH_PAT`, sinon prompt interactif ; `--no-runner` pour ignorer l'étape.
+- Idempotent (skip si `.credentials` + service actif), mode `DRY_RUN=true`
+  pour prévisualiser les commandes ; tests harness (positif, sans PAT, PAT DB).
+- Runner version : dernière release `actions/runner` (fallback 2.337.0).
+
 ## [0.55.7] - 14 septembre 2026
 
 ### ⚡ Pointeur HUBsocle v2.23.4 — restore : colonnes jsonb/json rejetées par asyncpg
