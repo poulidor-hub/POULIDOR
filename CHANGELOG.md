@@ -1,3 +1,22 @@
+## [0.57.0] - 13 septembre 2026
+
+### ✨ Socle hub-transfert — template 2.22.0 + socle 2.24.0
+
+Re-pointage des sous-modules après le chantier « hub-transfert » (spécification
+`docs/superpowers/specs/2026-09-13-hub-transfert-migration-design.md`) :
+
+- **HUBapp_TEMPLATE_base → 2.22.0** (`349dc93`) : module `hub_transfert` opt-in
+  (client du service partagé `exemple-app` : upload flux/chunké, download
+  streaming, statut, wait — désactivé par défaut `HUB_TRANSFERT_ENABLED=false`)
+  + `call_discovered_service` binaire (`timeout`, `response_format`
+  json|bytes|stream, outbox JSON-only). Suite : 193 passed.
+- **HUBsocle → 2.24.0** (`935f656`) : miroir strict du template (seuls les
+  imports `hub_socle.*` diffèrent). Suite : 229 passed.
+
+Opt-in strict (pattern VPN) : les apps qui n'utilisent pas le transfert ne
+sont pas impactées. Prochaines étapes du chantier : Phase 1 (exemple-app :
+IS_SHARED, catalogue M2M, IngestWorker) puis migration des 6 apps.
+
 ## [0.56.2] - 14 septembre 2026
 
 ### ⚡ Seed app Exports + hubctl 0.8.1 (APP_SUBNET dès l'allocation) + specs
