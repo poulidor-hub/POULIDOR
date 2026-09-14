@@ -1,3 +1,21 @@
+## [0.57.1] - 14 septembre 2026
+
+### ⚡ HUB_base 3.56.0 — déploiement UI des apps aligné sur la voie manuelle
+
+- Pointeur submodule `HUB_base` → e14e5e9 (release 3.56.0) : le déploiement
+  déclenché depuis l'admin hub suit désormais strictement la voie manuelle
+  (`make sync-env` → `make build` → `make up` via le Makefile de l'app).
+- Correctifs : plus de fuite de l'env du hub-api dans le make/compose de
+  l'app (env allowlistée, parité atelier/recreate) ; `.env` écrit en parité
+  `hubctl _write_app_env` (`APP_SUBNET` dès le déploiement,
+  `SECRETS_ENCRYPTION_KEY` réellement persistée, chmod 0600) ; échec
+  explicite si l'app n'a pas de Makefile (fin du fallback `docker compose`
+  nu) ; `git pull --ff-only`.
+- Suite HUB_base : 1105 passed / 0 failed (7 nouveaux tests
+  `test_app_deploy.py`, cycle TDD).
+
+---
+
 ## [0.57.0] - 14 septembre 2026
 
 ### ⚡ HUB_base 3.55.0 — self-service OIDC M2M (/api/oidc/self-client)
