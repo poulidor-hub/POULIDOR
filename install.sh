@@ -134,7 +134,7 @@ if $NEED_REPO_UPDATE; then
         CODENAME="bookworm"
     fi
 
-    if curl -fsSL "https://download.docker.com/linux/$DOCKER_DISTRO/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null && \
+    if curl -fsSL "https://download.docker.com/linux/$DOCKER_DISTRO/gpg" | gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg 2>/dev/null && \
        chmod a+r /etc/apt/keyrings/docker.gpg && \
        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$DOCKER_DISTRO $CODENAME stable" > "$DOCKER_REPO_FILE" && \
        apt-get update -qq; then
