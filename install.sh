@@ -143,6 +143,20 @@ else
     ok "Dépôt Docker déjà configuré"
 fi
 
+# 1c-bis. GitHub CLI (gh) — paquet distro si disponible, sinon repo officiel GitHub CLI
+if apt-cache show gh >/dev/null 2>&1; then
+    ok "gh disponible dans les dépôts distro"
+else
+    say "  gh absent des dépôts — ajout du repo officiel GitHub CLI..."
+    install -d -m 0755 /usr/share/keyrings
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+         -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+         > /etc/apt/sources.list.d/github-cli.list
+    apt-get update -qq
+    ok "Repo officiel GitHub CLI configuré"
+fi
+
 # 1d. Installer les paquets (idempotent)
 if $DOCKER_FROM_REPO; then
     PACKAGES=(
@@ -159,6 +173,9 @@ if $DOCKER_FROM_REPO; then
         "curl"
         "iproute2"
         "rsync"
+        "gh"
+        "nodejs"
+        "npm"
     )
 else
     PACKAGES=(
@@ -173,6 +190,9 @@ else
         "curl"
         "iproute2"
         "rsync"
+        "gh"
+        "nodejs"
+        "npm"
     )
 fi
 
@@ -206,6 +226,8 @@ command -v git &>/dev/null || err "git introuvable après installation."
 command -v python3 &>/dev/null || err "python3 introuvable après installation."
 python3 -c "import venv" 2>/dev/null || err "python3-venv non fonctionnel."
 ok "Vérifications : docker, git, python3-venv — OK"
+command -v gh &>/dev/null || warn "gh introuvable après installation (non bloquant — debug GitHub)."
+command -v node &>/dev/null || warn "node introuvable après installation (non bloquant — MCP zai / build HUBCSS)."
 say ""
 
 # ── Phase 2 : Services ───────────────────────────────────────────────────────
