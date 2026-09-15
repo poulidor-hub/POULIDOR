@@ -1,3 +1,14 @@
+## [0.58.3] - 15 septembre 2026
+
+### 🐛 install.sh — dépôt Docker de la bonne distro (Debian 12 fresh install cassée)
+
+- **Corrigé** : la détection Docker routait TOUJOURS vers `download.docker.com/linux/ubuntu`
+  (codename `UBUNTU_CODENAME`→`VERSION_CODENAME`) — sur Debian 12 cela produisait une URL
+  sans Release file → fallback `docker.io` + `docker-compose-v2` (inexistant côté Debian)
+  → `set -e` tuait install.sh en phase 1. Trouvé par la validation fresh-install en VM labo.
+- Désormais : route `debian` vs `ubuntu` (Mint/neon/pop remappés vers ubuntu) selon `ID`
+  d'`/etc/os-release`, avec l'URL du dépôt et le gpg de la bonne distro.
+
 ## [0.58.2] - 15 septembre 2026
 
 ### 📖 HUB_base 3.58.1 — cahier des charges mis à jour v3.58.0

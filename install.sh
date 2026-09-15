@@ -117,23 +117,28 @@ if $NEED_REPO_UPDATE; then
     say "  Ajout du dépôt Docker officiel..."
     install -m 0755 -d /etc/apt/keyrings
 
-    # Détecter le codename Ubuntu (Mint est basé sur Ubuntu, on remappe)
-    CODENAME="$(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")"
+    # Router vers le dépôt Docker de la bonne distro (Debian ≠ Ubuntu ; Mint/derivés Ubuntu remappés)
+    . /etc/os-release
+    case "${ID:-debian}" in
+        ubuntu|linuxmint|neon|pop)
+            DOCKER_DISTRO="ubuntu"
+            CODENAME="${UBUNTU_CODENAME:-$VERSION_CODENAME}"
+            ;;
+        *)
+            DOCKER_DISTRO="debian"
+            CODENAME="${VERSION_CODENAME}"
+            ;;
+    esac
     if [ -z "$CODENAME" ]; then
-        # Fallback : Linux Mint ne fournit pas toujours UBUNTU_CODENAME
-        CODENAME="$(. /etc/os-release && echo "$DEBIAN_CODENAME")"
-    fi
-    # Linux Mint 22.x = Ubuntu 24.04 = "noble"
-    if [ -z "$CODENAME" ]; then
-        warn "Codename Ubuntu introuvable, utilisation de 'noble' (Ubuntu 24.04)."
-        CODENAME="noble"
+        warn "Codename introuvable, utilisation de 'bookworm' (Debian 12)."
+        CODENAME="bookworm"
     fi
 
-    if curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null && \
+    if curl -fsSL "https://download.docker.com/linux/$DOCKER_DISTRO/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null && \
        chmod a+r /etc/apt/keyrings/docker.gpg && \
-       echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $CODENAME stable" > "$DOCKER_REPO_FILE" && \
+       echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$DOCKER_DISTRO $CODENAME stable" > "$DOCKER_REPO_FILE" && \
        apt-get update -qq; then
-        ok "Dépôt Docker ajouté ($CODENAME)"
+        ok "Dépôt Docker ajouté ($DOCKER_DISTRO $CODENAME)"
     else
         warn "Échec d'ajout du dépôt Docker officiel — utilisation du paquet docker.io système (moins récent)"
         DOCKER_FROM_REPO=false
