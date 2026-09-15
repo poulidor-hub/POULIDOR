@@ -1,3 +1,11 @@
+## [0.58.5] - 15 septembre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.24.1 (tests tolérants au slug instancié)
+
+- HUBapp_TEMPLATE_base 2.24.1 (`32c510e`) : mocks de tests sur `settings.APP_SLUG`
+  (38 échecs `test-docker` si slug d'app instanciée ≠ `mon-app`) + `test-seq` dans `.PHONY`.
+- Les apps hériteront à leur prochaine migration template.
+
 ## [0.58.4] - 15 septembre 2026
 
 ### 🐛 install.sh — keyring Docker idempotent (2e run)
