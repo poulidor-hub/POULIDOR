@@ -7,7 +7,7 @@
 # le check S3 se contente d'une analyse statique du lanceur).
 #
 # Usage :
-#   ./scripts/check-import.sh               # Diagnostic complet S1 → S7
+#   ./scripts/check-import.sh               # Diagnostic complet S1 → S10
 #   ./scripts/check-import.sh --section S3  # Une seule section
 #   ./scripts/check-import.sh --verbose     # Sortie détaillée
 #   ./scripts/check-import.sh --no-color    # Sans couleurs (pipe / log)
@@ -23,6 +23,9 @@
 #   S5 — Démarrage conteneurs Hub (daemon, hub-db/api/frontend, health)
 #   S6 — Environnement IA (.secrets, bashrc, MCP hub, opencode)
 #   S7 — Apps & atelier (cohérence doc/code, create_app, artefacts parasites)
+#   S8 — GitHub CLI (gh : présence, authentification)
+#   S9 — Node.js (MCP zai, plugin opencode, build HUBCSS)
+#   S10 — QEMU/KVM (labo vm-lab, optionnel)
 # =============================================================================
 
 set -uo pipefail
@@ -38,7 +41,7 @@ while [[ $# -gt 0 ]]; do
         --verbose|-v) VERBOSE=true; shift ;;
         --no-color) USE_COLOR=false; shift ;;
         --help|-h)
-            sed -n '3,25p' "${BASH_SOURCE[0]}"
+            sed -n '3,28p' "${BASH_SOURCE[0]}"
             exit 0 ;;
         *) echo "Argument inconnu : $1 (essaie --help)" >&2; exit 2 ;;
     esac
@@ -573,6 +576,70 @@ section_s7() {
 }
 
 # =============================================================================
+# S8 — GitHub CLI (gh)
+# =============================================================================
+section_s8() {
+    begin_section "S8" "GitHub CLI (gh)"
+    should_skip && return
+    if ! command -v gh >/dev/null 2>&1; then
+        warn "gh MANQUANT — install.sh (Phase 1) ou apt-get install gh ; debug GitHub (PR, runs CI, API)"
+        return 0
+    fi
+    pass "gh présent ($(gh --version 2>/dev/null | head -1 | awk '{print $3}'))"
+    if gh auth status >/dev/null 2>&1; then
+        pass "gh authentifié ($(gh api user -q .login 2>/dev/null || echo 'compte OK'))"
+    else
+        warn "gh non authentifié — lance ./scripts/gh-auth.sh (token du parc, fallback interactif)"
+    fi
+}
+
+# =============================================================================
+# S9 — Node.js
+# =============================================================================
+section_s9() {
+    begin_section "S9" "Node.js (MCP zai, plugin opencode, build HUBCSS)"
+    should_skip && return
+    if ! command -v node >/dev/null 2>&1; then
+        warn "node MANQUANT — install.sh (Phase 1) ou apt-get install nodejs npm"
+        return 0
+    fi
+    local major
+    major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
+    if [ "$major" -ge 18 ]; then
+        pass "node présent ($(node --version))"
+    else
+        warn "node $(node --version) < 18 (Vite 5 requiert 18+) — remédie : NodeSource 20 (docs/outillage.md)"
+    fi
+    if command -v npx >/dev/null 2>&1; then
+        pass "npx présent"
+    else
+        warn "npx MANQUANT — apt-get install npm"
+    fi
+}
+
+# =============================================================================
+# S10 — QEMU/KVM (labo vm-lab, optionnel)
+# =============================================================================
+section_s10() {
+    begin_section "S10" "QEMU/KVM (labo vm-lab — optionnel)"
+    should_skip && return
+    local missing="" tool
+    for tool in qemu-system-x86_64 qemu-img cloud-localds; do
+        command -v "$tool" >/dev/null 2>&1 || missing="$missing $tool"
+    done
+    if [ -n "$missing" ]; then
+        warn "QEMU incomplet — manque:$missing (optionnel — requis uniquement par le labo vm-lab : apt-get install qemu-kvm qemu-utils cloud-image-utils)"
+    else
+        pass "outils QEMU présents"
+    fi
+    if [ -e /dev/kvm ] && [ -w /dev/kvm ]; then
+        pass "/dev/kvm accessible"
+    else
+        warn "/dev/kvm absent ou non accessible (optionnel — VM labo sans accélération KVM)"
+    fi
+}
+
+# =============================================================================
 # Exécution
 # =============================================================================
 section_s1
@@ -582,6 +649,9 @@ section_s4
 section_s5
 section_s6
 section_s7
+section_s8
+section_s9
+section_s10
 
 # =============================================================================
 # Résumé
