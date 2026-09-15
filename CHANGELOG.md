@@ -1,36 +1,34 @@
-## [0.57.0] - 13 septembre 2026
+## [0.57.1] - 14 septembre 2026
 
-### ✨ Socle hub-transfert — template 2.22.0 + socle 2.24.0
+### ⚡ HUB_base 3.56.0 — déploiement UI des apps aligné sur la voie manuelle
 
-Re-pointage des sous-modules après le chantier « hub-transfert » (spécification
-`docs/superpowers/specs/2026-09-13-hub-transfert-migration-design.md`) :
+- Pointeur submodule `HUB_base` → e14e5e9 (release 3.56.0) : le déploiement
+  déclenché depuis l'admin hub suit désormais strictement la voie manuelle
+  (`make sync-env` → `make build` → `make up` via le Makefile de l'app).
+- Correctifs : plus de fuite de l'env du hub-api dans le make/compose de
+  l'app (env allowlistée, parité atelier/recreate) ; `.env` écrit en parité
+  `hubctl _write_app_env` (`APP_SUBNET` dès le déploiement,
+  `SECRETS_ENCRYPTION_KEY` réellement persistée, chmod 0600) ; échec
+  explicite si l'app n'a pas de Makefile (fin du fallback `docker compose`
+  nu) ; `git pull --ff-only`.
+- Suite HUB_base : 1105 passed / 0 failed (7 nouveaux tests
+  `test_app_deploy.py`, cycle TDD).
 
-- **HUBapp_TEMPLATE_base → 2.22.0** (`349dc93`) : module `hub_transfert` opt-in
-  (client du service partagé `exemple-app` : upload flux/chunké, download
-  streaming, statut, wait — désactivé par défaut `HUB_TRANSFERT_ENABLED=false`)
-  + `call_discovered_service` binaire (`timeout`, `response_format`
-  json|bytes|stream, outbox JSON-only). Suite : 193 passed.
-- **HUBsocle → 2.24.0** (`935f656`) : miroir strict du template (seuls les
-  imports `hub_socle.*` diffèrent). Suite : 229 passed.
+---
 
-Opt-in strict (pattern VPN) : les apps qui n'utilisent pas le transfert ne
-sont pas impactées. Prochaines étapes du chantier : Phase 1 (exemple-app :
-IS_SHARED, catalogue M2M, IngestWorker) puis migration des 6 apps.
+## [0.57.0] - 14 septembre 2026
 
-## [0.56.2] - 14 septembre 2026
+### ⚡ HUB_base 3.55.0 — self-service OIDC M2M (/api/oidc/self-client)
 
-### ⚡ Seed app Exports + hubctl 0.8.1 (APP_SUBNET dès l'allocation) + specs
-
-- **Nouvelle app au seed** : `POULIDOR-Audit-Developpement/Exports` —
-  centralisation des exports des plateformes externes (v0.1.0, déployée et
-  testée en réel : 1594 devices CLYD ingérés).
-- **hubctl 0.8.1** (sous-module) : le seed écrit désormais `APP_SUBNET` dans le
-  `.env` dès l'allocation officielle du Hub (ports préservés par slug+host +
-  subnet) — supprime l'échec de `make build` (« APP_SUBNET manquant ») sur les
-  apps à compose récent.
-- **Specs** : migration 060 + colonnes TIMESTAMP naive-UTC (alignement
-  conventions dépôt) ; console de suivi logs/surveillance avec recherche par
-  termes.
+- Pointeur submodule `HUB_base` → dddc824 (release 3.55.0) : une app
+  enregistrée peut créer/régénérer SON client OIDC via token M2M
+  (`POST|GET /api/oidc/self-client`, FK `oauth_clients.app_id` résolue
+  serveur, secret une seule fois, SA multi-apps 409, JWT user 403).
+- Finalité : premier déploiement d'app 100 % automatique — SSO Vikunja
+  sans `HUB_ADMIN_PASSWORD` côté app (spec :
+  `APPS/MIGRATION/exemple-app/docs/superpowers/specs/2026-09-14-oidc-self-provisioning-design.md`).
+- Suite HUB_base : 1098 passed / 0 failed (10 nouveaux tests
+  `test_oidc_self_client.py`).
 
 ---
 
@@ -810,7 +808,6 @@ Hub (`workshop_service`, `.workshop.env` 7 clés) :
   - Description du skill enrichie (triggers : `.env` obsolète, base inaccessible après migration).
 - **2.20.0** : `scripts/update_env.py` + cible `make update-env` dans le template, `.gitignore` `.env.pre-*` (sauvegardes de `.env` = secrets).
 - Application du parc migrée avec ce processus : **exemple-app** (UI HUBCSS 0.2.0, fix tables 0.2.1, update-env 0.3.0 — dépôt `exemple50/exemple-app`, indépendant du méta-repo).
-
 
 ---
 
