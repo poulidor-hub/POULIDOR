@@ -1,3 +1,21 @@
+## [0.58.0] - 15 septembre 2026
+
+### ⚡ Outillage parc : gh, tests parallèles, Node.js, doctor enrichi
+
+Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
+
+- **install.sh** : `gh` (repo officiel GitHub CLI en secours sur Debian) + `nodejs`/`npm` —
+  fresh install complète ; vérifs post-install non bloquantes.
+- **scripts/gh-auth.sh** (nouveau) : authentification gh par le token du parc (`.secrets`
+  puis DB hub `app_settings.github_token`, mécanique identique à install.sh), fallback
+  interactif device flow. Idempotent, `--check` non mutant.
+- **scripts/check-import.sh** : sections S8 (gh présence + authentification), S9 (Node.js ≥ 18
+  + npx), S10 (QEMU/KVM, optionnel labo vm-lab) — read-only, non bloquantes.
+- **docs/outillage.md** (nouveau) : inventaire central des outils du parc + pointeur README.
+- **Skill migrate-app-template** : note « test parallèle par défaut v2.24.0+ » (propagation apps).
+- **Pointeurs submodules** : HUB_base → 3.57.0 (`10c3108`), HUBapp_TEMPLATE_base → 2.24.0
+  (`a596a40`) — `make test` parallèle par défaut (pytest-xdist) dans les deux dépôts.
+
 ## [0.57.1] - 14 septembre 2026
 
 ### ⚡ HUB_base 3.56.0 — déploiement UI des apps aligné sur la voie manuelle
