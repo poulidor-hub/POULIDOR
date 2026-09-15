@@ -1,3 +1,15 @@
+## [0.58.2] - 15 septembre 2026
+
+### 📖 HUB_base 3.58.1 — cahier des charges mis à jour v3.58.0
+
+- Pointeur submodule `HUB_base` → b06f95f (release 3.58.1) : cahier des
+  charges porté de v3.37.0 à **v3.58.0** — intégration du delta 3.38→3.57
+  (self-service OIDC, socle-check, pilotage atelier depuis la vue Santé,
+  moniteur jeton GitHub, changement d'IP propagé, backups par mot de passe,
+  identité stable + renommage, atelier réécrit), retrait de la fonction
+  « Droits Philia » reflété (23 modules), chiffres réactualisés
+  (tests ≈1020, tables 36, endpoints ≈270). Livrable HTML reconstruit.
+
 ## [0.58.1] - 15 septembre 2026
 
 ### ⚡ HUB_base 3.58.0 — retrait de la fonction « Droits Philia » du portail
