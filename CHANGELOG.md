@@ -1,3 +1,12 @@
+## [0.58.4] - 15 septembre 2026
+
+### 🐛 install.sh — keyring Docker idempotent (2e run)
+
+- **Corrigé** : `gpg --dearmor -o` refuse d'écraser `/etc/apt/keyrings/docker.gpg` existant
+  → `curl (23)` au 2e run de install.sh → retombée fallback docker.io/docker-compose-v2
+  (crash Debian). Prouvé et corrigé via validation fresh-install en VM labo Debian 12
+  (`gpg --dearmor --yes`). Installation complète re-testée verte au 3e run.
+
 ## [0.58.3] - 15 septembre 2026
 
 ### 🐛 install.sh — dépôt Docker de la bonne distro (Debian 12 fresh install cassée)
