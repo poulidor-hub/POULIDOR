@@ -89,6 +89,8 @@ Si les prérequis sont déjà installés, ou pour un déploiement ciblé du Hub 
 
 Voir `HUB_base/docs/GUIDE_INSTALLATION.md` pour l'installation manuelle détaillée.
 
+> 🧰 Outillage dev (gh, tests parallèles, Node.js, diagnostic machine) : [docs/outillage.md](docs/outillage.md)
+
 ---
 
 ## Mise à jour du parc
