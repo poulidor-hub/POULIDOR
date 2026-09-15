@@ -1,3 +1,12 @@
+## [0.58.1] - 15 septembre 2026
+
+### ⚡ HUB_base 3.58.0 — retrait de la fonction « Droits Philia » du portail
+
+- Pointeur submodule `HUB_base` → f25628b (release 3.58.0) : la gestion des
+  droits PhiliaNG quitte l'admin du hub (UI + route proxy `/api/philia-rights/*`
+  + tests) pour vivre exclusivement dans l'app exemple-app (page
+  `/users-rights`). Infra SNI/certs `service.example.org` inchangée.
+
 ## [0.58.0] - 15 septembre 2026
 
 ### ⚡ Outillage parc : gh, tests parallèles, Node.js, doctor enrichi
