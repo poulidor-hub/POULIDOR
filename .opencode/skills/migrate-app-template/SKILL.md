@@ -357,6 +357,10 @@ cp HUBapp_TEMPLATE_base/backend/entrypoint.sh   APPS/<slug>/backend/entrypoint.s
 cp HUBapp_TEMPLATE_base/backend/pytest.ini      APPS/<slug>/backend/pytest.ini
 ```
 
+> **v2.24.0+** : `make test` est parallèle par défaut (pytest-xdist, `-n auto`, variable
+> `XDIST_WORKERS`) ; `make test-seq` pour le debug séquentiel. `make test-docker` requiert
+> le rebuild d'image (gardé par `ensure-api-fresh`, automatique).
+
 ### C.3 — Fichiers à fusionner
 
 **`backend/config.py`** — contient les Settings Pydantic. L'app a son slug/description (INITIALISE). Le template a potentiellement de nouveaux champs (ex: `hub_mcp_enabled`, `backup_enabled`). Procédure :
