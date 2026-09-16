@@ -1,3 +1,17 @@
+## [0.59.3] - 17 septembre 2026
+
+### ⚡ Pointeur HUB_base → 3.59.3 (correctifs critiques portail + perf)
+
+- **HUB_base → 3.59.3** (merge `fix/api-class-closing-brace`, `c0a262b`) :
+  - accolade fermante `class HubAPI` perdue en 3.58.0 (`api.js`) — écran de
+    chargement infini du portail (ni login ni dashboard) ;
+  - `GET /api/users` 500 sur email legacy `@hub.local` (lecture tolérante,
+    écriture toujours stricte) ;
+  - cache `{kid: PEM public}` du trousseau JWT — ~250 ms gagnés sur chaque
+    requête authentifiée (`auth/me` : 250 → 9 ms mesurés en prod) ;
+  - test anti-régression `node --check` sur les 40 JS du frontend.
+- Détails complets : `HUB_base/CHANGELOG.md` [3.59.3].
+
 ## [0.59.2] - 17 septembre 2026
 
 ### 📖 Refonte des READMEs du parc (7 dépôts) + pointeurs composants
