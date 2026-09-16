@@ -1,3 +1,25 @@
+## [0.59.2] - 17 septembre 2026
+
+### 📖 Refonte des READMEs du parc (7 dépôts) + pointeurs composants
+
+- **Mécanique** : refonte des READMEs selon le canevas commun (bannière + badge de
+  version, rôle, place dans le parc avec Mermaid, démarrage vérifié, docs liées) —
+  spec : `docs/superpowers/specs/2026-09-16-readmes-parc-design.md`.
+- **README racine** : vitrine du parc — badges, diagramme d'architecture Mermaid,
+  tableau des 6 composants avec versions, arborescence corrigée (HUBCSS et hub-mcp
+  y manquaient), provider OIDC et snapshots ajoutés au résumé Hub SSO, sous-commande
+  `jwt` ajoutée à la liste hubctl.
+- **HUB_base → 3.59.2** : création du README (rôle, fonctionnalités des 23 routeurs,
+  stack réelle vanilla JS, place dans le parc, démarrage, 9 docs liées).
+- **HUBsocle → 2.25.1** : README réécrit (socle pip/npm, images, CI, versionnage).
+- **Hubctl → 0.9.1** : README racine créé (13 sous-commandes à jour du parser) +
+  bannière hubctl_cli.
+- **hub-mcp → 0.4.1** : README complété (catalogue des 65 outils, place dans le parc).
+- **HUBCSS → 0.2.4** : badge de version + section « Place In The POULIDOR Park » (EN) ;
+  inclut aussi le commit distant 0.2.3 (`docs/CASCADE.md`) au pointeur.
+- **HUBapp_TEMPLATE_base → 2.24.2** : bannière + place dans le parc + section
+  « Commandes make » (~37 cibles) ; fichiers dérivés resynchronisés (2.23.7 → 2.24.2).
+
 ## [0.59.1] - 16 septembre 2026
 
 ### 📖 Pointeur HUB_base → 3.59.1 (cahier des charges — réponses aux points d'audit)
@@ -10,12 +32,12 @@
 
 ## [0.59.0] - 16 septembre 2026
 
-### ⚡ Pointeurs HUB_base → 3.59.0 (rotation multi-kid JWKS) + hubctl → 0.9.0
+### ⚡ Pointeurs HUB_base → 3.59.1 (rotation multi-kid JWKS + cahier des charges) + hubctl → 0.9.0
 
-- **HUB_base 3.59.0** (`4a22e5e`) : rotation multi-kid du JWKS (trousseau `secrets/jwt_keys/`,
+- **HUB_base 3.59.1** (`6ff26dc`, incl. 3.59.0 `4a22e5e`) : rotation multi-kid du JWKS (trousseau `secrets/jwt_keys/`,
   overlap 24 h, révocation d'urgence, endpoints `/api/auth/keys*`, kid thumbprint RFC 7638)
   + découplage du chiffrement des snapshots sur la paire `backup_*.pem` (repli legacy intégral,
-  PRA rehearsal validé sur VM lab). Forward-only : les snapshots créés en ≥ 3.59.0 exigent ≥ 3.59.0.
+  PRA rehearsal validé sur VM lab ; 3.59.1 = cahier des charges (réponses audit rotation/SPOF/quiesce)). Forward-only : les snapshots créés en ≥ 3.59.0 exigent ≥ 3.59.0.
 - **hubctl 0.9.0** (`eba23ff`) : sous-commande `hubctl jwt keys|rotate|revoke|cleanup` ;
   fix login admin (`/api/auth/token`, l'ancien `/api/token` est mort).
 - Validé extivement sur VM lab (jwks-359 + jwks-359b, from scratch) : install propre,
