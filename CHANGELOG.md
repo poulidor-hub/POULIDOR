@@ -1,3 +1,16 @@
+## [0.59.0] - 16 septembre 2026
+
+### ⚡ Pointeurs HUB_base → 3.59.0 (rotation multi-kid JWKS) + hubctl → 0.9.0
+
+- **HUB_base 3.59.0** (`4a22e5e`) : rotation multi-kid du JWKS (trousseau `secrets/jwt_keys/`,
+  overlap 24 h, révocation d'urgence, endpoints `/api/auth/keys*`, kid thumbprint RFC 7638)
+  + découplage du chiffrement des snapshots sur la paire `backup_*.pem` (repli legacy intégral,
+  PRA rehearsal validé sur VM lab). Forward-only : les snapshots créés en ≥ 3.59.0 exigent ≥ 3.59.0.
+- **hubctl 0.9.0** (`eba23ff`) : sous-commande `hubctl jwt keys|rotate|revoke|cleanup` ;
+  fix login admin (`/api/auth/token`, l'ancien `/api/token` est mort).
+- Validé extivement sur VM lab (jwks-359 + jwks-359b, from scratch) : install propre,
+  rotation sans rupture, compromission, PRA, repli legacy, coffre statique.
+
 ## [0.58.5] - 15 septembre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.24.1 (tests tolérants au slug instancié)
