@@ -1,3 +1,13 @@
+## [0.59.1] - 16 septembre 2026
+
+### 📖 Pointeur HUB_base → 3.59.1 (cahier des charges — réponses aux points d'audit)
+
+- **HUB_base 3.59.1** (`6ff26dc`) : cahier des charges porté à l'état de l'art v3.59.0 —
+  rotation des clés documentée (trousseau multi-kid, JWKS dynamique, aucun redémarrage
+  côté apps), SPOF assumé avec stratégie de reprise bare-metal explicite (§3.3/§7.6),
+  quiesce clarifié (délégation à l'application, HUB sans accès aux volumes), chiffres
+  réactualisés (tests ≈1050, 107 fichiers). Livrable HTML reconstruit + vitrine alignée.
+
 ## [0.59.0] - 16 septembre 2026
 
 ### ⚡ Pointeurs HUB_base → 3.59.0 (rotation multi-kid JWKS) + hubctl → 0.9.0
