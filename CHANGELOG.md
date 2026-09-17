@@ -1,6 +1,27 @@
+## [0.60.0] - 17 septembre 2026
+
+### 🛡️ Politique — isolation worktree obligatoire (règle stricte du parc)
+
+- **Nouvelle règle permanente** : toute intervention qui touche du code (ou la
+  configuration des outils) dans un dépôt du parc passe par `agent-isolation-git`
+  AVANT la moindre modification — 1 agent = 1 worktree = 1 branche, registre partagé,
+  merge sérialisé sous lock. Aucune exception (questions et lecture hors périmètre).
+- `AGENTS.md` : nouvelle section « Isolation git obligatoire (règle stricte) ».
+- `.opencode/agent/jellycode.md` : nouveau point 6 de la Charte (non négociable).
+- `.opencode/skills/agent-isolation-git/SKILL.md` : description et « When to Use »
+  passent de « cas d'usage occasionnel » à « obligatoire, systématique ».
+- **Motivation** : incident HUB_base du 17/09/2026 — une session parallèle active a
+  failli entrer en collision sur VERSION/CHANGELOG (bump empilé sur une release non
+  commitée) ; le critère « d'autres agents pourraient être actifs » est remplacé par
+  « systématique ». Le présent re-pointeur dédoublonne aussi l'entrée [0.59.3]
+  (doublon issu de la fusion avec l'entrée non commitée de la session parallèle).
+- Appliqué immédiatement : cette politique elle-même a été développée, mergée et
+  releasée via le cycle complet du skill (registre `jellycode-405a5f1b`, branche
+  `feat/isolation-worktree-obligatoire`, merge `--no-ff` sous lock).
+
 ## [0.59.3] - 17 septembre 2026
 
-### ⚡ Pointeur HUB_base → 3.59.3 (correctifs critiques portail + perf)
+### ⚡ Pointeur HUB_base → 3.59.3 (correctifs critiques portail + perf + docs compatibilité)
 
 - **HUB_base → 3.59.3** (merge `fix/api-class-closing-brace`, `c0a262b`) :
   - accolade fermante `class HubAPI` perdue en 3.58.0 (`api.js`) — écran de
@@ -9,21 +30,13 @@
     écriture toujours stricte) ;
   - cache `{kid: PEM public}` du trousseau JWT — ~250 ms gagnés sur chaque
     requête authentifiée (`auth/me` : 250 → 9 ms mesurés en prod) ;
+  - access token 8 h aligné sur le cookie OIDC ;
   - test anti-régression `node --check` sur les 40 JS du frontend.
+- **Inclus dans la release** (docs rédigés par session parallèle, intégrés au commit
+  `d74024b`) : `docs/COMPATIBILITE.md` réécrit (instantané 17/09 — versions réelles
+  des 6 composants, contrat app↔Hub factuel, OIDC one-shot+PKCE documenté) et
+  `JWT_KEY_OVERLAP_HOURS=24` ajouté au `.env.example`.
 - Détails complets : `HUB_base/CHANGELOG.md` [3.59.3].
-
-## [0.59.3] - 17 septembre 2026
-
-### 📖 Pointeur HUB_base → 3.59.3 (fix critique portail + docs compatibilité)
-
-- **HUB_base 3.59.3** (`c0a262b`) : fix écran de chargement infini du portail (accolade
-  `class HubAPI` perdue dans `api.js` depuis 3.58.0) + fix 500 sur `GET /api/users`
-  (emails legacy) + cache PEM public JWT (vérification tokens ~250 ms → cache, kid-immuable)
-  + access token 8 h aligné cookie OIDC.
-- **Inclus dans la release** (rédigés par session parallèle, intégrés au commit `d74024b`) :
-  `docs/COMPATIBILITE.md` réécrit (instantané 17/09 — versions réelles des 6 composants,
-  contrat app↔Hub factuel, OIDC one-shot+PKCE documenté) et `JWT_KEY_OVERLAP_HOURS=24`
-  ajouté au `.env.example` (documentait la rotation multi-kid 3.59.0).
 
 ## [0.59.2] - 17 septembre 2026
 
