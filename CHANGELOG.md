@@ -1,3 +1,26 @@
+## [0.61.0] - 17 septembre 2026
+
+### 🛠️ CI du parc — pointeurs submodules + health des hubs (runner self-hosted)
+
+- **Nouveau workflow** `.github/workflows/ci.yml` (2 jobs, runner self-hosted
+  `[POULIDOR]` — org GitHub gratuite, zéro minute facturée) :
+  - `submodule-pointers` : chaque pointeur de submodule doit être **poussé ET mergé**
+    sur l'`origin/main` de son dépôt — dynamique (`git ls-tree`), couvre les 6
+    submodules actuels ; c'est le garde-fou de l'incident type du 17/09 ;
+  - `hub-health` : health `/api/health` des hubs, ports via la variable de repo
+    `HUB_PORTS` (défaut `8000` = prod) — hubv2/legacy se réajoutent via la variable.
+- Scripts : `scripts/ci/check_submodule_pointers.sh` et `check_hub_health.sh`
+  (verbatim de l'archive `hub-base-an1-an2`, tip `394ca32`) ; `install_runner_ci.sh`
+  déjà sur main (identique).
+- Adaptations du portage (spec `docs/superpowers/specs/2026-09-17-portage-ci-parc-design.md`,
+  approche A) : déclencheurs `push main` + `pull_request` (au lieu de toutes les
+  branches), et clone via `git fetch origin "$GITHUB_REF_NAME"` qui fonctionne aussi
+  sur les évènements `pull_request` (le `--branch` d'origine cassait sur `N/merge`).
+- **Runner à installer** (op, hors code) : `sudo DRY_RUN=true ./scripts/install_runner_ci.sh`
+  puis installation réelle — la CI restera « queued » tant qu'aucun runner n'est enregistré.
+- Consigne conservée de la source : pas d'`actions/checkout` (extraheaders GITHUB_TOKEN
+  incompatibles avec les submodules privés), `GIT_CONFIG_GLOBAL=/dev/null`, SSH natif.
+
 ## [0.60.0] - 17 septembre 2026
 
 ### 🛡️ Politique — isolation worktree obligatoire (règle stricte du parc)
