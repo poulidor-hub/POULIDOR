@@ -12,6 +12,19 @@
   - test anti-régression `node --check` sur les 40 JS du frontend.
 - Détails complets : `HUB_base/CHANGELOG.md` [3.59.3].
 
+## [0.59.3] - 17 septembre 2026
+
+### 📖 Pointeur HUB_base → 3.59.3 (fix critique portail + docs compatibilité)
+
+- **HUB_base 3.59.3** (`c0a262b`) : fix écran de chargement infini du portail (accolade
+  `class HubAPI` perdue dans `api.js` depuis 3.58.0) + fix 500 sur `GET /api/users`
+  (emails legacy) + cache PEM public JWT (vérification tokens ~250 ms → cache, kid-immuable)
+  + access token 8 h aligné cookie OIDC.
+- **Inclus dans la release** (rédigés par session parallèle, intégrés au commit `d74024b`) :
+  `docs/COMPATIBILITE.md` réécrit (instantané 17/09 — versions réelles des 6 composants,
+  contrat app↔Hub factuel, OIDC one-shot+PKCE documenté) et `JWT_KEY_OVERLAP_HOURS=24`
+  ajouté au `.env.example` (documentait la rotation multi-kid 3.59.0).
+
 ## [0.59.2] - 17 septembre 2026
 
 ### 📖 Refonte des READMEs du parc (7 dépôts) + pointeurs composants
