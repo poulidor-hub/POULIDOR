@@ -1,0 +1,55 @@
+# CI méta POULIDOR — minimale, 100 % script bash sur runner self-hosted :
+#   1. Les pointeurs sous-modules doivent être poussés ET mergés sur le main
+#      de leur dépôt (le clonage SSH natif du host, GIT_CONFIG_GLOBAL=/dev/null
+#      neutralise tout insteadOf restrictif du ~/.gitconfig).
+#   2. Health des hubs : liste de ports configurable via la variable de repo
+#      HUB_PORTS (Settings > Secrets and variables > Actions > Variables),
+#      défaut « 8000 » (hub prod). Ajouter 18000/19010 le jour où hubv2/legacy
+#      tournent à nouveau.
+# Pas d'actions/checkout : ses extraheaders GITHUB_TOKEN (scopes limités au
+# repo principal) renvoyaient « repository not found » sur les sous-modules
+# privés du parc. Le clone passe par `git fetch origin "$GITHUB_REF_NAME"` :
+# fonctionne en push (ref = branche) comme en pull_request (ref = N/merge).
+# Portage de l'archive hub-base-an1-an2 (394ca32) — spec 2026-09-17.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  submodule-pointers:
+    name: Pointeurs sous-modules poussés/mergés
+    runs-on: [self-hosted, POULIDOR]
+    steps:
+      - name: Clone méta + sous-modules, puis vérification des pointeurs
+        run: |
+          set -e
+          export GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0
+          rm -rf "$GITHUB_WORKSPACE/meta"
+          mkdir -p "$GITHUB_WORKSPACE/meta" && cd "$GITHUB_WORKSPACE/meta"
+          git init --quiet
+          git remote add origin git@github.com:POULIDOR-Audit-Developpement/POULIDOR.git
+          git fetch --quiet origin "$GITHUB_REF_NAME"
+          git checkout --quiet FETCH_HEAD
+          git submodule update --init --quiet
+          bash scripts/ci/check_submodule_pointers.sh
+
+  hub-health:
+    name: Health des hubs
+    runs-on: [self-hosted, POULIDOR]
+    env:
+      HUB_PORTS: ${{ vars.HUB_PORTS || '8000' }}
+    steps:
+      - name: Vérifier le health des hubs
+        run: |
+          set -e
+          export GIT_CONFIG_GLOBAL=/dev/null
+          rm -rf "$GITHUB_WORKSPACE/ci-clone"
+          mkdir -p "$GITHUB_WORKSPACE/ci-clone" && cd "$GITHUB_WORKSPACE/ci-clone"
+          git init --quiet
+          git remote add origin git@github.com:POULIDOR-Audit-Developpement/POULIDOR.git
+          git fetch --depth 1 --quiet origin "$GITHUB_REF_NAME"
+          git checkout --quiet FETCH_HEAD
+          bash scripts/ci/check_hub_health.sh $HUB_PORTS
