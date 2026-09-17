@@ -1,6 +1,6 @@
 ---
 name: agent-isolation-git
-description: 'Isoler le travail git d''un agent via un worktree dédié (.worktrees/_agents/<branche>/) + registre partagé, pour que plusieurs agents jellycode travaillent en parallèle sans collision. Cas d''usage OCCASIONNEL. Utiliser AVANT une modification de code substantielle quand d''autres agents peuvent être actifs sur le même dépôt. Ne PAS utiliser pour une simple question, ni pour isoler Docker/DB (→ app-workshop-mover), ni pour les secrets (→ vault-manager).'
+description: 'Isoler le travail git d''un agent via un worktree dédié (.worktrees/_agents/<branche>/) + registre partagé, pour que plusieurs agents jellycode travaillent en parallèle sans collision. OBLIGATOIRE (politique parc, 17/09/2026) avant TOUTE intervention touchant du code, sans exception — même petite, même si aucun autre agent ne semble actif. Ne PAS utiliser pour une simple question (réponse directe), ni pour isoler Docker/DB (→ app-workshop-mover), ni pour les secrets (→ vault-manager).'
 argument-hint: 'Action et branche, ex: isoler feat/filtres-recherche | finaliser | nettoyer feat-filtres-recherche'
 ---
 
@@ -12,11 +12,19 @@ Plusieurs agents jellycode peuvent travailler en parallèle sur le même dépôt
 
 **Modèle** : 1 agent = 1 worktree = 1 branche. Le worktree est **périssable** : créé pour la tâche, supprimé après merge.
 
+> **Politique stricte (décision utilisateur du 17/09/2026)** : le worktree est **obligatoire**
+> pour toute intervention qui touche du code dans le parc, **sans exception** — même petite,
+> même si aucun autre agent ne semble actif. L'ancien critère « quand d'autres agents
+> peuvent être actifs » est **remplacé** par « systématique ». Motivation : une session
+> parallèle peut apparaître en cours de route (incident HUB_base 17/09/2026 : bump empilé
+> sur une release non commitée d'une autre session). Seules les questions sans modif de
+> fichiers restent hors périmètre (règle d'or ci-dessous).
+
 > **Règle d'or** : si la demande est une **question** (pas de modif de code), répondre normalement **sans** créer de worktree. L'isolation n'a de sens que lorsqu'un agent va modifier des fichiers et committer.
 
 ## When to Use
 
-- "Je vais modifier du code" et d'autres agents pourraient être actifs → **isoler**
+- "Je vais modifier du code" → **isoler** (toujours — règle stricte du parc, pas de condition)
 - "Crée-moi un worktree pour X" → **isoler**
 - "Finalise / merge ma branche" → **finaliser** (étape 4)
 - "Nettoie le worktree de X" → **nettoyer** (étape 5)
