@@ -1,3 +1,26 @@
+## [0.62.0] - 19 septembre 2026
+
+### 🔒 HTTPS par défaut sur la flotte — template 2.26.0, hubctl 0.10.0, HUB_base 3.61.0 (PKI apps)
+
+- **Template → 2.26.0** (`HUBapp_TEMPLATE_base` f7572c1) : `HTTPS_ENABLED=true`
+  par défaut (docker-compose api+frontend, docker-entrypoint.sh, config.py,
+  Makefile `up` opt-out explicite `false`) ; docs/HTTPS.md ; fix `generate-ssl.sh`
+  clé 644 (bug dormant 2.24.2 : `USER nginx` + mount `:ro` cassait le boot HTTPS).
+- **hubctl → 0.10.0** (33c48a0) : `HTTPS_ENABLED=true` garanti dans le `.env`
+  généré (choix app respecté) ; ateliers HTTPS (`.workshop.env` + override
+  `docker-compose.https.yml` si embarqué).
+- **HUB_base → 3.61.0** (2fb0e8d) : `POST /api/apps/cert/issue` — émission des
+  certs apps par la PKI « Hub Local CA » (cherry-pick feat/apps-github-refonte,
+  anti cross-slug inclus ; 7 tests).
+- **Campagne flotte** : 22 apps activées en HTTPS (backup + checkpoint + vérifs,
+  playbook `scripts/https-flotte/`), portail mis à jour automatiquement (re-register
+  JIT), banc de campagne PASS 75/75. Reportées (socle sans mécanisme SSL, à leur
+  migration) : exemple-app, exemple-app, exemple-app. Rapport : `scripts/https-flotte/rapport-https.md`.
+- `PROCEDURE-CA.md` : import de la CA sur les postes (Windows + Firefox) — zéro
+  avertissement navigateur une fois la CA importée.
+
+---
+
 ## [0.61.2] - 19 septembre 2026
 
 ### ⚡ Pointeur submodule — complément release HUB_base 3.60.1
