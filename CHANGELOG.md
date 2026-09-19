@@ -1,3 +1,17 @@
+## [0.61.1] - 19 septembre 2026
+
+### ⚡ Pointeurs submodules — fix backups volumineux (OOM) + nginx 1G
+
+- **HUBapp_TEMPLATE_base → 2.25.0** (b1bb1e9) : création de backup en
+  streaming disque (fin de l'OOM > 150 Mo, incident exemple-app du 19/09),
+  mem_limit api 1G, nginx client_max_body_size 1G. Détail : CHANGELOG du
+  submodule.
+- **HUB_base → 3.60.1** (02b6782) : nginx client_max_body_size 50M → 1G
+  (imports de gros backups). À appliquer au hub au prochain redéploiement
+  frontend. Rattrape aussi le pointeur 3.60.0 resté non commité.
+- Nettoyage : suppression de `main` du template des 2 commits d'app
+  instanciée par erreur (ctrl-tg 0.0.1, VBA) — lignée 2.x rétablie.
+
 ## [0.61.0] - 17 septembre 2026
 
 ### 🛠️ CI du parc — pointeurs submodules + health des hubs (runner self-hosted)
