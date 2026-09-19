@@ -26,3 +26,7 @@ docs/superpowers/
 
 # Agent debug Granite — config temporaire
 opencode.debug.json
+
+# Rapports du banc de campagne (générés à l'exécution par banc.runner)
+scripts/campagne-flotte/rapport-campagne.*
+
