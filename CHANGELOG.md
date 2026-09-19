@@ -1,3 +1,11 @@
+## [0.61.2] - 19 septembre 2026
+
+### ⚡ Pointeur submodule — complément release HUB_base 3.60.1
+
+- **HUB_base → ff7ec5a** : commit manquant du bump (VERSION + fichiers
+  dérivés INTEGRATION.md / index.html restés sur 3.60.0 dans le commit de
+  release 3.60.1 — pattern incident du 17/09, rattrapé).
+
 ## [0.61.1] - 19 septembre 2026
 
 ### ⚡ Pointeurs submodules — fix backups volumineux (OOM) + nginx 1G
