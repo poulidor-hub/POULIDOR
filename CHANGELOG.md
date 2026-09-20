@@ -1,3 +1,13 @@
+## [0.63.1] - 20 septembre 2026
+
+### 🏷️ Skill `proxy-ia` renommé `exemple-app`
+
+- Le skill suit le renommage de l'application de référence : **Proxy Métier**
+  (slug Hub `exemple-app`, ex-exemple-app / PhiliaNG).
+- Dossier `.opencode/skills/proxy-ia/` → `.opencode/skills/exemple-app/`,
+  frontmatter `name`, titre et nom du pattern alignés. Aucune autre référence
+  dans le repo (le persona `jellycode.md` ne cite pas le skill).
+
 ## [0.63.0] - 20 septembre 2026
 
 ### 📚 Resync des skills parc (audit vs code réel)
