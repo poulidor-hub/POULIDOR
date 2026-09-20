@@ -30,6 +30,7 @@ Avant de lancer le moindre script, collecte auprès de l'utilisateur :
    - `client` (défaut) — app livrée à un client. Supporte `--profile fichier.json` pour la fiche client.
    - `tool` — outil interne, config guidée.
    - `other` — saisie manuelle libre.
+   - ⚠️ Le mode **auto** (nom d'app en argument positionnel) force type=`tool`.
 5. **Ports** (optionnel, laisser vide = allocation automatique par le Hub) :
    - `API_PORT` : backend FastAPI (ex: 9045).
    - `FRONTEND_PORT` : interface React (ex: 4250).
@@ -61,7 +62,7 @@ Ce que fait le script (`scripts/create_app.sh`, 67 lignes) :
 **Points d'attention :**
 - Le script est toujours exécuté depuis la racine du méta-repo.
 - Si le submodule n'est pas initialisé, `create_app.sh` échoue avec un message clair — ne pas contourner.
-- Le dossier `APPS/` doit exister.
+- Le script crée `APPS/` si absent (`mkdir -p`).
 
 **Mode atelier (dev)** : une app se crée toujours dans `APPS/<slug>`. Le bac à sable est un cycle séparé, créé après coup : `./hubctl atelier <slug>` (ou la vue Santé du Hub) démarre un 2e projet compose `<slug>-ws` avec un clone de la DB, piloté par `APPS/<slug>/.workshop.env`. Voir le skill `app-workshop-mover`.
 
@@ -71,7 +72,7 @@ Ce que fait le script (`scripts/create_app.sh`, 67 lignes) :
 cd APPS/<slug> && python INITIALISE.py [--profile fichier.json] [--clean|--demo]
 ```
 
-Le script exécute **14 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/PYTHON/INITIALISE.py`, ~2294 lignes) :
+Le script exécute **14 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/PYTHON/INITIALISE.py`, 2431 lignes — un wrapper racine `INITIALISE.py` délègue via `os.execv`) :
 
 | # | Étape | Fichier cible |
 |---|-------|---------------|
@@ -91,11 +92,17 @@ Le script exécute **14 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/
 | 14 | Génération `LICENSE.md` | propriétaire client ou générique |
 
 **Flags importants :**
-- `--profile fichier.json` : mode non-interactif, lit les infos depuis un profil client JSON (format `HUBapp_TEMPLATE_base/docs/client-profile.example.json`).
+- `--profile fichier.json` : lit les infos depuis un profil client JSON (format `HUBapp_TEMPLATE_base/docs/client-profile.example.json`). ⚠️ **Seul ne suffit pas** : le récap `confirm_settings()` attend quand même une confirmation stdin → pour un flux réellement non-interactif (agent), ajouter `--yes`.
+- `--yes` / `-y` : saute la confirmation du récapitulatif — indispensable en non-interactif.
+- `--force-slug <slug>` : override du slug (utile avec `--profile`).
+- `--interactive` : force le mode guidé.
+- Mode auto : `python INITIALISE.py <nom>` (nom positionnel) — crée l'app sans questions mais **force type=`tool`**.
 - `--clean` (défaut) : nettoie le contenu de démonstration (modèles `Item`/`TestData`, routes `items.py`/`test_data.py`, composants frontend de démo). Produit un squelette minimal prêt à développer.
 - `--demo` : garde le contenu de démo pour explorer/exemple.
 
 Après succès, `INITIALISE.{py,sh,bat}` est **auto-supprimé** (self-destruct) ainsi que les scripts d'initialisation dans `ACTIONS/`. Les scripts d'action (`START`, `STOP`, `RESTART`, `LOGS`, etc.) sont générés dans `ACTIONS/PYTHON/`, `ACTIONS/LINUX/`, `ACTIONS/WINDOWS/`.
+
+**Environnement opencode embarqué** : l'app scaffoldée est immédiatement un environnement Jellycode autonome — `opencode.json` (`default_agent: jellycode`, plugin `superpowers` pinné, MCP `hub`), `.opencode/agent/jellycode.md` et les **skills app** (`.opencode/skills/`) sont copiés tels quels du template par `create_app.sh`. `INITIALISE.py` ne les modifie pas (aucun conflit). Pour le mettre à jour plus tard : `make sync-hub-tooling` (MCP + plugin) et le skill `migrate-app-template` (skills + persona).
 
 ## Phase D — Premier boot
 
@@ -106,23 +113,30 @@ make health          # Vérifie GET /api/health
 ```
 
 **Étape D.1 — Allocation des ports** (`make sync-env`)
-Appelle `ACTIONS/PYTHON/allocate_ports.py` (93 lignes) :
-- Si `API_PORT`/`FRONTEND_PORT` sont vides dans `.env`, fait `POST http://{HUB_HOST}:{HUB_API_PORT}/api/apps/allocate-ports` avec `{slug, host}`.
-- Écrit les ports reçus dans `.env`.
-- Synchronise `FRONTEND_HTTPS_PORT = FRONTEND_PORT + 1` et `APP_VERSION` depuis `VERSION`.
-- Idempotent : même slug+host = mêmes ports.
+La cible Makefile orchestre plusieurs scripts :
+1. `ACTIONS/PYTHON/sync_hub_host.py` — découverte/synchro du `HUB_HOST`.
+2. `ACTIONS/PYTHON/allocate_ports.py` (97 lignes) :
+   - Si `API_PORT`/`FRONTEND_PORT`/`APP_SUBNET` sont vides dans `.env`, fait `POST http://{HUB_HOST}:{HUB_API_PORT}/api/apps/allocate-ports` avec `{slug, host}`.
+   - Écrit dans `.env` les valeurs **reçues du Hub** : `API_PORT`, `FRONTEND_PORT`, `FRONTEND_HTTPS_PORT`, `APP_SUBNET`.
+   - Idempotent : même slug+host = mêmes valeurs (skip seulement si `API_PORT`, `FRONTEND_PORT` **et** `APP_SUBNET` sont déjà définis).
+3. La cible Makefile calcule ensuite les **dérivés locaux** :
+   - `FRONTEND_HTTPS_PORT = FRONTEND_PORT + 1` (si absent — c'est le Makefile qui le recalcule, pas `allocate_ports.py`).
+   - `APP_VERSION` depuis `VERSION`.
 
 **Étape D.2 — Démarrage**
 ```bash
 make dev     # docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
              # Rebuild + hot-reload + HMR, logs foreground
-make up      # docker compose up -d (mode prod, pas de hot-reload)
+make up      # mode prod — bascule HTTPS selon HTTPS_ENABLED :
+             #   HTTPS_ENABLED != "false" → generate-ssl.sh + docker-compose.https.yml up -d (défaut flotte)
+             #   HTTPS_ENABLED = "false"  → docker compose up -d (HTTP pur)
 ```
 Choix : `make dev` pour développer avec hot-reload, `make up` pour un démarrage en mode prod. (Le bac à sable atelier est un cycle séparé : `./hubctl atelier <slug>`, cf. skill `app-workshop-mover`.)
 
 **Étape D.3 — Healthcheck**
 ```bash
-make health             # curl /api/health — retry jusqu'à 5× avec 2s d'intervalle
+make health             # UN SEUL curl /api/health (pas de retry intégré) — relancer à la main
+                        # tant que le boot n'est pas terminé, ou surveiller `make logs-api`
 make logs-api           # Vérifie "Application startup complete"
 ```
 
@@ -141,17 +155,17 @@ Signatures d'échec au boot (tableau de diagnostic `verify-feature SKILL.md:50-5
 
 ## Phase E — Conventions backend critiques
 
-Rappeler au développeur ces conventions **obligatoires** du template (`HUBapp_TEMPLATE_base/README.md:240-249`) :
+Rappeler au développeur ces conventions **obligatoires** du template. Sources de vérité (le README ne les documente plus) :
 
-| Règle | Détail |
-|-------|--------|
-| `DateTime(timezone=True)` | Obligatoire côté SQLAlchemy ORM |
-| `TIMESTAMPTZ` | Obligatoire dans les migrations SQL |
-| `TZ=UTC` | Obligatoire dans le conteneur Postgres (`docker-compose.yml`) |
-| `datetime.now(timezone.utc)` | Obligatoire en Python (jamais `datetime.utcnow()`) |
-| SSE `?token=JWT` | Obligatoire — `EventSource` ne supporte pas les headers HTTP |
-| Refresh proactif | 2 min avant expiration (TTL 15 min) côté frontend |
-| `ExpiredSignatureError` | Jamais avalé dans `hub_auth._try_decode()` |
+| Règle | Détail | Référence |
+|-------|--------|-----------|
+| `DateTime(timezone=True)` | Obligatoire côté SQLAlchemy ORM | `backend/models.py` |
+| `TIMESTAMPTZ` | Obligatoire dans les migrations SQL | `backend/migrations/001_fix_datetime_timezone.sql` |
+| `TZ=UTC` | Obligatoire dans le conteneur Postgres | `docker-compose.yml` |
+| `datetime.now(timezone.utc)` | Obligatoire en Python (jamais `datetime.utcnow()`) | `backend/hub_auth.py`, `backend/main.py` |
+| SSE `?token=JWT` | Obligatoire — `EventSource` ne supporte pas les headers HTTP | `frontend/src/context/AuthContext.jsx` |
+| Refresh proactif | 2 min avant expiration (`expiresIn - 120`, TTL 15 min) | `frontend/src/context/AuthContext.jsx` |
+| `ExpiredSignatureError` | Jamais avalé dans `hub_auth` (re-raise) | `backend/hub_auth.py` |
 
 **Migrations SQL** : convention `NNN_description.sql`, exécutées par le runner dans `backend/database.py` (enregistre le préfixe dans `schema_migrations`, savepoint par statement). Documentation : `.github/instructions/migrations-sql.instructions.md`.
 
@@ -166,17 +180,19 @@ L'app tourne. Pour la suite du développement :
 | Piloter/observer le Hub | `hub-mcp-usage` |
 | Créer une page CRUD React | `frontend-crud-page` |
 | Vérifier après une modif | `verify-feature` (skill app) |
-| Rétrofitter la messagerie sur une app existante | `hub-messages-integration` |
+| Rétrofitter la messagerie sur une app existante | `hub-notifications` (couvre le rétrofit) + `HUBapp_TEMPLATE_base/docs/HUB_MESSAGES.md` |
 
 ## Références
 
 | Réf | Chemin |
 |-----|--------|
 | Template | `HUBapp_TEMPLATE_base/` |
+| Version template | `HUBapp_TEMPLATE_base/VERSION` (à lire, ne jamais coder en dur) |
 | Script création | `scripts/create_app.sh` |
 | INITIALISE | `HUBapp_TEMPLATE_base/ACTIONS/PYTHON/INITIALISE.py` |
 | Profil client exemple | `HUBapp_TEMPLATE_base/docs/client-profile.example.json` |
 | README template | `HUBapp_TEMPLATE_base/README.md` |
-| Conventions backend | `HUBapp_TEMPLATE_base/README.md:240-249` |
+| Conventions backend | fichiers sources du tableau Phase E (models, migrations, compose, AuthContext, hub_auth) |
+| Messagerie Hub | `HUBapp_TEMPLATE_base/docs/HUB_MESSAGES.md` |
 | Migrations SQL | `HUBapp_TEMPLATE_base/.github/instructions/migrations-sql.instructions.md` |
 | Workshop mover | `.opencode/skills/app-workshop-mover/SKILL.md` |
