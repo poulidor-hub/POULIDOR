@@ -1,3 +1,14 @@
+## [0.63.2] - 20 septembre 2026
+
+### 🤖 Persona `jellycode.md` — liste Skills app corrigée
+
+- **Skill fantôme retiré** : `hub-messages-integration` (n'existe pas — ancien nom
+  de `hub-notifications`).
+- **Ajouts** : `bulk-operations`, `app-dependencies` — la liste couvre à nouveau
+  les 13 skills du template.
+- **MCP** : « ~85 outils » → « ~65 outils » (65 réellement exposés, comptés sur
+  hubctl 0.10.0).
+
 ## [0.63.1] - 20 septembre 2026
 
 ### 🏷️ Skill `proxy-ia` renommé `exemple-app`
