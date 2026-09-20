@@ -1,26 +1,3 @@
-## [0.62.0] - 19 septembre 2026
-
-### 🔒 HTTPS par défaut sur la flotte — template 2.26.0, hubctl 0.10.0, HUB_base 3.61.0 (PKI apps)
-
-- **Template → 2.26.0** (`HUBapp_TEMPLATE_base` f7572c1) : `HTTPS_ENABLED=true`
-  par défaut (docker-compose api+frontend, docker-entrypoint.sh, config.py,
-  Makefile `up` opt-out explicite `false`) ; docs/HTTPS.md ; fix `generate-ssl.sh`
-  clé 644 (bug dormant 2.24.2 : `USER nginx` + mount `:ro` cassait le boot HTTPS).
-- **hubctl → 0.10.0** (33c48a0) : `HTTPS_ENABLED=true` garanti dans le `.env`
-  généré (choix app respecté) ; ateliers HTTPS (`.workshop.env` + override
-  `docker-compose.https.yml` si embarqué).
-- **HUB_base → 3.61.0** (2fb0e8d) : `POST /api/apps/cert/issue` — émission des
-  certs apps par la PKI « Hub Local CA » (cherry-pick feat/apps-github-refonte,
-  anti cross-slug inclus ; 7 tests).
-- **Campagne flotte** : 22 apps activées en HTTPS (backup + checkpoint + vérifs,
-  playbook `scripts/https-flotte/`), portail mis à jour automatiquement (re-register
-  JIT), banc de campagne PASS 75/75. Reportées (socle sans mécanisme SSL, à leur
-  migration) : exemple-app, exemple-app, exemple-app. Rapport : `scripts/https-flotte/rapport-https.md`.
-- `PROCEDURE-CA.md` : import de la CA sur les postes (Windows + Firefox) — zéro
-  avertissement navigateur une fois la CA importée.
-
----
-
 ## [0.63.0] - 20 septembre 2026
 
 ### 📚 Resync des skills parc (audit vs code réel)
@@ -50,6 +27,29 @@
 
 ---
 
+
+## [0.62.0] - 19 septembre 2026
+
+### 🔒 HTTPS par défaut sur la flotte — template 2.26.0, hubctl 0.10.0, HUB_base 3.61.0 (PKI apps)
+
+- **Template → 2.26.0** (`HUBapp_TEMPLATE_base` f7572c1) : `HTTPS_ENABLED=true`
+  par défaut (docker-compose api+frontend, docker-entrypoint.sh, config.py,
+  Makefile `up` opt-out explicite `false`) ; docs/HTTPS.md ; fix `generate-ssl.sh`
+  clé 644 (bug dormant 2.24.2 : `USER nginx` + mount `:ro` cassait le boot HTTPS).
+- **hubctl → 0.10.0** (33c48a0) : `HTTPS_ENABLED=true` garanti dans le `.env`
+  généré (choix app respecté) ; ateliers HTTPS (`.workshop.env` + override
+  `docker-compose.https.yml` si embarqué).
+- **HUB_base → 3.61.0** (2fb0e8d) : `POST /api/apps/cert/issue` — émission des
+  certs apps par la PKI « Hub Local CA » (cherry-pick feat/apps-github-refonte,
+  anti cross-slug inclus ; 7 tests).
+- **Campagne flotte** : 22 apps activées en HTTPS (backup + checkpoint + vérifs,
+  playbook `scripts/https-flotte/`), portail mis à jour automatiquement (re-register
+  JIT), banc de campagne PASS 75/75. Reportées (socle sans mécanisme SSL, à leur
+  migration) : exemple-app, exemple-app, exemple-app. Rapport : `scripts/https-flotte/rapport-https.md`.
+- `PROCEDURE-CA.md` : import de la CA sur les postes (Windows + Firefox) — zéro
+  avertissement navigateur une fois la CA importée.
+
+---
 
 ## [0.61.2] - 19 septembre 2026
 
@@ -403,6 +403,28 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   token de service TTL 90 s, audit des deux côtés).
 - Voir le CHANGELOG HUB_base v3.51.0 pour le détail technique.
 
+## [0.55.1] - 10 septembre 2026
+
+### ⚡ Pointeur HUBsocle 2.23.2 — fixes de la campagne de banc
+
+- **HUBsocle 2.23.2** (tag `v2.23.2`) : propagation `IS_SHARED` au register
+  caché, fix deadlock flock M2M, liste backups triée/cohérente,
+  `discovered_count` live, erreurs restore surfacées, conftest hermétique —
+  191 tests. Campagne de banc : 24✅/0❌/4⚠️ (2 tickets 🔴 filés HUB_base).
+- **exemple-app 1.4.2** en prod sur ce socle (pilote à jour).
+
+## [0.55.0] - 10 septembre 2026
+
+### ⚡ HUBsocle 2.23.0 — INITIALISE v2 (générateur d'apps fines)
+
+- **HUBsocle 2.23.0** (tag `v2.23.0`) : `INITIALISE.py` génère une app fine
+  nouvelle en une commande (pattern canari/pilote embarqué : ordre d'init
+  settings, commits explicites, herméticité tests, frontend socle via
+  `file:`/`additional_contexts`). `docs/REFERENCE-APP-FINE.md` = doc vivante
+  du pattern. 188 tests.
+- Pilote phase 2b déployé : exemple-app 1.4.1 (frontend socle + ticket
+  get_db, socle 2.22.5).
+
 ## [0.54.4] - 11 septembre 2026
 
 ### ⚡ hub.sh selftest — validation réelle du cycle stop→start
@@ -445,28 +467,6 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   (prod : bloquant si KO) — cible le cycle exécuté manuellement après chaque release.
 - Testé en réel : dry-run (prod/dev), config compose DEV validée (`config -q`),
   exécution complète prod → HUB opérationnel 3.50.10.
-
-## [0.55.1] - 10 septembre 2026
-
-### ⚡ Pointeur HUBsocle 2.23.2 — fixes de la campagne de banc
-
-- **HUBsocle 2.23.2** (tag `v2.23.2`) : propagation `IS_SHARED` au register
-  caché, fix deadlock flock M2M, liste backups triée/cohérente,
-  `discovered_count` live, erreurs restore surfacées, conftest hermétique —
-  191 tests. Campagne de banc : 24✅/0❌/4⚠️ (2 tickets 🔴 filés HUB_base).
-- **exemple-app 1.4.2** en prod sur ce socle (pilote à jour).
-
-## [0.55.0] - 10 septembre 2026
-
-### ⚡ HUBsocle 2.23.0 — INITIALISE v2 (générateur d'apps fines)
-
-- **HUBsocle 2.23.0** (tag `v2.23.0`) : `INITIALISE.py` génère une app fine
-  nouvelle en une commande (pattern canari/pilote embarqué : ordre d'init
-  settings, commits explicites, herméticité tests, frontend socle via
-  `file:`/`additional_contexts`). `docs/REFERENCE-APP-FINE.md` = doc vivante
-  du pattern. 188 tests.
-- Pilote phase 2b déployé : exemple-app 1.4.1 (frontend socle + ticket
-  get_db, socle 2.22.5).
 
 ## [0.54.1] - 9 septembre 2026
 
@@ -1176,6 +1176,35 @@ Hub (`workshop_service`, `.workshop.env` 7 clés) :
   24h/7j/30j), endpoint API inchangé. +2 tests backend : équivalence stricte vs
   référence naïve (propriété) et garde-fou perf 90 j / 4 000 sessions < 1 s.
 
+## [0.45.1] - 27 août 2026
+
+### 📖 Guide du parc — carte du territoire pour développeurs & admins
+
+- **Nouveau `docs/guide-parc-poulidor.md`** (~1080 lignes, 6 sections) : démarcation
+  HUB_base / hubctl / template, **toutes les commandes** (12 sous-commandes hubctl,
+  6 cibles Makefile Hub, 35 cibles template, options exactes vérifiées dans le code),
+  inventaire des fonctionnalités (21 routeurs en 8 blocs, 12 blocs clé-en-main du
+  template, 13 skills), 4 cas d'usage pas-à-pas (créer une app, déployer via atelier,
+  sinistre — arbre vault/restore/pra-restore, secrets), cheat-sheet 28 commandes,
+  matrice « quel doc pour quel besoin », pièges classiques. 6 schémas conceptuels ASCII
+  (architecture Hub, SSO/JWT, parc vu par hubctl, coffre & kit PRA, cycle atelier,
+  anatomie d'une app). Construit tâche par tâche avec revues : 12 faits transversaux
+  échantillonnés en revue finale — 0 erreur ; 21/21 liens validés.
+- **Nouveau `docs/visualDev_guide.html`** (guide visuel compagnon, navigateur) :
+  5 diagrammes **Mermaid** validés par parsing réel (séquences SSO/JWT et M2M,
+  flowcharts atelier+rollbacks, décision sinistre, couches de résilience), table des
+  12 sous-commandes, TUI réel (raccourcis PROD/DEV, garde UI 3.38.0), pools prod vs
+  atelier, services du Hub, footer renvois. Correctifs factuels : PostgreSQL 15 (pas
+  16) pour les apps, table `outbox`, deps pip → `make build` (pas restart-api),
+  SAVEPOINT par statement, ports Nginx internes.
+- **README** : section « Documentation » (fusionnée avec l'existante) ; corrections
+  `--validate` fantôme → `atelier --maj/--prod`, TUI « Apps → Ajouter » obsolète →
+  `create_app.sh` + INITIALISE.
+- Note guide : pilotage atelier UI (Hub 3.38.0+) — ne pas lancer hubctl et l'UI
+  simultanément sur la même app.
+- **Submodule `HUB_base` → v3.38.1** (atelier UI + fixes retour terrain ; le pointeur
+  0.45.0 avait été omis dans 8c5825f).
+
 ## [0.45.0] - 27 août 2026
 
 ### 🚀 Atelier pilotable depuis l'UI HUB (HUB_base v3.38.0)
@@ -1271,35 +1300,6 @@ Hub (`workshop_service`, `.workshop.env` 7 clés) :
 - **Vérifié** : probe protocole MCP complet (initialize → tools/list → tools/call) lancé depuis un cwd étranger avec les 3 variables retirées de l'env → 65 outils exposés, `hub_health` et `hub_app_list` (login admin via `.secrets` sourcé par le wrapper) OK ; régression OK en conditions normales ; mode dégradé sans `.secrets` → avertissement stderr + erreur explicite à l'appel.
 
 ---
-
-## [0.45.1] - 27 août 2026
-
-### 📖 Guide du parc — carte du territoire pour développeurs & admins
-
-- **Nouveau `docs/guide-parc-poulidor.md`** (~1080 lignes, 6 sections) : démarcation
-  HUB_base / hubctl / template, **toutes les commandes** (12 sous-commandes hubctl,
-  6 cibles Makefile Hub, 35 cibles template, options exactes vérifiées dans le code),
-  inventaire des fonctionnalités (21 routeurs en 8 blocs, 12 blocs clé-en-main du
-  template, 13 skills), 4 cas d'usage pas-à-pas (créer une app, déployer via atelier,
-  sinistre — arbre vault/restore/pra-restore, secrets), cheat-sheet 28 commandes,
-  matrice « quel doc pour quel besoin », pièges classiques. 6 schémas conceptuels ASCII
-  (architecture Hub, SSO/JWT, parc vu par hubctl, coffre & kit PRA, cycle atelier,
-  anatomie d'une app). Construit tâche par tâche avec revues : 12 faits transversaux
-  échantillonnés en revue finale — 0 erreur ; 21/21 liens validés.
-- **Nouveau `docs/visualDev_guide.html`** (guide visuel compagnon, navigateur) :
-  5 diagrammes **Mermaid** validés par parsing réel (séquences SSO/JWT et M2M,
-  flowcharts atelier+rollbacks, décision sinistre, couches de résilience), table des
-  12 sous-commandes, TUI réel (raccourcis PROD/DEV, garde UI 3.38.0), pools prod vs
-  atelier, services du Hub, footer renvois. Correctifs factuels : PostgreSQL 15 (pas
-  16) pour les apps, table `outbox`, deps pip → `make build` (pas restart-api),
-  SAVEPOINT par statement, ports Nginx internes.
-- **README** : section « Documentation » (fusionnée avec l'existante) ; corrections
-  `--validate` fantôme → `atelier --maj/--prod`, TUI « Apps → Ajouter » obsolète →
-  `create_app.sh` + INITIALISE.
-- Note guide : pilotage atelier UI (Hub 3.38.0+) — ne pas lancer hubctl et l'UI
-  simultanément sur la même app.
-- **Submodule `HUB_base` → v3.38.1** (atelier UI + fixes retour terrain ; le pointeur
-  0.45.0 avait été omis dans 8c5825f).
 
 ## [0.40.1] - 23 août 2026
 
