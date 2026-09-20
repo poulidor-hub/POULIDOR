@@ -1,3 +1,17 @@
+## [0.64.0] - 20 septembre 2026
+
+### ✨ `scripts/update-submodules.sh` — filet de sécurité de mise à jour
+
+- **Ajouté** : script autonome qui aligne TOUS les sous-modules sur les pointeurs
+  du méta (`git submodule update --init --recursive`) — à utiliser quand
+  `./hubctl update` ne fonctionne pas.
+- Par défaut : fetch + fast-forward `origin/main` d'abord ; si le ff est refusé
+  par un WIP local en conflit, aligne sur les pointeurs **locaux** avec
+  avertissement explicite (non bloquant).
+- Options : `--no-fetch` (pointeurs locaux), `--force` (écarte les modifications
+  locales des sous-modules, confirmation requise sauf `--yes`), garde-fou
+  branche `main`, état avant/après + versions des composants affichés.
+
 ## [0.63.5] - 20 septembre 2026
 
 ### ⚡ template → 2.26.2 (fix carte hub : version poussée au register)
