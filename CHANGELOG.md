@@ -1,3 +1,11 @@
+## [0.63.4] - 20 septembre 2026
+
+### 📚 template → 2.26.1 (doc HUB_MCP alignée sur le MCP 0.4.2)
+
+- **HUBapp_TEMPLATE_base → 2.26.1** (depuis 2.26.0) : `docs/HUB_MCP.md` ne liste
+  plus `hub_auth_create_bootstrap_token` / `hub_auth_list_bootstrap_tokens`
+  (supprimés du MCP v0.4.2). Catalogue doc : **63 outils**.
+
 ## [0.63.3] - 20 septembre 2026
 
 ### 🔌 hub-mcp → 0.4.2 (retrait des 2 outils bootstrap morts)
