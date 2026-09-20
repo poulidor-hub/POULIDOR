@@ -21,6 +21,18 @@
 
 ---
 
+## [0.62.1] - 20 septembre 2026
+
+### 🔧 Pointeur submodule — HUB_base 3.61.1 (SAN certs : localhost)
+
+- **HUB_base → e7219c2 (3.61.1)** : le SAN des certs émis par `cert/issue`
+  inclut `PKI_CERT_DOMAINS` (localhost) — `curl --cacert ca.crt
+  https://localhost:<port>` passe la vérification. Ré-émission automatique
+  par cert_sync (changement de SAN détecté).
+
+---
+
+
 ## [0.61.2] - 19 septembre 2026
 
 ### ⚡ Pointeur submodule — complément release HUB_base 3.60.1
