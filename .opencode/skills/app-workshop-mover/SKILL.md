@@ -85,10 +85,12 @@ Implémentée par `_create_workshop` (`actions.py`), appelée via
 3. SUBNET   Alloue le 1er /24 libre du pool [198.51.100.0/24 .. 198.51.100.10/24]
             (overlap vérifié contre les réseaux docker existants + ateliers)
 4. ENV      Écrit APPS/X/.workshop.env : APP_SLUG, API_PORT, FRONTEND_PORT,
-            FRONTEND_HTTPS_PORT, WS_REF, WS_COMMIT, APP_SUBNET (7 clés)
+            FRONTEND_HTTPS_PORT, HTTPS_ENABLED=true, WS_REF, WS_COMMIT (7 clés)
+            + APP_SUBNET (8e clé, si un subnet libre est trouvé)
 5. VOLUME   docker volume create X-ws-postgres-data
             + alpine cp -a /from/. /to/ depuis X-postgres-data
-6. BUILD-UP docker compose -p X-ws -f APPS/X/docker-compose.yml build (timeout 600 s)
+6. BUILD-UP docker compose -p X-ws -f <fichiers de _ws_compose_files> build (timeout 600 s)
+            — docker-compose.yml + docker-compose.https.yml si HTTPS actif (miroir prod)
             + up -d — .workshop.env injecté dans l'environnement,
             APP_VERSION injectée depuis APPS/X/VERSION
 7. HEALTH   curl http://localhost:{API_PORT_atelier}/api/health (timeout 30 s)
@@ -154,15 +156,17 @@ INTERDIT ( risquerait de destroy la DB prod `X-postgres-data`).
 ## Slug renaming
 
 Le slug atelier est `{slug}-ws`. Il est piloté par `APP_SLUG` dans `.workshop.env`
-(et NON dans `.env` — `.env` reste `{slug}` pour la prod). Le `-ws` pilote :
+(et NON dans `.env` — `.env` reste `{slug}` pour la prod). ⚠️ Le slug est
+**slugifié** (lowercase, `_` → `-`) : `exemple-app-2` donne le projet `exemple-app-ws`.
+Le `-ws` pilote :
 - `container_name` (nginx, db, api ont `-ws` en suffixe)
 - nom du volume (`X-ws-postgres-data`)
 - entrypoint du conteneur DB
 
-`APP_SUBNET` (7e clé, ajoutée par cette release) épingle le subnet `/24` du
-réseau du projet `-ws` : c'est ce qui permet à prod et atelier de cohabiter sur
-les apps du template courant. Les ateliers créés avant cette release peuvent ne
-pas avoir cette clé — recréer l'atelier pour en bénéficier.
+`APP_SUBNET` (8e clé, écrite seulement si un subnet libre est trouvé) épingle le
+subnet `/24` du réseau du projet `-ws` : c'est ce qui permet à prod et atelier de
+cohabiter sur les apps du template courant. Les ateliers créés avant que la clé
+n'existe peuvent ne pas l'avoir — recréer l'atelier pour en bénéficier.
 
 ## Pilotage UI (HUB_base ≥ 3.38.0)
 
@@ -179,7 +183,7 @@ de `hubctl` :
   `deploy_service` : **une opération atelier à la fois** (garde-fou global, 409),
   suivi pas-à-pas en DB (table `workshop_operations`), purge de l'historique
   après 30 j, opérations en vol annulées au shutdown de l'API.
-- **Dualité UI/CLI** : `APPS/X/.workshop.env` (7 clés) est le **contrat partagé**
+- **Dualité UI/CLI** : `APPS/X/.workshop.env` (7 clés + `APP_SUBNET` conditionnelle) est le **contrat partagé**
   entre hubctl et `workshop_service` — figé par des contract tests des deux côtés.
 - **Garde-fous identiques à hubctl v0.6.1** : ship = `origin/main` uniquement
   (refusé si l'atelier teste autre chose), commit testé exigé, **atelier conservé**
@@ -222,12 +226,13 @@ le dépôt git »** dans la vue Santé (admin), ou `POST /api/apps/{slug}/git-co
 | Health endpoint | `http://localhost:{API_PORT}/api/health` |
 | Code hubctl | `hubctl_src/hubctl_cli/actions.py::_create_workshop`, `_update_workshop`, `_ship_workshop`, `_remove_workshop`, `action_atelier` |
 
-### Variables `.workshop.env` (7 clés)
+### Variables `.workshop.env` (8 clés max)
 
 | Clé | Rôle |
 |-----|------|
 | `APP_SLUG` | `{slug}-ws` — pilote le projet compose, les conteneurs et le volume |
 | `API_PORT` / `FRONTEND_PORT` / `FRONTEND_HTTPS_PORT` | ports atelier alloués dans les plages dédiées |
+| `HTTPS_ENABLED` | `true` — atelier = miroir prod (spec 2026-09-19) ; pilote l'ajout de `docker-compose.https.yml` aux `-f` du compose atelier (`_ws_compose_files`) |
 | `WS_REF` / `WS_COMMIT` | ref + commit du code testé (tracing du cycle `--maj`/`--prod`) ; `n/a` si `APPS/X` n'a pas de remote git |
 | `APP_SUBNET` | subnet `/24` dédié du réseau `-ws` (pool `10.210.x`) — écrite si un subnet libre est trouvé (repli subnet prod + warning si pool épuisé) ; recréer un atelier legacy pour l'obtenir |
 
@@ -250,8 +255,9 @@ for f in APPS/*/.workshop.env; do echo "→ $(dirname "$f")"; done
 # Voir les conteneurs atelier
 docker ps --filter "name=-ws" --format "{{.Names}}\t{{.Status}}"
 
-# Stop un atelier sans le supprimer
-docker compose -p X-ws -f APPS/X/docker-compose.yml stop
+# Stop un atelier sans le supprimer (compose files = _ws_compose_files :
+# docker-compose.yml + docker-compose.https.yml si HTTPS actif)
+docker compose -p X-ws -f APPS/X/docker-compose.yml -f APPS/X/docker-compose.https.yml stop
 
 # Cloner un volume manuellement (debug)
 docker volume create X-ws-postgres-data
@@ -272,16 +278,20 @@ atelier_parser.add_argument("app", help="Slug de l'app")
 
 ### Fonctions helpers dans `actions.py`
 
-- `_ws_project(app_slug) -> str` → `"X-ws"`
+- `_ws_project(app_slug) -> str` → `"X-ws"` (slugifié : lowercase, `_` → `-`)
 - `_ws_env_path(app_slug) -> Path` → `APPS/X/.workshop.env`
 - `_ws_exists(app_slug) -> bool`, `_ws_read_env`, `_ws_compose_env`
+- `_ws_compose_files(app_dir, ws_env)` → fichiers `-f` du compose atelier (yml + https.yml si HTTPS actif)
 - Allocation : `_ws_used_ports()`, `_ws_used_subnets()`, `_find_free_subnet()` (pool `10.210.x.0/24`)
 - Git (cycle maj/ship) : `_ws_git_state`, `_ws_resolve_ref`, `_ws_git_restore`
-- `_create_workshop(console, app_slug, *, dry_run=False) -> bool` (ligne ~2115)
-- `_update_workshop(console, app_slug, ref="main", *, dry_run=False) -> bool` (ligne ~1852)
-- `_ship_workshop(console, app_slug, *, dry_run=False) -> bool` (ligne ~1996)
-- `_remove_workshop(console, app_slug, *, dry_run=False) -> bool` (ligne ~2297)
-- `action_atelier(console, app_slug, *, dry_run=False, maj=False, prod=False, ref=None) -> None` (ligne ~2321) : dispatch flags → création → menu 4 choix
+- `_create_workshop(console, app_slug, *, dry_run=False) -> bool`
+- `_update_workshop(console, app_slug, ref="main", *, dry_run=False) -> bool`
+- `_ship_workshop(console, app_slug, *, dry_run=False) -> bool`
+- `_remove_workshop(console, app_slug, *, dry_run=False) -> bool`
+- `action_atelier(console, app_slug, *, dry_run=False, maj=False, prod=False, ref=None) -> None` : dispatch flags → création → menu 4 choix
+
+> Les numéros de ligne sont volontairement omis : ils dérivent à chaque évolution
+> d'`actions.py`. Localiser par nom de fonction (`grep -n "^def _create_workshop"`).
 
 ### Réutilisation de l'existant
 
@@ -292,7 +302,7 @@ atelier_parser.add_argument("app", help="Slug de l'app")
 | `.env` read/write | `env_manager.read_env()` / `write_env()` |
 | Liste apps | `hub_state.get_apps()` / `get_workshop_apps()` |
 | Détection mode dev | `hub_state.auto_detect_mode()` (dev si au moins 1 `.workshop.env`) |
-| Confirmation TUI | `widgets.confirm()` |
+| Confirmation TUI | `input()` — le menu atelier lit le choix via `input("Choix [1-4] : ")` (pas `widgets.confirm`) |
 
 ## Common Mistakes
 

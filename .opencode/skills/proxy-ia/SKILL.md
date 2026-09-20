@@ -1,6 +1,6 @@
 ---
 name: proxy-ia
-description: Utiliser quand on conçoit ou étend un proxy transparent avec overlay frontend pour une application web tierce, en s'appuyant sur un cache backend partagé et le token utilisateur (piggyback) pour exécuter des requêtes et des actions sans saturer le navigateur. Cas de référence : PhiliaNG / philiang dans exemple-app.
+description: Utiliser quand on conçoit ou étend un proxy transparent avec overlay frontend pour une application web tierce, en s'appuyant sur un cache backend partagé et le token utilisateur (piggyback) pour exécuter des requêtes et des actions sans saturer le navigateur. Cas de référence : Proxy Métier (slug `exemple-app`, ex-exemple-app / PhiliaNG).
 ---
 
 # proxy-ia — Proxy transparent + overlay + cache collectif
@@ -25,7 +25,7 @@ Le pattern **proxy-ia** permet d'enrichir une application web tierce (SaaS, lega
 - On veut mutualiser un cache entre utilisateurs et entre sessions.
 - On veut ajouter une recherche "cross-données" ou des actions batch qui ne sont pas natives.
 - On veut monitorer/intercepter le trafic API de l'app cible.
-- **Cas de référence dans le parc :** exemple-app (`APPS/exemple-app`) intercepte PhiliaNG (`service.example.org`).
+- **Cas de référence dans le parc :** Proxy Métier (slug `exemple-app`, ex-exemple-app) intercepte PhiliaNG (`service.example.org`).
 
 ## Ne PAS utiliser pour
 
@@ -363,9 +363,14 @@ for key, ep in _CLIENT_SUB_ENDPOINTS.items():
 L'overlay affiche d'abord les données du cache (immédiat), puis enrichit avec
 les données fraîches du backend (arrière-plan).
 
-## Référence PhiliaNG / philiang
+## Référence implémentation — Proxy Métier (ex-exemple-app)
 
-| Rôle | Fichier |
+> ⚠️ **Renommage** : l'application s'appelle désormais **Proxy Métier** (slug Hub
+> `exemple-app`, ex-exemple-app / PhiliaNG). Les chemins ci-dessous sont les chemins
+> **historiques** de l'implémentation de référence (`APPS/exemple-app/`) — adapter au
+> checkout courant (ex. `APPS/exemple-app/`) s'il est présent sur la station.
+
+| Rôle | Fichier (chemin historique) |
 |---|---|
 | Config nginx transparent | `APPS/exemple-app/nginx-philiang.conf` |
 | Proxy transparent backend | `APPS/exemple-app/backend/routes/philia_transparent.py` |

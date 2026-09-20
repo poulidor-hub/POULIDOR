@@ -7,7 +7,7 @@ description: >
   SSO/OIDC (redirect_uri mismatch, client_secret invalide, cookie session), déconnecter un user
   (back-channel logout), révoquer des refresh tokens. Triggers : "OIDC", "SSO", "openid", "oauth",
   "client OIDC", "redirect_uri", "authorize", "id_token", "JWKS", "discovery OIDC", "back-channel
-  logout", "auto-register OIDC", "JIT", " Vikunja OIDC", "Grafana SSO", "Nextcloud auth".
+   logout", "auto-register OIDC", "JIT", "Vikunja OIDC", "Grafana SSO", "Nextcloud auth".
 ---
 
 # Hub OIDC Manager

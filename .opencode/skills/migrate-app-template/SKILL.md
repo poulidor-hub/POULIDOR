@@ -1,6 +1,6 @@
 ---
 name: migrate-app-template
-description: Use when a Hub app was created with an older version of HUBapp_TEMPLATE_base and needs to be updated to the current template version. Triggers on "mettre à jour l'app avec le template", "migrer l'app vers le nouveau template", "mon app est en retard sur le template", "upgrade template app", "sync app with template", or when you notice an app's VERSION is far behind the template's VERSION (2.8.0). Also use when adding template features (M2M, notifications SSE, backup/restore, bulk operations, badge search) to an app that lacks them, when uploads/backups fail with PermissionError on /app/uploads after a template migration, or when the app's .env is stale after a migration (missing new template keys, obsolete variables, database unreachable because POSTGRES_PASSWORD no longer matches the existing volume).
+description: Use when a Hub app was created with an older version of HUBapp_TEMPLATE_base and needs to be updated to the current template version. Triggers on "mettre à jour l'app avec le template", "migrer l'app vers le nouveau template", "mon app est en retard sur le template", "upgrade template app", "sync app with template", or when you notice an app's VERSION is far behind the template's VERSION (lire HUBapp_TEMPLATE_base/VERSION — ne jamais supposer). Also use when adding template features (M2M, notifications SSE, backup/restore, bulk operations, badge search) to an app that lacks them, when uploads/backups fail with PermissionError on /app/uploads after a template migration, or when the app's .env is stale after a migration (missing new template keys, obsolete variables, database unreachable because POSTGRES_PASSWORD no longer matches the existing volume).
 argument-hint: 'Path to the app to migrate (e.g., APPS/mon-app)'
 ---
 
@@ -259,7 +259,7 @@ Nouvelles cibles template à vérifier :
 
 Le `docker-compose.yml` de l'app a les bons slugs/ports (INITIALISE). Comparer avec le template pour les ajouts structurels :
 
-**Points à vérifier dans le template actuel (2.8.0)** :
+**Points à vérifier dans le template actuel** (version : lire `HUBapp_TEMPLATE_base/VERSION`) :
 - Présence du `healthcheck` sur chaque service (`postgres`, `api`, `frontend`)
 - `extra_hosts: host.docker.internal:host-gateway` sur le service `api`
 - `link: api:backend` sur le service `frontend` (pour nginx proxy)
@@ -327,13 +327,13 @@ docker exec <slug>-api touch /app/uploads/.rw_test \
 
 ### C.1 — Requirements
 
-Comparer `backend/requirements.txt`. Le template 2.8.0 a potentiellement de nouvelles dépendances. Ajouter celles qui manquent :
+Comparer `backend/requirements.txt`. Le template actuel a potentiellement de nouvelles dépendances. Ajouter celles qui manquent :
 
 ```bash
 diff HUBapp_TEMPLATE_base/backend/requirements.txt APPS/<slug>/backend/requirements.txt
 ```
 
-Dépendances critiques du template 2.8.0 (vérifier présence) :
+Dépendances critiques du template (vérifier présence) :
 - `fastapi`, `uvicorn`, `sqlalchemy[asyncio]`, `asyncpg`, `psycopg2-binary`
 - `pydantic`, `pydantic-settings`
 - `httpx` (hub_client)
@@ -462,7 +462,7 @@ Si les tests échouent : vérifier les imports, les dépendances manquantes, les
 
 ### D.1 — package.json
 
-Comparer les dépendances. Le template 2.8.0 utilise :
+Comparer les dépendances. Le template utilise (versions indicatives — comparer réellement) :
 
 ```json
 {
@@ -575,7 +575,7 @@ quand l'app est ouverte.
 
 ### D.4 — main.jsx — fusionner
 
-Le `main.jsx` de l'app peut avoir des providers ou routes customs. Le template 2.8.0 a l'arbre de providers suivant :
+Le `main.jsx` de l'app peut avoir des providers ou routes customs. Le template actuel a l'arbre de providers suivant :
 
 ```
 React.StrictMode
@@ -719,7 +719,7 @@ curl -sI http://localhost:<FRONTEND_PORT>/assets/ | grep -i cache
 
 ### F.1 — Skills applicatifs (.opencode/skills/)
 
-Copier les skills manquants depuis le template. Les 13 skills du template 2.8.0 :
+Copier les skills manquants depuis le template. Les 13 skills du template :
 
 ```bash
 # Lister ceux déjà présents :
@@ -810,19 +810,21 @@ curl -sI http://localhost:<FRONTEND_PORT>/ | head -1  # HTTP/1.1 200 OK
 
 ### G.1 — Mise à jour de VERSION
 
-Après migration réussie, mettre à jour `VERSION` et `CHANGELOG.md` :
+Après migration réussie, mettre à jour `VERSION` et `CHANGELOG.md`. Procédure de release complète : skill parc **`release-on-main`** (gate obligatoire avant tout push main).
 
 ```bash
 # Bump de version (la migration est un feat → minor)
-cd APPS/<slug> && python scripts/bump_version.py minor
+cd APPS/<slug> && make bump-minor   # ou : python3 scripts/bump_version.py minor
 ```
+
+⚠️ `bump_version.py` **valide** l'entrée CHANGELOG mais ne la crée pas : prépender l'entrée soi-même (format ci-dessous, date en français), puis vérifier `python3 scripts/bump_version.py --check` (exit 0).
 
 Ajouter une entrée dans `CHANGELOG.md` :
 ```markdown
-## [X.Y.0] - YYYY-MM-DD
+## [X.Y.0] - 19 septembre 2026
 
 ### Migrated
-- Template mis à jour de [ancienne_version] vers 2.8.0
+- Template mis à jour de [ancienne_version] vers <version lue dans HUBapp_TEMPLATE_base/VERSION>
 - [Liste des features ajoutées : M2M, notifications SSE, backup, etc.]
 ```
 
