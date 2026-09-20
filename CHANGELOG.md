@@ -1,3 +1,12 @@
+## [0.63.3] - 20 septembre 2026
+
+### 🔌 hub-mcp → 0.4.2 (retrait des 2 outils bootstrap morts)
+
+- **hub-mcp → 0.4.2** (depuis 0.4.1) : `hub_auth_create_bootstrap_token` et
+  `hub_auth_list_bootstrap_tokens` supprimés — fonctionnalité jamais implémentée
+  côté HUB (stubs d'erreur depuis v0.4.0). Catalogue : 65 → **63 outils**.
+- Vérifié : aucun endpoint bootstrap dans `HUB_base/hub/app/routes/`.
+
 ## [0.63.2] - 20 septembre 2026
 
 ### 🤖 Persona `jellycode.md` — liste Skills app corrigée
