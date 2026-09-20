@@ -1,3 +1,17 @@
+## [0.63.5] - 20 septembre 2026
+
+### ⚡ template → 2.26.2 (fix carte hub : version poussée au register)
+
+- **HUBapp_TEMPLATE_base → 2.26.2** (depuis 2.26.1) : `register()` du socle
+  app court-circuitait quand `.hub_credentials` existait déjà et ne poussait
+  jamais la version — la carte des applications du hub restait figée sur
+  l'ancienne version après chaque mise à jour d'app. Désormais, le fichier de
+  credentials porte la version du dernier enregistrement ; si elle diffère de
+  `APP_VERSION` (déploiement d'une montée de version), un register complet
+  met la version du hub à jour. Détail : CHANGELOG template 2.26.2.
+
+---
+
 ## [0.63.4] - 20 septembre 2026
 
 ### 📚 template → 2.26.1 (doc HUB_MCP alignée sur le MCP 0.4.2)
