@@ -21,6 +21,24 @@
 
 ---
 
+## [0.63.0] - 20 septembre 2026
+
+### 📚 Resync des skills parc (audit vs code réel)
+
+- **vault-manager** : réécrit — le coffre n'est plus « read-only » : `restore()`/`restore_all()`
+  (coffre → disque : .env + secrets + DB + re-clone apps), passphrase auto-générée + clé locale
+  `parc.vault.key`, dump DB (7 tables) + réplication PRA dans `backup_all`, purge `ws:`, CLI `hubctl vault`.
+- **release-on-main** : cas `scripts/bump_version.py`/`make bump-*` (apps — gap constaté en release réelle),
+  cas `pyproject.toml` (hub-mcp), dérivés HUB_base/HUBCSS, pointeur sous-module = release méta,
+  garde-fou « git status avant bump » (incident 17/09).
+- **create-hub-app** : 3 faits faux (`make health` sans retry, dérivés sync-env, ref README),
+  skill fantôme `hub-messages-integration` retiré, flags non-interactifs, note env opencode, HTTPS par défaut.
+- **migrate-app-template** : refs « 2.8.0 » → lecture dynamique de `HUBapp_TEMPLATE_base/VERSION`, G.1 aligné `release-on-main`.
+- **app-workshop-mover** : atelier miroir prod (hubctl 0.10.0) — `HTTPS_ENABLED` (7+1 clés),
+  `_ws_compose_files`, slugification, `input()`, numéros de ligne retirés (anti-drift).
+- **proxy-ia** : app de référence renommée **Proxy Métier** (slug `exemple-app`, ex-exemple-app).
+- **hub-oidc-manager** : espace parasite dans un trigger.
+
 ## [0.62.1] - 20 septembre 2026
 
 ### 🔧 Pointeur submodule — HUB_base 3.61.1 (SAN certs : localhost)
