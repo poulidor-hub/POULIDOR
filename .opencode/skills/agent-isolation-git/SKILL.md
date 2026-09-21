@@ -22,12 +22,43 @@ Plusieurs agents jellycode peuvent travailler en parallèle sur le même dépôt
 
 > **Règle d'or** : si la demande est une **question** (pas de modif de code), répondre normalement **sans** créer de worktree. L'isolation n'a de sens que lorsqu'un agent va modifier des fichiers et committer.
 
+## Fast-path scripté (voie normale)
+
+Les étapes **1-2** (registre sous lock + branche + worktree) et l'étape **5** (cleanup)
+sont automatisées par `scripts/parc-isolate` — même registre, même lock, mêmes
+conventions. **Utilise le script d'abord** : un seul appel bash au lieu de la
+procédure manuelle.
+
+```bash
+# Isoler (étapes 1-2) — branche créée depuis origin/main, push upstream inclus :
+bash scripts/parc-isolate feat/ma-branche "Description de la tâche"
+
+# Lister les agents actifs (détection visuelle de collision) :
+bash scripts/parc-isolate --list
+
+# Nettoyer (étape 5) après merge :
+bash scripts/parc-isolate --cleanup feat/ma-branche
+
+# Forcer un lock stale (>60s, agent crashé) :
+bash scripts/parc-isolate --release-lock
+```
+
+Invariants du script : registre modifié **avant** création du worktree, rollback
+registre+branche si `git worktree add` échoue, lock libéré via trap EXIT, collision
+détectée parmi les entrées `active`. Submodules non initialisés par défaut
+(`--submodules` pour les initialiser).
+
+**Restent manuels** : l'étape **3** (travail dans le worktree) et surtout l'étape
+**4** (merge vers `main` **sous lock** + `release-on-main` obligatoire + push),
+car elle enchaîne release et bump — procédure ci-dessous. En cas d'échec ou
+d'absence du script, appliquer la procédure manuelle complète.
+
 ## When to Use
 
-- "Je vais modifier du code" → **isoler** (toujours — règle stricte du parc, pas de condition)
+- "Je vais modifier du code" → **isoler** (toujours — règle stricte du parc, pas de condition) — **fast-path : `bash scripts/parc-isolate <branche> "task"`**
 - "Crée-moi un worktree pour X" → **isoler**
-- "Finalise / merge ma branche" → **finaliser** (étape 4)
-- "Nettoie le worktree de X" → **nettoyer** (étape 5)
+- "Finalise / merge ma branche" → **finaliser** (étape 4, manuelle, sous lock)
+- "Nettoie le worktree de X" → **nettoyer** (étape 5) — fast-path : `bash scripts/parc-isolate --cleanup <branche>`
 
 **Ne PAS utiliser** : question simple sans code → répondre direct · isolation Docker/DB → `app-workshop-mover` · secrets/`.env` → `vault-manager` · push sur `main` → `release-on-main` (invoqué *par* ce skill à l'étape 4).
 

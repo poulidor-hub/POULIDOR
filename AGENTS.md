@@ -22,6 +22,8 @@ le skill `agent-isolation-git` **avant la moindre modification** :
 1. **Toujours** : 1 agent = 1 worktree = 1 branche (`.worktrees/_agents/<branche>/`),
    enregistrement dans le registre partagé (`.worktrees/_agents/registry.json`),
    merge vers `main` sérialisé sous lock.
+   **Fast-path** : `bash scripts/parc-isolate <branche> "task"` (registre + lock +
+   worktree en 1 appel) ; cleanup : `bash scripts/parc-isolate --cleanup <branche>`.
 2. **Aucune exception** : même pour une « petite » modif, même si aucun autre agent ne
    semble actif, même en milieu de session (l'activité d'autres sessions peut apparaître
    entre-temps — cf. incident HUB_base du 17/09/2026).
@@ -47,6 +49,15 @@ Charte complète : `.opencode/agent/jellycode.md`.
 Les skills superpowers (`brainstorming`, `systematic-debugging`, `test-driven-development`,
 `verification-before-completion`, etc.) s'appliquent **en plus** des skills parc. Priorité
 en cas de conflit : **instructions utilisateur > superpowers > comportement par défaut**.
+
+Périmètre (règles parc, pour éviter la sur-cérémonie sur les petites demandes) :
+
+- `brainstorming` : réservé aux **vraies features** et changements de comportement notables.
+  Bugfix, retouche cosmétique, modif triviale ou demande explicite → traitement direct.
+- `test-driven-development` : réservé à la **logique métier/backend**. Pour l'UI, la
+  vérification passe par `verify-feature` (cycle Docker/make de l'app).
+- `verification-before-completion` et `systematic-debugging` : toujours applicables.
+
 Les skills `verify-feature` (parc/app) et `verification-before-completion` (superpowers)
 se complètent : le premier est le cycle Docker/make spécifique au template, le second
 est la discipline générale « evidence before assertions ».

@@ -1,6 +1,6 @@
 ---
 name: app-workshop-mover
-description: Utiliser pour le cycle Workshop (mode DEV) — mettre une app en atelier (sandbox avec clone DB), tester une montée de version (--maj), déployer en prod (--prod) ou supprimer l'atelier. L'atelier tourne via un 2e projet docker compose (-p X-ws) à côté de la prod, piloté par APPS/X/.workshop.env. La prod reste en place pendant l'atelier. Utiliser quand on demande "mettre en atelier", "mettre à jour l'atelier", "tester une montée de version", "déployer en prod", "supprimer l'atelier", "mode dev", ou pour implémenter ces actions dans hubctl.
+description: Utiliser pour le cycle Workshop (mode DEV) : mettre une app en atelier (sandbox clone DB via 2e projet compose -p X-ws + APPS/X/.workshop.env), tester une montée de version (--maj), déployer en prod (--prod), supprimer l'atelier. Triggers : "mettre en atelier", "tester une montée de version", "déployer en prod", "mode dev".
 ---
 
 # app-workshop-mover
