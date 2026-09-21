@@ -56,6 +56,28 @@
 
 ---
 
+## [0.66.2] - 22 septembre 2026
+
+### 📖 Guides du parc mis à jour (0.66.1 → état réel) + Quick Actions
+
+- **`docs/guide-parc-poulidor.md`** : versions actualisées (parc 0.66.1, Hub 3.61.1,
+  hubctl 0.10.1, socle 2.25.1, template 2.26.4) ; **nouvelle §1.4 « Quick actions »** —
+  ~30 commandes directes en 5 catégories (parc entier, Hub seul via `./hub.sh update`,
+  app précise via atelier ou voie directe, résilience/PRA avec dry-run d'abord,
+  sécurité/socle/HTTPS) ; §3.2 portée à **14 sous-commandes** (`jwt`, `socle`) + note
+  `hub.sh` ; §4.3 à **39 cibles** Makefile (`update-env`, `test-seq`, `lint-classes`,
+  `verify-ui`) ; §2.2 « Évolutions 3.51→3.61.1 » (cloisonnement M2M atelier/prod,
+  socle-check, moniteur PAT GitHub, self-client OIDC, ajout d'app fiable, trousseau
+  JWT multi-kid ⚠️ snapshots forward-only ≥ 3.59.0, PKI apps) ; §5.3 note forward-only ;
+  cheat-sheet et matrice docs enrichies (PROCEDURE-CA, activer.py, runbook migration,
+  outillage, migrationv1_rapport).
+- **`docs/visualDev_guide.html`** : nouvelle section **« ⚡ Actions rapides »** (5 cartes
+  copiables + nav) ; versions 5 composants ; 14 sous-commandes (lignes jwt/socle) ;
+  caption PRA forward-only ; nav « Agent IA » restaurée.
+- **`docs/migrationv1_rapport/`** commité (23 fichiers, bilan 35 apps sur 2 hubs —
+  référencé par la matrice du guide).
+- Passe du 15/09 (préexistante, non commitée) préservée dans un commit dédié (0c2e5b2).
+
 ## [0.65.0] - 21 septembre 2026
 
 ### ⚡ Outillage migration one-shot legacy → hub neuf (répété et validé en VM)
