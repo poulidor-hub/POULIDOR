@@ -1,4 +1,30 @@
-## [0.64.0] - 20 septembre 2026
+# Changelog — POULIDOR
+
+## [0.65.0] - 21 septembre 2026
+
+### ⚡ Outillage migration one-shot legacy → hub neuf (répété et validé en VM)
+
+- **`scripts/migration-legacy/extract_legacy.sh`** : extraction à froid d'un serveur
+  hub legacy → archive chiffrable au format park-export (modes `--inventory`/`--extract`,
+  stop échelonné -t 30 + attente readiness pg, dumps via démarrage temporaire des seuls
+  postgres, garde d'appartenance compose `working_dir`, trap EXIT de relance, manifest
+  contractuel + self-check). Testé sur banc exemple-lab : 34/34 dumps, zéro PANIC.
+- **`scripts/migration-legacy/encrypt_archive.py`** : chiffrement PARKEV1 (réutilise
+  `park_export.encrypt_archive`) — round-trip déchiffrement `hubctl restore` prouvé.
+- **`scripts/migration-legacy/rewrite_urls.py`** : réécriture idempotente des URLs hub
+  après changement d'IP (`--dry-run`), prouvée avec psql réel.
+- **Runbook jour J** `docs/handover/2026-09-20-migration-legacy-hub-neuf-runbook.md` :
+  séquence complète enrichie des 7 leçons de la répétition VM (bootstrap admin →
+  `compose down` hub avant restore, seed = conteneurs créés + slugs legacy, récupération
+  DB hybride, approbation apps pending, re-pointage `.env`, URLs résiduelles + ZIP
+  fichiers, durées : fenêtre 1 h–1 h 30).
+- **Pointeur `hubctl_src` → 0.10.1** : reset DB hub avant `pg_restore` + réconciliation
+  migrations fourchues 027 (fixes prouvés en répétition VM : restore legacy complet,
+  027 purgée puis rejouée, comptages hub identiques, 3/3 apps hub_connected zéro 403).
+- Spec : `docs/handover/2026-09-20-migration-legacy-hub-neuf-design.md` ;
+  plan + journal VM : `build/vm-lab/client-mig-legacy/journal.md`.
+
+bre 2026
 
 ### ✨ `scripts/update-submodules.sh` — filet de sécurité de mise à jour
 
