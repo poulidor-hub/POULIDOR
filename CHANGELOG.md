@@ -56,6 +56,26 @@
 
 ---
 
+## [0.66.3] - 22 septembre 2026
+
+### 🧪 Cheatsheet dev banc + scripts de reset
+
+- **`docs/cheatsheet-dev-banc.md`** (nouveau, ~190 lignes) : l'outil de travail des
+  devs disposant d'un parc complet en local — installer/réinstaller (install, seed,
+  vm-lab), itérer sur le code du Hub (up-dev ⚠️ sans hot-reload depuis les incidents
+  du 14/09, bascule de branche, tests), réinitialisations (scripts + version manuelle +
+  re-registration FORCE_REPLACE_APP/.hub_credentials), comptes & tokens de test (login
+  admin, user de test, approbation des pending en curl), M2M (discover, JWKS,
+  socle-check), debug (psql, SQL utiles), pièges du banc.
+- **`scripts/banc/reset-hub.sh`** : reset du Hub en 3 niveaux (`--db-only` défaut /
+  `--full` secrets+certs / `--env` + hubctl init --force), confirmation tapée RESET,
+  `--dry-run`, health check, rappel re-registration.
+- **`scripts/banc/reset-app.sh`** : dé-enregistrement API admin (depuis .secrets),
+  compose `down -v` prod + atelier, balayage des volumes **par label compose**
+  (jamais par préfixe), purge .hub_credentials, `--full` = backup tar.gz + rm dossier.
+- Guide : matrice §6.2 enrichie ; corrige « uvicorn --reload » (3 occurrences — le
+  dev overlay n'a PAS de hot-reload API depuis le 14/09/2026) ; README : ligne cheatsheet.
+
 ## [0.66.2] - 22 septembre 2026
 
 ### 📖 Guides du parc mis à jour (0.66.1 → état réel) + Quick Actions
