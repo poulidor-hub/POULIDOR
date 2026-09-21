@@ -188,6 +188,7 @@ reconverge le Hub (build + up-prod, cache Docker) même s'il tourne déjà.
 | `docs/guide-hub/make.html` | Référence des commandes `make` par app |
 | `docs/guide-hub/architecture.html` | Architecture du parc |
 | `docs/guide-parc-poulidor.md` | Référence complète du parc (instantané daté) |
+| `docs/cheatsheet-dev-banc.md` | **Banc de test local** : resets (`scripts/banc/`), tokens, debug |
 | `docs/guide-developpement-template.md` | Développer une app (conventions, tests, release) |
 | `docs/debug-agent.md` | Agent de debug IA |
 | `docs/visualDev_guide.html` | Guide visuel (architecture, cycle de vie, atelier, PRA) |
