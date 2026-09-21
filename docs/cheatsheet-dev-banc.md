@@ -14,8 +14,8 @@
 sudo ./install.sh                 # tout-en-un (Docker + Hub + firewall VPN)
 ./hubctl init                     # variante : Hub seul (prérequis déjà là)
 ./hubctl start                    # tout démarrer + health
-./hubctl seed apps-banc.yaml      # repeupler le banc depuis un YAML
-./hubctl seed export -o banc.yaml # …et l'exporter pour la prochaine fois
+./hubctl seed export -o banc.yaml # photographier la flotte du banc en YAML
+./hubctl seed banc.yaml           # (re)peupler le banc depuis ce YAML
 ```
 
 **VM vierge jetable ou persistante** (reproduire un bug en environnement
@@ -27,9 +27,12 @@ pour un test à froid.
 ## 2. Itérer sur le code du Hub
 
 ```bash
-make -C HUB_base up-dev           # dev : uvicorn --reload (hot-reload API)
+make -C HUB_base up-dev           # dev : code monté (voir ⚠️ ci-dessous)
 make -C HUB_base logs             # suivre
 make -C HUB_base down && make -C HUB_base up-prod   # retour en mode prod
+# ⚠️ PAS de hot-reload : --reload retiré après les incidents du 14/09/2026
+# (le watcher figeait l'API sur les écritures des apps). Une modif Python =
+# docker compose -f HUB_base/docker-compose.yml -f HUB_base/docker-compose.dev.yml restart hub-api
 
 # tester une branche du Hub :
 git -C HUB_base fetch origin
@@ -113,10 +116,11 @@ curl -s -X POST "$HUB_BASE_URL/api/users/" -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"username":"test_dev","email":"test@banc.local","password":"MotDePasse123!"}'
 
-# approver toutes les apps pending :
+# approuver toutes les apps pending (réponse : {"pending_apps":[…]}) :
 for slug in $(curl -s -H "Authorization: Bearer $TOKEN" "$HUB_BASE_URL/api/apps/pending" \
-    | python3 -c 'import json,sys;print(" ".join(a["slug"] for a in json.load(sys.stdin)))'); do
-  curl -s -X POST -H "Authorization: Bearer $TOKEN" "$HUB_BASE_URL/api/apps/$slug/approve"
+    | python3 -c 'import json,sys;print(" ".join(a["slug"] for a in json.load(sys.stdin)["pending_apps"]))'); do
+  curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+    -d '{"approve":true}' "$HUB_BASE_URL/api/apps/$slug/approve"
 done
 ```
 
@@ -160,7 +164,7 @@ make -C APPS/<slug> logs-api                          # logs api d'une app
 Requêtes utiles dans `psql` :
 
 ```sql
-SELECT slug, status, is_active FROM applications ORDER BY slug;      -- fiches apps
+SELECT slug, approval_status, is_active FROM applications ORDER BY slug; -- fiches apps
 SELECT id, username, role FROM users ORDER BY id;                    -- comptes
 SELECT * FROM schema_migrations ORDER BY version DESC LIMIT 5;       -- migrations
 -- ateliers : SELECT * FROM workshop_operations ORDER BY id DESC LIMIT 5;

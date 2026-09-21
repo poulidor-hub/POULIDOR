@@ -105,15 +105,25 @@ if [[ -d "$APP_DIR" ]]; then
   fi
   ( cd "$APP_DIR" && run docker compose down -v --remove-orphans ) \
     || echo "  ⚠️ compose down a échoué (stack déjà arrêtée ?)"
-fi
 
-echo "── Balayage des volumes résiduels « ${SLUG}-… »…"
-if [[ $DRY_RUN -eq 1 ]]; then
-  docker volume ls -q | grep -E "^${SLUG}[-_]" | sed 's/^/[dry-run] docker volume rm /' || true
+  # Balayage par LABEL de projet compose (jamais par préfixe de nom :
+  # un slug proche d'un autre projet ne doit rien matché en dehors de
+  # <slug> et <slug>-ws).
+  echo "── Balayage des volumes résiduels des projets « ${SLUG} » / « ${SLUG}-ws »…"
+  sweep_volumes() {
+    local proj="$1"
+    docker volume ls -q --filter "label=com.docker.compose.project=${proj}"
+  }
+  if [[ $DRY_RUN -eq 1 ]]; then
+    { sweep_volumes "$SLUG"; sweep_volumes "${SLUG}-ws"; } | sort -u \
+      | sed 's/^/[dry-run] docker volume rm /' || true
+  else
+    { sweep_volumes "$SLUG"; sweep_volumes "${SLUG}-ws"; } | sort -u | while read -r v; do
+      docker volume rm "$v" && echo "  volume supprimé : $v"
+    done || true
+  fi
 else
-  docker volume ls -q | grep -E "^${SLUG}[-_]" | while read -r v; do
-    docker volume rm "$v" && echo "  volume supprimé : $v"
-  done || true
+  echo "── Dossier APPS/$SLUG absent : pas de conteneur/volume à balayer."
 fi
 
 # ── 3. Credentials locaux ─────────────────────────────────────────────
@@ -126,8 +136,8 @@ fi
 if [[ "$MODE" == "full" && -d "$APP_DIR" ]]; then
   TS="$(date +%Y%m%d-%H%M%S)"
   BAK="$PARC_ROOT/hubctl_cli/backups/${SLUG}-reset-${TS}.tar.gz"
-  mkdir -p "$(dirname "$BAK")"
   echo "── Backup $BAK…"
+  run mkdir -p "$(dirname "$BAK")"
   run tar -czf "$BAK" -C "$PARC_ROOT/APPS" "$SLUG"
   run rm -rf "$APP_DIR"
 fi
