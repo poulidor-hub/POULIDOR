@@ -747,6 +747,9 @@ make health                       # Vérifier que l'API répond
 - **Re-sync automatique des certificats** (2.12.0) : `backend/cert_sync.py` — boucle de fond démarrée au lancement, resynchronise les certificats PKI du Hub toutes les 6 h ; no-op si `HTTPS_ENABLED=false`.
 - **Garde `HUB_INSTANCE_ID`** (2.19.0) : `sync-env` mémorise l'identité du Hub dans `.env` et refuse un `.env` pointant vers un autre Hub (protection contre les allocations croisées).
 - **Fusion `.env` après montée de template** (2.20.0) : `scripts/update_env.py` + cible `make update-env` — ajoute au `.env` existant les nouvelles clés du `.env.example` sans jamais toucher aux valeurs existantes ni aux clés propres à l'app ; sauvegarde horodatée (`.env.pre-update-<stamp>`) et rapport détaillé. À lancer après chaque montée de template (le skill `migrate-app-template` l'orchestre — étape B.0).
+- **Restore robuste** (2.20.5 → 2.20.8) : tri topologique des tables + SAVEPOINT, cycles de FK (`session_replication_role=replica`), resync des séquences avec pré-checks — un restore de backup ne rollback plus en cascade (validé terrain sur exemple-app).
+- **Verrou inter-onglets sur le refresh token** (2.21.0) : Web Locks API (`hub-token-refresh`) — un seul onglet rotate, le rival adopte le token ; synchronisation via événement `storage`. Complémentaire de la grâce 60 s côté Hub (3.50.0).
+- **Self-healing M2M sur Hub legacy** (2.21.1) : si le ré-enregistrement trusted ne retourne pas de secret (Hubs pré-H9), fallback `POST /api/apps/me/regenerate-secret` — plus de déconnexion Hub après perte de credentials sur un Hub legacy.
 
 ---
 
@@ -830,6 +833,7 @@ backend/tests/
 ├── test_m2m.py                 # M2M communication
 ├── test_m2m_catalog.py         # Catalogue M2M
 ├── test_backup.py              # Backup/Restore
+├── test_backup_restore_order.py # Ordre de restore (tri topologique, savepoints)
 ├── test_cert_sync.py           # Re-synchro périodique des certificats PKI
 ├── test_config_env.py          # Tolérance aux variables Hub vides (settings)
 ├── test_services.py            # Tests services Hub

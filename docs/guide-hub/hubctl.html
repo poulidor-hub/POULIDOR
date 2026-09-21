@@ -67,7 +67,7 @@
   <h2>Sous-commandes CLI (non interactives)</h2>
   <div class="code"><pre>hubctl [-h] [--no-anim] [--dry-run] [--dev | --prod]
        {start,stop,update,atelier,init,export,restore,pra-restore,
-        debug,vpn,vault,seed}</pre></div>
+        debug,vpn,vault,seed,socle}</pre></div>
   <p><code>--dry-run</code> est un flag <strong>global</strong> : il se place
   <em>avant</em> la sous-commande (<code>./hubctl --dry-run atelier X --maj</code>).</p>
 
@@ -88,6 +88,16 @@
     <tr><td><code>./hubctl atelier &lt;app&gt; --maj --ref &lt;branche|tag&gt;</code></td><td>Teste une branche ou un tag précis.</td></tr>
     <tr><td><code>./hubctl atelier &lt;app&gt; --prod</code></td><td>Déploie <code>origin/main</code> validé en prod, puis supprime l'atelier.</td></tr>
   </table>
+  <div class="info">
+    <strong>Depuis l'UI HUB (Hub 3.50.6)</strong> — la vue Santé des Applications
+    embarque un panneau <strong>branches 🌿</strong> : un admin peut envoyer
+    <strong>n'importe quelle branche GitHub</strong> en atelier (création ou
+    mise à jour). Garde-fou intact : le déploiement prod reste verrouillé sur
+    <code>origin/main</code> — une branche n'atteint la prod qu'après merge.
+    Un admin peut aussi activer par utilisateur la <strong>visibilité de
+    l'atelier</strong> (checkbox « Atelier » de la modale des droits, Hub
+    3.48.3), indépendamment du rôle sur la prod.
+  </div>
   <div class="info">
     <strong>Anciennes commandes disparues</strong> — <code>work</code>,
     <code>ship</code>, <code>deploy</code>, le multi-slug et
@@ -124,6 +134,23 @@
     <tr><td><code>./hubctl debug &lt;app&gt;</code></td><td>Agent de diagnostic IA local (Ollama) en lecture seule. Voir <a href="../debug-agent.md">debug-agent</a>.</td></tr>
     <tr><td><code>./hubctl debug --setup</code> / <code>--status</code> / <code>--off</code></td><td>Installer / vérifier / désactiver l'agent. <code>--rw</code> : mode semi-auto, <code>--model 8b|2b</code> : choix du modèle.</td></tr>
   </table>
+
+  <h3>Socle (HUBsocle)</h3>
+  <p>Les nouvelles apps naissent sur un <strong>socle applicatif versionné</strong>
+  (sous-module <code>HUBsocle/</code>, paquets <code>hub-socle</code> /
+  <code>@poulidor/hub-socle</code>, images de base <code>poulidor/socle-api</code>
+  et <code>poulidor/socle-web</code>). Chaque app déclare la version du socle
+  utilisée via <code>APP_SOCLE_VERSION</code> dans son <code>.env</code>.</p>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>./hubctl socle build [--force]</code></td><td>Construit localement les images de base du socle depuis le checkout <code>HUBsocle/</code> (tag <code>poulidor/socle-api:&lt;VERSION&gt;</code> / <code>socle-web:&lt;VERSION&gt;</code>, cache par tag, <strong>offline-first : aucun registre requis</strong>). <code>--force</code> rebâtit même si le tag existe.</td></tr>
+    <tr><td><code>./hubctl socle status</code></td><td>Tableau de drift de la flotte : version du socle déclarée par chaque app vs version du sous-module (« à jour », « en retard », « fork template » si la variable n'est pas déclarée).</td></tr>
+  </table>
+  <div class="info">
+    Les apps existantes (forks du template) ne sont pas concernées ; le pilote
+    du socle est <code>exemple-app</code>. Les futures apps naîtront
+    « fines » via INITIALISE v2 (à venir).
+  </div>
 
   <h2>Se déplacer dans le menu</h2>
   <table>
@@ -170,6 +197,6 @@
     l'état du hub puis quitte.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.51.1</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.54.1</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

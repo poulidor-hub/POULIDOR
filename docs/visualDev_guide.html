@@ -136,6 +136,47 @@
   }
   .tag.blue { background: var(--hub-color-primary-soft); color: var(--hub-color-primary-strong); border-color: rgba(14, 165, 233, 0.2); }
   .tag.green { background: #dcfce7; color: #166534; border-color: rgba(34, 197, 94, 0.2); }
+  .tag.purple { background: #f3e8ff; color: #7e22ce; border-color: rgba(126, 34, 206, 0.2); }
+
+  .grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .card {
+    background: var(--hub-color-surface);
+    border: 1px solid var(--hub-color-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: transform var(--t-base), box-shadow var(--t-base);
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .card-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--hub-color-primary-soft); color: var(--hub-color-primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-icon.purple { background: #f3e8ff; color: #9333ea; }
+  .card-title { font-weight: 700; font-size: 1rem; margin: 0; }
+  .card-desc { font-size: 0.875rem; color: var(--hub-color-muted); margin-bottom: 1rem; }
+  
+  .code-block {
+    background: var(--hub-color-surface-code);
+    color: #e2e8f0;
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    font-family: var(--hub-font-mono);
+    font-size: 0.875rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    line-height: 1.5;
+  }
+  .code-block .comment { color: #64748b; }
+  .code-block .keyword { color: #c678dd; }
+  .code-block .string { color: #98c379; }
+  .code-block .function { color: #61afef; }
 
   .diagram-container {
     background: var(--hub-color-surface);
@@ -147,7 +188,6 @@
     overflow-x: auto;
   }
   
-  /* Architecture Global Diagram */
   .arch-hub {
     border: 2px dashed var(--hub-color-primary);
     border-radius: var(--radius);
@@ -184,48 +224,20 @@
   .arch-layer ul { list-style: none; padding: 0; font-size: 0.75rem; color: var(--hub-color-muted); }
   .arch-layer ul li { margin-bottom: 0.25rem; }
 
-  .grid-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin: 1.5rem 0;
-  }
-  .card {
+  .mermaid-box {
     background: var(--hub-color-surface);
     border: 1px solid var(--hub-color-border);
     border-radius: var(--radius);
     padding: 1.5rem;
-    transition: transform var(--t-base), box-shadow var(--t-base);
-  }
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
-  }
-  .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-  .card-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: var(--hub-color-primary-soft); color: var(--hub-color-primary);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .card-title { font-weight: 700; font-size: 1rem; margin: 0; }
-  .card-desc { font-size: 0.875rem; color: var(--hub-color-muted); margin-bottom: 1rem; }
-  
-  .code-block {
-    background: var(--hub-color-surface-code);
-    color: #e2e8f0;
-    padding: 1.25rem;
-    border-radius: var(--radius);
-    font-family: var(--hub-font-mono);
-    font-size: 0.875rem;
+    margin: 1.5rem 0 2rem;
+    box-shadow: var(--shadow-sm);
     overflow-x: auto;
-    margin: 1.5rem 0;
-    line-height: 1.5;
+    text-align: center;
   }
-  .code-block .comment { color: #64748b; }
-  .code-block .keyword { color: #c678dd; }
-  .code-block .string { color: #98c379; }
-  .code-block .function { color: #61afef; }
-  .code-block .operator { color: #56b6c2; }
+  .mermaid-caption {
+    font-size: 0.8125rem; color: var(--hub-color-muted);
+    margin-top: 0.75rem; text-align: center;
+  }
 
   .timeline { position: relative; margin: 2rem 0; padding-left: 2rem; }
   .timeline::before {
@@ -241,29 +253,12 @@
   .timeline-content h4 { margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
   .timeline-content p { font-size: 0.9375rem; color: var(--hub-color-muted); }
 
-  /* Table styling */
   table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: var(--hub-color-surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
   th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--hub-color-border); font-size: 0.875rem; }
   th { background: var(--hub-color-surface-muted); font-weight: 600; color: var(--hub-color-text); }
   tr:last-child td { border-bottom: none; }
-  
-  .mermaid-box {
-    background: var(--hub-color-surface);
-    border: 1px solid var(--hub-color-border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    margin: 1.5rem 0 2rem;
-    box-shadow: var(--shadow-sm);
-    overflow-x: auto;
-    text-align: center;
-  }
-  .mermaid-caption {
-    font-size: 0.8125rem; color: var(--hub-color-muted);
-    margin-top: 0.75rem; text-align: center;
-  }
   .resource-table td:first-child { font-weight: 600; white-space: nowrap; }
-
-  /* Responsive */
+  
   .mobile-menu-btn { display: none; background: none; border: none; cursor: pointer; color: var(--hub-color-text); }
   @media (max-width: 1024px) {
     .sidebar { transform: translateX(-100%); transition: transform var(--t-base); }
@@ -286,6 +281,7 @@
   <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></symbol>
   <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></symbol>
   <symbol id="icon-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></symbol>
+  <symbol id="icon-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></symbol>
 </svg>
 
 <header class="header">
@@ -305,18 +301,19 @@
         <div class="nav-group-title">Vue d'ensemble</div>
         <a href="#architecture" class="nav-link active">1. Architecture et Flux</a>
         <a href="#hubctl" class="nav-link">2. Pilotage avec hubctl</a>
+        <a href="#agentia" class="nav-link">3. Agent IA de Debug</a>
       </div>
       <div class="nav-group">
         <div class="nav-group-title">Développement App</div>
-        <a href="#lifecycle" class="nav-link">3. Cycle de vie d'une App</a>
-        <a href="#conventions" class="nav-link">4. Conventions Backend</a>
-        <a href="#database" class="nav-link">5. Base de données & SQL</a>
-        <a href="#makefile" class="nav-link">6. Makefile & Commandes</a>
+        <a href="#lifecycle" class="nav-link">4. Cycle de vie d'une App</a>
+        <a href="#conventions" class="nav-link">5. Conventions Backend</a>
+        <a href="#database" class="nav-link">6. Base de données & SQL</a>
+        <a href="#makefile" class="nav-link">7. Makefile & Commandes</a>
       </div>
       <div class="nav-group">
         <div class="nav-group-title">Cas d'usage</div>
-        <a href="#bluegreen" class="nav-link">7. L'atelier (bac à sable)</a>
-        <a href="#pra" class="nav-link">8. PRA & Sauvegardes</a>
+        <a href="#bluegreen" class="nav-link">8. L'atelier (bac à sable)</a>
+        <a href="#pra" class="nav-link">9. PRA & Sauvegardes</a>
       </div>
     </nav>
   </aside>
@@ -326,8 +323,8 @@
     <div class="callout">
       <svg class="callout-icon" width="24" height="24"><use href="#icon-shield"/></svg>
       <div>
-        <p><strong>Référence technique centrale</strong></p>
-        <p>Ce guide rassemble le fonctionnement architectural, le pilotage via <code>hubctl</code>, et le développement avec le template d'application. Valable pour la version de parc <code>0.45.x</code> / Hub <code>3.38.x</code> — les fichiers <code>VERSION</code> font foi. Version textuelle complète : <a href="guide-parc-poulidor.md">guide-parc-poulidor.md</a>.</p>
+        <p><strong>Référence technique centrale (Mise à jour Septembre 2026)</strong></p>
+        <p>Ce guide rassemble le fonctionnement architectural, le pilotage, et le développement avec le template d'application. Valable pour les versions actuelles : <span class="tag">Parc 0.54.1</span> <span class="tag blue">Hub 3.50.6</span> <span class="tag">hubctl 0.8.0</span> <span class="tag green">Template 2.21.1</span>.</p>
       </div>
     </div>
 
@@ -340,7 +337,7 @@
         <thead><tr><th>Service</th><th>Conteneur</th><th>Rôle</th></tr></thead>
         <tbody>
           <tr><td><code>db</code></td><td><code>hub-db</code></td><td>PostgreSQL 16 « hub_auth » (~36 tables)</td></tr>
-          <tr><td><code>hub-api</code></td><td><code>hub-api</code></td><td>FastAPI — 21 routeurs : SSO, registre d'apps, M2M/OIDC, messagerie SSE, backups/snapshots, audit, VPN</td></tr>
+          <tr><td><code>hub-api</code></td><td><code>hub-api</code></td><td>FastAPI — <strong>24 routeurs</strong> : SSO, registre d'apps, M2M/OIDC, messagerie SSE, backups/snapshots, audit, réseaux, VPN</td></tr>
           <tr><td><code>hub-frontend</code></td><td><code>hub-frontend</code></td><td>Nginx — SPA vanilla JS + console admin, terminaison TLS</td></tr>
           <tr><td><code>wireguard-server</code></td><td><code>hub-wireguard</code></td><td>VPN WireGuard (profil compose — démarré seulement si activé)</td></tr>
         </tbody>
@@ -411,8 +408,8 @@
             <div class="arch-layer">
               <h4>PostgreSQL 15</h4>
               <ul>
+                <li>Port dynamique</li>
                 <li>Données métiers</li>
-                <li>schema_migrations</li>
                 <li>File outbox (table)</li>
               </ul>
             </div>
@@ -457,13 +454,13 @@ sequenceDiagram
     B-->>A: réponse métier
     Note over A,B: échec après tous les retries<br/>→ outbox : livraison garantie, retry auto
 </pre>
-        <p class="mermaid-caption">Les credentials SA sont chiffrés côté Hub (Fernet). Si l'app B est down, le message part en outbox et sera livré automatiquement.</p>
+        <p class="mermaid-caption">OIDC Rate limit : protégé à hauteur de 30 échecs par 60 secondes pour les appels de tokens frauduleux.</p>
       </div>
     </section>
 
     <section id="hubctl">
-      <h2>2. Pilotage du parc avec hubctl</h2>
-      <p>L'outil <code>hubctl</code> est le CLI/TUI d'administration transversal. Exécuté à la racine du parc, il gère le démarrage, la mise à jour, les secrets et la résilience.</p>
+      <h2>2. Pilotage du parc avec hubctl (v0.8.0)</h2>
+      <p>L'outil <code>hubctl</code> gère le cycle de vie de tout le parc. Il réside dans un sous-module <code>hubctl_src/hubctl_cli/</code> avec un alias situé à la racine du parc.</p>
       
       <div class="grid-cards">
         <div class="card">
@@ -509,30 +506,58 @@ sequenceDiagram
         <tbody>
           <tr><td><code>start / stop [all|prod|dev]</code></td><td>Cycle de vie du parc. <code>dev</code> = ateliers uniquement ; <code>stop dev</code> préserve les volumes.</td></tr>
           <tr><td><code>update</code></td><td>Maj Hub + apps actives : snapshot DB préalable, pull → build → up, <strong>rollback automatique</strong> si échec.</td></tr>
-          <tr><td><code>atelier &lt;app&gt; [--maj [--ref R] | --prod]</code></td><td>Cycle atelier bac à sable (§7) : création avec clone DB, test de <code>origin/main</code>, déploiement validé en prod (DB préservée).</td></tr>
+          <tr><td><code>atelier &lt;app&gt; [--maj [--ref R] | --prod]</code></td><td>Cycle atelier bac à sable (§8) : création avec clone DB, test de <code>origin/main</code>, déploiement validé en prod.</td></tr>
           <tr><td><code>init [--force]</code></td><td>Bootstrap d'un Hub neuf : <code>.env</code> + secrets aléatoires, clés JWT, santé, marker shell.</td></tr>
           <tr><td><code>export [--app S] [--passphrase-stdin]</code></td><td>Archive chiffrée du parc complet (DB + .env + secrets), magic <code>PARKEV1</code> → <code>exports/</code>.</td></tr>
           <tr><td><code>restore &lt;archive&gt;</code></td><td>Restaure un park-export — <strong>uniquement sur un Hub vierge</strong>.</td></tr>
-          <tr><td><code>pra-restore [kit]</code></td><td>PRA sur machine nue : wizard en 7 étapes depuis le kit (§8).</td></tr>
+          <tr><td><code>pra-restore [kit]</code></td><td>PRA sur machine nue : wizard en 7 étapes depuis le kit (§9).</td></tr>
           <tr><td><code>debug [app] [--rw|--setup]</code></td><td>Agent IA local de debug (Ollama + MCP <code>hub-debug</code>), coupé par <code>--off</code>.</td></tr>
           <tr><td><code>vpn sync|status|on|off</code></td><td>WireGuard : l'état voulu vit en DB, le conteneur est réconcilié par <code>sync</code>.</td></tr>
-          <tr><td><code>vault backup|restore|status|…</code></td><td>Coffre chiffré Fernet+scrypt des .env/secrets (§8) + réplication PRA.</td></tr>
-          <tr><td><code>seed [fichier.yaml] [--prune]</code></td><td>Déploiement déclaratif batch (clone/configure/converge) ; <code>seed export</code> génère le YAML.</td></tr>
+          <tr><td><code>vault backup|restore|status|…</code></td><td>Coffre chiffré Fernet+scrypt des .env/secrets + réplication PRA.</td></tr>
+          <tr><td><code>seed [fichier.yaml] [--prune]</code></td><td>Déploiement déclaratif batch (clone/configure/converge).</td></tr>
         </tbody>
       </table>
+    </section>
 
-      <h3>Le TUI — un dashboard, pas un menu</h3>
+    <section id="agentia">
+      <h2>3. Agent IA de Debug (Ollama)</h2>
+      <p>Un assistant local puissant configuré pour assister les développeurs dans les diagnostics serveurs et logs Docker, sans que les données ne sortent du Hub.</p>
+      
+      <div class="grid-cards">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon purple"><svg width="20" height="20"><use href="#icon-bot"/></svg></div>
+            <h3 class="card-title">Lancement Rapide</h3>
+          </div>
+          <p class="card-desc">L'installeur (via <code>--setup</code>) détectera votre GPU (VRAM >= 8Go pour le modèle 8b, sinon 2b).</p>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="function">./hubctl</span> debug --setup<br>
+            <span class="function">./hubctl</span> debug exemple-app
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><svg width="20" height="20"><use href="#icon-code"/></svg></div>
+            <h3 class="card-title">Permissions (Read/Write)</h3>
+          </div>
+          <p class="card-desc">Mode sécurisé par défaut. Ajouter <code>--rw</code> permet des actions non-destructives (restart conteneur).</p>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="function">./hubctl</span> debug exemple-app --rw
+          </div>
+        </div>
+      </div>
+      
       <div class="callout">
-        <svg class="callout-icon" width="24" height="24"><use href="#icon-activity"/></svg>
+        <svg class="callout-icon" width="24" height="24"><use href="#icon-shield"/></svg>
         <div>
-          <p><strong>./hubctl sans sous-commande (avec TTY)</strong> ouvre un dashboard 4 quadrants : bannière (version, mode DEV/PROD, badge PRA), ressources système, statut des services et apps, raccourcis.</p>
-          <p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--hub-color-muted);">Raccourcis mode PROD : <code>1</code> tout démarrer · <code>2</code> tout arrêter · <code>3</code> mise à jour · <code>4</code> Coffre · <code>0</code>/<code>Esc</code> quitter. Mode DEV : <code>1/2</code> prod, <code>3/4</code> ateliers, <code>5</code> update, <code>6</code> Coffre. ⚠️ Depuis Hub 3.38.0, l'atelier se pilote aussi depuis l'UI Santé — ne pas lancer hubctl et l'UI simultanément sur la même app.</p>
+          <p><strong>Sécurité des requêtes :</strong> L'agent de debug limite la lecture au répertoire local et au Hub. Il masque automatiquement les secrets dans son contexte. Les actions destructives (rm, drop db) demandent une double confirmation humaine.</p>
         </div>
       </div>
     </section>
 
     <section id="lifecycle">
-      <h2>3. Cycle de vie d'une Application</h2>
+      <h2>4. Cycle de vie d'une Application</h2>
       <p>Toute application naît d'une copie du <code>HUBapp_TEMPLATE_base</code> et s'intègre automatiquement au Hub. Le processus d'échafaudage est automatisé.</p>
       
       <div class="timeline">
@@ -551,10 +576,10 @@ sequenceDiagram
           <div class="timeline-dot"></div>
           <div class="timeline-content">
             <h4><span class="tag blue">2. Personnalisation</span> Script INITIALISE</h4>
-            <p>S'exécute dans le dossier de l'app. Construit le <code>.env</code>, modifie les package.json et Dockerfiles, génère les scripts d'action.</p>
+            <p>Construit le <code>.env</code>. Gère les modes interactifs ou CI (<code>--yes</code>). Vous pouvez passer le nom de l'app directement pour sauter la question initiale.</p>
             <div class="code-block" style="margin-top: 0.5rem; padding: 0.75rem;">
               <span class="keyword">cd</span> APPS/mon-app<br>
-              <span class="function">python</span> INITIALISE.py --clean
+              <span class="function">python</span> INITIALISE.py "Mon App" --clean
             </div>
           </div>
         </div>
@@ -562,8 +587,8 @@ sequenceDiagram
         <div class="timeline-item">
           <div class="timeline-dot"></div>
           <div class="timeline-content">
-            <h4><span class="tag blue">3. Allocation</span> Ports et Sous-réseau</h4>
-            <p>L'app interroge le Hub central pour recevoir des ports uniques (ex: 9005 pour l'API) évitant toute collision Docker.</p>
+            <h4><span class="tag blue">3. Allocation</span> Ports dynamiques & Sous-réseau</h4>
+            <p>L'app interroge le Hub pour recevoir des ports uniques (API, Frontend, <strong>et PostgreSQL</strong> depuis v2.18.2) ainsi que son <code>APP_SUBNET</code> Docker.</p>
             <div class="code-block" style="margin-top: 0.5rem; padding: 0.75rem;">
               <span class="function">make</span> sync-env
             </div>
@@ -581,24 +606,11 @@ sequenceDiagram
           </div>
         </div>
       </div>
-
-      <h3>Prod vs atelier — des ressources étanches</h3>
-      <p>Chaque app de production possède un jumeau d'atelier sur des plages dédiées : aucune collision possible, les deux peuvent tourner en parallèle.</p>
-      <table class="resource-table">
-        <thead><tr><th>Ressource</th><th>Production</th><th>Atelier (projet compose <code>-ws</code>)</th></tr></thead>
-        <tbody>
-          <tr><td>Port API</td><td>9000 – 9499</td><td>10000 – 10499</td></tr>
-          <tr><td>Port frontend</td><td>4200 – 4699</td><td>5200 – 5699</td></tr>
-          <tr><td>Subnet Docker</td><td>pool du Hub (par groupe d'apps)</td><td>dédié <code>10.210.x</code> (64 max)</td></tr>
-          <tr><td>Base de données</td><td>volume <code>postgres-data</code></td><td>clone <code>-ws-postgres-data</code></td></tr>
-          <tr><td>Marqueur</td><td>—</td><td><code>.workshop.env</code> (sa présence = atelier actif)</td></tr>
-        </tbody>
-      </table>
     </section>
 
     <section id="conventions">
-      <h2>4. Conventions Backend (FastAPI)</h2>
-      <p>Le backend s'appuie sur FastAPI et valide la sécurité via les composants partagés du Hub. Le pattern standard utilise l'injection de dépendances pour les contrôles d'accès.</p>
+      <h2>5. Conventions Backend (FastAPI)</h2>
+      <p>Le backend s'appuie sur FastAPI et valide la sécurité via les composants partagés du Hub (15 fichiers pytest inclus pour la qualité du code). L'ID de l'instance du hub est verrouillé dans <code>HUB_INSTANCE_ID</code> (depuis 2.19.0) pour prévenir la corruption des environnements.</p>
 
       <div class="code-block">
 <span class="comment"># backend/routes/mon_domaine.py</span>
@@ -615,29 +627,6 @@ router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span 
     <span class="comment"># Validation via JWKS du hub transparente</span>
     <span class="keyword">pass</span>
       </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Dépendance d'auth</th>
-            <th>Accès requis</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>get_current_user()</code></td>
-            <td>Tout token JWT valide (Utilisateur ou Service Account M2M)</td>
-          </tr>
-          <tr>
-            <td><code>require_role("viewer")</code></td>
-            <td>Rôle Viewer minimum</td>
-          </tr>
-          <tr>
-            <td><code>require_role("admin")</code></td>
-            <td>Administrateur d'application uniquement</td>
-          </tr>
-        </tbody>
-      </table>
       
       <div class="callout" style="border-color: var(--hub-color-warning);">
         <svg class="callout-icon" width="24" height="24" style="color: var(--hub-color-warning);"><use href="#icon-activity"/></svg>
@@ -649,21 +638,20 @@ router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span 
     </section>
 
     <section id="database">
-      <h2>5. Base de données et Migrations</h2>
-      <p>Les applications n'utilisent <strong>pas</strong> Alembic. Un script interne léger exécute des migrations SQL pures au démarrage du backend FastAPI.</p>
+      <h2>6. Base de données et Migrations</h2>
+      <p>Les applications n'utilisent <strong>pas</strong> Alembic. Un script interne léger exécute des migrations SQL pures (à base de fichiers SQL numérotés sur 3 chiffres) au démarrage du backend FastAPI.</p>
 
       <div class="grid-cards" style="grid-template-columns: 1fr;">
         <div class="card" style="display: flex; gap: 1.5rem; align-items: flex-start;">
           <div class="card-icon" style="background: #fef3c7; color: #d97706; padding: 1rem;"><svg width="32" height="32"><use href="#icon-database"/></svg></div>
           <div style="flex:1;">
             <h3 class="card-title" style="margin-bottom: 0.5rem;">Fichiers séquentiels</h3>
-            <p class="card-desc">Placés dans <code>backend/migrations/</code>, ils sont nommés avec 3 chiffres : <code>001_init.sql</code>, <code>002_add_field.sql</code>.</p>
+            <p class="card-desc">Placés dans <code>backend/migrations/</code> : <code>001_init.sql</code>, <code>002_add_field.sql</code>.</p>
             <div class="code-block" style="padding: 1rem; margin: 0;">
 <span class="keyword">BEGIN</span>;
     <span class="keyword">CREATE TABLE IF NOT EXISTS</span> projets (
         id <span class="keyword">SERIAL PRIMARY KEY</span>,
         titre <span class="keyword">VARCHAR</span>(255) <span class="keyword">NOT NULL</span>,
-        proprietaire_id <span class="keyword">INTEGER NOT NULL REFERENCES</span> users(id),
         created_at <span class="keyword">TIMESTAMPTZ NOT NULL DEFAULT NOW</span>()
     );
 <span class="keyword">COMMIT</span>;
@@ -675,36 +663,36 @@ router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span 
     </section>
 
     <section id="makefile">
-      <h2>6. Référence Makefile (Apps)</h2>
-      <p>Exécutées depuis le dossier de l'application (<code>APPS/mon-app/</code>), les commandes standardisent le cycle de développement.</p>
+      <h2>7. Référence Makefile (Apps)</h2>
+      <p>Les 35 commandes du Makefile standardisent le développement (dossier <code>APPS/mon-app/</code>).</p>
       
       <table>
         <thead><tr><th>Commande</th><th>Effet</th></tr></thead>
         <tbody>
           <tr><td><span class="tag">make dev</span></td><td>Lance Docker en mode <strong>hot-reload</strong> (Vite HMR, Uvicorn --reload).</td></tr>
           <tr><td><span class="tag">make up</span></td><td>Démarre les conteneurs de l'app en production.</td></tr>
-          <tr><td><span class="tag">make restart-api</span></td><td>Redémarre uniquement le conteneur FastAPI (rapide). ⚠️ Les dépendances pip sont bakées dans l'image : une nouvelle dépendance exige <code>make build</code> puis <code>make up</code>.</td></tr>
+          <tr><td><span class="tag">make update-env</span></td><td>Fusionne intelligemment les nouvelles clés du <code>.env.example</code> dans votre <code>.env</code> après une montée de version Template.</td></tr>
+          <tr><td><span class="tag">make restart-api</span></td><td>Redémarre le backend. ⚠️ Les dépendances pip exigent <code>make build</code> puis up.</td></tr>
           <tr><td><span class="tag">make logs</span></td><td>Affiche les logs fusionnés frontend/backend/db.</td></tr>
           <tr><td><span class="tag">make test</span></td><td>Lance Pytest sur l'hôte en mémoire RAM (très rapide).</td></tr>
-          <tr><td><span class="tag">make db-shell</span></td><td>Ouvre une console interactive <code>psql</code> connectée à la base.</td></tr>
           <tr><td><span class="tag">make bump-patch</span></td><td>Synchronise un bump de version (v1.0.0 → v1.0.1) dans tous les fichiers liés.</td></tr>
         </tbody>
       </table>
     </section>
 
     <section id="bluegreen">
-      <h2>7. L'Atelier (bac à sable → production)</h2>
-      <p>Pour tester une montée de version en sécurité sans casser la production, <code>hubctl</code> permet de générer un "Atelier".</p>
+      <h2>8. L'Atelier (bac à sable → production)</h2>
+      <p>Pour tester une montée de version en sécurité sans casser la production, <code>hubctl</code> permet de générer un "Atelier". Les ateliers tournent sur une pile réseau totalement isolée.</p>
 
       <div class="callout" style="background: var(--hub-color-primary-soft); border-color: var(--hub-color-primary);">
         <svg class="callout-icon" width="24" height="24"><use href="#icon-code"/></svg>
         <div>
-          <p><strong>Cycle de l'atelier</strong></p>
+          <p><strong>Cycle de l'atelier (pilotable en CLI ou depuis la vue UI "Santé" de l'administration Hub)</strong></p>
           <ol style="margin-top: 0.5rem; padding-left: 1.5rem; font-size: 0.9375rem;">
-            <li><code>./hubctl atelier mon-app</code> : Clône la Base de données en direct et assigne de nouveaux ports (ex: API sur 10005).</li>
-            <li><code>./hubctl atelier mon-app --maj</code> : Pulle la nouvelle version <code>origin/main</code> dans cet espace isolé.</li>
+            <li><code>./hubctl atelier mon-app</code> : Clône la DB en direct et assigne de nouveaux ports.</li>
+            <li><code>./hubctl atelier mon-app --maj</code> : Compile <code>origin/main</code> dans cet espace isolé.</li>
             <li>Test fonctionnel sur l'URL de l'atelier.</li>
-            <li><code>./hubctl atelier mon-app --prod</code> : Bascule le code vérifié en production et détruit l'atelier proprement.</li>
+            <li><code>./hubctl atelier mon-app --prod</code> : Déploie en production le commit validé et détruit l'atelier.</li>
           </ol>
         </div>
       </div>
@@ -723,12 +711,12 @@ flowchart TD
     style RB fill:#fef2f2,stroke:#dc2626
     style RB2 fill:#fef2f2,stroke:#dc2626
 </pre>
-        <p class="mermaid-caption">--prod exige que l'atelier ait testé exactement le commit courant d'origin/main (anti-drift). Échec = rien n'est perdu : rollback et atelier conservé. Depuis Hub 3.38.0, ce cycle est aussi pilotable depuis la vue Santé de l'UI admin.</p>
+        <p class="mermaid-caption">--prod exige que l'atelier ait testé exactement le commit courant d'origin/main (anti-drift). Échec = rien n'est perdu : rollback et atelier conservé.</p>
       </div>
     </section>
 
     <section id="pra">
-      <h2>8. PRA (Plan de Reprise d'Activité)</h2>
+      <h2>9. PRA (Plan de Reprise d'Activité)</h2>
       <p>En cas de sinistre total de la machine hôte, POULIDOR est conçu pour se relever avec une commande unique, à condition d'avoir externalisé le kit.</p>
 
       <div class="grid-cards">
@@ -777,19 +765,6 @@ flowchart LR
     style E fill:#faf5ff,stroke:#9333ea
 </pre>
         <p class="mermaid-caption">Chaque couche couvre un périmètre plus large : l'app → le Hub entier → le parc complet (y compris les .env et le code des apps).</p>
-      </div>
-
-      <div class="callout">
-        <svg class="callout-icon" width="24" height="24"><use href="#icon-code"/></svg>
-        <div>
-          <p><strong>Pour aller plus loin</strong></p>
-          <p style="font-size: 0.9375rem;">
-            <a href="guide-parc-poulidor.md">guide-parc-poulidor.md</a> — référence textuelle complète (commandes exhaustives, pièges, cas d'usage) ·
-            <a href="../HUB_base/INTEGRATION.md">INTEGRATION.md</a> — contrat d'intégration Hub ↔ apps ·
-            <a href="guide-developpement-template.md">guide-developpement-template.md</a> — développer une app de bout en bout ·
-            <a href="../HUB_base/docs/GUIDE_ADMIN.md">GUIDE_ADMIN.md</a> — administration quotidienne du Hub
-          </p>
-        </div>
       </div>
     </section>
 

@@ -23,8 +23,9 @@
 
   <h2>Vue d'ensemble</h2>
   <div class="code"><pre>POULIDOR/
-├── hubctl → hubctl_src/     ← CLI de pilotage (menu, coffre, export/restore)
-├── HUB_base/                ← Hub SSO (auth JWT/JWKS, annuaire, messagerie, backups)
+├── hubctl → hubctl_src/     ← CLI de pilotage (menu, coffre, export/restore, socle)
+├── HUB_base/                ← Hub SSO (auth JWT/JWKS/OIDC, annuaire, messagerie, backups)
+├── HUBsocle/                ← socle applicatif versionné des apps (factory + images de base)
 ├── HUBapp_TEMPLATE_base/    ← template canonique de toute nouvelle app
 ├── APPS/                    ← applications (production + ateliers -ws)
 └── exports/                 ← archives export du parc</pre></div>
@@ -48,6 +49,17 @@
   <p>Modèle de référence pour créer une app : backend FastAPI, frontend React +
   Vite, PostgreSQL, Docker Compose. Copié par <code>create_app.sh</code> puis
   personnalisé par <code>INITIALISE.py</code>.</p>
+
+  <h2>Le socle versionné (<code>HUBsocle/</code>)</h2>
+  <p>Le code de base des apps est progressivement <strong>mutualisé dans un
+  socle versionné</strong> : factory <code>create_app()</code>, paquets
+  <code>hub-socle</code> (pip) et <code>@poulidor/hub-socle</code> (npm),
+  images de base <code>poulidor/socle-api</code> / <code>socle-web</code>
+  construites localement (<code>./hubctl socle build</code>, offline-first).
+  Chaque app du socle déclare sa version via <code>APP_SOCLE_VERSION</code>
+  (<code>./hubctl socle status</code> = drift de la flotte). Les apps existantes
+  restent des forks du template ; les nouvelles apps naîtront « fines » via
+  INITIALISE v2 (à venir).</p>
 
   <h2>Production vs Atelier</h2>
   <table>
@@ -79,6 +91,6 @@
     <code>docs/guide-developpement-template.md</code>.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.51.1</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.54.1</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

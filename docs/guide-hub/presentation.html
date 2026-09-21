@@ -27,7 +27,7 @@
 
   <div class="cards">
     <a class="card" href="architecture.html"><h3>Une stack homogène</h3><p>FastAPI · React 18 / Vite · PostgreSQL · Docker Compose — identique pour toutes les apps.</p></a>
-    <a class="card" href="hubctl.html"><h3>Un seul outil de pilotage</h3><p><code>hubctl</code> : menu interactif + 12 sous-commandes pour tout administrer.</p></a>
+    <a class="card" href="hubctl.html"><h3>Un seul outil de pilotage</h3><p><code>hubctl</code> : menu interactif + 13 sous-commandes pour tout administrer.</p></a>
     <a class="card" href="index.html"><h3>Un parc vivant</h3><p>Une douzaine d'applications en production, toutes reliées au même SSO.</p></a>
   </div>
 
@@ -57,8 +57,9 @@
   <p>Le Hub fait office de <strong>fournisseur d'identité</strong> (OpenID
   Connect) pour des outils tiers : discovery, clients OIDC auto-enregistrables,
   <code>id_token</code>, déconnexion back-channel, échange de tokens protégé
-  contre l'abus (throttle des échecs par client). Pratique pour rattacher
-  Vikunja, Nextcloud ou Grafana au SSO du parc.
+  contre l'abus (throttle des échecs par client). Le <code>sub</code> OIDC est
+  <strong>immuable</strong> : renommer un login n'entraine aucune
+  réassociation manuelle côté Vikunja, Nextcloud ou Grafana.
   <strong>Voir :</strong> <code>HUB_base/docs/</code> (intégration OIDC).</p>
 
   <h3>3. Registre des applications &amp; M2M</h3>
@@ -117,11 +118,14 @@
   <strong>Voir :</strong> <code>./hubctl vpn --help</code>.</p>
 
   <h3>11. Administration &amp; observabilité</h3>
-  <p>Dashboard santé des apps (statut, versions, ateliers, disque), page
-  <strong>Audit</strong> (sessions live, heatmap d'activité, alertes), onglet
-  <strong>Réseau</strong> (changement d'IP validé par l'admin avec plan de
-  propagation, détection d'IP LAN), gestion des utilisateurs, déploiement par
-  fichier seed.
+  <p>Dashboard santé des apps refondu (cartes « ops console », filtres
+  instantanés, panneau <strong>branches 🌿</strong> pour envoyer une branche
+  GitHub en atelier), page <strong>Audit</strong> (sessions live, heatmap
+  d'activité, alertes), administration réorganisée en <strong>onglets à 2
+  niveaux</strong> (Applications, Sauvegardes, VPN, Configuration + sous-onglets
+  Groupes, Service Accounts, Clients OIDC, Apps GitHub, Réseau), gestion des
+  utilisateurs (identité : UUID stable, prénom/nom, renommage du login),
+  déploiement par fichier seed.
   <strong>Voir :</strong> <code>HUB_base/docs/GUIDE_ADMIN.md</code>.</p>
 
   <h3>12. Debug assisté par IA</h3>
@@ -130,7 +134,18 @@
   confirmations pour toute action. Modèle en cours de déploiement.
   <strong>Voir :</strong> <code>docs/debug-agent.md</code>.</p>
 
-  <h3>13. Écosystème développeur</h3>
+  <h3>13. Socle applicatif versionné (HUBsocle)</h3>
+  <p>Le code de base des apps est <strong>mutualisé et versionné</strong>
+  (sous-module <code>HUBsocle/</code>) : factory <code>create_app()</code>,
+  paquets <code>hub-socle</code> (Python) et <code>@poulidor/hub-socle</code>
+  (npm), images de base <code>poulidor/socle-api</code> / <code>socle-web</code>
+  construites en local sans registre (<strong>offline-first</strong>). Chaque
+  app déclare sa version via <code>APP_SOCLE_VERSION</code> ;
+  <code>./hubctl socle build</code> construit les images,
+  <code>./hubctl socle status</code> surveille le drift de la flotte.
+  <strong>Voir :</strong> <code>HUBsocle/README.md</code>.</p>
+
+  <h3>14. Écosystème développeur</h3>
   <p>Template canonique (backend async, frontend React, tests, conventions UTC
   strictes), design system <strong>HUBCSS</strong> partagé, serveur MCP pour
   piloter le Hub depuis un assistant IA, et skills opencode embarqués
@@ -142,7 +157,7 @@
   <h2 id="renvois">Où trouver la doc détaillée</h2>
   <table>
     <tr><th>Document</th><th>Contenu</th></tr>
-    <tr><td><a href="hubctl.html">guide hubctl</a> (ce dossier)</td><td>Menu TUI + 12 sous-commandes CLI, garde-fous.</td></tr>
+    <tr><td><a href="hubctl.html">guide hubctl</a> (ce dossier)</td><td>Menu TUI + 13 sous-commandes CLI, garde-fous.</td></tr>
     <tr><td><a href="make.html">guide make</a> (ce dossier)</td><td>Cibles Makefile du Hub et des apps.</td></tr>
     <tr><td><a href="architecture.html">architecture</a> (ce dossier)</td><td>Composants du parc, prod vs atelier, coffre.</td></tr>
     <tr><td><code>docs/guide-parc-poulidor.md</code></td><td>Référence complète du parc (instantané daté).</td></tr>
@@ -161,6 +176,6 @@
     les skills listés dans <code>AGENTS.md</code> encadrent ces opérations.
   </div>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.51.1</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.54.1</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>
