@@ -1,5 +1,15 @@
 # Changelog — POULIDOR
 
+## [0.66.1] - 22 septembre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.26.4
+
+- `HUBapp_TEMPLATE_base` 2.26.4 : le serveur MCP `hub` (~66 outils) est
+  **désactivé par défaut** dans l'`opencode.json` du template, complété par les
+  commandes `/hub-on` `/hub-off` pour la bascule à la demande (fichiers identiques
+  au méta-repo 0.66.0 — parité de maintenance). Suite directe de l'allègement de
+  contexte agent (~20K tokens/tour) opéré en 0.66.0 côté méta-repo.
+
 ## [0.66.0] - 22 septembre 2026
 
 ### ⚡ Allègement du contexte agent + fast-path isolation
