@@ -1,5 +1,28 @@
 # Changelog — POULIDOR
 
+## [0.66.0] - 22 septembre 2026
+
+### ⚡ Allègement du contexte agent + fast-path isolation
+
+- **`scripts/parc-isolate`** : fast-path du skill `agent-isolation-git` — registre
+  (sous lock, collision détectée parmi les `active`), branche depuis `origin/main`,
+  worktree et push upstream en 1 appel ; `--list`, `--cleanup <branche>`,
+  `--release-lock` ; rollback registre+branche si échec `worktree add`. Validé en
+  selftest (création → refus doublon → cleanup → registre propre).
+- **Contexte opencode allégé (~20K tokens/tour)** : MCP `hub` (~66 outils) et
+  `zai-mcp-server` (9 outils) désactivés par défaut dans `opencode.json` ;
+  nouvelles commandes `/hub-on` et `/hub-off` pour basculer (redémarrage opencode
+  requis ; en attendant, opérations Hub via `hubctl`/bash).
+- **Seuils superpowers** (`AGENTS.md` + `jellycode.md`) : `brainstorming` réservé aux
+  vraies features / changements de comportement notables ; TDD réservé à la logique
+  métier/backend (UI → `verify-feature`) ; `verification-before-completion` et
+  `systematic-debugging` toujours applicables.
+- **Skill `agent-isolation-git`** : procédure fast-path scriptée documentée
+  (politique stricte inchangée — worktree obligatoire sans exception).
+- **Descriptions de skills parc resserrées** (migrate-app-template, exemple-app,
+  hub-oidc-manager, app-workshop-mover) : triggers conservés, prose explicative
+  coupée (chargées dans chaque prompt système).
+
 ## [0.65.1] - 21 septembre 2026
 
 ### ⚡ Guide de migration définitif — validé pas à pas sur banc neuf
