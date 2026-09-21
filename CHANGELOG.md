@@ -1,5 +1,16 @@
 # Changelog — POULIDOR
 
+## [0.65.1] - 21 septembre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.26.3
+
+- `HUBapp_TEMPLATE_base` 2.26.3 : le garde-fou d'instance Hub
+  (`sync_hub_host.py`) documente désormais la procédure de bascule
+  volontaire (corriger `HUB_HOST`, supprimer `HUB_INSTANCE_ID`, relancer
+  `make sync-env`) — retour d'expérience exemple-app 1.1.2.
+
+---
+
 ## [0.65.0] - 21 septembre 2026
 
 ### ⚡ Outillage migration one-shot legacy → hub neuf (répété et validé en VM)
