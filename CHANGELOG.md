@@ -2,6 +2,18 @@
 
 ## [0.65.1] - 21 septembre 2026
 
+### ⚡ Guide de migration définitif — validé pas à pas sur banc neuf
+
+- `docs/handover/2026-09-20-migration-legacy-hub-neuf-runbook.md` restructuré en
+  **guide opérationnel définitif** : 4 phases (prérequis/inventaire, préparation cible,
+  répétition sur cible, fenêtre jour J) + validation 48 h + rollback + incidents.
+- Chaque étape : commande exacte, sortie attendue ligne à ligne, case à cocher,
+  critère de succès — **exécutée dans cet ordre sur banc neuf** (VM `client-mig-gd`
+  + banc legacy exemple-lab, zéro improvisation) : restore legacy complet, purge/rejeu
+  fourche 027, comptages hub et données métier identiques, apps hub_connected zéro 403.
+
+## [0.65.1] - 21 septembre 2026
+
 ### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.26.3
 
 - `HUBapp_TEMPLATE_base` 2.26.3 : le garde-fou d'instance Hub
