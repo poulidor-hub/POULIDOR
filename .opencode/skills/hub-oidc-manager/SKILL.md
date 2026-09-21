@@ -1,13 +1,10 @@
 ---
 name: hub-oidc-manager
 description: >
-  Utiliser pour gérer le bridge OIDC du HUB POULIDOR : activer l'OIDC, créer/lister/modifier/supprimer
-  des clients OIDC, configurer une app externe (Vikunja, Nextcloud, Grafana…) pour utiliser le HUB
-  comme fournisseur d'identité, tester le flow OIDC (authorize → token → userinfo), debug les erreurs
-  SSO/OIDC (redirect_uri mismatch, client_secret invalide, cookie session), déconnecter un user
-  (back-channel logout), révoquer des refresh tokens. Triggers : "OIDC", "SSO", "openid", "oauth",
-  "client OIDC", "redirect_uri", "authorize", "id_token", "JWKS", "discovery OIDC", "back-channel
-   logout", "auto-register OIDC", "JIT", "Vikunja OIDC", "Grafana SSO", "Nextcloud auth".
+  Utiliser pour gérer le bridge OIDC du HUB : clients OIDC (CRUD), SSO d'apps externes
+  (Vikunja, Nextcloud, Grafana…), test/debug du flow OIDC (authorize, token, userinfo,
+  redirect_uri, JWKS), back-channel logout, refresh tokens. Triggers : OIDC, SSO, openid,
+  oauth, id_token, discovery OIDC, auto-register/JIT, Vikunja/Grafana/Nextcloud auth.
 ---
 
 # Hub OIDC Manager

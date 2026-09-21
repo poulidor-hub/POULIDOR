@@ -1,6 +1,6 @@
 ---
 name: migrate-app-template
-description: Use when a Hub app was created with an older version of HUBapp_TEMPLATE_base and needs to be updated to the current template version. Triggers on "mettre à jour l'app avec le template", "migrer l'app vers le nouveau template", "mon app est en retard sur le template", "upgrade template app", "sync app with template", or when you notice an app's VERSION is far behind the template's VERSION (lire HUBapp_TEMPLATE_base/VERSION — ne jamais supposer). Also use when adding template features (M2M, notifications SSE, backup/restore, bulk operations, badge search) to an app that lacks them, when uploads/backups fail with PermissionError on /app/uploads after a template migration, or when the app's .env is stale after a migration (missing new template keys, obsolete variables, database unreachable because POSTGRES_PASSWORD no longer matches the existing volume).
+description: Use when a Hub app must be synced to the current HUBapp_TEMPLATE_base template version. Triggers on "mettre à jour/migrer l'app vers le nouveau template", "upgrade/sync template app", VERSION en retard sur le template, ajout de features template manquantes (M2M, SSE, backup/restore, bulk, badge search), PermissionError /app/uploads, ou .env obsolète après migration.
 argument-hint: 'Path to the app to migrate (e.g., APPS/mon-app)'
 ---
 

@@ -1,0 +1,222 @@
+#!/usr/bin/env bash
+# parc-isolate — fast-path du skill agent-isolation-git (POULIDOR)
+#
+# Un seul appel bash remplace les étapes manuelles 1-2 (enregistrement registre
+# sous lock + création worktree/branche) et l'étape 5 (cleanup).
+# La politique reste inchangée : worktree OBLIGATOIRE avant toute modif de code.
+#
+# Usage :
+#   parc-isolate <branche> ["task"] [--agent-id ID] [--submodules]   # isoler (défaut)
+#   parc-isolate --list                                              # agents actifs
+#   parc-isolate --cleanup <branche>                                 # étape 5
+#   parc-isolate --release-lock                                      # forcer un lock stale
+#
+# Le merge vers main (étape 4) reste manuel : lock + release-on-main obligatoires.
+set -euo pipefail
+
+BRANCH_RE='^[A-Za-z0-9][A-Za-z0-9/_.:~-]*$'
+LOCK_DIR=".worktrees/_agents/.lock"
+LOCK_STALE_SECS=60
+LOCK_MAX_ATTEMPTS=10
+
+usage() { awk 'NR>1 && /^set /{exit} NR>1{sub(/^# ?/,""); print}' "$0"; }
+
+die() { echo "❌ parc-isolate: $*" >&2; exit 1; }
+info() { echo "→ $*"; }
+ok()   { echo "✅ $*"; }
+
+command -v git >/dev/null || die "git introuvable"
+command -v python3 >/dev/null || die "python3 introuvable"
+[ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ] || die "hors dépôt git"
+
+GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)"
+MAIN_ROOT="$(cd "$GIT_COMMON_DIR/.." && pwd)"
+AGENTS_DIR="$MAIN_ROOT/.worktrees/_agents"
+REGISTRY="$AGENTS_DIR/registry.json"
+mkdir -p "$AGENTS_DIR"
+
+LOCK_HELD=0
+release_lock() {
+    [ "$LOCK_HELD" = "1" ] || return 0
+    LOCK_HELD=0
+    rmdir "$MAIN_ROOT/$LOCK_DIR" 2>/dev/null || true
+}
+trap release_lock EXIT
+
+lock_acquire() {
+    local attempts=0
+    while ! mkdir "$MAIN_ROOT/$LOCK_DIR" 2>/dev/null; do
+        if [ -d "$MAIN_ROOT/$LOCK_DIR" ]; then
+            local age=$(( $(date +%s) - $(stat -c %Y "$MAIN_ROOT/$LOCK_DIR") ))
+            if [ "$age" -gt "$LOCK_STALE_SECS" ]; then
+                info "lock stale (${age}s) → forçage"
+                rmdir "$MAIN_ROOT/$LOCK_DIR" 2>/dev/null && continue
+            fi
+        fi
+        attempts=$((attempts + 1))
+        [ "$attempts" -ge "$LOCK_MAX_ATTEMPTS" ] && die "lock: $LOCK_MAX_ATTEMPTS tentatives échouées (un autre agent travaille ?)"
+        sleep 1
+    done
+    LOCK_HELD=1
+}
+
+registry_load() {
+    if [ -f "$REGISTRY" ]; then
+        python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$REGISTRY" 2>/dev/null \
+            || die "registry.json corrompu ($REGISTRY)"
+    else
+        echo '{"agents": []}' > "$REGISTRY"
+    fi
+}
+
+registry_is_active() {
+    python3 - "$REGISTRY" "$1" <<'EOF'
+import json, sys
+reg, branch = json.load(open(sys.argv[1])), sys.argv[2]
+sys.exit(0 if any(a.get("branch") == branch and a.get("status") == "active" for a in reg["agents"]) else 1)
+EOF
+}
+
+registry_remove_active() {
+    python3 - "$REGISTRY" "$1" <<'EOF'
+import json, sys
+reg_path, branch = sys.argv[1], sys.argv[2]
+reg = json.load(open(reg_path))
+reg["agents"] = [a for a in reg["agents"] if not (a.get("branch") == branch and a.get("status") == "active")]
+json.dump(reg, open(reg_path, "w"), indent=2, ensure_ascii=False)
+EOF
+}
+
+cmd_list() {
+    python3 - "$REGISTRY" <<'EOF'
+import json, sys
+reg = json.load(open(sys.argv[1]))
+actives = [a for a in reg["agents"] if a.get("status") == "active"]
+if not actives:
+    print("Aucun agent actif.")
+for a in actives:
+    print(f"- {a['branch']}  [{a.get('agent_id','?')}]  {a.get('task','')}")
+EOF
+}
+
+cmd_release_lock() {
+    if [ -d "$MAIN_ROOT/$LOCK_DIR" ]; then
+        rmdir "$MAIN_ROOT/$LOCK_DIR" && ok "lock forcé (supprimé)"
+    else
+        info "pas de lock présent"
+    fi
+}
+
+cmd_cleanup() {
+    local branch="$1"
+    local slug
+    slug="$(printf '%s' "$branch" | tr '/' '-')"
+    local wt="$AGENTS_DIR/$slug"
+    [ -d "$wt" ] || info "worktree absent : $wt (continu)"
+    lock_acquire
+    git -C "$MAIN_ROOT" worktree remove "$wt" 2>/dev/null || rm -rf "$wt"
+    registry_remove_active "$branch"
+    release_lock
+    ok "cleanup terminé : $branch"
+}
+
+cmd_isolate() {
+    local branch="" task="" agent_id="" want_submodules=0
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --agent-id)
+                [ -n "${2:-}" ] || die "--agent-id nécessite une valeur"
+                agent_id="$2"; shift 2 ;;
+            --submodules) want_submodules=1; shift ;;
+            --*) die "option inconnue : $1" ;;
+            *)
+                if [ -z "$branch" ]; then branch="$1"
+                elif [ -z "$task" ]; then task="$1"
+                else die "argument en trop : '$1' (usage: <branche> [\"task\"])"
+                fi
+                shift ;;
+        esac
+    done
+    [ -n "$branch" ] || { usage; die "branche requise"; }
+    printf '%s' "$branch" | grep -Eq "$BRANCH_RE" || die "nom de branche invalide : '$branch'"
+    [ "$(printf '%s' "$branch" | wc -c)" -le 80 ] || die "nom de branche trop long (80 max)"
+    [ -z "$agent_id" ] && agent_id="jellycode-$(python3 -c 'import uuid; print(uuid.uuid4().hex[:8])')"
+
+    local slug wt_path
+    slug="$(printf '%s' "$branch" | tr '/' '-')"
+    wt_path="$AGENTS_DIR/$slug"
+    [ ! -e "$wt_path" ] || die "le chemin existe déjà : $wt_path (voir --list / --cleanup)"
+
+    registry_load
+    if registry_is_active "$branch"; then
+        die "collision : '$branch' est déjà active au registre — choisis un autre nom (--list)"
+    fi
+
+    info "fetch origin/main"
+    git -C "$MAIN_ROOT" fetch origin main --quiet 2>/dev/null || info "fetch impossible (offline ?) → base locale"
+    local base
+    base="$(git -C "$MAIN_ROOT" rev-parse --verify --quiet origin/main || git -C "$MAIN_ROOT" rev-parse --verify main)"
+
+    lock_acquire
+    python3 - "$REGISTRY" "$branch" "$wt_path" "$agent_id" "$task" <<'EOF'
+import json, sys, datetime
+reg_path, branch, path, aid, task = sys.argv[1:6]
+reg = json.load(open(reg_path))
+reg["agents"].append({
+    "branch": branch, "path": path, "agent_id": aid, "status": "active",
+    "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(), "task": task,
+})
+json.dump(reg, open(reg_path, "w"), indent=2, ensure_ascii=False)
+EOF
+    if git -C "$MAIN_ROOT" rev-parse --verify --quiet "refs/heads/$branch" >/dev/null; then
+        info "branche existante réutilisée : $branch"
+    else
+        git -C "$MAIN_ROOT" branch "$branch" "$base" \
+            || { registry_remove_active "$branch"; die "création branche impossible"; }
+    fi
+    release_lock
+
+    if git -C "$MAIN_ROOT" push -u origin "$branch" --quiet 2>/dev/null; then
+        info "branche poussée (upstream origin/$branch)"
+    else
+        info "push différé (offline ?) — à faire avant le merge"
+    fi
+
+    if ! git -C "$MAIN_ROOT" worktree add "$wt_path" "$branch" >/dev/null 2>&1; then
+        lock_acquire
+        git -C "$MAIN_ROOT" worktree remove "$wt_path" --force 2>/dev/null || true
+        registry_remove_active "$branch"
+        release_lock
+        die "git worktree add a échoué — registre nettoyé (rollback)"
+    fi
+
+    if [ "$want_submodules" = "1" ]; then
+        info "init submodules"
+        git -C "$wt_path" submodule update --init --quiet 2>/dev/null || info "submodules : échec partiel (à vérifier)"
+    else
+        info "submodules non initialisés (option --submodules disponible)"
+    fi
+
+    ok "isolé : $branch"
+    echo "   worktree : $wt_path"
+    echo "   agent    : $agent_id"
+    echo "   ensuite  : travaille dans le worktree, puis merge sérialisé sous lock (étape 4, release-on-main), puis :"
+    echo "              scripts/parc-isolate --cleanup $branch"
+}
+
+MODE="isolate"
+BRANCH_ARG=""
+case "${1:-}" in
+    --list) MODE="list" ;;
+    --cleanup) [ -n "${2:-}" ] || die "--cleanup <branche> requis"; MODE="cleanup"; BRANCH_ARG="$2" ;;
+    --release-lock) MODE="release-lock" ;;
+    -h|--help) usage; exit 0 ;;
+    "") usage; die "arguments manquants" ;;
+esac
+
+case "$MODE" in
+    list) registry_load; cmd_list ;;
+    release-lock) cmd_release_lock ;;
+    cleanup) cmd_cleanup "$BRANCH_ARG" ;;
+    isolate) cmd_isolate "$@" ;;
+esac

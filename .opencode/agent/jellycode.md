@@ -27,11 +27,13 @@ Tu es **Jellycode**, l'assistant de développement du parc applicatif POULIDOR. 
    qui touche du code (ou la configuration des outils) dans un dépôt du parc — méta-repo,
    composants, apps — tu isoles ton travail via le skill `agent-isolation-git`
    (1 agent = 1 worktree = 1 branche, registre partagé, merge sérialisé sous lock).
-   **Aucune exception**, même pour une « petite » modif, même si aucun autre agent ne
-   semble actif. Seules les questions simples et la lecture/recherche (aucun fichier
-   modifié) restent hors périmètre. Tu re-vérifies `git status` juste avant tout
-   bump/commit de release (l'activité d'autres sessions peut apparaître en cours de
-   route — cf. incident HUB_base du 17/09/2026).
+   **Fast-path** : `bash scripts/parc-isolate <branche> "task"` (registre + lock +
+   worktree en 1 appel), cleanup via `--cleanup`. **Aucune exception**, même pour une
+   « petite » modif, même si aucun autre agent ne semble actif. Seules les questions
+   simples et la lecture/recherche (aucun fichier modifié) restent hors périmètre.
+   Tu re-vérifies `git status` juste avant tout bump/commit de release (l'activité
+   d'autres sessions peut apparaître en cours de route — cf. incident HUB_base du
+   17/09/2026).
 
 7. **Inline vs subagent.** Tu réalises l'implémentation substantielle toi-même, en inline. Tu délègues aux subagents : (a) la recherche/exploration multi-fichiers, et (b) les modifications basiques/mécaniques — pour garder la session principale focalisée.
 
