@@ -299,9 +299,9 @@
     <nav>
       <div class="nav-group">
         <div class="nav-group-title">Vue d'ensemble</div>
-        <a href="#architecture" class="nav-link active">1. Architecture et Flux</a>
+        <a href="#quick" class="nav-link">⚡ Actions rapides</a>
+        <a href="#architecture" class="nav-link">1. Architecture et Flux</a>
         <a href="#hubctl" class="nav-link">2. Pilotage avec hubctl</a>
-        <a href="#agentia" class="nav-link">3. Agent IA de Debug</a>
       </div>
       <div class="nav-group">
         <div class="nav-group-title">Développement App</div>
@@ -323,10 +323,87 @@
     <div class="callout">
       <svg class="callout-icon" width="24" height="24"><use href="#icon-shield"/></svg>
       <div>
-        <p><strong>Référence technique centrale (Mise à jour Septembre 2026)</strong></p>
-        <p>Ce guide rassemble le fonctionnement architectural, le pilotage, et le développement avec le template d'application. Valable pour les versions actuelles : <span class="tag">Parc 0.54.1</span> <span class="tag blue">Hub 3.50.6</span> <span class="tag">hubctl 0.8.0</span> <span class="tag green">Template 2.21.1</span>.</p>
+        <p><strong>Référence technique centrale (Mise à jour 22 septembre 2026)</strong></p>
+        <p>Ce guide rassemble le fonctionnement architectural, le pilotage, et le développement avec le template d'application. Valable pour les versions actuelles : <span class="tag">Parc 0.66.1</span> <span class="tag blue">Hub 3.61.1</span> <span class="tag">hubctl 0.10.1</span> <span class="tag">Socle 2.25.1</span> <span class="tag green">Template 2.26.4</span> — les fichiers <code>VERSION</code> font foi.</p>
       </div>
     </div>
+
+    <!-- SECTION QUICK ACTIONS -->
+    <section id="quick">
+      <h2>⚡ Actions rapides — les commandes directes</h2>
+      <p>« Je veux… » → la commande, tout de suite. Chaque bloc est copiable tel quel depuis la racine du parc. Le détail et les garde-fous vivent dans les sections suivantes.</p>
+
+      <div class="grid-cards">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><svg width="20" height="20"><use href="#icon-terminal"/></svg></div>
+            <h3 class="card-title">Parc entier</h3>
+          </div>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="function">./hubctl</span> start        <span class="comment"># tout démarrer</span><br>
+            <span class="function">./hubctl</span> stop         <span class="comment"># tout arrêter</span><br>
+            <span class="function">./hubctl</span> update       <span class="comment"># maj TOUT le parc (rollback auto)</span><br>
+            <span class="function">./hubctl</span>              <span class="comment"># TUI : santé du parc</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><svg width="20" height="20"><use href="#icon-server"/></svg></div>
+            <h3 class="card-title">Le Hub uniquement</h3>
+          </div>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="function">./hub.sh</span> update       <span class="comment"># maj du Hub SEUL</span><br>
+            <span class="comment"># recharger le .env du Hub (⚠️ pas restart) :</span><br>
+            <span class="function">make</span> -C HUB_base up-prod<br>
+            <span class="function">make</span> -C HUB_base logs
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><svg width="20" height="20"><use href="#icon-layers"/></svg></div>
+            <h3 class="card-title">Une app précise</h3>
+          </div>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="comment"># voie sûre : atelier puis prod (§8)</span><br>
+            <span class="function">./hubctl</span> atelier &lt;app&gt; --maj<br>
+            <span class="function">./hubctl</span> atelier &lt;app&gt; --prod<br>
+            <span class="comment"># voie directe :</span><br>
+            <span class="keyword">cd</span> APPS/&lt;app&gt; &amp;&amp; git pull &amp;&amp; <span class="function">make</span> build &amp;&amp; <span class="function">make</span> up
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><svg width="20" height="20"><use href="#icon-shield"/></svg></div>
+            <h3 class="card-title">Résilience &amp; sinistre</h3>
+          </div>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="function">./hubctl</span> vault backup  <span class="comment"># coffre + réplication PRA</span><br>
+            <span class="function">./hubctl</span> vault status  <span class="comment"># divergences secrets</span><br>
+            <span class="function">./hubctl</span> vault restore<br>
+            <span class="function">./hubctl</span> export        <span class="comment"># park-export chiffré</span><br>
+            <span class="function">./hubctl</span> pra-restore [kit] --dry-run<br>
+            <span class="function">./hubctl</span> pra-restore [kit] <span class="comment"># PRA réel</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><svg width="20" height="20"><use href="#icon-database"/></svg></div>
+            <h3 class="card-title">Sécurité, socle &amp; divers</h3>
+          </div>
+          <div class="code-block" style="padding: 0.75rem; margin:0;">
+            <span class="function">./hubctl</span> jwt keys / rotate<br>
+            <span class="function">./hubctl</span> socle status  <span class="comment"># drift de la flotte</span><br>
+            <span class="function">./hubctl</span> socle build<br>
+            <span class="function">python3</span> scripts/https-flotte/activer.py &lt;slug&gt; --check<br>
+            <span class="function">./hubctl</span> vpn status
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- SECTION 1: ARCHITECTURE -->
     <section id="architecture">
@@ -459,7 +536,7 @@ sequenceDiagram
     </section>
 
     <section id="hubctl">
-      <h2>2. Pilotage du parc avec hubctl (v0.8.0)</h2>
+      <h2>2. Pilotage du parc avec hubctl (v0.10.1)</h2>
       <p>L'outil <code>hubctl</code> gère le cycle de vie de tout le parc. Il réside dans un sous-module <code>hubctl_src/hubctl_cli/</code> avec un alias situé à la racine du parc.</p>
       
       <div class="grid-cards">
@@ -499,7 +576,7 @@ sequenceDiagram
         </div>
       </div>
 
-      <h3>Les 12 sous-commandes CLI</h3>
+      <h3>Les 14 sous-commandes CLI</h3>
       <p>Exécutées à la racine du parc. Le flag global <code>--dry-run</code> (placé <strong>avant</strong> la sous-commande) simule sans exécuter.</p>
       <table>
         <thead><tr><th>Commande</th><th>Effet</th></tr></thead>
@@ -514,7 +591,9 @@ sequenceDiagram
           <tr><td><code>debug [app] [--rw|--setup]</code></td><td>Agent IA local de debug (Ollama + MCP <code>hub-debug</code>), coupé par <code>--off</code>.</td></tr>
           <tr><td><code>vpn sync|status|on|off</code></td><td>WireGuard : l'état voulu vit en DB, le conteneur est réconcilié par <code>sync</code>.</td></tr>
           <tr><td><code>vault backup|restore|status|…</code></td><td>Coffre chiffré Fernet+scrypt des .env/secrets + réplication PRA.</td></tr>
+          <tr><td><code>jwt keys|rotate|revoke|cleanup</code></td><td>Trousseau JWT multi-clés du Hub (≥ 3.59.0) : rotation avec chevauchement 24 h — les apps n'ont rien à faire (JWKS dynamique).</td></tr>
           <tr><td><code>seed [fichier.yaml] [--prune]</code></td><td>Déploiement déclaratif batch (clone/configure/converge).</td></tr>
+          <tr><td><code>socle build|status</code></td><td>Socle HUBsocle : construction locale des images de base <code>poulidor/socle-*</code> ; drift <code>APP_SOCLE_VERSION</code> de la flotte.</td></tr>
         </tbody>
       </table>
     </section>
@@ -749,7 +828,7 @@ flowchart TD
     style R fill:#e0f2fe,stroke:#0284c7
     style PR fill:#e0f2fe,stroke:#0284c7
 </pre>
-        <p class="mermaid-caption">Règle d'or : on remonte du plus léger au plus lourd. Le restore park-export refuse de tourner sur un Hub non vierge (garde de sécurité).</p>
+        <p class="mermaid-caption">Règle d'or : on remonte du plus léger au plus lourd. Le restore park-export refuse de tourner sur un Hub non vierge (garde de sécurité). ⚠️ Snapshots <strong>forward-only</strong> : ceux créés par un Hub ≥ 3.59.0 ne se restaurent que sur un Hub ≥ 3.59.0 (kit récent = machine cible à jour).</p>
       </div>
 
       <h3>Les couches de résilience</h3>
