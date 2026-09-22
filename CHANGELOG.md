@@ -1,5 +1,15 @@
 # Changelog — POULIDOR
 
+## [0.66.5] - 22 septembre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.27.1
+
+- `HUBapp_TEMPLATE_base` 2.27.1 : suite d'audit du socle — backup streaming
+  (data.json écrit sur disque par batchs, restore sans BytesIO du ZIP
+  complet), PyJWKClient sorti de la boucle asyncio (fetchs en to_thread,
+  décodage sans réseau, refresh + retry sur kid inconnu), snippets des
+  skills badge-search/bulk-operations en async. +13 tests (249 verts).
+
 ## [0.66.4] - 22 septembre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.27.0
