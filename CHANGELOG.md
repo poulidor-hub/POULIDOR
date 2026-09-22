@@ -1,5 +1,18 @@
 # Changelog — POULIDOR
 
+## [0.66.4] - 22 septembre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.27.0
+
+- `HUBapp_TEMPLATE_base` 2.27.0 : release d'audit du socle — correction des
+  bloquants P0 (ports `make dev`, endpoints `/api/hub/data` cassés, messagerie
+  SSE jamais câblée), sécurité/fiabilité P1 en TDD (path traversal du storage,
+  crash-recovery et verrou outbox, `require_role` fail-closed, migrations
+  partielles non marquées appliquées), cohérence P2 (MSW aligné sur l'API
+  réelle, démo DEV-only, docs MCP à 77 outils, garde-fou plugin, skills
+  réancrés) et hygiène P3 (Pydantic v2 natif, refs obsolètes, ESLint
+  frontend). +36 tests (236 verts).
+
 ## [0.66.1] - 22 septembre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.26.4
