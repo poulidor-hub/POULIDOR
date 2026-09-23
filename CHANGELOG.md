@@ -1,5 +1,16 @@
 # Changelog — POULIDOR
 
+## [0.66.8] - 23 septembre 2026
+
+### ⚡ Runbook : socle minimum 2.28.1 (garde HUB_HOST legacy)
+
+- `docs/runbook-exemple-app-apps-socle.md` : socle requis passé de 2.28.0 à
+  **2.28.1** — le garde `HUB_HOST` (sync_hub_host) est indispensable sur le
+  banc legacy (sinon écrasement par l'IP docker interne du hub, register M2M
+  en timeout). Cycle pilote validé : app `test-socle-228` scaffoldée depuis
+  2.28.0, fallback subnet 198.51.100.20/24, register M2M 200 au hub legacy,
+  hub_connected: true.
+
 ## [0.66.7] - 23 septembre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.28.1
