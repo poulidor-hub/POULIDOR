@@ -1,5 +1,15 @@
 # Changelog — POULIDOR
 
+## [0.66.7] - 23 septembre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.28.1
+
+- `HUBapp_TEMPLATE_base` 2.28.1 : sync_hub_host conserve `HUB_HOST` quand le
+  Hub y répond déjà — le hub legacy annonce l'IP docker interne de son
+  conteneur, qui écrasait l'IP LAN joignable à chaque `make sync-env`
+  (register M2M en timeout). Découvert par le pilote `test-socle-228` sur le
+  banc exemple-app.
+
 ## [0.66.6] - 23 septembre 2026
 
 ### ⚡ Runbook exemple-app + pointeur HUBapp_TEMPLATE_base → 2.28.0
