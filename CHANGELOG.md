@@ -1,5 +1,22 @@
 # Changelog — POULIDOR
 
+## [0.66.6] - 23 septembre 2026
+
+### ⚡ Runbook exemple-app + pointeur HUBapp_TEMPLATE_base → 2.28.0
+
+- `HUBapp_TEMPLATE_base` 2.28.0 : les apps socle tournent désormais sur le hub
+  legacy hub-legacy (3.9.x, pré-H9) sans blocage de sous-réseau —
+  `scripts/set_app_subnet.py` (écriture manuelle de `APP_SUBNET`, plage dédiée
+  exemple-app `198.51.100.20/16`, disjonction réseaux Docker actifs + `.env`
+  voisins, `--check`/`--force`/backup horodaté) + fallback local automatique
+  dans `ACTIONS/PYTHON/allocate_ports.py` (hub sans `allocate-ports` →
+  allocation locale ; hub neuf inchangé). +23 tests, smoke réel banc.
+- **Ajouté** : `docs/runbook-exemple-app-apps-socle.md` — procédure de déploiement
+  d'une app socle sur exemple-app (propagation 2 fichiers, plage 198.51.100.20/16
+  vs 10.50/16 hub neuf et 10.210.x ateliers, dégradations legacy acceptées :
+  SSE, grâce refresh, PKI, deps/sync-report, et risque recovery M2M si le
+  hub legacy est patché ≥ 3.9.5).
+
 ## [0.66.5] - 22 septembre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.27.1
