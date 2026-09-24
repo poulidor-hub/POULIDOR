@@ -1,5 +1,17 @@
 # Changelog — POULIDOR
 
+## [0.66.9] - 24 septembre 2026
+
+### ⚡ TTL tokens : alignement docs + hubctl sur 8h LAN
+
+- **Doc** : `migrate-app-template` §D.3.1 — le contexte « access tokens HUB 30 min » est
+  marqué historique (TTL actuel 480 min = 8h en LAN ; refresh proactif du dashboard
+  2 min avant expiration, `HUB_base/frontend/public/js/api.js`).
+- **Pointeurs** : `hubctl_src` → 82fd01c (**v0.10.2** : `hubctl init` génère désormais
+  `ACCESS_TOKEN_EXPIRE_MINUTES=480` au lieu de 30 — cause réelle des sessions 30 min
+  sur les déploiements initialisés via hubctl) ; `HUBapp_TEMPLATE_base` → f68d833
+  (**v2.28.2** : skill app `hub-notifications`, doc TTL JWT 15 min → 8h).
+
 ## [0.66.8] - 23 septembre 2026
 
 ### ⚡ Runbook : socle minimum 2.28.1 (garde HUB_HOST legacy)
