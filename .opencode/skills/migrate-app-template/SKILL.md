@@ -511,15 +511,17 @@ cp HUBapp_TEMPLATE_base/frontend/src/lib/queryClient.js APPS/<slug>/frontend/src
 
 #### D.3.1 — ⚠️ Bug auth legacy « onglet qui se referme au lancement » (à corriger par la migration)
 
-Les `AuthContext.jsx` antérieurs au template 2.11.2 portent un bug visible depuis que les
-access tokens HUB durent 30 min (`ACCESS_TOKEN_EXPIRE_MINUTES=30`, ex-480) : au clic sur
+Les `AuthContext.jsx` antérieurs au template 2.11.2 portent un bug, manifeste à l'époque
+où les access tokens HUB duraient 30 min (défaut historique ; le TTL est depuis de
+480 min = 8 h en LAN, `ACCESS_TOKEN_EXPIRE_MINUTES=480`) : au clic sur
 l'app dans le HUB, l'onglet s'ouvre puis **se referme aussitôt** — il faut recliquer pour
 que ça fonctionne.
 
 **Mécanisme** (vérifié en prod, cf. incident 2026-08-14) :
 1. Le flux de lancement HUB livre `?access_token=<frais>` **sans** `refresh_token` dans l'URL.
 2. L'app conserve en localStorage un refresh token d'une session précédente, **consommé par
-   la rotation** du HUB (l'onglet HUB refresh toutes les ~28 min).
+   la rotation** du HUB (refresh proactif du dashboard 2 min avant expiration du JWT —
+   toutes les ~28 min à l'époque du TTL 30 min, aujourd'hui ~2 min avant la 8e heure).
 3. Variante aggravante (ex. exemple-app avant 2.15.3) : état initial lu depuis le localStorage
    **seulement**, avec le token URL traité dans un effet *après* le mount → si le token
    localStorage est expiré, `logout()` est déclenché **avant** que le token frais de l'URL
