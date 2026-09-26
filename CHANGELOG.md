@@ -1,5 +1,25 @@
 # Changelog — POULIDOR
 
+## [0.66.10] - 26 septembre 2026
+
+### ⚡ Checklist campagne réintégration apps + guide de mise en place à jour
+
+- **Checklist imprimable** : `docs/checklists/2026-09-26-campagne-reintegration.md` —
+  Phase 0 pré-campagne (coffre, nettoyage disque, parasites, down global sans `-v`,
+  vérif hub seul), 5 services d'appui, 10 apps parc en blocs phases A→E (verdict
+  GO/NO-GO), 23 apps legacy MIGRATION (down + priorités de migration suggérées),
+  carte des 10 pièges connus, mémo outils, journal de campagne.
+- **Audit guide de mise en place (26/09)** : `install.sh`, `update-hub.sh`,
+  `architecture.html` conformes ; dérives corrigées — `README.md` (badge 0.66.9,
+  HUB_base 3.61.x, template 2.28.x, hubctl 0.10.x, 63 outils MCP, PG 15 apps / 16 hub,
+  emplacement des versions HUBCSS/hub-mcp), `docs/guide-hub/` (version parc
+  0.54.1 → 0.66.9 via `guide.js` + 12 footers ; `hubctl.html` : + sous-commande `jwt`
+  [keys/rotate/revoke/cleanup] et TUI dashboard à accès direct 1-6/0 à la place de la
+  navigation menu plat ; `make.html` : + cibles test/test-seq/test-cov/test-docker ;
+  `presentation.html` : 14 sous-commandes), `docs/guide-parc-poulidor.md` (instantané
+  versions 26/09, Makefile hub 6 cibles d'exploitation + 4 de test aux §2.3/§6.1,
+  110 fichiers de tests), `install.sh` (usage avec `--no-runner`).
+
 ## [0.66.9] - 24 septembre 2026
 
 ### ⚡ TTL tokens : alignement docs + hubctl sur 8h LAN
