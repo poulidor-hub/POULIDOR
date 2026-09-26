@@ -39,7 +39,12 @@
     <tr><td><code>make down</code></td><td>Arrête les services du hub.</td></tr>
     <tr><td><code>make logs</code></td><td>Suit les logs (dernières 100 lignes).</td></tr>
     <tr><td><code>make ps</code></td><td>Liste les conteneurs et leur état.</td></tr>
+    <tr><td><code>make test</code></td><td>Suite de tests parallélisée (pytest, DB de test isolée).</td></tr>
+    <tr><td><code>make test-seq</code></td><td>Suite de tests séquentielle (déterministe).</td></tr>
+    <tr><td><code>make test-cov</code></td><td>Tests avec rapport de couverture.</td></tr>
+    <tr><td><code>make test-docker</code></td><td>pytest dans le conteneur <code>hub-api</code>.</td></tr>
   </table>
+  <p>Le Makefile du hub compte 10 cibles : 6 d'exploitation + 4 de tests.</p>
 
   <h2>Le <code>Makefile</code> d'app</h2>
   <p>Valable pour chaque app dans <code>APPS/</code>, hérité de
@@ -152,6 +157,6 @@ make bump-major    # X.0.0  (changement majeur)</pre></div>
     avant de réécrire le <code>.env</code>.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.54.1</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.66.9</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

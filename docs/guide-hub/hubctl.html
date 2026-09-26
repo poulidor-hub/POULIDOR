@@ -67,7 +67,7 @@
   <h2>Sous-commandes CLI (non interactives)</h2>
   <div class="code"><pre>hubctl [-h] [--no-anim] [--dry-run] [--dev | --prod]
        {start,stop,update,atelier,init,export,restore,pra-restore,
-        debug,vpn,vault,seed,socle}</pre></div>
+        debug,vpn,vault,jwt,seed,socle}</pre></div>
   <p><code>--dry-run</code> est un flag <strong>global</strong> : il se place
   <em>avant</em> la sous-commande (<code>./hubctl --dry-run atelier X --maj</code>).</p>
 
@@ -126,6 +126,18 @@
     <tr><td><code>./hubctl vpn sync|status|on|off</code></td><td>Gestion WireGuard (config clients, tunnel).</td></tr>
   </table>
 
+  <h3>Trousseau JWT</h3>
+  <p>Gestion des clés de signature des tokens du Hub (depuis hubctl 0.10.x).
+  La rotation se fait en <em>overlap</em> 24&nbsp;h : l'ancienne clé reste
+  utilisable pour la vérification pendant que la nouvelle signe.</p>
+  <table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>./hubctl jwt keys</code></td><td>Lister le trousseau (kids, statut, dates).</td></tr>
+    <tr><td><code>./hubctl jwt rotate</code></td><td>Rotater la clé de signature (overlap 24 h).</td></tr>
+    <tr><td><code>./hubctl jwt revoke --kid &lt;kid&gt;</code></td><td>Révoquer une clé (mode compromission).</td></tr>
+    <tr><td><code>./hubctl jwt cleanup</code></td><td>Supprimer les PEM archivés/révoqués anciens.</td></tr>
+  </table>
+
   <h3>Seed &amp; debug IA</h3>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
@@ -152,14 +164,12 @@
     « fines » via INITIALISE v2 (à venir).
   </div>
 
-  <h2>Se déplacer dans le menu</h2>
-  <table>
-    <tr><th>Touche</th><th>Action</th></tr>
-    <tr><td><kbd>↑</kbd> <kbd>↓</kbd></td><td>Naviguer entre les entrées</td></tr>
-    <tr><td><kbd>Entrée</kbd></td><td>Valider l'entrée sélectionnée</td></tr>
-    <tr><td><kbd>Échap</kbd></td><td>Revenir au menu précédent, ou quitter depuis le menu principal</td></tr>
-    <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Interrompre l'action en cours et revenir au menu</td></tr>
-  </table>
+  <h2>Le tableau de bord (TUI)</h2>
+  <p>Le menu interactif est un <strong>tableau de bord à accès direct</strong> :
+  on tape directement la touche de l'action souhaitée (<kbd>1</kbd>…<kbd>6</kbd>,
+  <kbd>0</kbd> pour quitter — voir table du menu ci-dessus), pas de navigation
+  ↑/↓ entre des entrées. <kbd>Ctrl</kbd>+<kbd>C</kbd> interrompt l'action en
+  cours et revient au tableau de bord.</p>
 
   <h2>Le sous-menu Coffre</h2>
   <table>
@@ -197,6 +207,6 @@
     l'état du hub puis quitte.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.54.1</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.66.9</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>
