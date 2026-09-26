@@ -1,5 +1,18 @@
 # Changelog — POULIDOR
 
+## [0.66.11] - 26 septembre 2026
+
+### ⚡ Pointeur HUB_base 3.61.1 → 3.62.1 (rattrapage 3.62.0 inclus)
+
+- **HUB_base 3.62.0** — Notifications temps réel sans refresh + badge messages
+  filtrable : SSE `error_logged` enrichi + `active_users_changed` (cooldown 2 s) ;
+  badge messages navbar filtrable par priorité (préférence globale instance,
+  `GET/PUT /api/messages/badge-priorities`, roue crantée vue admin Messages) ;
+  10 nouveaux tests, suite 1213 passed.
+- **HUB_base 3.62.1** — Fix test flaky `test_app_deploy` (placeholder `?` hors
+  alphabet token_urlsafe, ~1/64 de faux échec) + suppression de l'entrée
+  CHANGELOG placeholder orpheline [3.61.1] du 20/09.
+
 ## [0.66.10] - 26 septembre 2026
 
 ### ⚡ Checklist campagne réintégration apps + guide de mise en place à jour
