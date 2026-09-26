@@ -38,7 +38,7 @@ while [[ $# -gt 0 ]]; do
         --force) FORCE=true; shift ;;
         --no-runner) NO_RUNNER=true; shift ;;
         -h|--help)
-            say "Usage : sudo $0 [--force] [--help]"
+            say "Usage : sudo $0 [--force] [--no-runner] [--help]"
             say ""
             say "  Installation automatique de POULIDOR (prérequis + Hub)."
             say "  Idempotent : relançable sans risque."
