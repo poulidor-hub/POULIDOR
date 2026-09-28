@@ -324,8 +324,8 @@
     <div class="callout">
       <svg class="callout-icon" width="24" height="24"><use href="#icon-shield"/></svg>
       <div>
-        <p><strong>Référence technique centrale (Mise à jour 22 septembre 2026)</strong></p>
-        <p>Ce guide rassemble le fonctionnement architectural, le pilotage, et le développement avec le template d'application. Valable pour les versions actuelles : <span class="tag">Parc 0.66.1</span> <span class="tag blue">Hub 3.61.1</span> <span class="tag">hubctl 0.10.1</span> <span class="tag">Socle 2.25.1</span> <span class="tag green">Template 2.26.4</span> — les fichiers <code>VERSION</code> font foi.</p>
+        <p><strong>Référence technique centrale (Mise à jour 28 septembre 2026)</strong></p>
+        <p>Ce guide rassemble le fonctionnement architectural, le pilotage, et le développement avec le template d'application. Valable pour les versions actuelles : <span class="tag">Parc 0.66.12</span> <span class="tag blue">Hub 3.62.2</span> <span class="tag">hubctl 0.10.2</span> <span class="tag">Socle 2.25.1</span> <span class="tag green">Template 2.28.2</span> — les fichiers <code>VERSION</code> font foi.</p>
       </div>
     </div>
 
@@ -416,7 +416,7 @@
         <thead><tr><th>Service</th><th>Conteneur</th><th>Rôle</th></tr></thead>
         <tbody>
           <tr><td><code>db</code></td><td><code>hub-db</code></td><td>PostgreSQL 16 « hub_auth » (~36 tables)</td></tr>
-          <tr><td><code>hub-api</code></td><td><code>hub-api</code></td><td>FastAPI — <strong>24 routeurs</strong> : SSO, registre d'apps, M2M/OIDC, messagerie SSE, backups/snapshots, audit, réseaux, VPN</td></tr>
+          <tr><td><code>hub-api</code></td><td><code>hub-api</code></td><td>FastAPI — <strong>27 routeurs</strong> : SSO, trousseau JWT, registre d'apps, M2M/OIDC, messagerie SSE, backups/snapshots, audit, réseaux, VPN, atelier</td></tr>
           <tr><td><code>hub-frontend</code></td><td><code>hub-frontend</code></td><td>Nginx — SPA vanilla JS + console admin, terminaison TLS</td></tr>
           <tr><td><code>wireguard-server</code></td><td><code>hub-wireguard</code></td><td>VPN WireGuard (profil compose — démarré seulement si activé)</td></tr>
         </tbody>
@@ -508,7 +508,7 @@ sequenceDiagram
     U->>N: ouvre l'app
     N->>H: POST /api/auth/login (identifiants)
     Note over H: émet un JWT signé RS256<br/>avec sa clé PRIVÉE
-    H-->>N: JWT (30 min) + refresh token (rotation)
+    H-->>N: JWT (8 h par défaut) + refresh token (rotation)
     N->>A: requête API — Authorization: Bearer JWT
     A->>H: GET /api/auth/.well-known/jwks.json<br/>(clé PUBLIQUE, mise en cache)
     Note over A: vérifie la signature en local
@@ -538,8 +538,8 @@ sequenceDiagram
     </section>
 
     <section id="hubctl">
-      <h2>2. Pilotage du parc avec hubctl (v0.10.1)</h2>
-      <p>L'outil <code>hubctl</code> gère le cycle de vie de tout le parc. Il réside dans un sous-module <code>hubctl_src/hubctl_cli/</code> avec un alias situé à la racine du parc.</p>
+      <h2>2. Pilotage du parc avec hubctl (v0.10.2)</h2>
+      <p>L'outil <code>hubctl</code> gère le cycle de vie de tout le parc. Il réside dans le sous-module <code>hubctl_src</code> (package Python <code>hubctl_cli</code>) et est exposé par le wrapper <code>./hubctl</code> à la racine du parc : script bash qui crée/répare son venv, source <code>.secrets</code> puis exécute <code>python -m hubctl_cli</code>. Sans argument, il ouvre une <strong>TUI interactive</strong> (santé du parc, actions courantes).</p>
       
       <div class="grid-cards">
         <div class="card">
@@ -587,15 +587,15 @@ sequenceDiagram
           <tr><td><code>update</code></td><td>Maj Hub + apps actives : snapshot DB préalable, pull → build → up, <strong>rollback automatique</strong> si échec.</td></tr>
           <tr><td><code>atelier &lt;app&gt; [--maj [--ref R] | --prod]</code></td><td>Cycle atelier bac à sable (§8) : création avec clone DB, test de <code>origin/main</code>, déploiement validé en prod.</td></tr>
           <tr><td><code>init [--force]</code></td><td>Bootstrap d'un Hub neuf : <code>.env</code> + secrets aléatoires, clés JWT, santé, marker shell.</td></tr>
-          <tr><td><code>export [--app S] [--passphrase-stdin]</code></td><td>Archive chiffrée du parc complet (DB + .env + secrets), magic <code>PARKEV1</code> → <code>exports/</code>.</td></tr>
+          <tr><td><code>export [--app S] [--no-encrypt] [--passphrase-stdin]</code></td><td>Archive chiffrée du parc complet (DB + .env + secrets), magic <code>PARKEV1</code> → <code>exports/</code>.</td></tr>
           <tr><td><code>restore &lt;archive&gt;</code></td><td>Restaure un park-export — <strong>uniquement sur un Hub vierge</strong>.</td></tr>
-          <tr><td><code>pra-restore [kit]</code></td><td>PRA sur machine nue : wizard en 7 étapes depuis le kit (§9).</td></tr>
-          <tr><td><code>debug [app] [--rw|--setup]</code></td><td>Agent IA local de debug (Ollama + MCP <code>hub-debug</code>), coupé par <code>--off</code>.</td></tr>
+          <tr><td><code>pra-restore [kit] [--snapshot --apps --yes --force --dry-run]</code></td><td>PRA sur machine nue : wizard en 7 étapes depuis le kit (§9).</td></tr>
+          <tr><td><code>debug [app] [--rw|--setup|--model 8b|2b|--status|--off]</code></td><td>Agent IA local de debug (Ollama + Granite + MCP <code>hub-debug</code>), coupé par <code>--off</code>, état via <code>--status</code>.</td></tr>
           <tr><td><code>vpn sync|status|on|off</code></td><td>WireGuard : l'état voulu vit en DB, le conteneur est réconcilié par <code>sync</code>.</td></tr>
-          <tr><td><code>vault backup|restore|status|…</code></td><td>Coffre chiffré Fernet+scrypt des .env/secrets + réplication PRA.</td></tr>
+          <tr><td><code>vault backup|restore|status|export|import|app list|app set-url</code></td><td>Coffre chiffré Fernet+scrypt des .env/secrets + réplication PRA. (backup_all/restore_all/change_passphrase restent des fonctions internes, pilotées par la TUI.)</td></tr>
           <tr><td><code>jwt keys|rotate|revoke|cleanup</code></td><td>Trousseau JWT multi-clés du Hub (≥ 3.59.0) : rotation avec chevauchement 24 h — les apps n'ont rien à faire (JWKS dynamique).</td></tr>
-          <tr><td><code>seed [fichier.yaml] [--prune]</code></td><td>Déploiement déclaratif batch (clone/configure/converge).</td></tr>
-          <tr><td><code>socle build|status</code></td><td>Socle HUBsocle : construction locale des images de base <code>poulidor/socle-*</code> ; drift <code>APP_SOCLE_VERSION</code> de la flotte.</td></tr>
+          <tr><td><code>seed &lt;fichier.yaml&gt; [--prune|--dry-run|-o|--force]</code></td><td>Déploiement déclaratif batch (clone/configure/converge). <code>seed -o</code> exporte le parc en YAML.</td></tr>
+          <tr><td><code>socle build [--force]|status</code></td><td>Socle HUBsocle : construction locale des images de base <code>poulidor/socle-*</code> ; drift <code>APP_SOCLE_VERSION</code> de la flotte.</td></tr>
         </tbody>
       </table>
     </section>
@@ -669,7 +669,7 @@ sequenceDiagram
           <div class="timeline-dot"></div>
           <div class="timeline-content">
             <h4><span class="tag blue">3. Allocation</span> Ports dynamiques & Sous-réseau</h4>
-            <p>L'app interroge le Hub pour recevoir des ports uniques (API, Frontend, <strong>et PostgreSQL</strong> depuis v2.18.2) ainsi que son <code>APP_SUBNET</code> Docker.</p>
+            <p>L'app interroge le Hub pour recevoir des ports uniques (API, Frontend, <strong>PostgreSQL</strong> — propagation dynamique corrigée en v2.18.2) ainsi que son <code>APP_SUBNET</code> Docker (allocation Hub depuis v2.13.0).</p>
             <div class="code-block" style="margin-top: 0.5rem; padding: 0.75rem;">
               <span class="function">make</span> sync-env
             </div>
@@ -691,19 +691,19 @@ sequenceDiagram
 
     <section id="conventions">
       <h2>5. Conventions Backend (FastAPI)</h2>
-      <p>Le backend s'appuie sur FastAPI et valide la sécurité via les composants partagés du Hub (15 fichiers pytest inclus pour la qualité du code). L'ID de l'instance du hub est verrouillé dans <code>HUB_INSTANCE_ID</code> (depuis 2.19.0) pour prévenir la corruption des environnements.</p>
+      <p>Le backend s'appuie sur FastAPI et valide la sécurité via les composants partagés du Hub (25 fichiers pytest inclus pour la qualité du code). L'ID de l'instance du hub est verrouillé dans <code>HUB_INSTANCE_ID</code> (depuis 2.19.0) pour prévenir la corruption des environnements.</p>
 
       <div class="code-block">
 <span class="comment"># backend/routes/mon_domaine.py</span>
 <span class="keyword">from</span> fastapi <span class="keyword">import</span> APIRouter, Depends, HTTPException, status
-<span class="keyword">from</span> ..hub_auth <span class="keyword">import</span> get_current_user, require_role
+<span class="keyword">from</span> hub_auth <span class="keyword">import</span> get_current_user, require_role
 
 router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span class="string">"Items"</span>])
 
 <span class="function">@router.post</span>(<span class="string">"/"</span>, status_code=status.HTTP_201_CREATED)
 <span class="keyword">async def</span> create_item(
     data: ItemCreate,
-    current_user=Depends(require_role(<span class="string">"user"</span>)) <span class="comment"># Exige le rôle user ou +</span>
+    current_user=Depends(require_role(<span class="string">"user"</span>)) <span class="comment"># hiérarchie : viewer &lt; user &lt; manager &lt; admin</span>
 ):
     <span class="comment"># Validation via JWKS du hub transparente</span>
     <span class="keyword">pass</span>
@@ -740,23 +740,31 @@ router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span 
           </div>
         </div>
       </div>
-      <p style="font-size: 0.875rem; color: var(--hub-color-muted);">Le runner trace les exécutions dans la table <code>schema_migrations</code>. Chaque statement est isolé par un <code>SAVEPOINT</code> : un statement déjà appliqué (ex. colonne existante) est ignoré avec un warning, sans avorter le démarrage.</p>
+      <p style="font-size: 0.875rem; color: var(--hub-color-muted);">Le runner trace les exécutions dans la table <code>schema_migrations</code>. Chaque statement est isolé par un <code>SAVEPOINT</code> : un statement déjà appliqué (ex. colonne existante) est ignoré avec un warning, sans avorter le démarrage. En revanche, si un statement échoue réellement, la migration n'est <strong>pas</strong> marquée appliquée — elle sera rejouée au prochain démarrage (log ERROR).</p>
     </section>
 
     <section id="makefile">
       <h2>7. Référence Makefile (Apps)</h2>
-      <p>Les 35 commandes du Makefile standardisent le développement (dossier <code>APPS/mon-app/</code>).</p>
+      <p>Les 39 cibles du Makefile standardisent le développement (dossier <code>APPS/mon-app/</code> — <code>make help</code> liste tout).</p>
       
       <table>
         <thead><tr><th>Commande</th><th>Effet</th></tr></thead>
         <tbody>
-          <tr><td><span class="tag">make dev</span></td><td>Lance Docker en mode <strong>hot-reload</strong> (Vite HMR, Uvicorn --reload).</td></tr>
-          <tr><td><span class="tag">make up</span></td><td>Démarre les conteneurs de l'app en production.</td></tr>
-          <tr><td><span class="tag">make update-env</span></td><td>Fusionne intelligemment les nouvelles clés du <code>.env.example</code> dans votre <code>.env</code> après une montée de version Template.</td></tr>
+          <tr><td><span class="tag">make dev</span></td><td>Lance Docker en mode <strong>hot-reload</strong> (Vite HMR, Uvicorn --reload), après <code>sync-env</code>.</td></tr>
+          <tr><td><span class="tag">make up</span></td><td>Démarre les conteneurs de l'app en production (SSL auto si <code>HTTPS_ENABLED != false</code>).</td></tr>
+          <tr><td><span class="tag">make update-env</span></td><td>Fusionne intelligemment les nouvelles clés du <code>.env.example</code> dans votre <code>.env</code> après une montée de version Template (sauvegarde auto, valeurs préservées).</td></tr>
           <tr><td><span class="tag">make restart-api</span></td><td>Redémarre le backend. ⚠️ Les dépendances pip exigent <code>make build</code> puis up.</td></tr>
-          <tr><td><span class="tag">make logs</span></td><td>Affiche les logs fusionnés frontend/backend/db.</td></tr>
-          <tr><td><span class="tag">make test</span></td><td>Lance Pytest sur l'hôte en mémoire RAM (très rapide).</td></tr>
-          <tr><td><span class="tag">make bump-patch</span></td><td>Synchronise un bump de version (v1.0.0 → v1.0.1) dans tous les fichiers liés.</td></tr>
+          <tr><td><span class="tag">make logs</span></td><td>Affiche les logs fusionnés frontend/backend/db (<code>logs-api</code>, <code>logs-db</code> pour cibler).</td></tr>
+          <tr><td><span class="tag">make test</span></td><td>Lance Pytest sur l'hôte (SQLite en mémoire, exécution parallèle — très rapide). Variantes : <code>test-seq</code>, <code>test-cov</code>, <code>test-docker</code>.</td></tr>
+          <tr><td><span class="tag">make bump-patch</span></td><td>Synchronise un bump de version (v1.0.0 → v1.0.1) dans tous les fichiers liés. Idem <code>bump-minor</code> / <code>bump-major</code>.</td></tr>
+          <tr><td><span class="tag">make sync-env</span></td><td>Alloue ports API/Frontend/PostgreSQL + <code>APP_SUBNET</code> via le Hub si absents du <code>.env</code> (garde <code>HUB_INSTANCE_ID</code>).</td></tr>
+          <tr><td><span class="tag">make health</span></td><td>Sonde de santé de l'app (<code>health-detailed</code> pour le détail par service).</td></tr>
+          <tr><td><span class="tag">make db-shell</span></td><td>Ouvre un shell PostgreSQL sur la DB de l'app (<code>psql</code>).</td></tr>
+          <tr><td><span class="tag">make ssl</span></td><td>Génère les certificats locaux (HTTPS).</td></tr>
+          <tr><td><span class="tag">make lint-classes</span></td><td>Vérifie la cohérence des classes HUBCSS du frontend.</td></tr>
+          <tr><td><span class="tag">make verify-ui</span></td><td>Contrôle UI du frontend (cycle de vérification d'une feature).</td></tr>
+          <tr><td><span class="tag">make refresh-design-seed</span></td><td>Ressynchronise le seed HUBCSS (<code>frontend/public/design-system/</code>) depuis <code>../HUBCSS/dist</code>.</td></tr>
+          <tr><td><span class="tag">make clean</span></td><td>Nettoie conteneurs/artefacts (<code>clean-all</code> : version agressive, images incluses).</td></tr>
         </tbody>
       </table>
     </section>
