@@ -1,5 +1,22 @@
 # Changelog — POULIDOR
 
+## [0.66.12] - 28 septembre 2026
+
+### ⚡ parc-isolate : support submodules et repos imbriqués
+
+- `MAIN_ROOT` résolu depuis le dépôt **courant** : cas dépôt classique (gitdir
+  commun `<racine>/.git`, appel depuis le principal ou un worktree lié) et cas
+  submodule/dépôt imbriqué (racine via `core.worktree` relative au gitdir
+  commun, puis fichier `gitdir`, puis toplevel courant).
+- **Garde-fou** : abort propre si la racine déduite ne partage pas le gitdir
+  commun du dépôt courant — au lieu d'opérer silencieusement sur un autre dépôt.
+- Contexte (incident 28/09/2026) : exécuté depuis HUB_base (submodule), le
+  script résolvait `MAIN_ROOT=.git/modules` et créait branche poussée + worktree
+  sur le méta-repo, avec registre écrit dans `.git/modules/.worktrees/_agents/`.
+- Tests : `--list` depuis POULIDOR / HUB_base / HUBsocle / worktree lié ; E2E
+  isolation + cleanup dans HUB_base (worktree au bon endroit, registre local,
+  push sur le bon origin) ; garde-fou vérifié.
+
 ## [0.66.11] - 26 septembre 2026
 
 ### ⚡ Pointeur HUB_base 3.61.1 → 3.62.1 (rattrapage 3.62.0 inclus)
