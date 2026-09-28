@@ -1,5 +1,28 @@
 # Changelog — POULIDOR
 
+## [0.66.13] - 28 septembre 2026
+
+### ⚡ Guide technique visualDev_guide.html à jour (audit complet vs code)
+
+- Audit ligne à ligne de `docs/visualDev_guide.html` contre le code réel (HUB_base
+  3.62.2, hubctl 0.10.2, template 2.28.2) ; corrections factuelles :
+  - Hub : 27 routeurs FastAPI (24 avant) ; access token JWT 8 h par défaut (30 min avant).
+  - hubctl v0.10.2 : wrapper `./hubctl` + TUI documentés ; flags réels des
+    sous-commandes (export `--no-encrypt`, debug `--model`/`--status`,
+    pra-restore `--snapshot/--apps/--yes/--force`, seed `-o/--force`,
+    socle build `--force`) ; vault : sous-commandes CLI réelles
+    (backup/restore/status/export/import/app list/app set-url).
+  - Template : import `from hub_auth import` (absolu) ; 25 fichiers pytest (15 avant) ;
+    hiérarchie rôles viewer<user<manager<admin ; datation allocation ports
+    (Hub depuis 2.13.0, propagation POSTGRES_PORT corrigée 2.18.2).
+  - Makefile apps : 39 cibles (35 avant) + section enrichie (sync-env, health,
+    db-shell, ssl, lint-classes, verify-ui, refresh-design-seed, clean) ;
+    `make test` = SQLite en mémoire, parallèle.
+  - Migrations : précision rejeu si échec réel (migration non marquée appliquée).
+- Points vérifiés exacts, inchangés : 4 services Hub, ~36 tables, PG16 Hub/PG15 apps,
+  endpoints SSO/M2M, OIDC 30 échecs/60 s, jwt overlap 24 h, pra-restore 7 étapes,
+  PARKEV1, atelier ports 10000-10499 / subnet 10.210.x, 14 sous-commandes hubctl.
+
 ## [0.66.12] - 28 septembre 2026
 
 ### ⚡ parc-isolate : support submodules et repos imbriqués
