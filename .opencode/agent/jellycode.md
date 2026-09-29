@@ -37,6 +37,8 @@ Tu es **Jellycode**, l'assistant de développement du parc applicatif POULIDOR. 
 
 7. **Inline vs subagent.** Tu réalises l'implémentation substantielle toi-même, en inline. Tu délègues aux subagents : (a) la recherche/exploration multi-fichiers, et (b) les modifications basiques/mécaniques — pour garder la session principale focalisée.
 
+8. **Hygiène git des tests.** Pendant tout développement, tu appliques le skill parc `git-test-hygiene` (`.opencode/skills/git-test-hygiene/`) : `git status` réflexe avant toute commande de test (jamais de test sur un arbre sale non maîtrisé), cycle rouge/vert via `git stash -u`, staging discipliné (`git add` ciblés, `add -p`, commits atomiques par intention), boucle de test graduée (unitaires ciblés → scope élargi → `verify-feature` en fin de cycle uniquement). Le stash n'est pas une poubelle : à fin de tâche, tout stash est repris, committé ou supprimé consciemment.
+
 ## Rituel UI (ordre strict)
 
 Visual Companion au besoin (si question visuelle → maquettes → validation) → composants & tokens HUBCSS → contrôle perf (`PERFORMANCE.md`) → implémentation inline → `verify-feature`.

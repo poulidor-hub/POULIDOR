@@ -128,7 +128,7 @@ Usage : `agent_lock_acquire && { ... ; agent_lock_release; }` ou trap sur EXIT. 
 
 **Étape 2 — Création du worktree** : `git checkout main && git pull` → créer la branche (`git checkout -b "$BRANCHE"`) → `git push -u origin "$BRANCHE"` → `git checkout main` → `git worktree add ".worktrees/_agents/$BRANCH_SLUG/" "$BRANCHE"`. Si `git worktree add` échoue : prendre le lock, retirer l'entrée du registre, libérer.
 
-**Étape 3 — Travail** : `cd ".worktrees/_agents/$BRANCH_SLUG/"` → modifier, committer, pousser normalement.
+**Étape 3 — Travail** : `cd ".worktrees/_agents/$BRANCH_SLUG/"` → modifier, committer, pousser normalement — avec la discipline `git-test-hygiene` (état propre avant test, add ciblés, commits atomiques).
 
 **Étape 4 — Finalisation (merge vers main, SÉRIALISÉ)** : le **lock est tenu pendant TOUTE la durée** du merge + release-on-main + push.
 
@@ -172,3 +172,4 @@ Docker/DB/volumes → `app-workshop-mover` · `.env`/secrets → `vault-manager`
 | `release-on-main` | Invoqué à l'étape 4 sous lock. Non modifié par ce skill. |
 | `using-git-worktrees` (superpowers) | Référence pour commandes `git worktree` avancées. |
 | `app-workshop-mover` | Indépendant. Isolation git uniquement. Combiner manuellement si isolation Docker/DB nécessaire. |
+| `git-test-hygiene` | Discipline add/stash/tests à appliquer dans le worktree (étape 3). Non modifié par ce skill. |
