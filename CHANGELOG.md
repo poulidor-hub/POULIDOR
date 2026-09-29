@@ -1,3 +1,15 @@
+## [0.66.14] - 29 septembre 2026
+
+### ⚡ Pointeur template 2.28.3 — réparation auto des permissions de volumes au boot
+
+- `HUBapp_TEMPLATE_base` : f68d833 → f073671 (**2.28.3**) — l'entrypoint de
+  l'api démarre en root, corrige la propriété des volumes de données
+  (storage/uploads/certs/data) puis bascule en appuser via gosu ; caps
+  CHOWN/SETUID/SETGID ajoutées au service api du compose.
+- Motivation : incident prod exemple-app (site exemple exemple-org) — volumes créés
+  par root → app non-root en lecture seule (SQLite readonly, locks Hub) →
+  500 sur toute création. Un simple redémarrage répare désormais tout.
+
 # Changelog — POULIDOR
 
 ## [0.66.13] - 28 septembre 2026
