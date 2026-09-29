@@ -1,3 +1,21 @@
+## [0.69.0] - 30 septembre 2026
+
+### ⚡ Wrapper parc-vcompanion — Visual Companion diffusé sur le LAN
+
+- `scripts/parc-vcompanion` : enveloppe le `start-server.sh` du skill superpowers
+  `brainstorming` avec `--host 0.0.0.0` + `--url-host <IP LAN>` (auto-détection
+  `hostname -I`) — le serveur du Visual Companion est désormais joignable depuis
+  les autres devices du LAN (validation multi-devices) au lieu de localhost seul.
+- STDOUT reste le JSON pur du serveur (ligne d'info sur stderr) ; l'accès reste
+  gated par la clé de session `?key=…` ; les flags passés après surchargent les
+  défauts. Sélection de la copie superpowers la plus récente du cache npm par
+  timestamp de chemin (plusieurs copies coexistent).
+- Charte Jellycode (règle 1) : lancement du Visual Companion toujours via le
+  wrapper, jamais via `start-server.sh` directement ; URL complète (avec clé)
+  systématiquement transmise.
+- Testé sur banc : écoute 0.0.0.0 confirmée (`ss`), URL joignable sur
+  192.0.2.10, arrêt propre.
+
 ## [0.68.0] - 30 septembre 2026
 
 ### ⚡ Skill parc git-test-hygiene — hygiène git des cycles de test
