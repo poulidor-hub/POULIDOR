@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# parc-vcompanion — Visual Companion (superpowers) toujours diffusé sur le LAN.
+#
+# Politique parc : le serveur du Visual Companion n'écoute PAS en localhost seul —
+# il doit être joignable depuis les autres devices du LAN (validation multi-devices).
+# Ce wrapper enveloppe le start-server.sh du skill superpowers `brainstorming` :
+#   --host 0.0.0.0        écoute sur toutes les interfaces (LAN inclus)
+#   --url-host <IP LAN>   l'URL retournée est joignable depuis les autres devices
+#                         (0.0.0.0 n'est pas routable, il faut la vraie IP)
+# Tous les arguments supplémentaires sont forwardés tels quels (--project-dir,
+# --open, --idle-timeout-minutes…) ; un flag passé APRÈS surcharge le défaut
+# (le parseur du script original prend le dernier --host/--url-host rencontré).
+#
+# Sécurité : l'accès reste protégé par la clé de session (?key=…) exigée par le
+# serveur sur HTTP et WebSocket — l'exposition LAN est voulue et bornée par elle.
+# Toujours transmettre l'URL COMPLÈTE (avec ?key=…), jamais l'IP nue.
+
+set -euo pipefail
+
+# Localiser le start-server.sh du package superpowers (cache npm d'OpenCode).
+# Plusieurs copies peuvent coexister (<hash>/<timestamp>/…) : retenir celle dont
+# le timestamp (champ 8 du chemin) est le plus élevé — le hash n'est pas daté.
+START_SERVER="$(find "$HOME/.cache/opencode/npm" \
+  -path '*superpowers/skills/brainstorming/scripts/start-server.sh' 2>/dev/null \
+  | sort -t/ -k8 -n | tail -1)"
+if [[ -z "$START_SERVER" ]]; then
+  echo "❌ start-server.sh introuvable sous ~/.cache/opencode/npm (package superpowers absent ?)" >&2
+  exit 1
+fi
+
+# IP LAN de la machine : première IPv4 globale (hostname -I, Debian).
+LAN_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+if [[ -z "$LAN_IP" ]]; then
+  echo "❌ IP LAN indétectable (hostname -I vide) — passer --url-host <ip> manuellement." >&2
+  exit 1
+fi
+
+# Info sur STDERR uniquement : STDOUT doit rester le JSON pur du serveur
+# (l'agent parse la sortie — toute ligne non JSON casse le parsing).
+echo "▶ Visual Companion sur le LAN : écoute 0.0.0.0, URL annoncée sur http://${LAN_IP}:<port>/ (accès gated par ?key=…)" >&2
+exec bash "$START_SERVER" --host 0.0.0.0 --url-host "$LAN_IP" "$@"
