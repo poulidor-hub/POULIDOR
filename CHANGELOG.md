@@ -1,3 +1,18 @@
+## [0.68.0] - 30 septembre 2026
+
+### ⚡ Skill parc git-test-hygiene — hygiène git des cycles de test
+
+- Nouveau skill `.opencode/skills/git-test-hygiene/` : état propre avant test
+  (`git status` réflexe, `git stash -u`, cycle rouge/vert sans pollution WIP,
+  stash nommé systématique, « le stash n'est pas une poubelle »), staging
+  discipliné (`git add` ciblés, `add -p`, commits atomiques par intention,
+  `reset --soft` avant push), boucle de test graduée (unitaires ciblés → scope
+  élargi → `verify-feature` en fin de cycle ; stash pour comparer deux
+  variantes ; bisect réservé aux régressions historiques).
+- Câblage : règle 8 « Hygiène git des tests » dans la charte Jellycode
+  (`.opencode/agent/jellycode.md`) ; lien croisé à l'étape 3 « Travail » et
+  table Skills liés de `agent-isolation-git`.
+
 ## [0.66.14] - 29 septembre 2026
 
 ## [0.67.0] - 30 septembre 2026
