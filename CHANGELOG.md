@@ -1,5 +1,16 @@
 ## [0.66.14] - 29 septembre 2026
 
+## [0.67.0] - 30 septembre 2026
+
+### ⚡ Suite de tests campagne flotte — merge feat/maj-flotte-simulation-tests
+
+- `scripts/campagne-flotte/` : inventaire de flotte, scénarios de mise à jour,
+  tests de sync app↔hub — suite validée **75/75 sur banc** (run 4) pendant la
+  préparation de la campagne de réintégration 26/09.
+- Runner banc : rapports générés ignorés (`scripts/campagne-flotte/rapport-campagne.*`),
+  union `.gitignore` (checkpoint/ conservé).
+- Ledger SDD de la campagne intégré (`.superpowers/sdd/progress.md`).
+
 ### ⚡ Pointeur template 2.28.3 — réparation auto des permissions de volumes au boot
 
 - `HUBapp_TEMPLATE_base` : f68d833 → f073671 (**2.28.3**) — l'entrypoint de
