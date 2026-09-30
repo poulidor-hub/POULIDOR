@@ -1,3 +1,13 @@
+
+## [0.70.0] - 30 septembre 2026
+
+### ⚡ Docs design app exemple-app
+- **Ajouté** : `docs/specs/2026-09-30-exemple-app-design.md` — spécification complète de la nouvelle app `exemple-app` (anonymisation de données CSV/XLSX/ODS, génération statistique ≤ 1M lignes, validation KS/Wasserstein/TVD)
+- **Ajouté** : `docs/plans/2026-09-30-exemple-app-implementation.md` — plan d'implémentation en 17 tâches (exécuté intégralement, app livrée en v0.1.0 dans `APPS/exemple-app`)
+
+---
+
+
 ## [0.69.1] - 30 septembre 2026
 
 ### ⚡ Pointeur HUB_base 3.62.3 — auto-détection robuste du hub-host
