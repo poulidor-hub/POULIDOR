@@ -7,6 +7,20 @@
 
 ---
 
+## [0.70.1] - 1er octobre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base 2.28.4 — header responsive mobile
+
+- Pointeur du sous-module `HUBapp_TEMPLATE_base` : `f073671` → `8cc990e` (v2.28.4).
+- Au programme : media query ≤ 768px sur le `header` des apps instanciées — les
+  groupes (titre / nav / actions) s'empilent en colonne au lieu de déborder
+  horizontalement sur mobile ; `.header-actions` en `flex-wrap` width 100%.
+- Réparation au passage : retire `56b8f1c` (screenshots poussés par erreur lors
+  de la release du template — cf. `322b5f3`).
+
+---
+
+
 
 ## [0.69.1] - 30 septembre 2026
 
