@@ -1,3 +1,16 @@
+## [0.69.1] - 30 septembre 2026
+
+### ⚡ Pointeur HUB_base 3.62.3 — auto-détection robuste du hub-host
+
+- Pointeur du sous-module `HUB_base` : `a093220` → `1723926` (v3.62.3).
+- Au programme : `get_hub_host()` ignore désormais une IP configurée absente
+  des interfaces locales du poste (Hub déplacé/cloné/restauré PRA) — les apps
+  ne resynchronisent plus en boucle l'ancienne IP via `GET /api/config/hub-host`.
+  Correction au passage de la route qui lisait une référence `settings` figée
+  à l'import de `main.py`. Détails complets dans le CHANGELOG de HUB_base.
+
+---
+
 ## [0.69.0] - 30 septembre 2026
 
 ### ⚡ Wrapper parc-vcompanion — Visual Companion diffusé sur le LAN
