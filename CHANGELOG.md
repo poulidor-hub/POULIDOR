@@ -1,4 +1,18 @@
 
+## [0.71.0] - 1er octobre 2026
+
+### ⚡ Charte Jellycode + pointeur template
+
+- Charte Jellycode (`.opencode/agent/jellycode.md`) : `data-generate`
+  ajouté à la liste des skills app — générer des données de test sans
+  données réelles (synthétique, ou anonymisation via exemple-app).
+- Pointeur `HUBapp_TEMPLATE_base` → 2.29.0 (679f42a) : nouveau skill socle
+  `data-generate` (règle de parc : jamais de données réelles en dev/test ;
+  voie A synthétique seedée, voie B anonymisation exemple-app obligatoire)
+  + charte template à jour.
+
+---
+
 ## [0.70.0] - 30 septembre 2026
 
 ### ⚡ Docs design app exemple-app
