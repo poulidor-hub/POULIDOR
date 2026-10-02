@@ -1,4 +1,17 @@
 
+## [0.71.1] - 2 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.62.4 — fix VPN toggle ON régénère wg0.conf
+
+- Pointeur `HUB_base` → 3.62.4 (186db03) : fix auto-réparation VPN — le
+  toggle ON régénère `wg0.conf` depuis la DB si le serveur est initialisé
+  mais le fichier absent (incident 02/10/2026 : toggle OFF puis ON →
+  conteneur wireguard sans config, « conf=ABSENTE » côté `hubctl vpn sync`).
+  + tests rouge/vert du scénario incident ; suites hôte (1223 passed) et
+  Docker (1183 passed) vertes.
+
+---
+
 ## [0.71.0] - 1er octobre 2026
 
 ### ⚡ Charte Jellycode + pointeur template
