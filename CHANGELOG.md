@@ -1,4 +1,25 @@
 
+## [0.71.2] - 3 octobre 2026
+
+### 🔧 Fix — `parc-isolate` : opère sur le bon dépôt pour les submodules
+
+- **Problème (constaté le 02/10/2026)** : `MAIN_ROOT` était dérivé de
+  `dirname(git-common-dir)`. Pour un submodule (`HUB_base`…), le git dir vit
+  dans `<super>/.git/modules/<nom>` → `MAIN_ROOT` pointait `<super>/.git/modules`
+  et **toutes** les commandes `git -C` remontaient au superprojet : branche,
+  push upstream, worktree et registre créés sur POULIDOR au lieu du submodule
+  (worktree même créé dans `.git/modules/…`).
+- **`scripts/parc-isolate`** : si le config commun porte `core.worktree`
+  (layout submodule), la racine est résolue depuis cette clé ; sinon fallback
+  `dirname` (dépôts normaux, comportement inchangé). Corrige aussi `--list`,
+  `--cleanup` et `--release-lock` (même variable).
+- **Test de régression** `scripts/tests/test_parc_isolate.sh` : fixture
+  superprojet+submodule (remotes locaux), asserte branche/push/worktree/
+  registre côté submodule + aucune fuite superprojet + cleanup. Rouge prouvé
+  sur l'ancien code ; preuve live sur `HUB_base` (isolation + cleanup jetables).
+
+---
+
 ## [0.71.1] - 2 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.62.4 — fix VPN toggle ON régénère wg0.conf
