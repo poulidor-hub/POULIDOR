@@ -1,4 +1,24 @@
 
+## [0.71.3] - 3 octobre 2026
+
+### 🔧 Fix — pointeur HUB_base 3.62.5 : déploiement GitHub des apps réparé
+
+- **Pointeur `HUB_base` 3.62.4 → 3.62.5** — trois causes d'échec du
+  déploiement d'apps depuis le front-end corrigées et validées E2E
+  (cobaye `exemple-app-test`, template v0.3.0) :
+  1. `get_hub_host()` en exécution conteneurisée (critique) — l'IP interne
+     Docker (`10.42.x.x`) était poussée aux apps déployées : health KO,
+     `hub_connected=false`, aucun auto-enregistrement ;
+  2. URLs SSH (`git@host:path`) jamais converties en HTTPS — le clone
+     échouait sans binaire ssh (4 échecs exemple-app) ;
+  3. catalogue GitHub : repo affiché « Dispo » alors que son slug était déjà
+     pris par une app sans `git_repo_url` (409 au clic).
+- **Validation E2E post-fix** : déploiement #10 `exemple-app-test` success,
+  `hub_connected=true`, auto-enregistrement avec l'IP LAN
+  (`http://192.0.2.10:9005`), 0 warning HUB_HOST, 299 tests verts.
+
+---
+
 ## [0.71.2] - 3 octobre 2026
 
 ### 🔧 Fix — `parc-isolate` : opère sur le bon dépôt pour les submodules
