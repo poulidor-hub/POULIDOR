@@ -1,5 +1,22 @@
 
-## [0.71.3] - 3 octobre 2026
+## [0.71.4] - 3 octobre 2026
+
+### 🎨 UI — pointeur HUB_base 3.62.6 : refonte de la vue « Apps GitHub »
+
+- **Pointeur `HUB_base` 3.62.5 → 3.62.6** — la vue admin « Apps GitHub »
+  adopte le langage visuel du reste de l'admin : en-tête standard `h5` +
+  `bi-github`, badge d'état du token, toolbar en card (recherche/owner/
+  toggle), **toggle cartes/table** mémorisé (défaut cartes), modal Bootstrap
+  pour le token, empty states en pattern `bi`, « Voir l'app » fonctionnel
+  (onglet Applications + recherche préremplie). CSS dédié `.gh-*` sur tokens
+  `:root` — zéro emoji, zéro style inline. Fix au passage : l'icône du bouton
+  Synchroniser n'est plus écrasée au premier clic.
+- **Validation** : maquettes approuvées (Visual Companion), parcours réel
+  vérifié sur le Hub (vue cartes 3 colonnes, vue table, modal token, badge
+  « token valide », exemple-app marqué « Intégré » via le fix already_
+  integrated), logs backend propres, `node --check` vert sur tout le front.
+
+---
 
 ### 🔧 Fix — pointeur HUB_base 3.62.5 : déploiement GitHub des apps réparé
 
