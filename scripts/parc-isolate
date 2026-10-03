@@ -30,7 +30,20 @@ command -v python3 >/dev/null || die "python3 introuvable"
 [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ] || die "hors dépôt git"
 
 GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)"
-MAIN_ROOT="$(cd "$GIT_COMMON_DIR/.." && pwd)"
+# Racine du checkout principal du dépôt courant — deux layouts gérés :
+#  - dépôt normal : git dir = <racine>/.git                          → dirname
+#  - submodule    : git dir = <super>/.git/modules/<nom>, et le config
+#                   commun porte core.worktree (relatif au git dir) désignant
+#                   le checkout principal du submodule.
+# Bug 02/10/2026 : dirname(...) seul donnait <super>/.git/modules pour un
+# submodule → toutes les commandes `git -C "$MAIN_ROOT"` remontaient au
+# superprojet (branche/worktree/registre/push créés sur le mauvais dépôt).
+if _wt="$(git config --file "$GIT_COMMON_DIR/config" --get core.worktree 2>/dev/null)" && [ -n "$_wt" ]; then
+    MAIN_ROOT="$(cd "$GIT_COMMON_DIR" && cd "$_wt" && pwd)"
+else
+    MAIN_ROOT="$(dirname "$GIT_COMMON_DIR")"
+fi
+unset _wt
 AGENTS_DIR="$MAIN_ROOT/.worktrees/_agents"
 REGISTRY="$AGENTS_DIR/registry.json"
 mkdir -p "$AGENTS_DIR"
