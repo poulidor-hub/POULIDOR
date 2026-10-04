@@ -1,4 +1,25 @@
 
+## [0.71.6] - 4 octobre 2026
+
+### 🔧 Fix — plugins OpenCode V2 (superpowers + hub.ts) & pointeur template 2.29.2
+
+- **Pin superpowers `896224c` (v6.0.3) → `8ca22db` (tag v6.4.2)** dans
+  `opencode.json` — l'ancien pin n'exportait qu'un plugin format V1
+  (`SuperpowersPlugin` nommé), rejeté par l'API plugin V2 d'OpenCode
+  (`Plugin must export a default definition…`) : tous les skills
+  superpowers (brainstorming, test-driven-development,
+  systematic-debugging, verification-before-completion…) étaient absents.
+  v6.4.2 est dual-compatible V1/V2 ; clé `plugin` renommée `plugins`
+  (format canonique V2). Validé en runtime : chargement sans erreur.
+- **`.opencode/plugins/hub.ts` migré au format plugin V2** — export
+  `default { id: "poulidor-hub", setup(ctx) }` + hook
+  `ctx.permission.hook("evaluate", …)` (remplace `permission.ask` V1).
+  Garde-fou destructeurs inchangé (rétrogradation `allow` → `ask`).
+- **Pointeur `HUBapp_TEMPLATE_base` 2.29.1 → 2.29.2** — même fix côté
+  template (pin + copie hub.ts synchronisée, `make sync-hub-tooling-check`
+  vert). Les apps `APPS/*` (gitignées, hors périmètre submodule) garderont
+  leur ancien pin jusqu'à leur prochaine synchro template.
+
 ## [0.71.5] - 4 octobre 2026
 
 ### 🔧 Fix — pointeur HUB_base 3.62.7 : 4 anomalies vue « Apps GitHub »
