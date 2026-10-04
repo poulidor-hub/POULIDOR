@@ -369,6 +369,33 @@ logger.error("Échec de connexion au Hub: %s", exc, exc_info=True)
 
 Utiliser le logging structuré (pas de `print()`). Les logs sont visibles via `make logs-api`.
 
+#### Horodatage à l'heure du Hub (parc)
+
+Tous les logs backend du parc (hub, apps, socle) sont horodatés en
+**ISO 8601 UTC** à l'**heure du Hub** — autorité temps du parc, pour une
+timeline cohérente entre toutes les machines :
+
+```
+2026-10-04T12:34:56.789Z | INFO     | app.hub_client | 🔄 Connexion au Hub...
+```
+
+- **Mécanique** : module `logging_config` (template : `backend/`,
+  socle : `hub_socle/`, hub : `hub/app/`). `HubClock` maintient un offset
+  (heure hub − heure locale) synchronisé via `GET /api/system/time`
+  (`epoch_ms`, endpoint public) au point médian request/réponse ;
+  `hub_client.sync_hub_time()` est appelé au boot après register puis
+  périodiquement (`HUB_TIME_SYNC_INTERVAL`, défaut 300 s).
+- **Fallback** : hub injoignable → dernier offset conservé ; jamais
+  synchronisé → heure locale UTC (conforme règle 10, `datetime.now(timezone.utc)`).
+- **Config** (`/.env`) : `LOG_LEVEL=INFO` (niveau applicatif),
+  `HUB_TIME_SYNC_INTERVAL=300`.
+- **Apps sur socle** : `create_app()` configure le logging par défaut ;
+  opt-out avec `create_app(setup_logging=False)` (puis
+  `hub_socle.logging_config.setup_logging()` manuellement).
+- Les access logs uvicorn portent le même format (loggers reconfigurés
+  au boot). Ne pas re-appeler `logging.basicConfig()` : ça casserait
+  l'horodatage hub.
+
 ---
 
 ## 4. Base de données
