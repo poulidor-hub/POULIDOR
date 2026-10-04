@@ -45,7 +45,7 @@
   vert). Les apps `APPS/*` (gitignées, hors périmètre submodule) garderont
   leur ancien pin jusqu'à leur prochaine synchro template.
 
-## [0.71.6] - 4 octobre 2026
+## [0.71.8] - 4 octobre 2026
 
 ### 🔧 Fix — pointeur HUB_base 3.62.9 : badge « Échec déploiement » sur le menu principal
 
