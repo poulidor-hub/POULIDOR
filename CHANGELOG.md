@@ -1,5 +1,25 @@
 
-## [0.71.4] - 3 octobre 2026
+## [0.71.5] - 4 octobre 2026
+
+### 🔧 Fix — pointeur HUB_base 3.62.7 : 4 anomalies vue « Apps GitHub »
+
+- **Pointeur `HUB_base` 3.62.6 → 3.62.7** — anomalies relevées par la
+  campagne de tests fonctionnels de tous les contrôles de la vue :
+  1. **Persistance du toggle cartes/table** (localStorage désormais réellement
+     lu au boot — la valeur initiale le court-circuitait) ;
+  2. **`fetched_at` global** : un filtrage sans résultat n'affiche plus
+     « jamais synchronisé » ;
+  3. **Timezone** : temps relatifs cohérents (timestamps naïfs traités en
+     UTC — plus de « il y a 2 h » juste après une sync en UTC+2) ;
+  4. **« Voir l'app »** : recherche sur le slug de l'APP liée
+     (`integrated_app_slug` ajouté à `GET /api/apps/github/repos`) —
+     exemple-app-2 trouve désormais l'app `exemple-app` ; POULIDOR pointe `hub`
+     (app système, non listée dans l'onglet Applications).
+- **Re-test E2E post-déploiement** : les 4 points vérifiés sur le Hub réel
+  (v3.62.7) — table restaurée après reload, « sync il y a 6 h » conservé sur
+  filtre vide, `exemple-app` affiché (1/13) après « Voir l'app ».
+
+---
 
 ### 🎨 UI — pointeur HUB_base 3.62.6 : refonte de la vue « Apps GitHub »
 
