@@ -39,7 +39,8 @@ GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)"
 # submodule → toutes les commandes `git -C "$MAIN_ROOT"` remontaient au
 # superprojet (branche/worktree/registre/push créés sur le mauvais dépôt).
 if _wt="$(git config --file "$GIT_COMMON_DIR/config" --get core.worktree 2>/dev/null)" && [ -n "$_wt" ]; then
-    MAIN_ROOT="$(cd "$GIT_COMMON_DIR" && cd "$_wt" && pwd)"
+    MAIN_ROOT="$(cd "$GIT_COMMON_DIR" && cd "$_wt" 2>/dev/null && pwd)" \
+        || die "core.worktree '$_wt' introuvable depuis $GIT_COMMON_DIR (checkout principal déplacé ?)"
 else
     MAIN_ROOT="$(dirname "$GIT_COMMON_DIR")"
 fi
