@@ -90,5 +90,31 @@ python3 -c 'import json,sys; reg=json.load(open(sys.argv[1])); exit(0 if reg["ag
     && fail "cleanup : entrée registre toujours active"
 pass "cleanup opérationnel depuis le submodule"
 
+# ── Dépôt NORMAL : le fallback dirname ne doit pas régresser (revue 05/10) ──
+git clone -q "$TMP/origin_meta.git" "$TMP/plain"
+OUT="$(cd "$TMP/plain" && bash "$SCRIPT_UNDER_TEST" test/fallback-normal "tâche" --agent-id "$AGENT_ID")"
+git -C "$TMP/plain" rev-parse --verify -q "refs/heads/test/fallback-normal" >/dev/null \
+    || fail "fallback dépôt normal : branche non créée"
+git -C "$TMP/origin_meta.git" rev-parse --verify -q "refs/heads/test/fallback-normal" >/dev/null \
+    || fail "fallback dépôt normal : branche non poussée sur origin"
+[ -d "$TMP/plain/.worktrees/_agents/test-fallback-normal" ] \
+    || fail "fallback dépôt normal : worktree absent"
+(cd "$TMP/plain" && bash "$SCRIPT_UNDER_TEST" --list) | grep -q "test/fallback-normal" \
+    || fail "--list n'affiche pas l'agent du dépôt normal"
+(cd "$TMP/plain" && bash "$SCRIPT_UNDER_TEST" --cleanup test/fallback-normal) >/dev/null
+pass "fallback dépôt normal (isolate + --list + cleanup)"
+
+# ── core.worktree stale : die parlant, pas un crash bash brut (revue 05/10) ──
+git init -q -b main "$TMP/stale_repo"
+git -C "$TMP/stale_repo" config user.email test@local
+git -C "$TMP/stale_repo" config user.name test
+echo x > "$TMP/stale_repo/f" && git -C "$TMP/stale_repo" add f && git -C "$TMP/stale_repo" commit -qm init
+git -C "$TMP/stale_repo" config core.worktree "/nonexistent/parc-isolate-stale-xyz"
+OUT_STALE="$(cd "$TMP/stale_repo" && bash "$SCRIPT_UNDER_TEST" test/stale "tâche" --agent-id "$AGENT_ID" 2>&1)" \
+    && fail "core.worktree stale : le script aurait dû échouer"
+echo "$OUT_STALE" | grep -q "parc-isolate:" \
+    || fail "core.worktree stale : sortie sans die explicite (crash bash brut ?)"
+pass "core.worktree stale → die explicite (pas de traceback bash)"
+
 echo ""
 echo "🎉 Tous les tests passent."
