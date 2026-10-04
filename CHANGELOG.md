@@ -1,4 +1,17 @@
 
+## [0.71.11] - 5 octobre 2026
+
+### ⚡ Pointeur `HUB_base` 3.62.10 → 3.63.0 — audit des échecs de login + rattachement utilisateur aux erreurs
+
+- **Pointeur `HUB_base` 3.63.0** — nouvelles entrées `AuditLog(action="login_failed")`
+  avec l'identifiant tenté (`target`) sur les deux endpoints de login, et
+  `error_logs.user_id` / `service_account_id` désormais alimentés via décodage
+  JWT Bearer (signature vérifiée, expiration ignorée). UI Audit : colonne
+  « Utilisateur » dans la table Erreurs, label + badge « Connexion échouée »,
+  filtre username élargi aux identifiants tentés, export CSV enrichi.
+  12 tests d'intégration ; 1281 passed (hôte) / 1230 passed (Docker).
+
+---
 ## [0.71.10] - 4 octobre 2026
 
 ### 🔧 Hotfix — `scripts/install-version-guard.sh` : chemin double `hooks/hooks/`
