@@ -1,4 +1,18 @@
 
+## [0.71.12] - 5 octobre 2026
+
+### 🔧 parc-isolate : garde stale + tests fallback — doc VPN à jour
+
+- **`scripts/parc-isolate`** : `die` explicite si `core.worktree` pointe
+  un checkout déplacé (crash bash brut avant) ; test de régression
+  étendu au chemin dépôt normal (isolate + `--list` + cleanup) et au
+  cas stale (revue froide 05/10).
+- **`docs/guide-parc-poulidor.md`** : `hubctl vpn` — « wg0.conf absente
+  » renvoie désormais au toggle OFF→ON de l'UI (auto-régénération,
+  HUB_base ≥ 3.62.4) au lieu de l'init.
+
+---
+
 ## [0.71.11] - 5 octobre 2026
 
 ### ⚡ Pointeur `HUB_base` 3.62.10 → 3.63.0 — audit des échecs de login + rattachement utilisateur aux erreurs
