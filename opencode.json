@@ -2,8 +2,8 @@
   "$schema": "https://opencode.ai/config.json",
   "share": "auto",
   "default_agent": "jellycode",
-  "plugin": [
-    "superpowers@git+https://github.com/obra/superpowers.git#896224c4b1879920ab573417e68fd51d2ccc9072"
+  "plugins": [
+    "superpowers@git+https://github.com/obra/superpowers.git#8ca22dba9a94f28898bbce59f2537ff4d87c747d"
   ],
   "skills": {
     "paths": [".opencode/skills"]
