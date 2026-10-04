@@ -1,4 +1,29 @@
 
+## [0.71.7] - 4 octobre 2026
+
+### ⚡ Logging horodaté à l'heure du Hub — 3 pointeurs + guide
+
+- **Convention parc** : tous les logs backend (hub, apps, socle) sont
+  horodatés **ISO 8601 UTC à l'heure du Hub** (autorité temps du parc) —
+  `2026-10-04T12:34:56.789Z | LEVEL | logger | message`. Apps : offset
+  (heure hub − heure locale) synchronisé via `GET /api/system/time`
+  (`epoch_ms`) au point médian request/réponse, au boot puis toutes les
+  `HUB_TIME_SYNC_INTERVAL` s (défaut 300) ; fallback heure locale UTC
+  (règle n°10). Nouveaux réglages : `LOG_LEVEL`, `HUB_TIME_SYNC_INTERVAL`.
+- **Pointeur `HUB_base` 3.62.7 → 3.62.8** — `app/logging_config.py`
+  (`setup_logging`, root + uvicorn) + **`epoch_ms`** dans
+  `/api/system/time` (contrat de synchro, rétro-compatible frontend/MCP).
+- **Pointeur `HUBapp_TEMPLATE_base` 2.29.2 → 2.29.3** —
+  `backend/logging_config.py`, `hub_client.sync_hub_time()`, boucle de
+  fond + lifespan, `.env.example`. (Suite : 266 passed.)
+- **Pointeur `HUBsocle` 2.25.1 → 2.25.2** — miroir socle +
+  `create_app(setup_logging=True)` (opt-out possible) ; dérivés version
+  resynchronisés (`package.json`, `__version__.py`). (Suite : 246 passed.)
+- **`docs/guide-developpement-template.md` §3.7** : convention
+  documentée (mécanique, fallback, réglages, opt-out socle).
+- Les apps existantes (`APPS/*`) hériteront à leur prochaine synchro
+  template (`migrate-app-template`).
+
 ## [0.71.6] - 4 octobre 2026
 
 ### 🔧 Fix — plugins OpenCode V2 (superpowers + hub.ts) & pointeur template 2.29.2
