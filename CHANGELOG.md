@@ -45,6 +45,28 @@
   vert). Les apps `APPS/*` (gitignées, hors périmètre submodule) garderont
   leur ancien pin jusqu'à leur prochaine synchro template.
 
+## [0.71.9] - 4 octobre 2026
+
+### 🔧 Outillage release — garde-fous anti-écrasement croisé du méta-repo
+
+- **Incident 2026-10-04** : double 0.71.6 (deux sessions bumpant patch en
+  parallèle) puis régression VERSION (0.71.6 poussée après 0.71.7).
+- **`scripts/hooks/pre-push-version-guard.sh`** (même hook que HUB_base) :
+  refuse le push d'une VERSION strictement inférieure à celle de la branche
+  distante — dernier rempart git, multi-hooks chaînables, partagé avec les
+  worktrees via le common dir.
+- **`scripts/check-release-guard.sh <version>`** : garde manuel à invoquer
+  avant tout bump (le méta-repo n'a pas de sync_version.py) — origin pas en
+  avance (fetch + comparaison, silencieux hors-ligne) + numéro CHANGELOG non
+  déjà pris. Exit 1 avec la marche à suivre.
+- **`scripts/install-version-guard.sh`** : installe le hook
+  (`.git/hooks/pre-push`) — exécuté sur ce clone.
+- Vérifié en conditions réelles : `check-release-guard 0.71.9` avant ce
+  bump (origin 0.71.8 = local → passage) ; hook testé E2E sur repo simulé
+  (régression refusée, avance autorisée).
+
+---
+
 ## [0.71.8] - 4 octobre 2026
 
 ### 🔧 Fix — pointeur HUB_base 3.62.9 : badge « Échec déploiement » sur le menu principal
