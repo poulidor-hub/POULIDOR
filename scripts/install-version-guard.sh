@@ -24,11 +24,11 @@ if [ -f "$HOOK_FILE" ] && grep -q "pre-push-version-guard.sh" "$HOOK_FILE" 2>/de
 elif [ -f "$HOOK_FILE" ]; then
     # Chaîner : préserver le hook existant, ajouter le nôtre à la suite
     if ! grep -q "pre-push-version-guard.sh" "$HOOK_FILE"; then
-        printf '\n# version-guard (install-version-guard.sh)\nbash "%s/hooks/pre-push-version-guard.sh" "$@"\n' "$HOOKS_DIR" >> "$HOOK_FILE"
+        printf '\n# version-guard (install-version-guard.sh)\nbash "%s/pre-push-version-guard.sh" "$@"\n' "$HOOKS_DIR" >> "$HOOK_FILE"
         echo "✅ chaîné au hook pre-push existant"
     fi
 else
-    printf '#!/usr/bin/env bash\n# installé par scripts/install-version-guard.sh\nbash "%s/hooks/pre-push-version-guard.sh" "$@"\n' "$HOOKS_DIR" > "$HOOK_FILE"
+    printf '#!/usr/bin/env bash\n# installé par scripts/install-version-guard.sh\nbash "%s/pre-push-version-guard.sh" "$@"\n' "$HOOKS_DIR" > "$HOOK_FILE"
     chmod +x "$HOOK_FILE"
     echo "✅ hook pre-push installé (${HOOK_FILE})"
 fi

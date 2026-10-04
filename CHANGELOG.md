@@ -1,4 +1,16 @@
 
+## [0.71.10] - 4 octobre 2026
+
+### 🔧 Hotfix — `scripts/install-version-guard.sh` : chemin double `hooks/hooks/`
+
+- L'installateur écrivait dans le hook chaîné le chemin
+  `<GIT_DIR>/hooks/hooks/pre-push-version-guard.sh` (double `hooks/`) :
+  chaque push échouait (`No such file or directory` → fail-closed, tous les
+  pushs bloqués sur les clones où le hook est installé). Chemin corrigé ;
+  hook files locaux réparés. Hotfix immédiat post-merge (fichier introduit
+  en 0.71.9).
+
+---
 ## [0.71.7] - 4 octobre 2026
 
 ### ⚡ Logging horodaté à l'heure du Hub — 3 pointeurs + guide
