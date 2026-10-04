@@ -21,6 +21,8 @@
 
 ---
 
+## [0.71.4] - 3 octobre 2026
+
 ### 🎨 UI — pointeur HUB_base 3.62.6 : refonte de la vue « Apps GitHub »
 
 - **Pointeur `HUB_base` 3.62.5 → 3.62.6** — la vue admin « Apps GitHub »
@@ -37,6 +39,8 @@
   integrated), logs backend propres, `node --check` vert sur tout le front.
 
 ---
+
+## [0.71.3] - 3 octobre 2026
 
 ### 🔧 Fix — pointeur HUB_base 3.62.5 : déploiement GitHub des apps réparé
 
