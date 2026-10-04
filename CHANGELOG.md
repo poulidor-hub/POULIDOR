@@ -45,7 +45,26 @@
   vert). Les apps `APPS/*` (gitignées, hors périmètre submodule) garderont
   leur ancien pin jusqu'à leur prochaine synchro template.
 
-## [0.71.5] - 4 octobre 2026
+## [0.71.6] - 4 octobre 2026
+
+### 🔧 Fix — pointeur HUB_base 3.62.9 : badge « Échec déploiement » sur le menu principal
+
+- **Pointeur `HUB_base` 3.62.8 → 3.62.9** :
+  - **Scénario rapporté (cartes fantômes)** : une app créée depuis le front
+    dont le déploiement échoue restait affichée sur le menu principal comme
+    les autres — carte active, rien de fonctionnel derrière. Le dashboard
+    affiche désormais un **badge rouge « Échec déploiement »** (date dans le
+    tooltip, rappel du redéploiement admin) via `last_deployment` déjà
+    exposé par `GET /api/apps`.
+  - *(3.62.8, autre session : logging horodaté à l'heure du Hub + contrat
+    `epoch_ms` sur `GET /api/system/time`.)*
+- **Incident de release encaissé** : la release 3.62.8 a été poussée en
+  parallèle par une autre session pendant le merge — bump décalé en 3.62.9
+  automatiquement ; placeholder 3.62.9 poussé vide par erreur puis complété
+  immédiatement (commit `0bc2d73`). CHANGELOG méta : en-têtes 0.71.3/0.71.4
+  restaurés (`8f199f5`).
+
+---
 
 ### 🔧 Fix — pointeur HUB_base 3.62.7 : 4 anomalies vue « Apps GitHub »
 
