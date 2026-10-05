@@ -1,4 +1,18 @@
 
+## [0.71.17] - 5 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.63.4 — TTL réservations ports (fuite prepare catalogue)
+
+- Pointeur `HUB_base` → 3.63.4 (fbfe618) : une allocation de ports sans
+  app associée (prepare catalogue GitHub, /allocate-ports orphelin)
+  expire après `PORT_RESERVATION_TTL_MINUTES` (défaut 30 min, 0 =
+  historique) — purge paresseuse, ports/subnet réattribuables. Fin de la
+  fuite définitive des « Ajouter au HUB » abandonnés (constat 2026-10-05,
+  3 réservations fantômes en prod). Suites : hôte 1292 passed, docker
+  1252 passed.
+
+---
+
 ## [0.71.16] - 5 octobre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.29.4 — plugin hub API V2
