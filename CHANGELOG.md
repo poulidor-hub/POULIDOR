@@ -1,4 +1,16 @@
 
+## [0.71.15] - 5 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.63.3 — minors revue finale VPN
+
+- Pointeur `HUB_base` → 3.63.3 (c94722a) : réparation d'un
+  `wg0.conf` préexistant en 0444 (500 → succès), bannière « conf
+  absente » rafraîchie après enregistrement des réglages, purge
+  `sync_version.py` dans `test-docker`, hygiène tests. Suites :
+  hôte test_vpn 37 passed, docker 1246 passed.
+
+---
+
 ## [0.71.14] - 5 octobre 2026
 
 ### ⚡ Pointeurs HUB_base 3.63.2 + hubctl_src 0.10.3
