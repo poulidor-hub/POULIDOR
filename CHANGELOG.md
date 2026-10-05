@@ -1,4 +1,24 @@
 
+## [0.71.18] - 6 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.64.0 — acteur M2M exposé dans la liste/détail des erreurs (+ rattrapage pointeur)
+
+- Pointeur `HUB_base` → 3.64.0 (9c9cdb6).
+- **3.64.0 — audit erreurs** : `GET /api/audit/errors` renvoie désormais
+  `service_account_id` + `service_account_client_id` (résolu comme
+  l'export CSV) ; le détail `/api/audit/errors/{id}` expose aussi le
+  `client_id`. UI Audit : helper `errorActorHtml()` — username (user),
+  badge « M2M » + client_id tronqué (service account), repli id brut.
+  4 tests dédiés, suite hôte 1296 passed.
+- **⚠️ Rattrapage pointeur** : l'entrée 0.71.17 documentait « pointeur
+  HUB_base 3.63.4 » mais le gitlink committé pointait en réalité sur
+  3.61.1 (e7219c2, checkout sous-module périmé au moment du commit).
+  Ce bump réaligne le pointeur sur 3.64.0 et embarque donc aussi les
+  versions intermédiaires non pointées (3.62.x VPN flotte, 3.63.x VPN
+  toggle hardening + TTL réservations ports, déjà documentées ici).
+
+---
+
 ## [0.71.17] - 5 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.63.4 — TTL réservations ports (fuite prepare catalogue)
