@@ -1,4 +1,18 @@
 
+## [0.71.14] - 5 octobre 2026
+
+### ⚡ Pointeurs HUB_base 3.63.2 + hubctl_src 0.10.3
+
+- Pointeur `HUB_base` → 3.63.2 (4dfcc10) : durcissement VPN toggle
+  (status `conf_exists`, création wg0.conf en 0600, garde anti
+  double-fire UI, bannière Réparer, docs GUIDE_ADMIN) + lane docker de
+  tests reparée (cp sync_version.py). Suites : hôte 1285 passed,
+  docker 1245 passed.
+- Pointeur `hubctl_src` → 0.10.3 (ec9365e) : message `hubctl vpn`
+  renvoie au toggle OFF→ON (auto-réparation) au lieu de l'init.
+
+---
+
 ## [0.71.13] - 5 octobre 2026
 
 ### 📝 Correction — parc-isolate : contrat stale assumé (revue finale)
