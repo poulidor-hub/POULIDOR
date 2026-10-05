@@ -1,4 +1,16 @@
 
+## [0.71.13] - 5 octobre 2026
+
+### 📝 Correction — parc-isolate : contrat stale assumé (revue finale)
+
+- Précision suite à revue : le cas `core.worktree` stale était déjà
+  rejeté proprement par le `die` amont (`is-inside-work-tree`) — le
+  CHANGELOG 0.71.12 annonçait à tort « crash bash brut avant ». La
+  garde `cd` du script est conservée en défense en profondeur (races),
+  commentaires du script et du test alignés sur ce contrat.
+
+---
+
 ## [0.71.12] - 5 octobre 2026
 
 ### 🔧 parc-isolate : garde stale + tests fallback — doc VPN à jour
