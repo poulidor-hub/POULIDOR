@@ -41,6 +41,9 @@ GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)"
 if _wt="$(git config --file "$GIT_COMMON_DIR/config" --get core.worktree 2>/dev/null)" && [ -n "$_wt" ]; then
     MAIN_ROOT="$(cd "$GIT_COMMON_DIR" && cd "$_wt" 2>/dev/null && pwd)" \
         || die "core.worktree '$_wt' introuvable depuis $GIT_COMMON_DIR (checkout principal déplacé ?)"
+    # Défense en profondeur : le cas stale statique est déjà rejeté par le
+    # die amont (is-inside-work-tree) ; ce garde ne couvre que les races
+    # (chemin supprimé entre la vérif git et le cd).
 else
     MAIN_ROOT="$(dirname "$GIT_COMMON_DIR")"
 fi

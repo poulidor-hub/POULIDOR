@@ -104,7 +104,11 @@ git -C "$TMP/origin_meta.git" rev-parse --verify -q "refs/heads/test/fallback-no
 (cd "$TMP/plain" && bash "$SCRIPT_UNDER_TEST" --cleanup test/fallback-normal) >/dev/null
 pass "fallback dépôt normal (isolate + --list + cleanup)"
 
-# ── core.worktree stale : die parlant, pas un crash bash brut (revue 05/10) ──
+# ── core.worktree stale : mort PROPRE, jamais un traceback bash brut ─────
+# Contrat réel : git rejette lui-même le config stale à la vérification
+# is-inside-work-tree (die amont « hors dépôt git »). La garde cd dans le
+# script reste en DÉFENSE EN PROFONDEUR (race/TOCTOU, non falsifiable en
+# fixture) — ce test épingle qu'un config pourri sort par die, pas par crash.
 git init -q -b main "$TMP/stale_repo"
 git -C "$TMP/stale_repo" config user.email test@local
 git -C "$TMP/stale_repo" config user.name test
