@@ -1,4 +1,14 @@
 
+## [0.71.16] - 5 octobre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base 2.29.4 — plugin hub API V2
+
+- Pointeur `HUBapp_TEMPLATE_base` → 2.29.4 (d0386d2) : plugin
+  `hub.ts` migré au format API V2 (sync plugin hub V2, alignement
+  méta 0.70.7) + libellé changelog 2.29.4.
+
+---
+
 ## [0.71.15] - 5 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.63.3 — minors revue finale VPN
