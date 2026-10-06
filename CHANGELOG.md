@@ -1,4 +1,17 @@
 
+## [0.71.19] - 6 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.66.0 — propagation IP en un geste
+
+- Pointeur `HUB_base` → 3.66.0 (4654fd3).
+- **3.66.0 — réseau** : `POST /api/config/network/propagation-plan/apply-and-recreate`
+  (écrit l'IP dans les `.env` des apps validées puis recrée leurs conteneurs,
+  opérations atelier tracées) ; résolution slug→répertoire par `APP_SLUG`
+  (les apps `exemple-app`/`exemple-app`, jusque-là `no_env`, deviennent
+  propageables) ; champ `env_dir` dans le plan ; UI onglet Réseau :
+  « Propager et recréer (N) » + sélection des apps à propager + polling du lot.
+  9 tests dédiés, suite hôte 1314 passed.
+
 ## [0.71.18] - 6 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.64.0 — acteur M2M exposé dans la liste/détail des erreurs (+ rattrapage pointeur)
