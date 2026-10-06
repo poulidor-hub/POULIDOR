@@ -1,4 +1,17 @@
 
+## [0.71.23] - 6 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.69.1 — `make test-docker` vert (script purge copié au conteneur)
+
+- Pointeur `HUB_base` → 3.69.1 (930a1f8).
+- **3.69.1 — fix tests** : depuis 3.67.0, la cible `test-docker` ne copiait
+  pas `scripts/purge_orphan_backups.py` (contexte image `./hub` uniquement)
+  → 6 tests échouaient en conteneur. La cible copie désormais le script
+  sous `/code/scripts/` et le test résout son chemin en remontant les
+  parents de `__file__`. `make test-docker` : 1306 passed, 1 skipped,
+  0 failed.
+
+
 ## [0.71.22] - 6 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.69.0 — réimplémentation des routes export/import d'environnement
