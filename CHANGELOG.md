@@ -1,4 +1,18 @@
 
+## [0.71.21] - 6 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.68.0 — téléchargement de la CA racine depuis la page Hub
+
+- Pointeur `HUB_base` → 3.68.0 (92c054b).
+- **3.68.0 — feature** : bouton « Certificat » dans la navbar du Hub —
+  téléchargement de la CA racine (`GET /api/pki/ca.crt`, public,
+  `ca.key` jamais servi) + empreinte SHA-256/validité (`/api/pki/ca/info`)
+  + guide d'installation par plateforme (Windows, macOS, Linux, Firefox,
+  Android, iOS). Objectif : supprimer les avertissements « certificat
+  auto-signé » sur les postes utilisateurs (CA installée une fois, Hub et
+  apps HTTPS couverts). Tests dédiés (4), suite conteneur 12/12.
+
+
 ## [0.71.20] - 6 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.67.0 — purge one-shot des backups morts
