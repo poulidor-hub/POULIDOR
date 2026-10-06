@@ -1,4 +1,16 @@
 
+## [0.71.20] - 6 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.67.0 — purge one-shot des backups morts
+
+- Pointeur `HUB_base` → 3.67.0 (bc84b36).
+- **3.67.0 — ops** : `scripts/purge_orphan_backups.py` — purifie le
+  stockage backup d'un Hub déployé en un geste (dry-run par défaut,
+  `--apply` pour agir) : lignes `app_backups` d'apps supprimées + fichiers
+  `*.zip`/`*.encrypted` orphelins + répertoires vides ; fichiers des
+  lignes vivantes toujours intouchables, garde d'âge 7 j.
+  6 tests dédiés, suite hôte 1320 passed.
+
 ## [0.71.19] - 6 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.66.0 — propagation IP en un geste
