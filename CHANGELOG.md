@@ -1,4 +1,21 @@
 
+## [0.71.22] - 6 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.69.0 — réimplémentation des routes export/import d'environnement
+
+- Pointeur `HUB_base` → 3.69.0 (f18a251).
+- **3.69.0 — feature** : les routes `/api/admin/backup/{export,export/download,
+  import,import/upload,import/preview}` (supprimées par erreur en juin,
+  remplacées par les snapshots) sont réimplémentées dans
+  `hub/app/routes/admin_backup.py` — les outils MCP
+  `hub_backup_export_env` / `hub_backup_import_env` et le module frontend
+  `backup-import.js` refonctionnent. Le middleware anti-DoS élargit la
+  limite de body (défaut 512 MB) aux 3 routes d'upload d'environnement :
+  un fichier > 10 Mo recevait un 413 « max 10 MB » trompeur (le middleware
+  court-circuitait avant le 404 des routes disparues). 22 tests dédiés,
+  suite hôte 1342 passed, vérifié runtime en conteneur (upload 11 Mo → 200).
+
+
 ## [0.71.21] - 6 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.68.0 — téléchargement de la CA racine depuis la page Hub
