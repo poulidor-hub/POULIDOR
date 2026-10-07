@@ -29,6 +29,17 @@
   suite hôte 1342 passed, vérifié runtime en conteneur (upload 11 Mo → 200).
 
 
+## [0.71.22] - 7 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.69.2 — compteur de connectivité sans les ateliers
+
+- Pointeur `HUB_base` → 3.69.2 (b7346bb).
+- **3.69.2 — fix** : le compteur « X/Y applications en ligne » de la vue
+  admin n'inclut plus les ateliers (`-ws`, souvent arrêtés) — fini le
+  « 14/20 » avec 6 ateliers éteints ; les entrées par app restent servies
+  pour les icônes de la table. 2 tests dédiés.
+
+
 ## [0.71.21] - 6 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.68.0 — téléchargement de la CA racine depuis la page Hub
