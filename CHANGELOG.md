@@ -1,3 +1,18 @@
+## [0.72.2] - 8 octobre 2026
+
+### ⚡ Pointeur HUBCSS 0.3.0 — étage structurel (PageHeader, Modal, panel--padded, scroll)
+
+- HUBCSS 0.2.4 → 0.3.0 : composants structurels `PageHeader` (h1 unique, back,
+  badge, pastille version dynamique, meta, actions wrap) et `Modal` (portal,
+  Escape, focus trap, scroll-lock, tailles sm/md/lg, panneau bas mobile, fade
+  scrim réel) + tokens z-index + `hub-panel--padded` + `100dvh` (fallback
+  minifieur-proof) + `setIconSpriteHref()` (sprite surchargeable par app).
+- Doc « Structure de page » (recette canonique + 4 règles anti page-dans-page)
+  et démo PageHeader/Modal. Dérive manifest.json corrigée (0.2.1 → 0.3.0).
+- Exécuté en subagent-driven (7 tâches reviewées) + validation e2e sur app
+  neuve `lab-hubcss` (créée depuis le template, consommation paquet React +
+  seed CSS) — findings reportés au template (TDZ AuthContext, Dockerfiles
+  vendor, rebranding Header).
 ## [0.72.1] - 7 octobre 2026
 
 ### ⚡ Audit structurel HUBCSS + template — roadmap anti « page dans une page »
