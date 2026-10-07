@@ -1,3 +1,15 @@
+## [0.72.1] - 7 octobre 2026
+
+### ⚡ Audit structurel HUBCSS + template — roadmap anti « page dans une page »
+
+- Nouveau `docs/plans/2026-10-07-hubcss-template-audit-roadmap.md` : audit
+  statique exhaustif de HUBCSS v0.2.4 (atomes sans étage structurel, Timeline-h
+  = composant d'app dans la DS, double échelles espace/typo, z-index magiques,
+  piège `@source` démo), du template (3 couches CSS, DataTable monolithe 410 l.,
+  alias legacy) et des apps (exemple-app, exemple-app : doubles retours, cartes dans
+  cartes, scrolls imbriqués, 3 toolbars/page, 12 variantes de Header).
+- 7 règles cibles de structure de page + roadmap en 3 phases (HUBCSS structurel,
+  template exemplaire, socle partagé) avec critères de succès mesurables.
 ## [0.72.0] - 7 octobre 2026
 
 ### ⚡ Rapatriement sélectif du fork exemple_stack — fix https-flotte + outil migration legacy
