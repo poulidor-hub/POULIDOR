@@ -1,3 +1,26 @@
+## [0.72.0] - 7 octobre 2026
+
+### ⚡ Rapatriement sélectif du fork exemple_stack — fix https-flotte + outil migration legacy
+
+- `scripts/https-flotte/activer.py` : rebuild frontend via un override
+  jetable `docker-compose.build-host-tmp.yml` (`build.network: host`) —
+  le DNS du bridge BuildKit peut faire échouer transitoirement le fetch
+  des dépôts de paquets (registry.npmjs.org, dl-cdn.alpinelinux.org),
+  là où le réseau host passe ; l'override est supprimé après le build.
+  `test_activer.py` étendu (3 × `-f` attendus, suppression vérifiée) —
+  suite complète : 95 passed.
+- Nouveau `scripts/legacy-migration/import_to_stack.py` (v1) : import
+  users / applications / rôles depuis l'export JSON du hub legacy
+  hub-legacy (`export_env.py`) vers l'API admin du hub neuf — dry-run par
+  défaut (`--apply` pour appliquer), mots de passe temporaires +
+  `must_change_password`, URLs réécrites `localhost` →
+  `host.docker.internal`, existants inchangés ; service_accounts en
+  rapport-only (secrets Fernet legacy = chantier dédié). Stdlib only.
+- Rapatrié du fork privé `Federation-exemple-50/exemple_stack` (84 commits
+  d'avance) : le banc de test `scripts/bench-legacy/`, le suivi de
+  campagne et les artefacts de session restent volontairement côté
+  fork (périmètre prod = fixes et outils opérationnels uniquement).
+
 ## [0.71.25] - 7 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.70.0 — onglet « Environnement » dans la page Sauvegardes
