@@ -1,3 +1,11 @@
+## [0.72.3] - 8 octobre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base 2.29.5 — fix TDZ logout AuthContext
+
+- Template 2.29.4 → 2.29.5 : fix bloquant `frontend/src/context/AuthContext.jsx`
+  (useEffect référençant `logout` avant sa définition — TDZ, crash de toute
+  app neuve au premier render ; régression 05a2aff, détectée par le test e2e
+  lab-hubcss). Détails dans le CHANGELOG du template.
 ## [0.72.2] - 8 octobre 2026
 
 ### ⚡ Pointeur HUBCSS 0.3.0 — étage structurel (PageHeader, Modal, panel--padded, scroll)
