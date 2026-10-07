@@ -29,7 +29,7 @@
   suite hôte 1342 passed, vérifié runtime en conteneur (upload 11 Mo → 200).
 
 
-## [0.71.22] - 7 octobre 2026
+## [0.71.24] - 7 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.69.2 — compteur de connectivité sans les ateliers
 
