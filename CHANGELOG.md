@@ -1,3 +1,13 @@
+## [0.72.4] - 8 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.70.1 — sync préférences M2M authentifiée
+
+- HUB_base 3.70.0 → 3.70.1 : la synchronisation des préférences
+  (tags) depuis une app source (ex. exemple-app-api-v3) échouait en
+  401/502 — `routes/tags.py` appelle désormais les apps avec un token
+  de service éphémère (Bearer) et `import_m2m` tolère le format
+  `{"values": [...]}`. Détails dans le CHANGELOG HUB_base.
+
 ## [0.72.3] - 8 octobre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.29.5 — fix TDZ logout AuthContext
