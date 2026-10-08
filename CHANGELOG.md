@@ -1,5 +1,16 @@
 ## [0.72.4] - 8 octobre 2026
 
+### ⚡ Pointeur HUBapp_TEMPLATE_base 2.30.0 — Phase 2 template exemplaire CSS-first
+
+- Template 2.29.5 → 2.30.0 : structure canonique (`components/PageHeader.jsx`,
+  routes réécrites `PageHeader > toolbar unique > hub-panel`), purge de la
+  duplication DS dans app.css (8 composants socle migrés hub-*), seed
+  HUBCSS 0.3.0 livré, INITIALISE rebranding bruyant + regex h1 multiligne,
+  frontend/README.md (recette + matrice de consommation HUBCSS).
+- Exécuté en subagent-driven + e2e app fraîche (rebranding et structure
+  canonique validés d'emblée). Détails dans le CHANGELOG du template.
+## [0.72.4] - 8 octobre 2026
+
 ### ⚡ Pointeur HUB_base 3.70.1 — sync préférences M2M authentifiée
 
 - HUB_base 3.70.0 → 3.70.1 : la synchronisation des préférences
