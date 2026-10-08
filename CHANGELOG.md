@@ -1,3 +1,13 @@
+## [0.72.5] - 8 octobre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base 2.30.1 — directive IA sèche
+
+- Template 2.30.0 → 2.30.1 : `frontend/README.md` dématricé (la directive :
+  « classes `hub-*` du seed, c'est tout » — la matrice seed/vendor/Verdaccio
+  sort de la doc template) ; skills frontend resynchronisés
+  (`frontend-crud-page` reçoit la directive « UI Directive — read first »,
+  références `DataTable.jsx` → `ExampleList.jsx` dans `react-list-rendering`,
+  `badge-search-system`, `bulk-operations`).
 ## [0.72.4] - 8 octobre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.30.0 — Phase 2 template exemplaire CSS-first
