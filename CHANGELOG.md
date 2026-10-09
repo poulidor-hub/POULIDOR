@@ -1,3 +1,13 @@
+## [0.72.6] - 10 octobre 2026
+
+### ⚡ Pointeur HUBCSS 0.3.1 — roadmap directive simplicité
+
+- HUBCSS 0.3.0 → 0.3.1 : ROADMAP consigne la direction 0.3.0 (étage
+  structurel) et la règle d'expansion fixée par la directive simplicité du
+  parc (le DS ne livre que ce qui retire du travail à l'IA) ; lock
+  resynchronisée sur le package (react-dom peerDependency depuis 0.3.0) ;
+  `.worktrees/` gitigné dans HUBCSS (infrastructure d'isolation agents
+  poussée par erreur puis retirée de l'arbre).
 ## [0.72.5] - 8 octobre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.30.1 — directive IA sèche
