@@ -1,3 +1,13 @@
+## [0.72.8] - 10 octobre 2026
+
+### ⚡ Pointeur hubctl 0.10.5
+
+- hubctl 0.10.5 : atelier — le health check accepte désormais le format
+  `{"status":"ok"}` des apps Node d'ancien template (ex. exemple-app),
+  au lieu du seul `{"status":"healthy"}` du template courant. Cause
+  racine des rollbacks systématiques à la création d'atelier sur ces
+  apps, quel que soit le timeout.
+
 ## [0.72.7] - 10 octobre 2026
 
 ### ⚡ Pointeurs hubctl 0.10.4 + HUBsocle 2.25.2
