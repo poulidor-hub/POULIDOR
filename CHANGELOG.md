@@ -1,3 +1,20 @@
+## [0.72.9] - 11 octobre 2026
+
+### ⚡ Pointeurs HUB_base 3.70.2 + hubctl 0.10.5 + HUBsocle 2.25.2
+
+- **HUB_base 3.70.2** : déploiement — réconciliation subnet Hub ↔ réseau
+  Docker vivant avant l'écriture du `.env` (`get_project_network_subnets`
+  + `reconcile_subnet_with_docker`, le réseau gagne) : Compose ne recrée
+  plus jamais le réseau d'une app vivante, cause racine des échecs
+  « Échec (2) de 'make' » (exemple-app) et « network not found »
+  (exemple-app-test). Sous-réseaux d'allocation non plus scopés par host
+  (démon Docker partagé, host instable) — fin des collisions cross-host.
+- **hubctl_src 0.10.5 + HUBsocle 2.25.2** : pointeurs des releases
+  documentées en 0.72.8/0.72.7 mais restés hors des commits de bump
+  (réincident ff7ec5a) — alignés ici.
+
+---
+
 ## [0.72.8] - 10 octobre 2026
 
 ### ⚡ Pointeur hubctl 0.10.5
