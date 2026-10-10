@@ -9,9 +9,10 @@
   « Échec (2) de 'make' » (exemple-app) et « network not found »
   (exemple-app-test). Sous-réseaux d'allocation non plus scopés par host
   (démon Docker partagé, host instable) — fin des collisions cross-host.
-- **hubctl_src 0.10.5 + HUBsocle 2.25.2** : pointeurs des releases
-  documentées en 0.72.8/0.72.7 mais restés hors des commits de bump
-  (réincident ff7ec5a) — alignés ici.
+- **hubctl_src 0.10.5 + HUBsocle 2.25.2** : releases documentées en
+  0.72.8/0.72.7, pointeurs déjà alignés (leur statut « modifié » provenait
+  du contenu non-tracké `.worktrees/` de leurs dépôts, pas d'un déplacement
+  de pointeur) — clarifié ici.
 
 ---
 
