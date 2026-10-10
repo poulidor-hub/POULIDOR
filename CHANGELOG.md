@@ -1,3 +1,18 @@
+## [0.72.7] - 10 octobre 2026
+
+### ⚡ Pointeurs hubctl 0.10.4 + HUBsocle 2.25.2
+
+- **hubctl_src 0.10.4** : atelier — le clone DB copie vers le volume
+  réellement monté par le projet `-ws` (résolu depuis
+  `docker compose config`, fallback convention historique) au lieu de la
+  convention `<ws-slug>-postgres-data` jamais référencée ; timeout health
+  de création 30 s → 90 s (surchageable
+  `WORKSHOP_HEALTH_TIMEOUT_CREATE`) car un premier boot sur DB vierge
+  (initdb + migrations + seed) dépasse régulièrement 30 s → faux échec +
+  rollback systématique ; rollback health passe tous les fichiers compose.
+- **HUBsocle v2.25.2** : merge fix/socle-2.25.2-derived (dérivés version,
+  préexistant poussé sur origin HUBsocle — pointeur aligné).
+
 ## [0.72.6] - 10 octobre 2026
 
 ### ⚡ Pointeur HUBCSS 0.3.1 — roadmap directive simplicité
