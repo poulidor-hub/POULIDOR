@@ -1,3 +1,18 @@
+## [0.72.10] - 11 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.71.0
+
+- **HUB_base 3.71.0** : déploiement — precheck des prérequis avant la
+  modale de mise en place (`GET /deploy/precheck` + garde 422 au POST) :
+  git/PAT, Makefile (cibles build/up, sans clone), .env(.example),
+  déploiement en cours, ports+subnet, outils conteneur (git/make/docker
+  compose), démon Docker, écriture APPS_HOST_PATH. Bloquant strict sur
+  l'API GitHub. Fin des déploiements lancés à l'aveugle sur des hubs mal
+  montés (droits d'écriture) — la liste des manques est affichée à la
+  place de la modale.
+
+---
+
 ## [0.72.9] - 11 octobre 2026
 
 ### ⚡ Pointeurs HUB_base 3.70.2 + hubctl 0.10.5 + HUBsocle 2.25.2
