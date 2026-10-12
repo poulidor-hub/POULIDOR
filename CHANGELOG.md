@@ -1,3 +1,21 @@
+## [0.72.11] - 12 octobre 2026
+
+### ⚡ Pointeur hubctl 0.10.6 + doc skill atelier (subnet fail-hard)
+
+- **hubctl 0.10.6** : atelier — subnet dédié garanti (fail-hard). La
+  création d'un atelier est refusée si aucun /24 du pool `10.210.x`
+  n'est libre ou si l'état Docker est inconnu ; fin du repli « subnet
+  prod réutilisé » qui créait des ateliers en conflit réseau avec la
+  prod. `APP_SUBNET` toujours écrit dans `.workshop.env` (parité voie
+  UI) ; warning si le compose de l'app n'épingle pas `APP_SUBNET`
+  (apps legacy, réseau atelier dynamique) ; ateliers legacy signalés au
+  menu.
+- Skill parc `app-workshop-mover` : documentation alignée (contrat
+  8 clés, fail-hard, signalement des ateliers legacy).
+- **Pointeur** : `hubctl_src` → `201b73e` (0.10.6).
+
+---
+
 ## [0.72.10] - 11 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.71.0
