@@ -1,3 +1,19 @@
+## [0.72.14] - 12 octobre 2026
+
+### ⚡ Pointeurs Hubctl 0.10.7 + HUB_base 3.71.3 (zéro action manuelle serveur)
+
+- **Hubctl 0.10.7** : `ensure_hub_env()` — `APPS_HOST_PATH` (valeur =
+  `APPS_DIR` réel du parc) est ajoutée automatiquement et de façon
+  persistante au `.env` du Hub si absente/vide, avant toute invocation
+  compose (update, start, cleanup, sync-db, vpn). Les serveurs installés
+  avant HUB_base 3.71.1 se réparent seuls au prochain `hubctl
+  update`/`start`.
+- **HUB_base 3.71.3** : `install.sh` fusionne les clés manquantes dans un
+  `.env` conservé au lieu de sortir sans rien faire (APPS_HOST_PATH ajoutée
+  sans écrasement ; secrets manquants signalés explicitement).
+
+---
+
 ## [0.72.13] - 12 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.71.2 (APPS_HOST_PATH auto via Makefile)
