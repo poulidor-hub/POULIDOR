@@ -1,3 +1,16 @@
+## [0.72.15] - 12 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.71.4 (téléchargements résilients)
+
+- **HUB_base 3.71.4** : téléchargements résilients par tranches Range avec
+  reprise — les exports chiffrés de backups, l'export ZIP d'environnement et
+  les snapshots ne sont plus perdus en cas de coupure réseau (tranches 4 Mo,
+  retry avec backoff exponentiel, timeout par requête, vérification de la
+  taille finale, pastille de progression). Corrige l'incident
+  « Failed to fetch » lors d'un export coupé à 12,6 Mo / 27 Mo.
+
+---
+
 ## [0.72.14] - 12 octobre 2026
 
 ### ⚡ Pointeurs Hubctl 0.10.7 + HUB_base 3.71.3 (zéro action manuelle serveur)
