@@ -1,3 +1,14 @@
+## [0.72.13] - 12 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.71.2 (APPS_HOST_PATH auto via Makefile)
+
+- **HUB_base 3.71.2** : fallback automatique `APPS_HOST_PATH` dans le
+  Makefile — `hubctl update` corrige les serveurs installés avant la 3.71.1
+  sans retouche manuelle du `.env` (calcul du voisin `../APPS` depuis
+  l'emplacement du Makefile, priorité shell > .env > calcul).
+
+---
+
 ## [0.72.12] - 12 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.71.1 (APPS_HOST_PATH dynamique)
