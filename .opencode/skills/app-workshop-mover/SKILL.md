@@ -83,10 +83,12 @@ Implémentée par `_create_workshop` (`actions.py`), appelée via
 1. CHECK    Docker + Hub + APPS/X existe
 2. PORTS    Alloue API_PORT dans [10000-10499], FRONTEND_PORT dans [5200-5699]
 3. SUBNET   Alloue le 1er /24 libre du pool [198.51.100.0/24 .. 198.51.100.10/24]
-            (overlap vérifié contre les réseaux docker existants + ateliers)
+            (overlap vérifié contre les réseaux docker existants + ateliers).
+            FAIL-HARD : docker injoignable ou pool épuisé → création REFUSÉE
+            (plus de repli sur le subnet prod)
 4. ENV      Écrit APPS/X/.workshop.env : APP_SLUG, API_PORT, FRONTEND_PORT,
-            FRONTEND_HTTPS_PORT, HTTPS_ENABLED=true, WS_REF, WS_COMMIT (7 clés)
-            + APP_SUBNET (8e clé, si un subnet libre est trouvé)
+            FRONTEND_HTTPS_PORT, HTTPS_ENABLED=true, WS_REF, WS_COMMIT,
+            APP_SUBNET (8 clés, APP_SUBNET toujours écrit)
 5. VOLUME   docker volume create X-ws-postgres-data
             + alpine cp -a /from/. /to/ depuis X-postgres-data
 6. BUILD-UP docker compose -p X-ws -f <fichiers de _ws_compose_files> build (timeout 600 s)
@@ -163,10 +165,13 @@ Le `-ws` pilote :
 - nom du volume (`X-ws-postgres-data`)
 - entrypoint du conteneur DB
 
-`APP_SUBNET` (8e clé, écrite seulement si un subnet libre est trouvé) épingle le
-subnet `/24` du réseau du projet `-ws` : c'est ce qui permet à prod et atelier de
-cohabiter sur les apps du template courant. Les ateliers créés avant que la clé
-n'existe peuvent ne pas l'avoir — recréer l'atelier pour en bénéficier.
+`APP_SUBNET` (8e clé, toujours écrite) épingle le subnet `/24` du réseau du
+projet `-ws` : c'est ce qui permet à prod et atelier de cohabiter sur les apps
+du template courant. Les ateliers créés avant l'allocation systématique peuvent
+ne pas l'avoir — le menu `atelier` les signale (« sans subnet dédié »),
+recréer l'atelier pour en bénéficier. Si le compose de l'app n'utilise pas
+`APP_SUBNET` (apps legacy), le réseau atelier reçoit un subnet dynamique Docker
+(non contrôlé) — warning affiché à la création, migration template recommandée.
 
 ## Pilotage UI (HUB_base ≥ 3.38.0)
 
@@ -183,7 +188,7 @@ de `hubctl` :
   `deploy_service` : **une opération atelier à la fois** (garde-fou global, 409),
   suivi pas-à-pas en DB (table `workshop_operations`), purge de l'historique
   après 30 j, opérations en vol annulées au shutdown de l'API.
-- **Dualité UI/CLI** : `APPS/X/.workshop.env` (7 clés + `APP_SUBNET` conditionnelle) est le **contrat partagé**
+- **Dualité UI/CLI** : `APPS/X/.workshop.env` (8 clés dont `APP_SUBNET`) est le **contrat partagé**
   entre hubctl et `workshop_service` — figé par des contract tests des deux côtés.
 - **Garde-fous identiques à hubctl v0.6.1** : ship = `origin/main` uniquement
   (refusé si l'atelier teste autre chose), commit testé exigé, **atelier conservé**
@@ -217,7 +222,7 @@ le dépôt git »** dans la vue Santé (admin), ou `POST /api/apps/{slug}/git-co
 | Override atelier | `APPS/X/.workshop.env` (généré par `hubctl atelier`) |
 | Projet docker compose atelier | `X-ws` (via `-p X-ws`) |
 | Slug atelier | `{slug}-ws` |
-| Subnet atelier | 1er `/24` libre du pool `198.51.100.0/24`..`198.51.100.10/24` (clé `APP_SUBNET`, overlap-check) |
+| Subnet atelier | 1er `/24` libre du pool `198.51.100.0/24`..`198.51.100.10/24` (clé `APP_SUBNET`, overlap-check) ; fail-hard si pool épuisé ou docker injoignable |
 | Volume DB prod | `X-postgres-data` |
 | Volume DB atelier | `X-ws-postgres-data` |
 | Ports atelier | API `[10000-10499]`, frontend `[5200-5699]` |
@@ -234,7 +239,7 @@ le dépôt git »** dans la vue Santé (admin), ou `POST /api/apps/{slug}/git-co
 | `API_PORT` / `FRONTEND_PORT` / `FRONTEND_HTTPS_PORT` | ports atelier alloués dans les plages dédiées |
 | `HTTPS_ENABLED` | `true` — atelier = miroir prod (spec 2026-09-19) ; pilote l'ajout de `docker-compose.https.yml` aux `-f` du compose atelier (`_ws_compose_files`) |
 | `WS_REF` / `WS_COMMIT` | ref + commit du code testé (tracing du cycle `--maj`/`--prod`) ; `n/a` si `APPS/X` n'a pas de remote git |
-| `APP_SUBNET` | subnet `/24` dédié du réseau `-ws` (pool `10.210.x`) — écrite si un subnet libre est trouvé (repli subnet prod + warning si pool épuisé) ; recréer un atelier legacy pour l'obtenir |
+| `APP_SUBNET` | subnet `/24` dédié du réseau `-ws` (pool `10.210.x`) — toujours écrit ; pool épuisé ou docker injoignable → création refusée (fail-hard, parité voie UI). Ateliers legacy sans cette clé : signalés au menu, recréer |
 
 ### Commandes
 
