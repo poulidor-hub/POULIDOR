@@ -1,3 +1,16 @@
+## [0.72.12] - 12 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.71.1 (APPS_HOST_PATH dynamique)
+
+- **HUB_base 3.71.1** : `APPS_HOST_PATH` dynamique — `install.sh` détecte et
+  écrit le chemin réel de `APPS/` dans le `.env` généré (fin du chemin de
+  machine de dev `/home/kkleskk/...` en dur dans compose/config/.env.example).
+  Corrige le precheck « Écriture du dossier APPS » en fail (`PermissionError`)
+  sur serveur distant : la variable devient obligatoire dans le compose
+  (`${VAR:?}`), défaut backend neutre, tests de non-régression ajoutés.
+
+---
+
 ## [0.72.11] - 12 octobre 2026
 
 ### ⚡ Pointeur hubctl 0.10.6 + doc skill atelier (subnet fail-hard)
