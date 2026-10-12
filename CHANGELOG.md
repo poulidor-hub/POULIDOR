@@ -1,3 +1,30 @@
+## [0.72.16] - 13 octobre 2026
+
+### ⚡ Resynchronisation du guide développement template (template 2.30.1)
+
+- `docs/guide-developpement-template.md` aligné sur le template 2.30.1 /
+  Hub 3.71.4 (dernière passe de fond : 15/09, template ~2.21).
+- Corrections factuelles : TTL JWT 15 min → 8 h (`ACCESS_TOKEN_EXPIRE_MINUTES=480`,
+  2.28.2) ; HTTPS par défaut `true` (2.23.7/2.26.0) ; fil rouge « feature de A à Z »
+  réécrit — imports absolus, session par `Depends(get_db)` (l'ancien pattern
+  `async with get_db()` documenté était précisément le bug corrigé en
+  2.26.4→2.27.0), hooks TanStack signatures objet (`useApiQuery`/`useApiMutation`
+  séparés, updates optimistes), composant canonique CSS-first
+  (`PageHeader` → `hub-panel`, classes `hub-*` du seed HUBCSS 0.3.0) ;
+  contenu réel de `ACTIONS/` (fin du « 12 scripts x3 OS »).
+- Inventaires complétés : structure backend (`cert_sync`, `hub_transfert`,
+  `logging_config`, `pytest.ini`, `entrypoint.sh`, routes `hub_data`/`docs`/
+  `test_data`/`tests`) ; 27 fichiers de test + fixtures réelles
+  (`client`, `authenticated_client`, `admin_client`, `viewer_client`,
+  `m2m_client`, `asyncio_mode=auto`) ; Makefile (`help`, `test-seq`,
+  `lint-classes`, `verify-ui`, `sync-hub-host`, `sync-hub-tooling-check`,
+  `init` déprécié, `make test` xdist) ; `.env` (`LOG_LEVEL`,
+  `HUB_TIME_SYNC_INTERVAL`, `HUB_INSTANCE_ID`) ; 11 features template
+  2.22→2.30.1 ; annexes (nb de lignes à jour, ligne annuaire HUBCSS).
+- En-tête du guide : date de synchronisation + versions de référence.
+
+---
+
 ## [0.72.15] - 12 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.71.4 (téléchargements résilients)
