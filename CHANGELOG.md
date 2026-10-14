@@ -1,3 +1,18 @@
+## [0.72.17] - 14 octobre 2026
+
+### ⚡ Pointeurs HUBsocle 2.26.0 + template 2.30.2
+
+- **HUBsocle 2.26.0** : backport template — backup/restore en streaming
+  disque (fin du ZIP en RAM / OOM ~150 Mo), auto-réparation des volumes
+  root opt-in (gosu, `USER appuser` conservé par défaut), pin
+  SQLAlchemy `<2.1` (drift build). Motivation : migration exemple-app
+  1.7.0 (26 Go admissibles → backup RAM risqué au backup_all du coffre ;
+  volumes root sans réparation en mode strict). Suite socle : 254 passed.
+- **HUBapp_TEMPLATE_base 2.30.2** : fix `allocate_ports` repli localhost
+  (prérequis migration exemple-app).
+
+---
+
 ## [0.72.16] - 13 octobre 2026
 
 ### ⚡ Resynchronisation du guide développement template (template 2.30.1)
