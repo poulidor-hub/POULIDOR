@@ -24,6 +24,20 @@
 
 ---
 
+## [0.72.19] - 14 octobre 2026
+
+### ⚡ Pointeur template 2.31.0
+
+- **HUBapp_TEMPLATE_base 2.31.0** : `scripts/sync_socle_version.py` +
+  ligne `sync-env` — `APP_SOCLE_VERSION` suit automatiquement le socle
+  construit localement (apps fines sur image socle). Motivation :
+  déploiement serveur exemple-app (`.env` figé après 3 bumps
+  socle → "pull access denied"). No-op pour les apps inline ; source
+  copiée par INITIALISE v2 du socle (INFRA_DIRS). exemple-app
+  1.9.0 l'a déjà (backport manuel effectué).
+
+---
+
 ## [0.72.18] - 14 octobre 2026
 
 ### ⚡ Pointeur HUBsocle 2.27.0
