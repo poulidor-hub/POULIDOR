@@ -1,3 +1,29 @@
+## [0.72.19] - 14 octobre 2026
+
+### ⚡ Pointeur template 2.30.3 — cinq correctifs socle
+
+- **HUBapp_TEMPLATE_base 2.30.3** (255c465 → 92524c6) :
+  - **Migrations (bloquant fresh-install)** : `_strip_sql_comments` quote-aware
+    (lignes entières + fins de ligne, `--` dans chaîne préservé) et strip **avant**
+    le split — une apostrophe dans un commentaire (« Tables d'ingestion ») ouvrait
+    une chaîne fantôme dans `_split_sql_statements` : tous les `;` avalés, migration
+    fusionnée en 1 statement → asyncpg « cannot insert multiple commands » → jamais
+    appliquée (cas exports 003/006, HUB 003/006). +4 tests.
+  - **Shutdown** : `hub_client.close()` → `httpx.AsyncClient.aclose()` (httpx ≥ 0.28 :
+    `close()` n'existe plus, AttributeError au shutdown). +2 tests.
+  - **Tests** : mock ASGI `receive()` compatible Starlette ≥ 1.0 (`FileResponse`
+    attend `http.disconnect` pendant le stream ; le mock bouclait à 100 % CPU en
+    conteneur).
+  - **Tests** : conftest `async_engine` sur SQLite fichier temporaire (SQLAlchemy
+    2.1 : `:memory:`/StaticPool = connexion unique, IDs dupliqués en concurrence).
+  - **Tooling** : `make test-docker` exécute pytest en appuser (`exec --user 1000`,
+    fidèle à la prod) — root sans DAC_OVERRIDE ne pouvait pas créer le lock
+    `/app/storage/.hub_register.lock`.
+  - Vérifié : 272 passed hôte ; `make test-docker XDIST_WORKERS=4` → 268 passed /
+    4 skipped en conteneur.
+
+---
+
 ## [0.72.18] - 14 octobre 2026
 
 ### ⚡ Pointeur HUBsocle 2.27.0
