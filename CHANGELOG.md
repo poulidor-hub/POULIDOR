@@ -1,3 +1,17 @@
+## [0.72.18] - 14 octobre 2026
+
+### ⚡ Pointeur HUBsocle 2.27.0
+
+- **HUBsocle 2.27.0** : setting `BACKUP_INCLUDE_FILES` (défaut True,
+  inchangé) — `false` pour les apps stockage de fichiers : le backup ZIP
+  ne contient que la base (transferts, préférences, table uploaded_files
+  avec les chemins), pas les binaires. Motivation : exemple-app —
+  ses uploads SONT la donnée primaire (26 Go admissibles) ; ils restent
+  dans leur volume, le backup ne porte que les métadonnées.
+  Suite socle : 256 passed.
+
+---
+
 ## [0.72.17] - 14 octobre 2026
 
 ### ⚡ Pointeurs HUBsocle 2.26.0 + template 2.30.2
