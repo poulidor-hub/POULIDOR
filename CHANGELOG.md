@@ -1,3 +1,14 @@
+## [0.73.1] - 17 octobre 2026
+
+### ⚡ Docs vivantes — hubctl update ciblé (pointeur Hubctl 0.11.1)
+
+- **hubctl_src 0.11.1** (8538a08 → 1c49412) : README — sous-commande `update`
+  documentée avec sa cible obligatoire (`hub`, slug(s), `*`/`all`) ;
+  documentation seule, aucun changement de code.
+- Guide parc §3.2 : ligne `update` réécrite (cible obligatoire, cibles en
+  parallèle, rc = nombre d'échecs) ; présentation HTML : « mise à jour du
+  parc en une commande » → syntaxe ciblée `./hubctl update hub|<slug>|"*"`.
+
 ## [0.73.0] - 17 octobre 2026
 
 ### ⚡ Pointeur Hubctl 0.11.0 — `hubctl update` ciblé (rupture d'usage)
