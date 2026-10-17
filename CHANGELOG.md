@@ -1,3 +1,17 @@
+## [0.73.0] - 17 octobre 2026
+
+### ⚡ Pointeur Hubctl 0.11.0 — `hubctl update` ciblé (rupture d'usage)
+
+- **hubctl_src 0.11.0** (31a40e7 → 8538a08) :
+  - **Rupture** : `hubctl update` sans cible n'exécute plus rien (usage affiché,
+    code retour 1). La mise à jour globale devient `hubctl update "*"` (alias
+    `all`) — quoter le `*` pour éviter l'expansion du shell.
+  - Ciblage : `hub` (Hub seul), un ou plusieurs slugs d'app ; cible inconnue →
+    erreur listant les cibles valides ; code retour = nombre d'échecs.
+  - Menu TUI inchangé (« Mise à jour complète » = tout).
+- Docs parc alignées sur la nouvelle syntaxe (README, guide parc, guide hubctl
+  HTML, cheatsheet banc, skill app-workshop-mover, update-submodules.sh).
+
 ## [0.72.19] - 14 octobre 2026
 
 ### ⚡ Pointeur template 2.30.3 — cinq correctifs socle
