@@ -182,4 +182,4 @@ SELECT * FROM schema_migrations ORDER BY version DESC LIMIT 5;       -- migratio
 | Snapshots forward-only | Un snapshot créé par un Hub ≥ 3.59.0 ne se restaure que sur un Hub ≥ 3.59.0. |
 | Reset DB Hub | Casse les SA des apps → re-registration (§3). Le coffre (`vault status`) signalera des divergences — normal sur un banc. |
 | Dossier ≠ slug | Quelques apps ont un dossier `APPS/` différent de leur slug (résolu côté Hub, cf. 3.52.1) — `reset-app.sh` travaille sur `APPS/<slug>`, vérifie le nom réel. |
-| `update` vs banc | `./hubctl update` fait un `git pull` — sur un banc où tu bricoles des branches, préfère les commandes manuelles (§2). |
+| `update` vs banc | `./hubctl update "*"` fait un `git pull` sur tout le parc (cibler : `./hubctl update hub` ou `<slug>`) — sur un banc où tu bricoles des branches, préfère les commandes manuelles (§2). |

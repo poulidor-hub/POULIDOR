@@ -172,7 +172,7 @@ git pull --recurse-submodules
 git submodule update --init --recursive
 
 # 2. Rebuild + relance du Hub et des apps (build → up → health check)
-./hubctl update
+./hubctl update "*"   # tout (Hub + apps) — ou : ./hubctl update hub / <slug> pour cibler
 ```
 
 Alternative : relancer `sudo ./install.sh` — il resynchronise les submodules et
