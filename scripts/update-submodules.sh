@@ -2,7 +2,7 @@
 # =============================================================================
 # update-submodules.sh — aligne TOUS les sous-modules sur les pointeurs du méta.
 #
-# Filet de sécurité quand `./hubctl update` ne fonctionne pas (hub down, réseau,
+# Filet de sécurité quand `./hubctl update "*"` ne fonctionne pas (hub down, réseau,
 # cas particulier…) : refait manuellement le cœur de la mise à jour, soit
 #
 #     git submodule update --init --recursive
@@ -93,4 +93,4 @@ fi
 echo ""
 echo "✅ Sous-modules alignés sur les pointeurs du méta ($(git rev-parse --short HEAD))."
 echo "   Rappel : les apps (APPS/*) ne sont PAS des sous-modules — leurs mises à jour"
-echo "   passent par git (dans chaque app) ou ./hubctl update."
+echo "   passent par git (dans chaque app) ou ./hubctl update \"*\"."

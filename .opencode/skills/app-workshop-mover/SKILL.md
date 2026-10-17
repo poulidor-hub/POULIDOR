@@ -41,7 +41,7 @@ subnet diffèrent.
 
 **Ne PAS utiliser pour :**
 - Créer une nouvelle app → `scripts/create_app.sh` / skill `create-hub-app`
-- Déployer une MAJ code-only en prod (hors atelier) → `./hubctl update`
+- Déployer une MAJ code-only en prod (hors atelier) → `./hubctl update "*"` (tout le parc) ou `./hubctl update <slug>` (une app)
 - Redémarrer une app → `make restart` dans `APPS/X`
 
 ## État de l'implémentation (important)
