@@ -1,0 +1,25 @@
+# POULIDOR — Réactivation du VPN WireGuard au boot
+# Le conteneur hub-wireguard est volontairement en restart: "no" (côté
+# HUB_base) : son cycle de vie est géré par `hubctl vpn`. Cette unité joue
+# `hubctl vpn sync` à chaque boot — une fois hub-db prêt — pour réconcilier
+# l'état du conteneur avec vpn_enabled (DB) : démarré si true, laissé arrêté
+# si false. Détail et installation : scripts/hub-vpn-boot-sync.sh
+
+[Unit]
+Description=POULIDOR - Reactivation VPN WireGuard au boot (hubctl vpn sync)
+Documentation=file:///usr/local/sbin/hub-vpn-boot-sync.sh
+# hub-db (redémarré par Docker) doit être là → attendre le daemon ;
+# network-online pour que Docker et les réseaux soient opérationnels.
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Décommenter/adapter si le dépôt POULIDOR ne vit pas au chemin par défaut :
+#Environment=POULIDOR_DIR=/chemin/vers/POULIDOR
+ExecStart=/usr/local/sbin/hub-vpn-boot-sync.sh
+# Couvre l'attente hub-db (5 min max) + le sync lui-même.
+TimeoutStartSec=420
+
+[Install]
+WantedBy=multi-user.target
