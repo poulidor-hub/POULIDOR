@@ -1,3 +1,27 @@
+## [0.74.0] - 20 octobre 2026
+
+### ⚡ Réactivation automatique du VPN WireGuard au boot (unité hub-vpn-sync)
+
+- **Constat** : après une coupure/reboot de l'hôte, le conteneur
+  `hub-wireguard` restait `Exited (255)` — il est volontairement en
+  `restart: "no"` (cycle de vie géré par `hubctl vpn`) et le boot hook
+  interne à `hubctl start hub` ne joue jamais sur un reboot nu : le VPN
+  restait mort jusqu'à intervention manuelle (`hubctl vpn sync`).
+- **Ajouté** `scripts/hub-vpn-boot-sync.sh` : attend que hub-db soit prêt
+  (`pg_isready -U hubadmin`, 30 essais × 10 s — `vpn sync` abandonne sur
+  DB injoignable) puis lance `./hubctl vpn sync`, qui réconcilie l'état du
+  conteneur avec `vpn_enabled` (DB) : démarré si true, laissé arrêté si
+  false. Idempotent, exit 0 sans Hub installé.
+- **Ajouté** `scripts/systemd/hub-vpn-sync.service` (oneshot,
+  `After=docker.service network-online.target`, `TimeoutStartSec=420`) :
+  installation même procédure que `hub-vpn-firewall` — copie vers
+  `/usr/local/sbin/` + `/etc/systemd/system/`, puis
+  `systemctl daemon-reload && systemctl enable --now hub-vpn-sync`.
+- Le toggle VPN OFF reste respecté au boot (sync lit la DB) ; la
+  réconciliation d'intention via l'UI admin est inchangée.
+
+---
+
 ## [0.73.1] - 17 octobre 2026
 
 ### ⚡ Docs vivantes — hubctl update ciblé (pointeur Hubctl 0.11.1)
