@@ -1,3 +1,14 @@
+## [0.74.3] - 21 octobre 2026
+
+### ⚡ Pointeur composant — template 2.32.2
+
+- `HUBapp_TEMPLATE_base` → `25e8ea9` (**2.32.2**) : skill app
+  deploy-troubleshoot enrichi — diagnostic de l'échec de build
+  « additional privileges requested: pass --allow=network.host »
+  (buildx >= 0.37.2, GHSA-gwr2-q96m-6682) et remède APP_BUILD_NETWORK=default
+  (apps interpolant build.network, référence exemple-app >= 1.24.1) ;
+  sinon pin buildx 0.37.1 en attendant la release compose corrigée.
+
 ## [0.74.2] - 21 octobre 2026
 
 ### ⚡ Pointeurs composants — template 2.32.1 + HUBCSS 0.3.3
