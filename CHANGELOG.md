@@ -1,3 +1,17 @@
+## [0.74.1] - 21 octobre 2026
+
+### ⚡ Pointeurs composants — template 2.32.0 + HUBCSS 0.3.2
+
+- `HUBapp_TEMPLATE_base` → `d17bd21` (**2.32.0**) : vendor HUBCSS officiel
+  (`make update-ds`, sha256 vérifiés, manifest tracé) ; INITIALISE `--clean`
+  cohérent (accueil squelette sans API — fin des clics morts sur les apps
+  scaffoldées) ; `sync_socle_version` no-op sans `APP_SOCLE_VERSION` ;
+  `App.jsx` mort supprimé ; scripts embarqués dans l'image api ; revue de
+  branche intégrée (traversal refusé, manifest comparé au contenu).
+- `HUBCSS` → `46c25b1` (**0.3.2**) : HOW2USE — mode vendor canonique des apps
+  du parc (sync Hub = extension future) ; `manifest.json` régénéré (sha
+  périmés corrigés, build déterministe confirmé).
+
 ## [0.74.0] - 20 octobre 2026
 
 ### ⚡ Réactivation automatique du VPN WireGuard au boot (unité hub-vpn-sync)
