@@ -1,3 +1,17 @@
+## [0.74.2] - 21 octobre 2026
+
+### ⚡ Pointeurs composants — template 2.32.1 + HUBCSS 0.3.3
+
+- `HUBapp_TEMPLATE_base` → `e9948e0` (**2.32.1**) : `--clean` cohérent côté
+  tests (5 fichiers démo-dépendants retirés — `make test` d'une app scaffoldée
+  passe de 31 à 5 échecs, les 5 exigeant un Hub réel) ; migration
+  `items`/`test_data` déplacée en `010` avec `ALTER TABLE IF EXISTS` (fin du
+  warning « relation does not exist » au boot) ; revue 2.32.0 intégrée (F4
+  manifest non-objet actionnable, F5 docstring) ; seed manifest HUBCSS 0.3.3.
+- `HUBCSS` → `1d5bbf2` (**0.3.3**) : `npm audit` **0 vulnérabilités**
+  (source-map-js 1.2.2 — dev-deps uniquement, assets runtime inchangés) ;
+  `docs/LOCAL_ASSETS.md` aligné sur le mode vendor canonique.
+
 ## [0.74.1] - 21 octobre 2026
 
 ### ⚡ Pointeurs composants — template 2.32.0 + HUBCSS 0.3.2
