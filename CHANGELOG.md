@@ -1,3 +1,18 @@
+## [0.74.4] - 22 octobre 2026
+
+### ⚡ Pointeur composant — HUB_base 3.72.0
+
+- `HUB_base` → `e6c518a` (**3.72.0**) : nouvel endpoint M2M
+  `GET /api/users/m2m/list` (spec exemple-app §5.5) — listing users pour
+  Service Accounts (résolution user_id ↔ username pour l'affichage local des
+  apps, ex. exemple-app) ; réservé SA (403 pour token humain), non filtré
+  par app autorisée, users inactifs inclus (flag `is_active`). Tests TDD
+  (2 nouveaux, suite 1382 passed hôte + runtime Docker `pouly-test`).
+  Note : le pointeur est poussé alors que le WIP de la session parallèle
+  `feat/oidc-sso-login-redirect` est restauré non commité dans le checkout —
+  cette session re-bumpéra sa release en 3.73.0 (décision utilisateur,
+  merge sérialisé sous lock).
+
 ## [0.74.3] - 21 octobre 2026
 
 ### ⚡ Pointeur composant — template 2.32.2
