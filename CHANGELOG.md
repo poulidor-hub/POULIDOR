@@ -1,3 +1,21 @@
+## [0.74.5] - 22 octobre 2026
+
+### ⚡ Pointeur composant — HUB_base 3.73.0
+
+- `HUB_base` → `e05d9ac` (**3.73.0**) : **reads M2M admin** — nouveau flag
+  `service_accounts.can_admin_read` (défaut `false`, migration 060, deny par
+  défaut) et dépendance `get_admin_or_admin_sa` (user admin OU SA flaggé,
+  autorité DB, révocation à chaud) ; 12 routes GET admin-read ouvertes aux SA
+  autorisés (apps, users, audit, messages, backups) avec payloads identiques à
+  l'admin user et sémantique user préservée (`apps/`, `audit/logs`
+  entity-based) ; grant/revoke via `PUT /api/service-accounts/{id}` audités
+  (`sa_admin_read_granted`/`sa_admin_read_revoked`) ; au passage, correction
+  du 500 sur `PUT /api/service-accounts/{id}` (refresh scopé vs
+  `lazy="raise"`). Tests : 12 nouveaux (`test_m2m_admin_read_scope.py`),
+  suite 1393 passed / 0 failed, migration vérifiée sur PostgreSQL 16 jetable.
+
+---
+
 ## [0.74.4] - 22 octobre 2026
 
 ### ⚡ Pointeur composant — HUB_base 3.72.0
