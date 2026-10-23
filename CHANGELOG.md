@@ -1,3 +1,21 @@
+## [0.74.6] - 23 octobre 2026
+
+### ⚡ Pointeur composant — HUB_base 3.74.0
+
+- `HUB_base` → `23f5bfef26e3bba0bc24c932d5bef2c5faafdb54` (**3.74.0**) : **launch apps — refresh_token dédié
+  à la session de l'application**. `POST /api/auth/apps/{slug}/launch` crée
+  désormais un refresh token utilisateur (7 j, rotation, grâce 60 s) en plus
+  du JWT (`AppLaunchResponse.refresh_token`, optionnel) et le portail
+  (`dashboard.js` `openApp`) l'ajoute à l'URL de lancement. Les apps du
+  template le consomment déjà (`AuthContext` lit `?refresh_token=` puis purge
+  l'URL) : un 401 « Token expiré » se résout par rotation silencieuse via
+  `POST /api/auth/token/refresh`, sans relance depuis le portail. Flux SSO
+  legacy inchangés (pas de refresh token transmis). Tests TDD (2 nouveaux
+  `TestAppLaunch`), suite 1400 passed hôte / 1358 passed + 1 skipped Docker
+  `pouly-test` ; `INTEGRATION.md` § launch à jour.
+
+---
+
 ## [0.74.5] - 22 octobre 2026
 
 ### ⚡ Pointeur composant — HUB_base 3.73.0
