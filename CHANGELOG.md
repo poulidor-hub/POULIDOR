@@ -1,3 +1,20 @@
+## [0.74.7] - 23 octobre 2026
+
+### ⚡ Pointeur composant — HUB_base 3.74.1
+
+- `HUB_base` → `8275345f70d2270106a18dab3a80f8102dccda5b` (**3.74.1**) : **make test-docker réparé** —
+  l'environnement du conteneur de test est surchargé à `APPS_HOST_PATH=/data/apps`
+  (le `.env` prod, qui pointe le vrai `APPS/`, polluait 3 tests dont la
+  non-régression du défaut `apps_host_path` ; le reset par clé `!reset` est
+  ignoré par compose v5) et le build de test est redéclaré sans
+  `network: host` (compose v5 ne transmet pas l'entitlement buildkit
+  `network.host` à `up --build`). Preuve : `make test-docker` complet vert
+  (1358 passed, 1 skipped) avec le `.env` prod en place. Hygiène CHANGELOG :
+  purge de la table placeholder orpheline du bump 3.72.0 OIDC et rejet du
+  hunk non commité `[3.72.0] - 17 octobre` (doublon de l'entrée commitée).
+
+---
+
 ## [0.74.6] - 23 octobre 2026
 
 ### ⚡ Pointeur composant — HUB_base 3.74.0
