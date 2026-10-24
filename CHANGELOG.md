@@ -1,3 +1,19 @@
+## [0.74.8] - 24 octobre 2026
+
+### ⚡ Pointeur composant — HUB_base 3.74.2
+
+- `HUB_base` → `bfefa04ed777282184cf428503f77a153a8b8565` (**3.74.2**) : **build compose v5
+  réparé à la source** — `network: host` retiré des sections `build:` de
+  `docker-compose.yml` (hub-api, hub-frontend) : compose v5.6.1 + buildx 0.38.1 ne
+  transmettent plus l'entitlement buildkit `network.host`, `make build` /
+  `up --build` échouaient (« additional privileges requested »). Le `build: !override`
+  de contournement dans `docker-compose.test.yml` (3.74.1) est supprimé (il masquait
+  tout futur build arg du compose principal). Preuve : builds rouges reproduits puis
+  verts sur les 4 images (hub-api, hub-frontend, et le même fix sur exemple-app
+  1.14.5), fusion `docker-compose.test.yml` validée.
+
+---
+
 ## [0.74.7] - 23 octobre 2026
 
 ### ⚡ Pointeur composant — HUB_base 3.74.1
