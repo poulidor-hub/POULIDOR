@@ -1,3 +1,25 @@
+## [0.74.9] - 26 octobre 2026
+
+### ⚡ Pointeur composant — HUB_base 3.74.3 (+ purge de l'historique)
+
+- `HUB_base` → `43035b1ab149287aa1fe12f8acd0740e317ea11f` (**3.74.3**) : **durcissements P0
+  de l'audit de sécurité d'octobre 2026** — `/api/admin/restore` réservé aux admins et au
+  SA système interne (B-1 : un SA applicatif pouvait créer un compte admin ou écraser le
+  mot de passe admin) ; `backup_id` validé avant toute écriture disque, fin du path
+  traversal (B-2) ; `redirect_to` du login limité aux chemins relatifs même-origine, fin
+  de l'open redirect avec access_token en query (B-3) ; `is_shared=true` n'auto-approuve
+  plus une app pending (B-6/#6). 15 nouveaux tests (`test_audit_p0_hardening.py`),
+  suite complète verte (1415 tests).
+- **Purge de l'historique Git de HUB_base** : `.env` initial (mots de passe en clair),
+  `secrets/service_accounts/hub_backup.json` (clé privée JWT, comptes) et 3 snapshots
+  chiffrés retirés de **tout** l'historique (`git filter-repo`), force-push coordonné sur
+  `origin` (POULIDOR-Audit-Developpement/HUB_base) et `Poutchouli` (Poutchouli/HUB).
+  Les rotations de secrets avaient déjà été faites (clé JWT actuelle ≠ clé historique).
+  ⚠️ Tout clone local de HUB_base doit être re-cloné ou réaligné sur `origin/main` ;
+  les anciens SHA peuvent rester visibles dans les caches GitHub quelques temps.
+
+---
+
 ## [0.74.8] - 24 octobre 2026
 
 ### ⚡ Pointeur composant — HUB_base 3.74.2
