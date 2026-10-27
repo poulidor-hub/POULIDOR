@@ -1,3 +1,17 @@
+## [0.74.11] - 27 octobre 2026
+
+### ⚡ Pointeur composant — hubctl 0.12.1
+
+- `hubctl_src` → `e0b9ae0` (**0.12.1**) : findings de la revue finale de
+  l'unification des mises à jour — le rollback ne fait plus de `reset --hard`
+  sur un méta portant des modifications tolérées (C1), diagnostic fail-closed
+  si le fetch échoue (I2), pré-check app avant tout stop/pull (I3), mode
+  d'`update` explicite défaut prod (I4), autres submodules dérivés bloquants
+  (I5), `doctor --fix` répare le méta détaché (I6), détection des branches
+  mergées (I1). +8 tests.
+
+---
+
 ## [0.74.10] - 27 octobre 2026
 
 ### ⚡ Unification des mises à jour — hubctl 0.12.0, hub.sh délègue
