@@ -1,3 +1,25 @@
+## [0.74.10] - 27 octobre 2026
+
+### ⚡ Unification des mises à jour — hubctl 0.12.0, hub.sh délègue
+
+- `hubctl_src` → `056aa6fe009195d4096861651cceef82063a1e77` (**0.12.0**) :
+  **`update hub` passe par le méta** (pré-checks anti-divergence avec remède,
+  `git pull --ff-only` + `submodule update`, rollback étendu pointeur
+  méta + submodule + snapshot DB) ; nouveau `hubctl doctor [--fix] [--yes]`
+  (diagnostic clones, réalignements sûrs) ; mode dev respecté par `update`
+  (`make up-dev`) ; `update all` : Hub bloquant en premier. +20 tests.
+- **`hub.sh update` ne fait plus de git** : délégation pure à
+  `hubctl update hub` (méta = source de vérité, cohérent avec
+  release-on-main). `update-hub.sh` déprécié (warning), suppression
+  planifiée.
+- **Nouvelle doc** : `docs/ops/mise-a-jour.md` — la routine officielle par
+  serveur (`hubctl doctor` → `update hub` → `update all`), les rôles
+  hub.sh/hubctl, les interdits (jamais de push depuis un clone divergent,
+  jamais de `git pull` manuel dans un sous-module), le cas « historique
+  réécrit ».
+
+---
+
 ## [0.74.9] - 26 octobre 2026
 
 ### ⚡ Pointeur composant — HUB_base 3.74.3 (+ purge de l'historique)
