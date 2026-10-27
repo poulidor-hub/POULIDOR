@@ -3,7 +3,8 @@
 # hub.sh — Exploitation du HUB depuis la racine POULIDOR (sans aller dans HUB_base)
 #
 # Sous-commandes :
-#   update   [--dev] [--dry-run]  git pull --ff-only + submodules + build + up
+#   update   [--dev] [--dry-run]  délègue à `hubctl update hub` (méta = source
+#                                 de vérité, pré-checks, rollback)
 #   start    [--dev] [--dry-run]  démarre le stack (up -d, sans build)
 #   stop     [--dev] [--dry-run]  arrête le stack (down — JAMAIS -v : volumes préservés)
 #   restart  [--dev] [--dry-run]  redémarre les conteneurs (compose restart)
@@ -12,6 +13,8 @@
 #   status   [--dev]              état des conteneurs + health + version API
 #
 # `update-hub.sh` est un alias rétrocompatible de `hub.sh update`.
+# À noter : la mise à jour elle-même vit dans hubctl (`hubctl update hub`) ;
+# hub.sh est la porte d'entrée exploitation (start/stop/logs/status/…).
 #
 # ⚠️ stop/down ne passe JAMAIS -v : détruire les volumes (hub-db etc.)
 #    détruirait les données. C'est une règle d'or du parc.
@@ -42,7 +45,8 @@ hub.sh — Exploitation du HUB depuis la racine POULIDOR
 Usage : ./hub.sh <commande> [--dev] [--dry-run]
 
 Commandes :
-  update   [--dev] [--dry-run]  git pull --ff-only + submodules + make build + up
+  update   [--dev] [--dry-run]  délègue à `hubctl update hub` (méta = source
+                                de vérité, pré-checks, rollback)
   start    [--dev] [--dry-run]  démarre le stack (up -d, sans build)
   stop     [--dev] [--dry-run]  arrête le stack (down — les volumes sont préservés)
   restart  [--dev] [--dry-run]  redémarre les conteneurs (compose restart)
@@ -135,21 +139,15 @@ cd "$HUB"
 case "$CMD" in
     # ── update : pull + submodules + build + up ───────────────────────────
     update)
+        # Plan unification updates : la mise à jour vit dans hubctl
+        # (méta = source de vérité, pré-checks anti-divergence, rollback
+        # étendu méta+submodule). hub.sh ne fait plus de git lui-même.
         OLD_VERSION="$(cat "$HUB/VERSION" 2>/dev/null || echo 'n/a')"
         echo "🚀 Mise à jour du HUB (mode $MODE) — version actuelle : $OLD_VERSION"
-        run git -C "$ROOT" pull --ff-only
-        run git -C "$ROOT" submodule update --init --recursive
-        NEW_VERSION="$(cat "$HUB/VERSION" 2>/dev/null || echo 'n/a')"
-        if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
-            info "HUB_base déjà à jour (v$NEW_VERSION) — rebuild/déploiement quand même."
-        else
-            ok "HUB_base mis à jour : $OLD_VERSION → $NEW_VERSION"
-        fi
-        run make build
-        # shellcheck disable=SC2086
-        run docker compose $COMPOSE up -d
-        [ "$DRY_RUN" = "1" ] && { ok "Dry-run terminé — aucune commande exécutée."; exit 0; }
-        wait_health 1
+        HUBCTL_ARGS=()
+        [ "$DRY_RUN" = "1" ] && HUBCTL_ARGS+=(--dry-run)
+        [ "$MODE" = "dev" ] && HUBCTL_ARGS+=(--dev)
+        exec "$ROOT/hubctl" "${HUBCTL_ARGS[@]}" update hub
         ;;
 
     # ── start / stop / restart / rebuild ─────────────────────────────────
