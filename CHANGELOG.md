@@ -1,3 +1,16 @@
+## [0.74.13] - 27 octobre 2026
+
+### ⚡ Pointeur composant — hubctl 0.13.0 + doc skill app-workshop-mover
+
+- `hubctl_src` → `a389b82` (**0.13.0**) : nouvelle commande
+  `./hubctl atelier --fermer-tous [--oui]` — fermeture en masse des ateliers
+  actifs (récapitulatif `WS_REF @ WS_COMMIT`, confirmation globale unique,
+  `_remove_workshop` par app via la seule voie légitime du `down -v` ;
+  rc 0 = ok / 1 = échecs partiels / 2 = refus sans `--oui` en non-interactif ;
+  `--dry-run` supporté ; +16 tests). La prod n'est jamais touchée.
+- Skill `app-workshop-mover` : commande documentée (overview, When to Use,
+  tableau d'implémentation, bloc commandes).
+
 ## [0.74.12] - 27 octobre 2026
 
 ### ⚡ Pointeur submodule HUBapp_TEMPLATE_base 2.33.2
