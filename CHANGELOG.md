@@ -1,3 +1,13 @@
+## [0.74.14] - 27 octobre 2026
+
+### ⚡ Pointeur composant — hubctl 0.13.1 + doc skill à jour
+
+- `hubctl_src` → `82b3112` (**0.13.1**) : les options de fermeture en masse des
+  ateliers sont renommées en anglais — `./hubctl atelier --close-all [--yes]`
+  (ex `--fermer-tous`/`--oui`, introduites puis renommées le jour même).
+  Comportement et codes retour inchangés.
+- Skill `app-workshop-mover` : syntaxe documentée mise à jour (`--close-all`/`--yes`).
+
 ## [0.74.13] - 27 octobre 2026
 
 ### ⚡ Pointeur composant — hubctl 0.13.0 + doc skill app-workshop-mover
