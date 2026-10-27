@@ -1,3 +1,12 @@
+## [0.75.0] - 27 octobre 2026
+
+### ✨ Ateliers pilotables par l'agent exemple-app + bouton admin Hub
+
+- **Pointeur hubctl 0.14.0** : `hubctl atelier serve` — mini-serveur HTTP localhost (list/close-all authentifiés, unit systemd durcie) — la fermeture d'atelier devient scriptable et appelable par le Hub
+- **Pointeur HUB_base 3.75.0** : `GET/POST /api/admin/atelier` (liste native socket :ro + proxy close-all 600 s, 503 verbalisable) + section admin **« Ateliers »** (tableau, fermeture globale confirmée)
+- **Pointeur hub-mcp 0.15.0** : tools `hub_atelier_list` (read) + `hub_atelier_close_all` (irreversible côté apps) — catalogue 65 outils
+- Conso : exemple-app 0.21.0 (registre 46 exposés, prompt v10) suit ; spec/plan : `docs/specs/2026-10-27-atelier-agent-design.md` + `docs/plans/2026-10-27-atelier-agent.md`
+
 ## [0.74.14] - 27 octobre 2026
 
 ### ⚡ Pointeur composant — hubctl 0.13.1 + doc skill à jour
