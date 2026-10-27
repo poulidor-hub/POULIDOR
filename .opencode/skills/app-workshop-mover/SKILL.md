@@ -23,10 +23,10 @@ tourne avec un clone de sa DB.
   validé en atelier, puis supprime l'atelier.
 - **[×] Supprimer l'atelier** : re-`./hubctl atelier X` (menu 4 choix) → choix 3 —
   `docker compose -p X-ws down -v` + suppression de `.workshop.env`.
-- **[××] Fermer TOUS les ateliers** : `./hubctl atelier --fermer-tous [--oui]` —
+- **[××] Fermer TOUS les ateliers** : `./hubctl atelier --close-all [--yes]` —
   récapitulatif des ateliers actifs, confirmation globale unique, puis suppression
   de chacun via `_remove_workshop` (rc 0 = ok, 1 = échecs partiels, 2 = refus sans
-  `--oui` en non-interactif).
+  `--yes` en non-interactif).
 
 **Règle d'or** : la prod `APPS/X` n'est jamais supprimée, et sa DB
 (`X-postgres-data`) jamais touchée. Le code de l'atelier vit dans le même dossier
@@ -41,7 +41,7 @@ subnet diffèrent.
 - "Teste la montée en version d'exemple-app-2" → `./hubctl atelier exemple-app-2 --maj`
 - "Déploie exemple-app-2 en prod après validation atelier" → `./hubctl atelier exemple-app-2 --prod`
 - "Supprime l'atelier d'exemple-app-2" → re-`./hubctl atelier exemple-app-2` puis choix 3
-- "Ferme tous les ateliers, je veux une base propre" → `./hubctl atelier --fermer-tous` (+ `--oui` pour scripter)
+- "Ferme tous les ateliers, je veux une base propre" → `./hubctl atelier --close-all` (+ `--yes` pour scripter)
 - Implémenter des évolutions du cycle atelier dans `hubctl` (`actions.py`)
 
 **Ne PAS utiliser pour :**
@@ -57,7 +57,7 @@ subnet diffèrent.
 | MAJ de l'atelier (test montée de version) | ✅ Implémenté | `./hubctl atelier X --maj [--ref R]` |
 | Déploiement atelier → prod (`ship`) | ✅ Implémenté | `./hubctl atelier X --prod` |
 | Supprimer l'atelier | ✅ Implémenté (menu) | `./hubctl atelier X` → choix 3 |
-| Fermer tous les ateliers | ✅ Implémenté (hubctl ≥ 0.13.0) | `./hubctl atelier --fermer-tous [--oui]` |
+| Fermer tous les ateliers | ✅ Implémenté (hubctl ≥ 0.13.1) | `./hubctl atelier --close-all [--yes]` |
 | Pilotage UI vue santé | ✅ Implémenté | vue Santé (admin) ou API `/api/apps/{slug}/workshop*` |
 | Copie DB atelier → prod (`--copy-db`) | ❌ Non implémenté (non voulu) | — |
 | Multi-slug (`work X,Y,Z`) | ❌ Non implémenté | un seul slug à la fois |
@@ -254,8 +254,8 @@ le dépôt git »** dans la vue Santé (admin), ou `POST /api/apps/{slug}/git-co
                                     # menu 4 choix si présent : maj / prod / supprimer / annuler
 ./hubctl atelier X --maj [--ref R]  # MAJ atelier : git fetch + checkout origin/main (ou R) + rebuild -ws
 ./hubctl atelier X --prod           # déployer origin/main validé en prod + supprimer l'atelier
-./hubctl atelier --fermer-tous      # fermer TOUS les ateliers actifs (confirmation globale O/N)
-./hubctl atelier --fermer-tous --oui # idem, sans confirmation (scriptable ; rc 1 = échecs partiels)
+./hubctl atelier --close-all      # fermer TOUS les ateliers actifs (confirmation globale O/N)
+./hubctl atelier --close-all --yes # idem, sans confirmation (scriptable ; rc 1 = échecs partiels)
 ./hubctl --dry-run atelier X --maj  # simuler — --dry-run est GLOBAL (avant le subcommand)
 ```
 
