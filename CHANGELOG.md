@@ -1,3 +1,10 @@
+## [0.74.12] - 27 octobre 2026
+
+### ⚡ Pointeur submodule HUBapp_TEMPLATE_base 2.33.2
+
+- **Template 2.33.2** : resync artefact `hub_mcp/` sur hub-mcp v0.4.2 (77 → 63 outils — fix `hub_backup_trigger` 404 hérité par les apps scaffoldées, incident exemple-app du 25/10) + `sync-hub-tooling` à chemins robustes (APPS/<slug> et worktrees — l'unique voie de mise à jour du catalogue était cassée en silence), `hub.ts` template protégé de la copie méta-repo en retard
+- **exemple-app v0.20.1** (app hors submodule, poussée séparément) : même correctif + registre IA adapté (44 exposés, read 26 / write 15 / irreversible 3) + prompt v9.1 — validé E2E : `hub_backup_trigger` exemple-app → 202 puis backup success
+
 ## [0.74.11] - 27 octobre 2026
 
 ### ⚡ Pointeur composant — hubctl 0.12.1
