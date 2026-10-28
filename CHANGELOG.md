@@ -1,3 +1,10 @@
+## [0.75.3] - 28 octobre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base 2.33.3 — conseil de recréation make up
+
+- **HUBapp_TEMPLATE_base 2.33.3** : le conseil de recréation de `sync_hub_host.py` recommandait `docker compose up -d --force-recreate` — un compose brut recrée les conteneurs sans l'overlay HTTPS de l'app (incident exemple-app 27-28/10/2026 : port 4231 perdu). Conseil aligné sur `make up` / ACTION UPDATE ; propagation aux 6 apps instanciées par patch ciblé (releases APPS du jour)
+- Les pointeurs HUB_base / HUBsocle / hub-mcp / hubctl_src restent volontairement non commités (travail d'autres sessions)
+
 ## [0.75.2] - 28 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.75.3 — badge « apps en attente » explicable et actionnable
