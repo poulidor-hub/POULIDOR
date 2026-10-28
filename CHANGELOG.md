@@ -1,3 +1,16 @@
+## [0.75.2] - 28 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.75.3 — badge « apps en attente » explicable et actionnable
+
+- **HUB_base 3.75.3** : badge de l'onglet Applications admin — compteur fantôme corrigé.
+  Cause : un atelier enregistré avant son app de base (dérivation de slug divergente,
+  ex. `exemple-app-ws` vs `exemple-app`) reste `pending` à vie et gonfle le badge sans
+  jamais être visible (liste d'approbation retirée de l'HTML, ateliers masqués par défaut).
+  Fix : badge cliquable → filtre « En attente » + ateliers visibles ; sémantique unifiée
+  `updatePendingAppsBadge` (pending uniquement, plus de divergence SSE vs tableau) ;
+  purge `loadPendingApps()` (code mort) ; bouton Supprimer sur les lignes pending
+  (cascade audité déjà en place) pour nettoyer les fiches d'ateliers fantômes.
+
 ## [0.75.1] - 28 octobre 2026
 
 ### ⚡ Pointeur HUB_base 3.75.1 + spec ateliers amendée (retours E2E)
