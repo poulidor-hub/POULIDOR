@@ -1,4 +1,12 @@
-## [0.75.3] - 28 octobre 2026
+## [0.75.4] - 28 octobre 2026
+
+### ⚡ Pointeurs composants + spec ui-update-make-pull
+
+- **Pointeur HUB_base 3.76.0** : bouton « ⬆ Mettre à jour » dans la vue santé apps (pipeline deploy existant : pull `--ff-only` + `.env` + `make build` + `make up` + health ; polling 2 s plafonné 600 s en tête de tick, garde `current.id`, 409 sans re-precheck, 422 via `/deploy/precheck` avec checks `fail` listés) — revue fraîche : 3 Important fixés (I-1 polling infini, I-2 422 muet, I-3 latence 409), harnais 26/26
+- **Pointeur HUBapp_TEMPLATE_base 2.34.0** : cible `make pull` standard (stash auto → `--ff-only` → stash pop, fail-clean) + README ; propagation aux apps via migrate-app-template
+- **Docs** : spec `docs/superpowers/specs/2026-10-28-ui-update-make-pull-design.md` + plan `docs/superpowers/plans/2026-10-28-ui-update-make-pull.md` (brainstorming architecturale, approches 1+3)
+
+---## [0.75.3] - 28 octobre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.33.3 — conseil de recréation make up
 
