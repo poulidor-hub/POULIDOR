@@ -1,3 +1,10 @@
+## [0.77.1] - 28 octobre 2026
+
+### 📚 Docs — notice opérationnelle du coffre
+
+- **Notice** `docs/notice-coffre-hubctl.md` : à quoi sert le coffre, architecture du pont UI → service hôte → coffre, installation du service `hubctl-atelier` (auto / `./hubctl init` / manuel), usage du workspace Admin → Sauvegardes → Coffre, périmètre CLI-only (restore/import/export/passphrase), modèle de sécurité, tableau de dépannage, références fichiers
+
+---
 ## [0.77.0] - 28 octobre 2026
 
 ### ⚡ Service hôte hubctl-atelier automatique + pointeurs composants
