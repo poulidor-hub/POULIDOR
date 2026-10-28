@@ -1,3 +1,12 @@
+## [0.76.0] - 28 octobre 2026
+
+### ⚡ Coffre hubctl pilotable depuis l'UI + pointeurs composants
+
+- **Pointeur hubctl 0.15.0** : routes vault du mini-serveur atelier (`GET /vault/status`, `POST /vault/backup` — appel direct `VaultManager`, lock + 409, garde 110 s, auth `X-Atelier-Token`) + unit systemd `ReadWritePaths` sur le coffre + docs routes (README, aide CLI)
+- **Pointeur HUB_base 3.77.0** : router `/api/admin/vault` (admin-only, proxy service hôte, audit `VAULT_BACKUP`, timeout `vault_backup_timeout` 120 s) + workspace « Coffre » dans Admin → Sauvegardes (état, divergences cliquables, répartition du contenu, sauvegarde avec confirmation + spinner, dégradations service hôte down / coffre verrouillé) — restauration, import et passphrase restent en CLI
+- **Docs** : spec `docs/superpowers/specs/2026-10-28-coffre-web-ui-design.md` + plan `docs/superpowers/plans/2026-10-28-coffre-web.md`
+
+---
 ## [0.75.4] - 28 octobre 2026
 
 ### ⚡ Pointeurs composants + spec ui-update-make-pull
