@@ -1,3 +1,12 @@
+## [0.77.0] - 28 octobre 2026
+
+### ⚡ Service hôte hubctl-atelier automatique + pointeurs composants
+
+- **Pointeur hubctl 0.16.0** : étape `_ensure_atelier_service` au `./hubctl init` — token atelier auto-généré (jamais écrasé ; `O_EXCL` 0600 ; fichier vide → régénéré), copie vers `HUB_base/secrets/` si absente, install/activation systemd si TTY (sudo interactif) sinon rappel des commandes — idempotent, jamais fatal
+- **install.sh Phase 3c** : unit `hubctl-atelier` copiée dans `/etc/systemd/system/` + `daemon-reload` + `enable --now` automatiques (idempotent : réinstalle et redémarre si le gabarit évolue) — le service est désormais en place dès l'installation du hub
+- **Pointeur HUB_base 3.77.1** : fix wave pilotage coffre — timeout backup frontend 130 s (opérations ~110 s), 409/500 du service réencapsulés en `detail` (toast « backup déjà en cours » restauré), GET /status vérifie le code HTTP (502 au lieu d'un faux état sain), échec PRA visible + refresh après échec
+
+---
 ## [0.76.0] - 28 octobre 2026
 
 ### ⚡ Coffre hubctl pilotable depuis l'UI + pointeurs composants
