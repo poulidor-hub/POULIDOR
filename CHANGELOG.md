@@ -1,3 +1,11 @@
+## [0.75.1] - 28 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.75.1 + spec ateliers amendée (retours E2E)
+
+- **HUB_base 3.75.1** : 503 dédiés sur close-all — token manquant/illisible (message de resync) et timeout `down -v` (> 600 s : « fermeture toujours en cours », distinct du « service injoignable »)
+- **Spec ateliers amendée (réalité recette)** : bind `--host 172.17.0.1` assumé (joignabilité hub-api, invisible LAN ; nftables en itération 2), 207 fait foi (pas de 500), token manuel documenté, divergence `containers_state` documentée (renommage `containers_map` en itération 2)
+- E2E réelle validée bout en bout : liste verbale, barrière irreversible, confirmation admin → close-all réel (`closed: [exemple-app, exemple-app]`, zéro résidu)
+
 ## [0.75.0] - 27 octobre 2026
 
 ### ✨ Ateliers pilotables par l'agent exemple-app + bouton admin Hub
