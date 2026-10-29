@@ -6,6 +6,19 @@
 - Test VM : install neuf → pra-restore → **users=7, applications=19, SA=23 restaurés, hub healthy 3.77.1, RC 0 honnête** ; un échec volontairement provoqué sort désormais rc ≠ 0 avec message clair
 
 ---
+## [0.77.3] - 29 octobre 2026
+
+### ⚡ Pointeur HUB_base 3.77.2 → 3.77.4 — snapshots streaming (anti-OOM)
+
+- **HUB_base 3.77.2** : fix OOM kill du container hub-api (memcg 2 Go) pendant
+  l'assemblage des snapshots — pipeline zstd / AES-GCM / sha256 passé en
+  streaming (payload multi-Go jamais entier en RAM), assemble/encrypt/checksum
+  hors event loop. Cause de l'incident du 29/10 17:52 : snapshot 26 apps
+  (4,4 Go) → OOM kernel → redémarrage Hub → snapshot « interrompu ».
+- **HUB_base 3.77.3 / 3.77.4** : gate `make test-docker` — gabarit mémoire du
+  test de streaming compatible xdist 2 Go, `respx` ajouté aux requirements de
+  l'image, `asyncio_default_fixture_loop_scope` posé (pytest 9.2 drift).
+
 ## [0.77.1] - 28 octobre 2026
 
 ### 📚 Docs — notice opérationnelle du coffre
