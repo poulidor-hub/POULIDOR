@@ -1,3 +1,11 @@
+## [0.77.2] - 29 octobre 2026
+
+### ⚡ Pointeur hubctl 0.16.1 — pra-restore fiabilisé (validé sur VM Lab)
+
+- **Pointeur hubctl 0.16.1** : fixes du pipeline `pra-restore` trouvés et validés par un test PRA réel sur VM Lab (restauration complète du kit sur serveur neuf) — ligne `hub_snapshots` insérée et vérifiée (checks psql en tuples-only : le faux « déjà présente » sur table vide est mort), échecs de restauration côté hub-api détectés (re-scan post-healthy, rc ≠ 0 au lieu d'un « PRA terminé. » mensonger), voie scriptable documentée (`--apps all` + `ADMIN_PASSWORD`)
+- Test VM : install neuf → pra-restore → **users=7, applications=19, SA=23 restaurés, hub healthy 3.77.1, RC 0 honnête** ; un échec volontairement provoqué sort désormais rc ≠ 0 avec message clair
+
+---
 ## [0.77.1] - 28 octobre 2026
 
 ### 📚 Docs — notice opérationnelle du coffre
