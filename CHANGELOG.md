@@ -1,3 +1,10 @@
+## [0.77.7] - 30 octobre 2026
+
+### ⚡ Pointeur HUBsocle 2.28.0 → 2.29.0 — upstream extensions téléphonie + exemple-app
+
+- **Pointeur HUBsocle 2.29.0** (pré-requis vague B8-1) : restore clear_existing FK-safe (ordre topologique inverse + savepoint par DELETE — bugs 06/09 et 24/10), `require_role_or_service` + claim JWT `roles`, `hub_client.resolve_service_slug` (slugs suffixés lab), credentials M2M depuis l'env. Suite 323 → 342 tests. Banc HFT vert (1.9.3 sur socle 2.29.0, 295 tests).
+
+---
 ## [0.77.6] - 30 octobre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.34.0 → 2.35.0 — le template devient app fine (fin de la duplication à la source)
