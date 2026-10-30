@@ -1,3 +1,11 @@
+## [0.77.4] - 30 octobre 2026
+
+### ⚡ Pointeur HUBsocle 2.27.0 → 2.28.0 — absorption des durcissements template (phase A conversion app fine)
+
+- **Pointeur HUBsocle 2.28.0** : le socle absorbe 8 durcissements du template en un seul exemplaire — auth JWKS async-safe (cache kid:PEM, fetch hors loop, retry unique, `require_role` fail-closed), migrations strictes (splitter apostrophes/chaînes, échec partiel = non marquée), storage confiné (anti-traversée get/delete), outbox crash-safe (claims expirés repris 600 s, SKIP LOCKED), hub_client version-aware (ré-enregistrement si version changée), backup download FileResponse (fin du ZIP en RAM), allowlist IA `m2m_share` câblée au catalogue (défaut fermé), entrypoint `/app/DATA`, pydantic v2
+- Suite socle 256 → **323 tests** ; revue de branche indépendante (verdict MERGE après fix, I-2 câblage corrigé) ; banc de qualification exemple-app en cours (pin `APP_SOCLE_VERSION=2.28.0`)
+
+---
 ## [0.77.2] - 29 octobre 2026
 
 ### ⚡ Pointeur hubctl 0.16.1 — pra-restore fiabilisé (validé sur VM Lab)
