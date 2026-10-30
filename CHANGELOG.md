@@ -1,3 +1,11 @@
+## [0.77.6] - 30 octobre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base 2.34.0 → 2.35.0 — le template devient app fine (fin de la duplication à la source)
+
+- **Pointeur template 2.35.0** : conversion app fine sur HUBsocle 2.28 — `Dockerfile.backend` `FROM poulidor/socle-api`, `main.py` = `create_app()`, −16 540 lignes (+365), frontend sur `@poulidor/hub-socle`, conftest hermétique + canari 7 tests. Toute app créée depuis ce template naît synchronisée au socle (`APP_SOCLE_VERSION`, alignée par `make sync-env`). Smoke create_app validé : app neuve boot du premier coup (ports Hub, health OK).
+- Suite template 27 tests (le reste vit au socle : 323). Prochaine étape : migration par vagues des apps existantes (exemple-app, exemple-app, exports).
+
+---
 ## [0.77.5] - 30 octobre 2026
 
 ### ⚡ Pointeur HUBsocle 2.28.0 (+1) — dérivés VERSION oubliés au bump
