@@ -1,3 +1,10 @@
+## [0.77.5] - 30 octobre 2026
+
+### ⚡ Pointeur HUBsocle 2.28.0 (+1) — dérivés VERSION oubliés au bump
+
+- **Correctif release** : `__version.py` et `frontend/package.json` du socle restaient à 2.27.0 après le bump 2.28.0 (dérivés `sync_version.py` non relancés — incident-type `ff7ec5a`) → l'image `poulidor/socle-api:2.28.0` initiale embarquait le paquet 2.27.0. Rebuild `--force` sur la base corrigée ; banc HFT relancé.
+
+---
 ## [0.77.4] - 30 octobre 2026
 
 ### ⚡ Pointeur HUBsocle 2.27.0 → 2.28.0 — absorption des durcissements template (phase A conversion app fine)
