@@ -1,3 +1,18 @@
+## [0.78.1] - 30 octobre 2026
+
+### ⚡ App canari `canary-socle` — validation du socle en conditions réelles
+
+- **Spec + plans** : `docs/superpowers/specs/2026-10-30-canary-socle-validation-design.md`
+  (+ 2 plans) — l'app canari de validation du socle est créée et verte.
+- **Pointeur HUBsocle 2.29.1** (docs-only : référence app fine mise à jour —
+  le canari existe de nouveau). Pins des apps inchangés (2.29.0).
+- **APPS/canary-socle** (repo dédié, v0.1.0) : module `validation/` 12 checks
+  (JWT crypto réelle via JWKS, SSE réel, notifications M2M, backup round-trip,
+  outbox, certs PKI, discovery…), endpoints `/api/validation/*` (profils
+  safe/full), banc E2E isolé `pouly-banc` (exit code CI) — **E2E 9 pass ·
+  0 fail · 3 warn attendus**. Suite 45/45.
+
+---
 ## [0.78.0] - 30 octobre 2026
 
 ### ⚡ Nouveau skill `migrate-app-to-socle` — recette de conversion app fine (vague B8)
