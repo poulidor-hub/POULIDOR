@@ -1,3 +1,11 @@
+## [0.78.0] - 30 octobre 2026
+
+### ⚡ Nouveau skill `migrate-app-to-socle` — recette de conversion app fine (vague B8)
+
+- **Ajouté** : skill parc `.opencode/skills/migrate-app-to-socle/` — la recette de migration d'une app fork vers l'app fine (audit d'entrées create_app, purge transverses, migrations inline → hooks, infra socle, frontend @poulidor/hub-socle, conftest hermétique §4 + canari, release + banc), avec la table des **12 pièges payés** pendant les conversions réelles (slug de test codé en dur, MagicMock awaité, dérivés de bump, add -A relatif, project name compose en worktree, symlink npm, extensions d'imports Rollup, opt-in réparation volumes…)
+- **Source** : capitalisation des conversions réelles de la session (template 2.35.0, exemple-app T1-T4, socle 2.28/2.29) — la vérification GREEN continue se fera sur exemple-app (G1-G3)
+
+---
 ## [0.77.7] - 30 octobre 2026
 
 ### ⚡ Pointeur HUBsocle 2.28.0 → 2.29.0 — upstream extensions téléphonie + exemple-app
