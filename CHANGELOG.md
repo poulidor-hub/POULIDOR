@@ -1,3 +1,12 @@
+## [0.78.2] - 31 octobre 2026
+
+### ⚡ HubCanari dans le fleet seed
+
+- **seed-apps.yaml** : ajout de `HubCanari.git` — l'app canari de validation
+  du socle (20 checks, v0.2.0, déployée en sentinelle `profile=safe` sur le
+  Hub de prod) devient gérable par `hubctl seed`.
+
+---
 ## [0.78.1] - 30 octobre 2026
 
 ### ⚡ App canari `canary-socle` — validation du socle en conditions réelles
