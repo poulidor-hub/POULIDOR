@@ -1,3 +1,16 @@
+## [0.78.4] - 31 octobre 2026
+
+### ⚡ Pointeurs sous-modules — hygiène de versions
+
+- **HUBsocle 2.30.1** (04bdb89) : correction d'un lap de version (la release
+  docs 2.29.4 était bumpée depuis une base pré-2.30.0 → VERSION en retrait sur
+  main) + entrées CHANGELOG rétroactives pour 2.30.0 (INITIALISE --github /
+  --adopt) et 2.29.2 (backup sync-from-hub JSON body, 422 Hub), badge README
+  aligné.
+- **HUBapp_TEMPLATE_base 2.35.2** (7228e66) : `frontend/package-lock.json`
+  resté en 2.34.0 → aligné sur la version courante (plus de diff parasite au
+  `npm install`), badge README aligné.
+
 ## [0.78.3] - 31 octobre 2026
 
 ### ⚡ Pointeur HUBsocle 2.29.2 → 2.30.0
