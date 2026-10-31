@@ -1,3 +1,21 @@
+## [0.78.5] - 31 octobre 2026
+
+### ⚡ install.sh : rendu de l'unit hubctl-atelier (placeholders user/parc)
+
+- **Corrigé** : la section 3c de `install.sh` copiait verbatim le gabarit
+  `hubctl-atelier.service` (User=admin + chemin canonique `%h` en dur → unit
+  non démarrable sur les hôtes où le parc n'appartient pas à « admin » ; menu
+  Coffre du Hub resté en « service injoignable »). Elle rend désormais l'unit
+  (`sed` `@REAL_USER@`→`$REAL_USER`, `@PARC_ROOT@`→`$ROOT_DIR`) avant
+  install+enable, la met à jour si le rendu diffère (cmp), et reste
+  idempotente/jamais fatale (mktemp/sed gardés sous `set -euo pipefail`).
+- **Pointeur hubctl 0.16.3** (7e0c381) : même correction côté `hubctl init`
+  (gabarit à placeholders `@REAL_USER@`/`@PARC_ROOT@`, rendu persistant
+  `packaging/.rendered/`, README « Serveur hôte » réécrit, 13 tests dont un
+  garde-fou anti-régression sur le gabarit livré).
+
+---
+
 ## [0.78.4] - 31 octobre 2026
 
 ### ⚡ Pointeur HUBsocle 2.29.2 → 2.30.1
