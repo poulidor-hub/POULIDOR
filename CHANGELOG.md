@@ -1,3 +1,15 @@
+## [0.78.3] - 31 octobre 2026
+
+### ⚡ Pointeurs sous-modules — session app directe + accueil template
+
+- **HUBsocle 2.29.3** (44f9ba9) : restauration silencieuse de session au boot
+  (refresh_token stocké) + auto-SSO gardé (anti-boucle, sonde health/detailed) —
+  ouvrir une app sans écran « Se connecter » quand la session est valide ;
+  plus d'éjection ?action=logout en cas de refresh mort au boot.
+- **HUBapp_TEMPLATE_base 2.35.1** (60cfa65) : accueil à un seul en-tête (fin du
+  PageHeader doublant la barre app) + état « Connexion au Hub... » pendant le
+  boot d'auth. Requiert socle 2.29.3.
+
 ## [0.78.2] - 31 octobre 2026
 
 ### ⚡ HubCanari dans le fleet seed
