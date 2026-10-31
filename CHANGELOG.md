@@ -1,25 +1,39 @@
+## [0.78.4] - 31 octobre 2026
+
+### ⚡ Pointeurs sous-modules — hygiène de versions
+
+- **HUBsocle 2.30.1** (04bdb89) : correction d'un lap de version (la release
+  docs 2.29.4 était bumpée depuis une base pré-2.30.0 → VERSION en retrait sur
+  main) + entrées CHANGELOG rétroactives pour 2.30.0 (INITIALISE --github /
+  --adopt) et 2.29.2 (backup sync-from-hub JSON body, 422 Hub), badge README
+  aligné.
+- **HUBapp_TEMPLATE_base 2.35.2** (7228e66) : `frontend/package-lock.json`
+  resté en 2.34.0 → aligné sur la version courante (plus de diff parasite au
+  `npm install`), badge README aligné.
+- **Répare le doublon 0.78.3** : le gitlink HUBsocle 2.30.0 annoncé par la
+  seconde 0.78.3 (ad618ef) avait été oublié du commit (CHANGELOG seul modifié) —
+  il est porté ici via HUBsocle 2.30.1 (⊇ 2.30.0). Entrées [0.78.3] fusionnées.
+
 ## [0.78.3] - 31 octobre 2026
 
-### ⚡ Pointeur HUBsocle 2.29.2 → 2.30.0
+### ⚡ Pointeurs sous-modules — deux releases le même jour (collision sessions)
 
-- **INITIALISE v2** : `--github <org>` (création repo distant + push) et
-  `--adopt` (reprendre un clone « Use this template » du template GitHub) —
-  HUBapp_TEMPLATE_base est marqué Template repository. Inclut le fix 2.29.2
-  (sync-from-hub JSON, trouvé par le canari).
+Deux releases distinctes ont porté le numéro 0.78.3 :
+
+- **27f52c6** : **HUBsocle 2.29.3** (44f9ba9) — restauration silencieuse de
+  session au boot (refresh_token stocké) + auto-SSO gardé (anti-boucle, sonde
+  health/detailed) : ouvrir une app sans écran « Se connecter » quand la
+  session est valide ; plus d'éjection ?action=logout en cas de refresh mort.
+  + **HUBapp_TEMPLATE_base 2.35.1** (60cfa65) — accueil à un seul en-tête (fin
+  du PageHeader doublant la barre app) + état « Connexion au Hub... » pendant
+  le boot d'auth. Requiert socle 2.29.3.
+- **ad618ef** : **HUBsocle 2.29.2 → 2.30.0** — INITIALISE v2 : `--github <org>`
+  (création repo distant + push) et `--adopt` (reprendre un clone « Use this
+  template ») ; HUBapp_TEMPLATE_base marqué Template repository. ⚠️ Le gitlink
+  2.30.0 annoncé a été oublié du commit (CHANGELOG seul modifié) — porté par
+  0.78.4 (2.30.1 ⊇ 2.30.0).
 
 ---
-## [0.78.3] - 31 octobre 2026
-
-### ⚡ Pointeurs sous-modules — session app directe + accueil template
-
-- **HUBsocle 2.29.3** (44f9ba9) : restauration silencieuse de session au boot
-  (refresh_token stocké) + auto-SSO gardé (anti-boucle, sonde health/detailed) —
-  ouvrir une app sans écran « Se connecter » quand la session est valide ;
-  plus d'éjection ?action=logout en cas de refresh mort au boot.
-- **HUBapp_TEMPLATE_base 2.35.1** (60cfa65) : accueil à un seul en-tête (fin du
-  PageHeader doublant la barre app) + état « Connexion au Hub... » pendant le
-  boot d'auth. Requiert socle 2.29.3.
-
 ## [0.78.2] - 31 octobre 2026
 
 ### ⚡ HubCanari dans le fleet seed
