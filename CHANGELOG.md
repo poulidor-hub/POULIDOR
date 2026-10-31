@@ -1,5 +1,15 @@
 ## [0.78.4] - 31 octobre 2026
 
+### ⚡ Pointeur HUBsocle 2.29.2 → 2.30.1
+
+- Canari prod rebâti sur le socle 2.30.1 (inclut 2.29.3 : restauration
+  silencieuse de session + auto-SSO au boot — la page sentinelle ne
+  re-demande plus de login quand une session Hub existe) + hygiène de
+  release (rattrapages CHANGELOG, lap de version corrigé).
+
+---
+## [0.78.4] - 31 octobre 2026
+
 ### ⚡ Pointeurs sous-modules — hygiène de versions
 
 - **HUBsocle 2.30.1** (04bdb89) : correction d'un lap de version (la release
