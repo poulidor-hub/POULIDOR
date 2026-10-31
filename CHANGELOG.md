@@ -1,3 +1,18 @@
+## [0.78.6] - 31 octobre 2026
+
+### 🔐 Pointeur HUB_base 3.77.5 — le Hub redirige HTTP → HTTPS
+
+- **HUB_base 3.77.5** (37734c4) : le bloc `:80` de `nginx-ssl.conf` ne sert
+  plus le Hub en clair — simple `return 301` vers `https://$host:$HUB_HTTPS_PORT`
+  (substitué par l'entrypoint ; `HUB_HTTPS_PORT` désormais passé au conteneur
+  `hub-frontend`). Front, `/api/`, SSE et uploads restent intégralement servis
+  en :443 ; les flux machine (:8000 interne, ALLOWED_ORIGINS https) ne cassent
+  pas. Vérifié live : 301 sur localhost + LAN IP, 200/health/SSE en HTTPS.
+- Cohérence parc : socle (canari) et template (exemple-app) redirigeaient déjà
+  (`return 301` + `HTTPS_ENABLED=true`) — le Hub était le dernier maillon.
+
+---
+
 ## [0.78.5] - 31 octobre 2026
 
 ### ⚡ install.sh : rendu de l'unit hubctl-atelier (placeholders user/parc)
