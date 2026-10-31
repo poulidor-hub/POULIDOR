@@ -351,28 +351,41 @@ fi
 
 # 3c. Service hôte hubctl-atelier (pilotage ateliers + coffre par le Hub)
 # Le token est créé par ./hubctl init (étape _ensure_atelier_service) ; ici on
-# installe/active l'unit systemd (root) — idempotent, jamais fatal.
+# REND l'unit (placeholders @REAL_USER@/@PARC_ROOT@ substitués — le gabarit ne
+# suppose plus d'utilisateur ni de chemin en dur) puis on l'installe/active
+# (root) — idempotent, jamais fatal.
 say "  Service hôte hubctl-atelier..."
 UNIT_SRC="$ROOT_DIR/hubctl_src/packaging/hubctl-atelier.service"
 UNIT_DST="/etc/systemd/system/hubctl-atelier.service"
 if [ ! -f "$UNIT_SRC" ]; then
     warn "Gabarit d'unit introuvable ($UNIT_SRC) — service atelier ignoré"
+elif [ ! -s "/home/$REAL_USER/.config/hubctl/atelier_token" ]; then
+    warn "Token atelier absent (/home/$REAL_USER/.config/hubctl/atelier_token) — ./hubctl init le créera ; activation reportée au prochain init"
 else
-    if [ ! -s "/home/$REAL_USER/.config/hubctl/atelier_token" ]; then
-        warn "Token atelier absent (/home/$REAL_USER/.config/hubctl/atelier_token) — ./hubctl init le créera ; activation reportée au prochain init"
-    elif [ ! -f "$UNIT_DST" ] || ! cmp -s "$UNIT_SRC" "$UNIT_DST"; then
-        install -m 644 "$UNIT_SRC" "$UNIT_DST"
-        systemctl daemon-reload
-        if systemctl is-active --quiet hubctl-atelier.service; then
-            systemctl restart hubctl-atelier.service
-            ok "Service atelier mis à jour et redémarré"
+    UNIT_TMP=""
+    if ! UNIT_TMP="$(mktemp)"; then
+        warn "mktemp indisponible — service atelier ignoré (relancer ./install.sh)"
+    elif ! sed -e "s|@REAL_USER@|$REAL_USER|g" \
+               -e "s|@PARC_ROOT@|$ROOT_DIR|g" \
+               "$UNIT_SRC" > "$UNIT_TMP"; then
+        rm -f "$UNIT_TMP"
+        warn "Rendu de l'unit impossible — service atelier ignoré (relancer ./install.sh)"
+    else
+        if [ ! -f "$UNIT_DST" ] || ! cmp -s "$UNIT_TMP" "$UNIT_DST"; then
+            install -m 644 "$UNIT_TMP" "$UNIT_DST"
+            systemctl daemon-reload
+            if systemctl is-active --quiet hubctl-atelier.service; then
+                systemctl restart hubctl-atelier.service
+                ok "Service atelier mis à jour et redémarré"
+            else
+                systemctl enable --now hubctl-atelier.service >/dev/null 2>&1
+                ok "Service atelier installé et activé"
+            fi
         else
             systemctl enable --now hubctl-atelier.service >/dev/null 2>&1
-            ok "Service atelier installé et activé"
+            ok "Service atelier déjà à jour"
         fi
-    else
-        systemctl enable --now hubctl-atelier.service >/dev/null 2>&1
-        ok "Service atelier déjà à jour"
+        rm -f "$UNIT_TMP"
     fi
 fi
 say ""
