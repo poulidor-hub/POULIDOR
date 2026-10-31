@@ -1,5 +1,15 @@
 ## [0.78.3] - 31 octobre 2026
 
+### ⚡ Pointeur HUBsocle 2.29.2 → 2.30.0
+
+- **INITIALISE v2** : `--github <org>` (création repo distant + push) et
+  `--adopt` (reprendre un clone « Use this template » du template GitHub) —
+  HUBapp_TEMPLATE_base est marqué Template repository. Inclut le fix 2.29.2
+  (sync-from-hub JSON, trouvé par le canari).
+
+---
+## [0.78.3] - 31 octobre 2026
+
 ### ⚡ Pointeurs sous-modules — session app directe + accueil template
 
 - **HUBsocle 2.29.3** (44f9ba9) : restauration silencieuse de session au boot
