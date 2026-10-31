@@ -1,3 +1,21 @@
+## [0.78.7] - 31 octobre 2026
+
+### 📄 Skill `migrate-app-to-socle` — capitalisation REX exemple-app · pointeur HUBsocle 2.30.2
+
+- **HUBsocle 2.30.2** (docs-only) : `REFERENCE-APP-FINE.md` enrichi du retour
+  d'expérience de la migration exemple-app 0.17.0 — migrations app
+  auto-appliquées depuis `/app/migrations` (jamais dans `migration_hooks`,
+  qui tournent avant `init_db` ; seeds → `lifespan_extra`), audit `flush()`
+  sans `commit()` des handlers fork (§3), 5 nouveaux pièges §8 (volumes
+  d'app migrée sous noms historiques, `APP_SLUG` réel ≠ slug déduit du fork,
+  slugs M2M renommés, mocks de tests métier).
+- **Skill `migrate-app-to-socle`** aligné sur le même REX : étape 3
+  (migrations SQL vs hooks, seeds, purge `entrypoint.sh`, audit commit),
+  étape 4 (volumes historiques préservés, overlay dev avec contexte socle,
+  `.dockerignore`), étape 7 (sonde M2M sortante dans le conteneur),
+  6 nouveaux pièges au tableau, vérification étendue (sonde M2M +
+  `schema_migrations`).
+
 ## [0.78.6] - 31 octobre 2026
 
 ### 🔐 Pointeur HUB_base 3.77.5 — le Hub redirige HTTP → HTTPS
