@@ -1,3 +1,21 @@
+## [0.78.8] - 1er novembre 2026
+
+### 📄 Skill `migrate-app-to-socle` — REX exports + exemple-app · pointeur HUBsocle 2.30.6
+
+- **HUBsocle 2.30.6** (docs) : `REFERENCE-APP-FINE.md` enrichi du REX des
+  migrations exports 0.5.x et exemple-app 0.22.0 (tâche asyncio métier dans
+  `lifespan_extra`, stratégie proportionnée flush/commit pour gros métier,
+  8 nouveaux pièges §8).
+- **Skill `migrate-app-to-socle`** : étape 2 (sync_version.py socle
+  obligatoire — image avec `__version.py` en retard payée 2.30.2→2.30.4 ;
+  deps de TEST en runtime du socle), étape 3 (tâche asyncio dans
+  `lifespan_extra`, extraction endpoint métier d'un router socle forké,
+  `utils.py` hybride, stratégie proportionnée flush/commit, verdict « champ
+  Settings mort » par usage runtime), étape 4 (chown `USER root`,
+  `XDIST_DOCKER_WORKERS ?= 2`, overlay dev à créer si absent), étape 7
+  (sonde des contrats exposés aux consommateurs), + 7 nouveaux pièges.
+
+## [0.78.7] - 31 octobre 2026
 ## [0.78.7] - 31 octobre 2026
 
 ### 📄 Skill `migrate-app-to-socle` — capitalisation REX exemple-app · pointeur HUBsocle 2.30.2

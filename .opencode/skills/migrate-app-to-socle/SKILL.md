@@ -31,6 +31,12 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    test porté de l'app) → release socle + `hubctl socle build --force` +
    **vérifier le paquet DANS l'image** (`docker run --entrypoint python
    <image> -c "import hub_socle; print(hub_socle.__version__)"`).
+   **Bump socle = `python3 scripts/sync_version.py` obligatoire** (régénère
+   `hub_socle/__version.py` que le build incruste — l'oublier = image avec
+   `socle_version` en retard, payé 2.30.2→2.30.4). **Deps de TEST demandées
+   par la migration → `dependencies` runtime du socle** (offline-first :
+   aucun `pip install` au build d'app fine ; optional `dev` = `make
+   test-docker` cassé pour toutes les apps, 2.30.4).
 3. **Backend** : extraire les endpoints inline de `main.py` vers
    `routes/<metier>.py` (`@app.` → `@router.`) ; émonder les endpoints
    dupliqués du socle (status/discover/call/catalog si prefix déjà dans
@@ -41,9 +47,22 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    `/app/migrations` automatiquement (fusion triée, tracking
    `schema_migrations` partagé → les versions fork déjà appliquées sont
    reconnues) ; **jamais de fichiers SQL dans `migration_hooks`** (ils
-   tournent AVANT `init_db`) ; **seeds → `lifespan_extra`** (tourne APRÈS
-   `init_db`/`apply_migrations`) ; **auditer `flush()` sans `commit()`**
-   dans les handlers d'écriture → `commit()` explicite (référence §3).
+   tournent AVANT `init_db`) ; **seeds et tâches asyncio métier →
+   `lifespan_extra`** (tourne APRÈS `init_db`/`apply_migrations` ;
+   `create_task` + `cancel`/`await` au `finally` pour un scheduler/worker) ;
+   **endpoint métier pris dans un router socle forké** (ex. exemple-app
+   `GET /api/m2m/employees/hub-identifier` dans le fork `routes/m2m.py`) :
+   l'extraire vers un router app-side dédié AVANT de purger le router ;
+   **`utils.py` hybride** (transverse + métier) : réexporter les fonctions
+   socle (`from hub_socle.utils import ...`) et garder le métier ;
+   **auditer `flush()` sans `commit()`** dans les handlers d'écriture →
+   `commit()` explicite — stratégie proportionnée : petit métier = tout
+   corriger ; gros métier (95+ sites) = préserver le comportement fork
+   (override de test committant), corriger le handler du canari 2-sessions,
+   documenter la dette (référence §3) ; **champs Settings « morts » : ne se
+   fier qu'au grep des usages runtime `settings.X`** sur tout le backend —
+   un usage dans une fonction évaluée au niveau module est vivant
+   (exemple-app `M2M_*TIMEOUT` : 500 AttributeError sinon).
 4. **Infra** : `Dockerfile.backend` = `FROM poulidor/socle-api:${SOCLE_VERSION}`
    + `COPY backend/ /app/` + `COPY VERSION` ; compose arg `SOCLE_VERSION=?` +
    `additional_contexts: socle` (frontend) ; `.env.example` +
@@ -53,8 +72,13 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    **volumes/réseau d'une app migrée : préserver les noms historiques
    explicites** (jamais `${APP_SLUG}-*` si les volumes prod existent sous un
    autre nom) ; **overlay dev** : `additional_contexts` dans
-   `docker-compose.dev.yml` + `COPY --from=socle` AVANT `npm install` dans
-   `Dockerfile.frontend.dev` ; `.dockerignore` : exclure le symlink `socle`.
+   `docker-compose.dev.yml` (créer le fichier s'il manque — `make dev` est
+   alors cassé) + `COPY --from=socle` AVANT `npm install` dans
+   `Dockerfile.frontend.dev` ; `.dockerignore` : exclure le symlink `socle` ;
+   **`USER appuser` du socle persiste dans les layers** : un `RUN chown` de
+   l'app tourne en appuser et échoue silencieusement — `USER root` autour,
+   retour `USER appuser` ; **`make test-docker` : `XDIST_DOCKER_WORKERS ?= 2`**
+   (`-n auto` = OOM 512 Mo, exit 137).
 5. **Frontend** : dep `@poulidor/hub-socle": "file:../socle"` ; symlink dev
    `<repo>/socle → ../HUBsocle` (gitigné) ; supprimer context/hooks/lib/config
    + composants communs ; imports → `@poulidor/hub-socle/...` **avec
@@ -70,7 +94,10 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    des consommateurs du slug → **sonde M2M SORTANTE dans le conteneur**
    (`resolve_service_slug` + appel réel sur chaque service consommé — cf.
    piège « slugs M2M renommés ») → corriger la config des slugs
-   (`*_SLUG` du `.env`/defaults) si résolution `None`.
+   (`*_SLUG` du `.env`/defaults) si résolution `None` → **sonde des contrats
+   EXPOSÉS aux consommateurs** (endpoint + slug réellement appelé par les
+   apps consommatrices : exemple-app était appelé sous le slug fantôme
+   `exemple-app` par exemple-app, fallback silencieux).
 
 ## Pièges payés (chaque ligne = un incident réel)
 
@@ -94,6 +121,13 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
 | Migrations SQL passées à `migration_hooks` | les hooks tournent AVANT `init_db` → ALTER sur table inexistante, échec sur base neuve | SQL reste dans `backend/migrations/` (auto-appliqué par le socle) ; seeds → `lifespan_extra` |
 | Slugs M2M renommés (`salarie` → `exemple-app-v3`, `exemple-apps` → `exemple-app-api-v3`) | lookup exact muet, appels **silencieusement inopérants** | `resolve_service_slug()` avant chaque `call_discovered_service` + config `*_SLUG` alignée sur les slugs Hub réels |
 | Mocks locaux de tests métier sans `resolve_service_slug` | `TypeError: object MagicMock can't be used in 'await'` en masse (piège 2 étendu) | chaque `patch("services.x.hub_client")` : `resolve_service_slug = AsyncMock(return_value=None)` ; slugs assertés via les **constantes du module**, jamais en littéral |
+| **`USER appuser` du socle persiste dans les layers** | le `RUN chown` de l'app tourne en appuser : échec silencieux (`\|\| true`) → `/app/storage` copié du contexte reste root → `Permission denied` sur credentials/JWKS au boot (exports 0.5.1) | `USER root` autour du chown, retour `USER appuser` après |
+| **Seeds de tests : `flush` sans commit** | sessions indépendantes (SQLite fichier) : la donnée seedée est invisible des sessions API → 404 en cascade (fork : StaticPool `:memory:` partageait la connexion) | `flush` → `commit` dans les fixtures de seed |
+| **Instance `hub_client` réelle dans les tests** | les modules avec `from hub_socle.hub_client import hub_client` gardent la référence **instance** : le patch du module ne les atteint pas → register/token réels pendant les tests (exemple-app 0.22.0) | capturer l'instance au chargement du conftest (`_REAL = _module.hub_client` AVANT tout patch), muter ses méthodes (AsyncMock) avec sauvegarde/restauration `_credentials` inclus |
+| **Champs Settings classés « morts » à tort** | un usage runtime `settings.X` dans un module évalué au niveau module → 500 `AttributeError: Settings has no attribute` (exemple-app `M2M_*TIMEOUT` : agrégation /integrations/employee) | verdict « mort » = grep des usages runtime `settings.X` sur TOUT le backend, pas seulement les imports ; champs vivants → `register_settings_extra` |
+| **Helper app-side avec `async_session_maker` autonome** | pointe la DB settings → cassé dans les tests (ConnectError 127.0.0.1:1) et masque l'override `get_db` (exemple-app `service_slugs`) | passer la session de requête en paramètre (`get_service_slugs(db)`, `resolve_service_slug(db, ...)`) |
+| **`make test-docker` avec `-n auto`** | OOM 512 Mo du conteneur → exit 137 (exports 0.5.1) | `XDIST_DOCKER_WORKERS ?= 2` dans le Makefile de l'app |
+| **Bump socle sans `scripts/sync_version.py`** | `hub_socle/__version.py` (incrusté par `hubctl socle build`) reste en retard → l'app affiche un `socle_version` faux (2.30.2→2.30.4 payés) | `scripts/sync_version.py` APRÈS chaque bump VERSION du socle, AVANT le build image |
 
 ## Verification
 
