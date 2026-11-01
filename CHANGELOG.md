@@ -63,6 +63,17 @@
 
 ---
 
+## [0.78.11] - 1er novembre 2026
+
+### 📄 Pointeur HUBsocle 2.33.0 — deps métier apps fines + peerDeps React 19
+
+- **HUBsocle 2.33.0** : dependencies runtime `sqlmodel`, `pandas`,
+  `openpyxl`, `xlrd`, `typer`, `passlib[bcrypt]`, `bcrypt` (offline-first,
+  apps fines migrées — vague B8, exemple-app) + peerDeps front en bornes basses
+  (`react >=18.2.0` accepte React 19, `lucide-react >=0.460.0`).
+- Image vérifiée : `hub_socle 2.33.0`, imports OK dans
+  `poulidor/socle-api:2.33.0`.
+
 ## [0.78.10] - 1er novembre 2026
 
 ### 📄 Pointeur HUB_base 3.77.6 — exclusion des ateliers -ws des sauvegardes
