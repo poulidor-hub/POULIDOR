@@ -1,3 +1,17 @@
+## [0.78.9] - 1er novembre 2026
+
+### 📄 Pointeur HUBsocle 2.30.7 — endpoint /api/migrations + index outbox target_slug
+
+- **HUBsocle 2.30.7** : `GET /api/migrations` (admin, contenu de
+  `schema_migrations`) + migration socle `091_outbox_index_target_slug.sql`
+  (index `outbox(target_slug)`, diagnostic M2M « qui appelle quel slug »).
+- **Banc de confiance parc** : première montée de socle testée en rollout sur
+  les **7 apps fines** (canary-socle, exemple-app, exemple-app,
+  exemple-app 2.29.0→2.30.7, exports, exemple-app, exemple-app) —
+  7/7 healthy, `socle_version` 2.30.7, migration 091 appliquée exactement une
+  fois par app, hub reconnecté. Détail : quirk Makefile exemple-app
+  (l'alignement socle est appelé par la cible `help`, pas `sync-env`).
+
 ## [0.78.8] - 1er novembre 2026
 
 ### 📄 Skill `migrate-app-to-socle` — REX exports + exemple-app · pointeur HUBsocle 2.30.6
