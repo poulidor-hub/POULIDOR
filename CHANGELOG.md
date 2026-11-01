@@ -63,6 +63,17 @@
 
 ---
 
+## [0.78.10] - 1er novembre 2026
+
+### 📄 Pointeur HUB_base 3.77.6 — exclusion des ateliers -ws des sauvegardes
+
+- **HUB_base 3.77.6** : les ateliers (`{slug}-ws`) ne sont plus sauvegardés ni
+  listés — GET /api/admin/backups (liste + totaux), GET /api/admin/backups/stats,
+  gardes 400 sur trigger et push M2M, choke-point `perform_app_backup`, filtres
+  SQL scheduler cron + snapshots. 6 tests TDD, suite verte (1463 hôte / 1419+1 Docker).
+
+---
+
 ## [0.78.5] - 31 octobre 2026
 
 ### ⚡ install.sh : rendu de l'unit hubctl-atelier (placeholders user/parc)
