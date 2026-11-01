@@ -343,7 +343,8 @@
           <div class="code-block" style="padding: 0.75rem; margin:0;">
             <span class="function">./hubctl</span> start        <span class="comment"># tout démarrer</span><br>
             <span class="function">./hubctl</span> stop         <span class="comment"># tout arrêter</span><br>
-            <span class="function">./hubctl</span> update       <span class="comment"># maj TOUT le parc (rollback auto)</span><br>
+            <span class="function">./hubctl</span> update "*"   <span class="comment"># maj tout le parc (hub d'abord, rollback auto)</span><br>
+            <span class="function">./hubctl</span> doctor       <span class="comment"># diagnostic des clones (dérives git)</span><br>
             <span class="function">./hubctl</span>              <span class="comment"># TUI : santé du parc</span>
           </div>
         </div>
@@ -354,7 +355,7 @@
             <h3 class="card-title">Le Hub uniquement</h3>
           </div>
           <div class="code-block" style="padding: 0.75rem; margin:0;">
-            <span class="function">./hub.sh</span> update       <span class="comment"># maj du Hub SEUL</span><br>
+            <span class="function">./hub.sh</span> update       <span class="comment"># maj du Hub SEUL (délègue à hubctl)</span><br>
             <span class="comment"># recharger le .env du Hub (⚠️ pas restart) :</span><br>
             <span class="function">make</span> -C HUB_base up-prod<br>
             <span class="function">make</span> -C HUB_base logs
@@ -538,7 +539,7 @@ sequenceDiagram
     </section>
 
     <section id="hubctl">
-      <h2>2. Pilotage du parc avec hubctl (v0.10.2)</h2>
+      <h2>2. Pilotage du parc avec hubctl (v0.16.3)</h2>
       <p>L'outil <code>hubctl</code> gère le cycle de vie de tout le parc. Il réside dans le sous-module <code>hubctl_src</code> (package Python <code>hubctl_cli</code>) et est exposé par le wrapper <code>./hubctl</code> à la racine du parc : script bash qui crée/répare son venv, source <code>.secrets</code> puis exécute <code>python -m hubctl_cli</code>. Sans argument, il ouvre une <strong>TUI interactive</strong> (santé du parc, actions courantes).</p>
       
       <div class="grid-cards">
@@ -559,9 +560,11 @@ sequenceDiagram
             <div class="card-icon"><svg width="20" height="20"><use href="#icon-activity"/></svg></div>
             <h3 class="card-title">Mise à jour sécurisée</h3>
           </div>
-          <p class="card-desc">Pull, rebuild et restart, avec snapshot BDD préalable et rollback auto.</p>
+          <p class="card-desc">Mise à jour ciblée (<code>hub</code>, un ou plusieurs slugs, <code>"*"</code> = tout), snapshot BDD préalable, rollback auto. Mode explicite : <code>--dev</code>/<code>--prod</code> (défaut prod).</p>
           <div class="code-block" style="padding: 0.75rem; margin:0;">
-            <span class="function">./hubctl</span> update
+            <span class="function">./hubctl</span> update hub<br>
+            <span class="function">./hubctl</span> update mon-app<br>
+            <span class="function">./hubctl</span> update "*"
           </div>
         </div>
 
@@ -578,18 +581,19 @@ sequenceDiagram
         </div>
       </div>
 
-      <h3>Les 14 sous-commandes CLI</h3>
+      <h3>Les 15 sous-commandes CLI</h3>
       <p>Exécutées à la racine du parc. Le flag global <code>--dry-run</code> (placé <strong>avant</strong> la sous-commande) simule sans exécuter.</p>
       <table>
         <thead><tr><th>Commande</th><th>Effet</th></tr></thead>
         <tbody>
           <tr><td><code>start / stop [all|prod|dev]</code></td><td>Cycle de vie du parc. <code>dev</code> = ateliers uniquement ; <code>stop dev</code> préserve les volumes.</td></tr>
-          <tr><td><code>update</code></td><td>Maj Hub + apps actives : snapshot DB préalable, pull → build → up, <strong>rollback automatique</strong> si échec.</td></tr>
-          <tr><td><code>atelier &lt;app&gt; [--maj [--ref R] | --prod]</code></td><td>Cycle atelier bac à sable (§8) : création avec clone DB, test de <code>origin/main</code>, déploiement validé en prod.</td></tr>
-          <tr><td><code>init [--force]</code></td><td>Bootstrap d'un Hub neuf : <code>.env</code> + secrets aléatoires, clés JWT, santé, marker shell.</td></tr>
+          <tr><td><code>update &lt;hub|slug|"*"&gt;</code></td><td>Maj ciblée (0.11) : Hub seul, une ou plusieurs apps, ou tout — snapshot DB préalable, pull → build → up, <strong>rollback automatique</strong>. Sans cible : usage, rien n'exécuté.</td></tr>
+          <tr><td><code>doctor [--fix] [--yes]</code></td><td>Diagnostic des clones (méta, HUB_base, apps) : divergences d'historique, pointeurs dérivés, branches mergées — remèdes sûrs via <code>--fix</code> (0.12).</td></tr>
+          <tr><td><code>atelier [app] [--maj [--ref R] | --prod | --close-all [--yes]]</code></td><td>Cycle atelier bac à sable (§8) : création avec clone DB, test de <code>origin/main</code>, déploiement validé en prod. <code>--close-all</code> ferme tous les ateliers (0.13).</td></tr>
+          <tr><td><code>init [--force]</code></td><td>Bootstrap d'un Hub neuf : <code>.env</code> + secrets aléatoires, clés JWT, santé, marker shell — et installation du service hôte <code>hubctl-atelier</code> (0.16).</td></tr>
           <tr><td><code>export [--app S] [--no-encrypt] [--passphrase-stdin]</code></td><td>Archive chiffrée du parc complet (DB + .env + secrets), magic <code>PARKEV1</code> → <code>exports/</code>.</td></tr>
           <tr><td><code>restore &lt;archive&gt;</code></td><td>Restaure un park-export — <strong>uniquement sur un Hub vierge</strong>.</td></tr>
-          <tr><td><code>pra-restore [kit] [--snapshot --apps --yes --force --dry-run]</code></td><td>PRA sur machine nue : wizard en 7 étapes depuis le kit (§9).</td></tr>
+          <tr><td><code>pra-restore [kit] [--snapshot --apps --yes --force --dry-run]</code></td><td>PRA sur machine nue : wizard en 7 étapes depuis le kit (§9). Scriptable : <code>ADMIN_PASSWORD=… ./hubctl pra-restore ~/kit --yes --force --apps all</code>. ⚠️ apps fines : <code>./hubctl socle build</code> requis avant de reconstruire les apps.</td></tr>
           <tr><td><code>debug [app] [--rw|--setup|--model 8b|2b|--status|--off]</code></td><td>Agent IA local de debug (Ollama + Granite + MCP <code>hub-debug</code>), coupé par <code>--off</code>, état via <code>--status</code>.</td></tr>
           <tr><td><code>vpn sync|status|on|off</code></td><td>WireGuard : l'état voulu vit en DB, le conteneur est réconcilié par <code>sync</code>.</td></tr>
           <tr><td><code>vault backup|restore|status|export|import|app list|app set-url</code></td><td>Coffre chiffré Fernet+scrypt des .env/secrets + réplication PRA. (backup_all/restore_all/change_passphrase restent des fonctions internes, pilotées par la TUI.)</td></tr>
@@ -776,13 +780,14 @@ router = APIRouter(prefix=<span class="string">"/api/items"</span>, tags=[<span 
       <div class="callout" style="background: var(--hub-color-primary-soft); border-color: var(--hub-color-primary);">
         <svg class="callout-icon" width="24" height="24"><use href="#icon-code"/></svg>
         <div>
-          <p><strong>Cycle de l'atelier (pilotable en CLI ou depuis la vue UI "Santé" de l'administration Hub)</strong></p>
+          <p><strong>Cycle de l'atelier (pilotable en CLI, depuis la vue UI "Santé" ou la section admin "Ateliers" du Hub — service hôte <code>hubctl-atelier</code>)</strong></p>
           <ol style="margin-top: 0.5rem; padding-left: 1.5rem; font-size: 0.9375rem;">
-            <li><code>./hubctl atelier mon-app</code> : Clône la DB en direct et assigne de nouveaux ports.</li>
+            <li><code>./hubctl atelier mon-app</code> : Clône la DB en direct et assigne de nouveaux ports + subnet dédié.</li>
             <li><code>./hubctl atelier mon-app --maj</code> : Compile <code>origin/main</code> dans cet espace isolé.</li>
             <li>Test fonctionnel sur l'URL de l'atelier.</li>
             <li><code>./hubctl atelier mon-app --prod</code> : Déploie en production le commit validé et détruit l'atelier.</li>
           </ol>
+          <p style="font-size: 0.9375rem;">Fermeture globale : <code>./hubctl atelier --close-all [--yes]</code>. Depuis Hub 3.77.6, les ateliers ne sont plus sauvegardés ni snapshotés.</p>
         </div>
       </div>
 
@@ -821,6 +826,7 @@ flowchart TD
             <span class="function">./hubctl</span> pra-restore
           </div>
           <p class="card-desc">Exécute un wizard en 7 étapes restaurant le Hub puis réinjectant chaque backup applicatif via API.</p>
+          <p class="card-desc">⚠️ <strong>Apps fines &amp; socle</strong> : les images <code>poulidor/socle-*</code> ne sont ni dans le kit ni sur Docker Hub — lancer <code>./hubctl socle build</code> avant la (re)construction des apps, sinon leur <code>make build</code> échoue (« lancez ./hubctl socle build »).</p>
         </div>
       </div>
 
