@@ -1,3 +1,18 @@
+## [0.79.0] - 2 novembre 2026
+
+### 🔒 Pointeur HUB_base 3.78.0 — accès Docker via proxy filtré (chantier A 1a)
+
+- **`HUB_base` → 3.78.0** (`a04e86e`) : plus aucun montage direct de
+  `/var/run/docker.sock` sur `hub-api` — nouveau service `docker-socket-proxy`
+  (tecnativa `v0.5.0`), whitelist issue d'un audit des appels réels
+  (familles secrets/swarm/services/tasks/nodes/plugins/commit/configs/
+  distribution/auth fermées), garde-fou pytest anti-régression, doc
+  `HUB_base/docs/DOCKER_SOCKET_PROXY.md`. `HOST_DOCKER_GID` obsolète.
+- Voir le CHANGELOG HUB_base v3.78.0 pour le détail complet (vérification
+  live incluse : matrice 403/200, scan, exec VPN, build buildx, `down -v`).
+
+---
+
 ## [0.78.12] - 2 novembre 2026
 
 ### 📄 Docs développeur à jour — hubctl 0.16.3, Hub 3.77.6, template 2.35 (app fine)
