@@ -95,6 +95,14 @@
 
 ---
 
+## [0.78.12] - 2 novembre 2026
+
+### 📄 Pointeur HUBsocle 2.33.1 — storage save_bytes_at_path
+
+- **HUBsocle 2.33.1** : `StorageManager.save_bytes_at_path` (écriture à
+  chemin relatif exact, anti-traversée) — restauration backup des fichiers
+  métier exemple-app à leur emplacement d'origine. Image vérifiée 2.33.1.
+
 ## [0.78.11] - 1er novembre 2026
 
 ### 📄 Pointeur HUBsocle 2.33.0 — deps métier apps fines + peerDeps React 19
