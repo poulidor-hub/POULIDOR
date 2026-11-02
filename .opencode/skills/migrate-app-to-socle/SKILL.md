@@ -1,6 +1,6 @@
 ---
 name: migrate-app-to-socle
-description: Use when migrer une application existante de APPS/ vers le modèle app fine sur HUBsocle (vague B8), quand une app doit être « passée sur le socle », convertie à create_app(), purgée de ses modules transverses, rebâtie sur poulidor/socle-api, ou lors d'une release d'app après un bump de socle du parc.
+description: Use when migrer une application existante de APPS/ vers le modèle app fine sur HUBsocle (vague B8), quand une app doit être « passée sur le socle », convertie à create_app(), purgée de ses modules transverses, rebâtie sur poulidor/socle-api, lors d'une release d'app après un bump de socle du parc, ou pour diagnostiquer un crash front post-migration (« useAuth must be used within an AuthProvider », AuthProvider forké vs socle, front mince).
 ---
 
 # Migrer une app vers le socle (app fine)
@@ -85,6 +85,31 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    extension** (`.jsx`/`.js`) ; `vite.config` + `resolve.preserveSymlinks:
    true` ; `Dockerfile.frontend` : `COPY --from=socle /frontend /socle/frontend`
    **avant** `npm install` ; `npm run build` vert.
+   **Bascule auth (app avec AuthContext forké — exemple-app 1.61.0)** : la
+   cohérence auth est **binaire** — un composant socle qui appelle
+   `useAuth` ne fonctionne JAMAIS avec un `AuthProvider` forké (deux
+   `createContext` distincts). Inventorier les imports socle consommateurs
+   du `useAuth` socle (`MessageBanner`, `MessageArchive`, `LoginPrompt`) ;
+   trancher : `AuthProvider` socle partout (cible), ou fork conservé →
+   ces composants restent des copies fork locale. `user` socle = payload
+   JWT (`sub`/`apps`/`exp`), PAS la réponse `/auth/me` du fork
+   (`role`/`roles[]`/`username`) : grep `user?.role|user.username` avant
+   bascule, conversion `hasMinRole`/`getAppRole` (régression de droits
+   SILENCIEUSE sinon — guards toujours faux, aucun crash). Fork diffus
+   (30+ fichiers `isAdmin()`/`canWrite()`) : couche de compat
+   `useAppAuth` qui mappe fork→socle (`isAdmin() -> hasMinRole('admin')`,
+   `canWrite() -> hasMinRole('user')`, `isViewer() ->
+   getAppRole() === 'viewer'`, `loading -> restoring||ssoChecking`),
+   une passe mécanique d'imports, dette documentée (cible : `hasMinRole`
+   direct dans les pages, pattern exemple-app). Un SEUL montage
+   `AuthProvider` (exemple-app le montait dans `main.jsx` ET `App.jsx`).
+   L'auto-SSO socle sonde `/api/health/detailed` (`hub.can_authenticate`)
+   avant de rediriger : absent → fallback écran login. **Front axios
+   conservé** (`services/api.js`) : aligner la clé de stockage sur
+   `hub_token` (config socle) et le refresh sur `POST
+   /api/auth/token/refresh` JSON + garde d'adoption (JWT stocké changé
+   pendant l'appel → l'adopter et rejouer, pas purger) — sinon double
+   circuit de refresh en course → déconnexions aléatoires.
 6. **Tests** : supprimer les tests des briques socle (ils vivent au socle) ;
    conftest hermétique (§4 : env ÉCRASÉ avant imports, mocks sur
    `hub_socle.*`, autouse offline — voir pièges) ; + canari 7 tests (miroir
@@ -128,12 +153,20 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
 | **Helper app-side avec `async_session_maker` autonome** | pointe la DB settings → cassé dans les tests (ConnectError 127.0.0.1:1) et masque l'override `get_db` (exemple-app `service_slugs`) | passer la session de requête en paramètre (`get_service_slugs(db)`, `resolve_service_slug(db, ...)`) |
 | **`make test-docker` avec `-n auto`** | OOM 512 Mo du conteneur → exit 137 (exports 0.5.1) | `XDIST_DOCKER_WORKERS ?= 2` dans le Makefile de l'app |
 | **Bump socle sans `scripts/sync_version.py`** | `hub_socle/__version.py` (incrusté par `hubctl socle build`) reste en retard → l'app affiche un `socle_version` faux (2.30.2→2.30.4 payés) | `scripts/sync_version.py` APRÈS chaque bump VERSION du socle, AVANT le build image |
+| **Composant socle consommant `useAuth` importé avec l'`AuthProvider` fork conservé** | crash « useAuth must be used within an AuthProvider » sur toutes les routes protégées, en prod (exemple-app 1.60.0) | cohérence auth **binaire** : `AuthProvider` socle partout, ou composants auth-socle recopiés fork-side (§5 bascule auth) |
+| **`user.role`/`user.roles` du fork lus après bascule** | le `user` socle est un payload JWT (`sub`/`apps`/`exp`) sans ces champs → guards `=== 'admin'` toujours faux, régression de droits silencieuse, AUCUN crash (exemple-app) | grep `user?.role\|user.username\|user.roles` dans l'audit + conversion `hasMinRole`/`getAppRole` (§5) |
+| **Intercepteur axios historique non aligné socle** | clé `access_token` + refresh form `/api/auth/token` vs socle `hub_token` + JSON `/api/auth/token/refresh` : double circuit en course sur la rotation du refresh token → déconnexions aléatoires | aligner clé + endpoint JSON + garde d'adoption : JWT stocké changé pendant l'appel → l'adopter et rejouer, jamais purger (§5) |
+| **Helpers fork `isAdmin`/`canWrite`/`isViewer` lus comme booléens sans `()`** | fonction toujours truthy → actions admin visibles de tous les rôles (exemple-app DashboardPage : bouton export pour tous) | grep des usages booléens des helpers dans l'audit — corriger à la bascule |
 
 ## Verification
 
 Une migration n'est « verte » qu'avec : `import main` OK sur host ·
 `make up` + `/api/health` → `socle_version` = pin attendu · page frontend
-HTTPS 200 · suite app 100 % verte · sondes M2M des consommateurs du slug ·
+HTTPS 200 **+ rendu vérifié** (une SPA crashée au boot répond 200 —
+exemple-app 1.60.0 : snapshot navigateur du Layout rendu, console sans
+« useAuth must be used » ; smoke sans backend : serveur statique sur
+`dist/` + JWT factice en `?token=` → Layout + banner rendus) · suite
+app 100 % verte · sondes M2M des consommateurs du slug ·
 sonde M2M sortante dans le conteneur (`resolve_service_slug` + appel réel) ·
 `SELECT version FROM schema_migrations` complet (métier `001-08x` + socle
 `090` · rien de re-joué en boucle dans les logs).

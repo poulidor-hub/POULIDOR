@@ -1,3 +1,32 @@
+## [0.79.1] - 2 novembre 2026
+
+### 📚 Skill migrate-app-to-socle — bascule auth front (pièges exemple-app 1.60.0)
+
+- **`.opencode/skills/migrate-app-to-socle/SKILL.md`** (étape 5 + table
+  « Pièges payés » + Verification) : la recette ne couvrait pas la
+  bascule auth du front — l'app exemple-app 1.60.0 a déployé un crash
+  généralisé (« useAuth must be used within an AuthProvider ») malgré
+  les gates existants.
+- **Nouvelle règle : cohérence auth binaire** — un composant socle qui
+  appelle `useAuth` ne fonctionne jamais avec un `AuthProvider` forké
+  (deux `createContext` distincts) ; si le fork est conservé, les
+  composants auth-socle (`MessageBanner`, `MessageArchive`,
+  `LoginPrompt`) restent des copies fork locale.
+- `user` socle = payload JWT (`sub`/`apps`/`exp`), pas la réponse
+  `/auth/me` du fork (`role`/`roles[]`) → grep d'audit + conversion
+  `hasMinRole`/`getAppRole` (régression de droits silencieuse).
+- Pattern couche de compat `useAppAuth` (mappe `isAdmin()`/`canWrite()`
+  /`isViewer()`/`loading` sur les primitives socle) pour les apps à
+  fork diffus ; front axios conservé : alignement clé `hub_token` +
+  refresh JSON `/api/auth/token/refresh` + garde d'adoption.
+- **Verification renforcée** : « page HTTPS 200 + rendu vérifié » (une
+  SPA crashée au boot répond 200 — c'est exactement ce qui a filtré) +
+  technique du smoke JWT factice (`dist/` statique + `?token=`).
+- Skill validé par test d'application subagent fresh-context (GREEN) sur
+  le scénario réel de l'incident (RED documenté : exemple-app 1.60.0).
+
+---
+
 ## [0.79.0] - 2 novembre 2026
 
 ### 🔒 Pointeur HUB_base 3.78.0 — accès Docker via proxy filtré (chantier A 1a)
