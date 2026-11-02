@@ -3,7 +3,18 @@
 > Référence centrale pour créer, développer et maintenir une application HUB basée sur le template `HUBapp_TEMPLATE_base`.
 > Ce guide complète les documentations déjà présentes dans le template — il ne les duplique pas, il les référence.
 >
-> Dernière synchronisation : 13/10/2026 — template `2.30.1`, Hub `3.71.4`.
+> Dernière synchronisation : 02/11/2026 — template `2.35.2`, Hub `3.77.6`, socle `2.33.0`.
+>
+> ⚠️ **Template ≥ 2.35.0 — app fine sur socle** : le template n'embarque plus
+> les modules transverses (auth, M2M, outbox, backup, storage…). Ils sont
+> fournis par [HUBsocle](../HUBsocle/) (paquets `hub_socle` /
+> `@poulidor/hub-socle`, image `poulidor/socle-api`) et l'app démarre via
+> `create_app()`. Ce guide documente les conventions **communes** (métier,
+> tests, déploiement) ; pour le contrat app fine complet (structure,
+> extension du socle, pièges), lire
+> [`HUBsocle/docs/REFERENCE-APP-FINE.md`](../HUBsocle/docs/REFERENCE-APP-FINE.md).
+> Les apps fork (template ≤ 2.34) suivent ce guide tel quel ; leur conversion
+> est guidée par le skill parc `migrate-app-to-socle`.
 
 ---
 
@@ -127,43 +138,35 @@ git submodule update --init HUBapp_TEMPLATE_base
 
 ```bash
 cd APPS/mon-app
-python INITIALISE.py --clean        # Mode standard (sans contenu de démo)
-# ou python INITIALISE.py --demo    # Garder la démo pour explorer
-# ou python INITIALISE.py "Mon App" --demo   # Mode auto : nom en argument positionnel
+python INITIALISE.py "Mon App"               # Mode auto (défaut) : nom en argument
+python INITIALISE.py --interactive           # Mode interactif (questions)
+python INITIALISE.py --profile client.json   # Mode profil : fiche client JSON
+python INITIALISE.py "Mon App" --demo        # Garder le contenu de démo
 python INITIALISE.py --profile client.json --yes   # Non-interactif (scripts/CI)
 ```
 
 | Mode | Usage |
 |------|-------|
-| `--clean` (défaut) | Supprime modèles/routes/composants de démo → squelette minimal |
-| `--demo` | Conserve `Item`, `TestData`, composants de test → exploration |
+| `"Mon App"` (positionnel, défaut) | Mode auto : nom de l'app en argument, sans questions |
+| `--interactive` | Mode interactif : pose les questions (slug, nom, ports…) |
 | `--profile fic.json` | Mode non-interactif : lit les infos depuis une fiche client JSON |
-| `"Mon App"` (positionnel) | Mode auto : nom de l'app en argument positionnel, sans questions |
+| `--demo` | Conserve le contenu de démo (nettoyé par défaut) |
 | `--yes` | Non-interactif : confirme automatiquement (requis si stdin fermé — scripts/CI) |
+| `--force-slug` | Force le slug proposé |
 
-**Ce que fait INITIALISE (14 étapes) :**
+**Ce que fait INITIALISE :**
 
-| Étape | Fichier | Action |
-|-------|---------|--------|
-| 1 | `.env` | Créé depuis `.env.example`, `APP_VERSION=0.0.1` |
-| 2 | `.env.example` | Valeurs par défaut personnalisées |
-| 3 | `docker-compose.yml` | Slug, ports, hub host injectés |
-| 4 | `backend/config.py` | Settings Pydantic mis à jour |
-| 5 | `Dockerfile.frontend` | ARGs `VITE_*` des ports |
-| 6 | `frontend/index.html` | `<title>` personnalisé |
-| 7 | `frontend/Header.jsx` | `<h1>` personnalisé |
-| 8 | `frontend/package.json` | `name` + `version=0.0.1` |
-| 9 | `frontend/src/config.js` | APP_SLUG |
-| 10 | Fixtures de test | `conftest.py`, `test_m2m.py` |
-| 11 | `VERSION` | → `0.0.1` |
-| 12 | Documentation | `CHANGELOG.md` + `README.md` vierges |
-| 13 | Nettoyage obsolètes | `frontend/config.js` vestige |
-| 14 | `LICENSE.md` | Propriétaire client ou générique |
+1. Collecte les paramètres de la nouvelle app (slug, nom, ports, hub…) ;
+2. Met à jour les fichiers de config, `docker-compose`, frontend, backend ;
+3. Nettoie le contenu de démo (sauf `--demo`) ;
+4. Génère les scripts d'action (`START`, `STOP`, `RESTART`, `LOGS`,
+   `STATUS`, `DELETE_DATA`, `UPDATE`, `BACKUP_DB`, `SHELL_API`, `SHELL_DB`,
+   `TEST`, `COMMIT`) sous `ACTIONS/PYTHON/` + wrappers Linux (`.sh`) et
+   Windows (`.bat`) ;
+5. S'auto-supprime (lui-même + lanceurs `INITIALISE.*` racine).
 
-**Après INITIALISE :**
-- `ACTIONS/` conserve les scripts d'action : `INITIALISE` x3 OS (`LINUX/INITIALISE.sh`, `PYTHON/INITIALISE.py`, `WINDOWS/INITIALISE.bat`) plus les outils `allocate_ports.py` (fallback allocation locale), `check_image_freshness.py` et `sync_hub_host.py`
-- Les fichiers `INITIALISE.*` racine sont auto-supprimés
-- L'app est prête à être lancée
+**Après INITIALISE :** l'app est prête pour `make sync-env` (allocation
+ports/subnet via le Hub, alignement `APP_SOCLE_VERSION`) puis le premier boot.
 
 ### 2.3 Allocation des ports
 
@@ -248,6 +251,15 @@ Un hook Git pre-commit (`scripts/git-hooks/pre-commit`) assure la cohérence.
 ## 3. Conventions backend
 
 ### 3.1 Structure obligatoire
+
+> **App fine (template ≥ 2.35.0)** : le backend ne contient que le métier —
+> `main.py` (`create_app()` du socle + inclusion des routers métier),
+> `routes/`, `migrations/`, `tests/`. Les modules transverses listés
+> ci-dessous (`hub_auth`, `hub_client`, `outbox`…) n'existent **que dans les
+> apps fork** (template ≤ 2.34) : côté app fine, leurs équivalents vivent
+> dans `hub_socle` (ex. `from hub_socle.hub_auth import get_current_user`,
+> `Base` = `hub_socle.database.Base`). Contrat complet :
+> [`REFERENCE-APP-FINE.md`](../HUBsocle/docs/REFERENCE-APP-FINE.md).
 
 ```
 backend/
@@ -424,6 +436,13 @@ timeline cohérente entre toutes les machines :
 
 **Convention** : `backend/migrations/NNN_description.sql` (3 chiffres, incrémental).
 
+> **App fine** : les migrations de l'app occupent la plage `001-08x` — la
+> plage `090+` appartient au socle. Elles sont appliquées automatiquement
+> (fusion triée de `/app/migrations`, tracking partagé `schema_migrations` ;
+> les préfixes déjà appliqués par l'époque fork sont reconnus). **Jamais de
+> fichiers SQL dans `migration_hooks`** (ils tournent avant `init_db`) ;
+> seeds et tâches asyncio métier → `lifespan_extra`.
+
 ```sql
 -- backend/migrations/003_ajout_colonne_priorite.sql
 BEGIN;
@@ -511,6 +530,10 @@ SELECT * FROM schema_migrations;  -- Voir les migrations exécutées
 ## 5. Ajouter une feature de A à Z
 
 Ce fil rouge illustre le processus complet pour ajouter une feature typique : un CRUD « Projets ».
+
+> **App fine** : mêmes étapes, imports différents — `Base` vient de
+> `hub_socle.database`, `get_current_user`/`require_role` de
+> `hub_socle.hub_auth`, la session reste `Depends(get_db)`.
 
 ### Étape 1 — Modèle SQLAlchemy (`backend/models.py`)
 
@@ -831,6 +854,7 @@ make lint-classes                 # Classes HUBCSS du frontend (aucune classe fa
 | `HUB_INTERNAL_HOST` | *(vide)* | Host interne Docker vers le Hub (utile si réseau Docker custom) |
 | `HUB_FRONTEND_PORT` | `80` | Port frontend du Hub |
 | `APP_VERSION` | *(synchro depuis VERSION)* | Version actuelle |
+| `APP_SOCLE_VERSION` | *(aligné par `make sync-env`)* | Pin de l'image socle `poulidor/socle-api` consommée par l'app (app fine, template ≥ 2.35.0) — aligné sur le checkout `HUBsocle/` ; `make build` échoue si l'image n'existe pas en local (« lancez ./hubctl socle build ») |
 | `APP_DESCRIPTION` | *(vide)* | Description de l'app |
 | `DEBUG` | `false` | Mode debug (true en dev) |
 | `HTTPS_ENABLED` | `true` | HTTPS activé par défaut (2.23.7) — `false` pour du HTTP explicite |
@@ -850,6 +874,14 @@ make lint-classes                 # Classes HUBCSS du frontend (aucune classe fa
 - Si l'app et le Hub sont sur la même machine, `APP_HOST` est auto-détecté par `entrypoint.sh` au démarrage
 
 ### Features template récentes
+
+- **Conversion app fine** (2.35.0) : le template consomme HUBsocle —
+  `Dockerfile.backend` = `FROM poulidor/socle-api:${SOCLE_VERSION}`,
+  `main.py` = `create_app()` du socle, dépendance frontend
+  `@poulidor/hub-socle` (contexte compose `socle:`, `preserveSymlinks`),
+  pin `APP_SOCLE_VERSION` aligné par `make sync-env` (échec explicite si
+  l'image manque). Fin de la duplication du transverse. (2.35.1 : accueil à
+  un seul en-tête + état « Connexion au Hub... » au boot d'auth.)
 
 - **Structure canonique CSS-first** (2.30.0-2.30.1) : `components/PageHeader.jsx` + `ExampleList.jsx` (remplace `DataTable.jsx`, supprimé), purge du CSS ad hoc de `app.css` → classes `hub-*` du seed HUBCSS (0.3.0) ; directive de consommation dans `frontend/README.md` ; rebranding INITIALISE robuste (échec explicite si motif absent).
 - **Skill `data-generate`** (2.29.0) : données de test sans données réelles — synthétiques ou anonymisation `exemple-app` obligatoire avant tout usage de données réelles.
@@ -881,7 +913,7 @@ make lint-classes                 # Classes HUBCSS du frontend (aucune classe fa
 |-------|----------------|-------|
 | `make dev` | `docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d && docker compose logs -f` | Lancement hot-reload avec logs en direct |
 | `make up-dev` | `docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d` | Lancement hot-reload en arrière-plan |
-| `make build` | `docker compose build` | Build des images production |
+| `make build` | `docker compose build` (après `sync-env` : aligne `APP_SOCLE_VERSION`) | Build des images production — **échoue sans l'image socle locale** : `./hubctl socle build` |
 | `make up` | `docker compose up -d` (overlay `docker-compose.https.yml` si HTTPS activé) | Démarre en prod (sync-env préalable, HTTPS si activé) |
 | `make down` | `docker compose down` | Arrêt des services |
 | `make down-dev` | `docker compose -f docker-compose.yml -f docker-compose.dev.yml down` | Arrêt des services dev |
@@ -943,8 +975,9 @@ make lint-classes                 # Classes HUBCSS du frontend (aucune classe fa
 | `make sync-env` | Alloue les ports via le Hub + synchronise `FRONTEND_HTTPS_PORT` et `APP_VERSION` |
 | `make sync-hub-host` | Synchronise l'IP du Hub (découverte auto, gardes legacy/LAN ; `make sync-hub-host HUB_HOST=x.x.x.x`) |
 | `make update-env` | Fusionne les nouvelles clés du `.env.example` dans le `.env` (après montée de template ; valeurs existantes préservées) |
+| `make pull` | `git pull` sûr (stash auto → `--ff-only` → stash pop ; conflit = stash conservé) |
 | `make ai-index` | Régénère `AI_INDEX.md` |
-| `make refresh-design-seed` | Copie HUBCSS dist → `frontend/public/design-system/current` |
+| `make update-ds` | Synchronise le seed HUBCSS (vendor, sha256 vérifiés — remplace l'ancienne `refresh-design-seed`) |
 | `make sync-hub-tooling` | Synchronise `hub_mcp/` + plugin OpenCode |
 | `make sync-hub-tooling-check` | Vérifie que la copie `hub_mcp` + plugin est synchro avec les sources (CI) |
 | `make init` | ⚠️ Déprécié — utiliser les scripts `INITIALISE` (cf. §2.2) |
@@ -958,34 +991,17 @@ make lint-classes                 # Classes HUBCSS du frontend (aucune classe fa
 ```
 backend/tests/
 ├── conftest.py                  # Fixtures partagées (§8.2)
-├── test_auth.py                 # Authentification
-├── test_auth_tagging.py         # Tagging __auth_level__ des closures d'auth
-├── test_backup.py               # Backup/Restore
-├── test_backup_restore_order.py # Ordre de restore (tri topologique, savepoints)
-├── test_backup_streaming.py     # Streaming backup/restore (RAM bornée)
-├── test_cert_sync.py            # Re-synchro périodique des certificats PKI
-├── test_config_env.py           # Tolérance aux variables Hub vides (settings)
-├── test_hub_auth_async.py       # JWKS fetch async (hub_auth hors event loop)
-├── test_hub_client_binary.py    # Transferts binaires via le Hub
-├── test_hub_client_depends.py   # Dépendances FastAPI liées au Hub
-├── test_hub_client_register_version.py # Ré-enregistrement au changement de version
-├── test_hub_client_selfheal.py  # Auto-récupération des credentials M2M
-├── test_hub_data.py             # Routes /api/hub/data (découverte de données Hub)
-├── test_hub_depends.py          # Résolution du fichier depends.yaml
-├── test_hub_transfert.py        # Client Hub Transfert (opt-in)
-├── test_items.py                # CRUD Items (démo)
-├── test_logging_config.py       # Logging horodaté heure Hub (§3.7)
-├── test_m2m.py                  # M2M communication
-├── test_m2m_catalog.py          # Catalogue M2M
-├── test_migrations.py           # Runner de migrations SQL
-├── test_outbox.py               # Pattern outbox
-├── test_outbox_recovery.py      # Recovery outbox
-├── test_preferences.py          # Préférences utilisateur
-├── test_services.py             # Tests services Hub
-├── test_socle_2232_alignment.py # Alignement template ↔ HUBsocle 2.23.2
-├── test_storage_security.py     # Sécurité StorageManager (anti-traversée)
-└── test_sync_hub_host.py        # Gardes + fallback sync_hub_host
+├── test_app_fine_canary.py      # Canari app fine (socle bien consommé, M2M)
+├── test_initialise_clean.py     # Nettoyage INITIALISE
+├── test_sync_hub_host.py        # Gardes + fallback sync_hub_host
+├── test_sync_socle_version.py   # Alignement APP_SOCLE_VERSION (échec explicite si image absente)
+└── test_update_design_system.py # Cible make update-ds (seed HUBCSS)
 ```
+
+> **App fine (template ≥ 2.35.0)** : les tests du transverse vivent dans la
+> **suite du socle** (`HUBsocle/`, 340+ tests) — une app fine ne teste que
+> son métier (+ canari). Sur les apps fork (≤ 2.34), la liste historique
+> (`test_auth.py`, `test_backup.py`, `test_outbox.py`…) reste en place.
 
 ### 8.2 Fixtures essentielles (`conftest.py`)
 

@@ -120,6 +120,7 @@ Les opérations destructrices ne sont **pas** exposées à l'interface :
 ./hubctl vault app list       # apps du coffre (git_url + version)
 ./hubctl vault app set-url …  # corrige le git_url d'une app
 ./hubctl pra-restore          # pipeline complet de sinistre depuis le kit PRA
+                              # scriptable : ADMIN_PASSWORD=… ./hubctl pra-restore ~/kit --yes --force --apps all
 ```
 
 Rappel du cycle : la **sauvegarde** (disque → coffre) est automatique au démarrage de hubctl et via l'UI ; la **restauration** (coffre → disque) est un chemin explicite de PRA/réinstallation, pas un correctif ordinaire.
