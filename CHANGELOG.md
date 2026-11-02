@@ -1,3 +1,35 @@
+## [0.78.12] - 2 novembre 2026
+
+### 📄 Docs développeur à jour — hubctl 0.16.3, Hub 3.77.6, template 2.35 (app fine)
+
+- **`docs/guide-parc-poulidor.md`** (revue intégrale) : snapshot versions au
+  2 novembre 2026 (parc 0.78.11, hubctl 0.16.3, Hub 3.77.6, socle 2.33.0,
+  template 2.35.2) ; conversion du template en app fine (2.35.0) encadrée
+  (§1.1, §4) ; hubctl 15 sous-commandes — `doctor` (0.12.0),
+  `atelier --close-all / --serve / --host / --port / --token-file`
+  (0.13-0.15), service hôte `hubctl-atelier` auto-installé
+  (0.16.0/0.16.3), `update` ciblé + mode explicite `--dev/--prod`
+  (0.11/0.12) ; PRA : voie scriptable
+  `ADMIN_PASSWORD=… pra-restore --yes --force --apps all` + fiabilisations
+  0.16.1/0.16.2 + **prérequis `./hubctl socle build`** sur machine
+  reconstruite (apps fines, offline-first) ; Hub : évolutions 3.62→3.77.6
+  (ateliers pilotés admin 3.75.0, coffre piloté UI 3.77.0, ateliers exclus
+  des sauvegardes 3.77.6), 31 routeurs ; `hub.sh update` délègue à
+  `hubctl update hub` (`update-hub.sh` déprécié) ; Makefile template :
+  40 cibles (`pull`, `update-ds` remplace `refresh-design-seed`) ; renvois
+  ajoutés (notice-coffre-hubctl.md, ops/mise-a-jour.md,
+  HUBsocle/docs/REFERENCE-APP-FINE.md, skill migrate-app-to-socle).
+- **`docs/visualDev_guide.html`** : mêmes mises à jour en version illustrée
+  (hubctl 0.16.3, atelier --close-all, PRA + socle build).
+- **`docs/guide-developpement-template.md`** : synchronisation template
+  2.35.2 — bannière app fine, modes INITIALISE réels, structure backend
+  app fine, plages migrations (app 001-08x / socle 090+),
+  `APP_SOCLE_VERSION`, Makefile (build = sync-env + socle build, `pull`,
+  `update-ds`), suite de tests réelle (5 fichiers + suite socle).
+- **`docs/notice-coffre-hubctl.md`** : voie scriptable `pra-restore`
+  (hubctl 0.16.1).
+- `docs/ops/mise-a-jour.md` : déjà à jour (aucun changement).
+
 ## [0.78.9] - 1er novembre 2026
 
 ### 📄 Pointeur HUBsocle 2.30.7 — endpoint /api/migrations + index outbox target_slug
