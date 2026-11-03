@@ -27,6 +27,16 @@
 
 ---
 
+## [0.80.4] - 3 novembre 2026
+
+### 🔧 Pointeur HUB_base 3.79.3 — fix data-args vue routage
+
+- **`HUB_base` → 3.79.3** : `data-args="$el"` sur les handlers de la vue
+  routage (TypeError au clic — sélection d'app et actions inertes) + bump
+  cache-busting des assets.
+
+---
+
 ## [0.80.3] - 3 novembre 2026
 
 ### 🔧 Pointeur HUB_base 3.79.2 — hotfix retry des reloads au boot
