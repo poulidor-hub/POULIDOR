@@ -27,6 +27,19 @@
 
 ---
 
+## [0.80.2] - 3 novembre 2026
+
+### 🔧 Pointeur HUB_base — fix pass review indépendant (chantier B)
+
+- **`HUB_base` → 3.79.1** : correctifs du review indépendant — refs DOM
+  mortes après retrait des vues ports/réseau (création d'app et init admin
+  refonctionnent), validation 400 des collisions slug/routage à la création,
+  dnsmasq `local-service` (pas de résolveur ouvert) + `bind-dynamic`
+  (hot-plug wg0), dossiers de publication trackés (install fresh),
+  `routing_last_error` complet, opérations bloquantes hors event loop.
+
+---
+
 ## [0.80.1] - 3 novembre 2026
 
 ### 🔧 Pointeur HUB_base — zone DNS en format hosts (addn-hosts)
