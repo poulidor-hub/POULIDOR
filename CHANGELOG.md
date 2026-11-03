@@ -27,6 +27,16 @@
 
 ---
 
+## [0.80.3] - 3 novembre 2026
+
+### 🔧 Pointeur HUB_base 3.79.2 — hotfix retry des reloads au boot
+
+- **`HUB_base` → 3.79.2** : hub-api peut finir son boot avant
+  hub-frontend/hub-dns → les reloads de publication sont retentés au lieu de
+  poser une erreur 409 persistante dans la vue routage.
+
+---
+
 ## [0.80.2] - 3 novembre 2026
 
 ### 🔧 Pointeur HUB_base — fix pass review indépendant (chantier B)
