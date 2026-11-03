@@ -27,6 +27,22 @@
 
 ---
 
+## [0.80.0] - 3 novembre 2026
+
+### 🌐 Pointeur HUB_base 3.79.0 — routage par noms DNS + vue « Accès & routage » (chantier B)
+
+- **`HUB_base` → 3.79.0** (`c4b68ae`) : les apps deviennent joignables en
+  `https://<slug>.<zone>` (dnsmasq `hub-dns` + vhosts SNI générés + wildcard
+  PKI) ; nouvelle vue admin « Accès & routage » (remplace l'onglet Réseau et la
+  modal Pool de ports ; ports en lecture seule) ; création d'app sans saisie de
+  ports ; WireGuard pousse le DNS du hub ; services tiers visibles (PhiliaNG
+  migrée) ; création sans ports = allocation automatique.
+- Vérification live : résolution 42 noms via le résolveur (VPN), SNI cert
+  wildcard « Verification OK » → app 200, renommage live régénéré.
+- Voir le CHANGELOG HUB_base v3.79.0 pour le détail complet.
+
+---
+
 ## [0.79.0] - 2 novembre 2026
 
 ### 🔒 Pointeur HUB_base 3.78.0 — accès Docker via proxy filtré (chantier A 1a)
