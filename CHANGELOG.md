@@ -27,6 +27,19 @@
 
 ---
 
+## [0.80.1] - 3 novembre 2026
+
+### 🔧 Pointeur HUB_base — zone DNS en format hosts (addn-hosts)
+
+- **`HUB_base` → 3.79.1** (`cf347cd`) : la zone DNS générée passe en format
+  hosts (`addn-hosts`) — le `conf-dir=<dir>,*` de la build alpine ne chargeait
+  pas les fichiers (résolution inopérante sur le banc) ; résolution
+  host→IP pour les lignes address (host.docker.internal, noms LAN).
+- Vérifié live après re-apply : résolution des noms du parc + forward externe,
+  SNI 200.
+
+---
+
 ## [0.80.0] - 3 novembre 2026
 
 ### 🌐 Pointeur HUB_base 3.79.0 — routage par noms DNS + vue « Accès & routage » (chantier B)
