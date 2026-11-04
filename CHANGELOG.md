@@ -1,3 +1,16 @@
+## [0.80.13] - 5 novembre 2026
+
+### ⚡ Documentation open source — scrub final + community files + CI neutre
+
+| Élément | Détail |
+|---------|--------|
+| **SECURITY.md + CODE_OF_CONDUCT.md** | politiques FR ajoutées à la racine (signalement privé, divulgation coordonnée, Contributor Covenant adapté) |
+| **CI** | `.github/workflows/ci.yml` (runner self-hosted, clone SSH, sonde hub de prod) remplacée par `oss-guard.yml` neutre : pas d'IP privée trackée, pas de donnée client, cohérence VERSION/CHANGELOG, sous-modules présents |
+| **README** | badge licence AGPLv3 (fini « projet interne »), table des composants à jour (3.80.x / 2.33.x / 2.35.x / 0.16.x / 0.3.x / 0.16.x), compteur MCP harmonisé à 66 (source : AST `hub_mcp/tools.py`), clone en HTTPS, APPS/ annoté « vide dans la distribution publique » |
+| **skills .opencode** | noms d'apps clientes et de clients scrubés → génériques (exemple-app-2, salarie, vikunja, service.example.org, 203.0.113.10, exemple-app, exemple-app…) ; liens morts vers specs purgées neutralisés |
+| **CHANGELOG** | mentions exemple-org / chemin personnel scrubées |
+| **Pointeurs** | HUB_base **3.80.4**, HUBsocle **2.33.3**, HUBapp_TEMPLATE_base **2.35.5**, HUBCSS **0.3.5**, hubctl_src **0.16.7**, hub-mcp **0.16.2** |
+
 ## [0.80.12] - 4 novembre 2026
 
 ### ⚙️ Scrub final plans VPN
