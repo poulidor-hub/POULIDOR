@@ -1,3 +1,16 @@
+## [0.80.5] - 4 novembre 2026
+
+### 🔧 Pointeur hubctl_src 0.16.4 — fix doctor (NameError)
+
+- **`hubctl_src` → 0.16.4** : `hubctl doctor` plantait systématiquement
+  depuis son introduction (0.12.0) avec `name 'action_doctor' is not
+  defined` — la fonction existait dans `actions.py` mais l'import nommé
+  de `__main__.py` ne la listait pas. La première étape de la routine de
+  mise à jour (`doctor` → `update hub` → `update all`) est de nouveau
+  opérationnelle ; test de régression sur le câblage CLI inclus.
+
+---
+
 ## [0.79.1] - 2 novembre 2026
 
 ### 📚 Skill migrate-app-to-socle — bascule auth front (pièges exemple-app 1.60.0)
