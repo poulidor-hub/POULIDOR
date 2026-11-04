@@ -1,3 +1,9 @@
+## [0.80.12] - 4 novembre 2026
+
+### ⚙️ Scrub final plans VPN
+
+- `docs/superpowers/plans/2026-06-28-vpn-wireguard-simplification.md` : assertions référençant le préfixe de l'ancienne clé d'exemple réécrites sur la clé dummy (le reste de l'historique déjà purgé en 0.80.11)
+
 ## [0.80.11] - 4 novembre 2026
 
 ### ⚡ Purge open source de l'historique (filter-repo) + pointeurs
