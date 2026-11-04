@@ -1,3 +1,28 @@
+## [0.80.7] - 4 novembre 2026
+
+### 📚 Doc — routine de mise à jour par version (README) + captures du Hub + guides d'installation
+
+- **README « Mise à jour du parc » réécrit** autour de la routine officielle
+  (`hubctl doctor [--fix]` → `update hub` (bloquant) → `update all` → `./hub.sh status`,
+  cf. 0.74.10) avec un tableau **« selon l'ancienneté de votre installation »** :
+  ≥ 0.74.10 → routine directe ; hubctl présent < 0.74.10 → pull méta+submodules puis
+  routine ; pré-hubctl (< 0.10.0, été 2026) → `sudo ./install.sh` puis bascule ;
+  cas « historique réécrit » (purge 26/10/2026) → réalignement du clone. Renvoi vers
+  `docs/ops/mise-a-jour.md` (interdits, sémantique `update hub`). `update-hub.sh`
+  rappelé déprécié.
+- **`docs/guide-hub/presentation.html` enrichie** : 8 captures d'écran du Hub
+  (portail de connexion, Mes Applications, Santé des Applications, admin
+  Applications/Configuration, Ateliers, Coffre hubctl, Audit) intégrées aux sections
+  via `figure.shot` (statique, aucune animation) + nouvelle section
+  **« Guides d'installation »** (install.sh tout-en-un, `hubctl init`, installation
+  manuelle, ajout d'app seed/create_app/IA, mise à jour d'une installation existante)
+  + renvoi `docs/ops/mise-a-jour.md` dans la table doc. Captures prises sur le Hub
+  local v3.79.3 (1440×900 JPEG, 576 Ko au total, `assets/screenshots/`).
+- **Resync de la version affichée** : badge README + `PARC_VERSION` (`guide.js`) +
+  fallbacks `data-parc-version` des 12 pages guide-hub, 0.66.9 → 0.80.6 (mécanisme
+  toujours manuel — à resynchroniser à chaque release).
+- **`.gitignore`** : `.openchamber/` (artefacts locaux OpenChamber : captures, état).
+
 ## [0.80.6] - 4 novembre 2026
 
 ### 🔧 Pointeur hub-mcp 0.16.0 — profils MCP everyday/support/full + hub_parc_state
