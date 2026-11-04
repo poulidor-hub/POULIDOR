@@ -1,3 +1,18 @@
+## [0.80.8] - 4 novembre 2026
+
+### ⚡ Conformité juridique open source (double licence) + pointeurs
+
+Préparation de la publication publique du parc — aucune logique métier modifiée :
+
+| Élément | Détail |
+|---------|--------|
+| **Double licence** | `LICENSE` (**AGPLv3**, cœur du HUB) + `LICENSE-TEMPLATE` (**MIT**, gabarit `HUBapp_TEMPLATE_base` et design system HUBCSS — les apps créées avec le gabarit restent 100 % la propriété du développeur) |
+| **Marque** | `TRADEMARK.md` : noms (« Le HUB », « POULIDOR Hub »), logos et identité visuelle réservés — tout fork public doit changer de nom et retirer les logos |
+| **Contributions** | `CLA.md` (double licensing AGPLv3/commercial) + `CONTRIBUTING.md` (signature du CLA obligatoire dans chaque PR) |
+| **En-têtes SPDX** | AGPLv3 sur les 98 sources du méta-repo ; script réutilisable `scripts/apply_license_headers.py` (insertion octets, shebang/coding préservés, dry-run par défaut) |
+| **README** | Section « ⚖️ Licence & Modèle Open Source » (remplace la mention « projet interne ») |
+| **Pointeurs** | HUB_base **3.80.1** · HUBsocle **2.33.2** · hub-mcp **0.16.1** · Hubctl **0.16.5** · HUBapp_TEMPLATE_base **2.35.3** · HUBCSS **0.3.4** — licences AGPLv3/MIT + en-têtes SPDX appliquées dans chaque repo |
+
 ## [0.80.7] - 4 novembre 2026
 
 ### 📚 Doc — routine de mise à jour par version (README) + captures du Hub + guides d'installation
