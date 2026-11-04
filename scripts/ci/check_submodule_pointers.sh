@@ -1,4 +1,7 @@
 #!/bin/bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # check_submodule_pointers.sh — CI méta POULIDOR
 # Vérifie que le commit pointé par CHAQUE sous-module est contenu dans
 # origin/main du dépôt du sous-module (i.e. poussé ET mergé).

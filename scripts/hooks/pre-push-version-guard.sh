@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # pre-push-version-guard — dernier rempart anti-écrasement croisé (parc POULIDOR).
 #
 # Refuse tout push qui ferait RÉGRESSER le fichier VERSION par rapport à la

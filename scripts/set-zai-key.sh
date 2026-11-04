@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # set-zai-key.sh — Persiste la clé API Z.ai pour le MCP `zai-mcp-server` d'opencode.
 #
 # Le MCP est déclaré dans opencode.json avec "Z_AI_API_KEY": "{env:Z_AI_API_KEY}" :

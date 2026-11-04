@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # vm-debian12.sh — Primitives VM Debian 12 (QEMU direct + cloud-init NoCloud).
 # Usage CLI : scripts/lib/vm-debian12.sh {usage|create|ssh|destroy|console} ...
 # Ou sourcé : source scripts/lib/vm-debian12.sh && vm_create && vm_ssh "cmd"

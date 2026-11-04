@@ -242,6 +242,12 @@ Le parc intègre des **skills IA** (`.opencode/skills/`) pour le développement 
 
 ---
 
-## Licence
+## ⚖️ Licence & Modèle Open Source
 
-Projet interne — POULIDOR Audit & Développement.
+Ce projet adopte une architecture à **double périmètre de licence** afin de protéger le socle tout en garantissant une liberté totale aux développeurs d'applications métiers :
+
+1. **Cœur du HUB (API, Frontal, Orchestration, VPN, MCP, Console IA)** : Distribué sous licence **[GNU AGPLv3](./LICENSE)**. Vous pouvez l'utiliser, l'auditer et le modifier librement tant que toute version modifiée exposée sur un réseau reste sous licence AGPLv3. Une **licence commerciale** est disponible sur demande auprès de **POULIDOR Audit & Développement**.
+2. **Gabarit d'application (`HUBapp_TEMPLATE_base`), SDK M2M & Design System (`HUBCSS`)** : Distribués sous licence permissive **[MIT](./LICENSE-TEMPLATE)**. Les applications métiers que vous développez à partir du gabarit du HUB **ne sont pas soumises à l'AGPLv3** : elles vous appartiennent à 100 % et peuvent conserver la licence de votre choix (y compris propriétaire / code fermé).
+3. **Licence Commerciale & Support** : Pour les organisations ou intégrateurs souhaitant intégrer le HUB dans une offre commerciale propriétaire sans les contraintes de l'AGPLv3, ou bénéficier d'un accompagnement officiel (déploiement, audit, MCO), contactez **POULIDOR Audit & Développement**.
+
+*Note : Les noms commerciaux et logos sont soumis à notre [Politique de Marque (TRADEMARK.md)](./TRADEMARK.md).*

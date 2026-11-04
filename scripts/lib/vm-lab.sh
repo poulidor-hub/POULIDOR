@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # vm-lab.sh — Labos VM Debian 12 PERSISTANTS pour POULIDOR.
 #
 # S'appuie sur vm-debian12.sh (primitives QEMU/cloud-init éprouvées) avec

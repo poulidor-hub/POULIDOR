@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # test-fresh-install.sh — Harness : installation POULIDOR de zéro sur Debian 12.
 #
 # Monte une VM Debian 12 jetable (QEMU/KVM + cloud-init), exécute l'installation
