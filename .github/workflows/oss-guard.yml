@@ -1,0 +1,48 @@
+# CI publique du méta-repo POULIDOR — garde-fous open source.
+# (l'ancienne CI self-hosted — pointeurs SSH + sonde hub de prod — ne se
+#  transpose pas à un dépôt public ; les vérifications de build/health
+#  restent locales au parc, via ./hubctl doctor.)
+name: OSS guard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  no-private-data:
+    name: Aucune donnée privée trackée
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Pas d'IP de serveur réel (plages scrubées → RFC 5737 uniquement)
+        run: |
+          ! grep -rInE '192\.168\.1\.(68|126|50)\b|194\.177\.37\.106|10\.210\.(0|63)\.' \
+            --exclude-dir=.git --exclude-dir=node_modules . \
+            || { echo "IP privée détectée dans les fichiers trackés"; exit 1; }
+
+      - name: Pas de données clients nommées
+        run: |
+          ! grep -rInE 'exemple-org|pr177\.exemple\.org|fede50\.priv' \
+            --exclude-dir=.git --exclude-dir=node_modules . \
+            || { echo "Donnée client détectée dans les fichiers trackés"; exit 1; }
+
+  coherence-release:
+    name: VERSION / CHANGELOG cohérents
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: L'entrée CHANGELOG en tête correspond à VERSION
+        run: |
+          v="$(cat VERSION)"
+          head -40 CHANGELOG.md | grep -q "## \[$v\]" \
+            || { echo "CHANGELOG: pas d'entrée [$v] en tête (VERSION=$v)"; exit 1; }
+
+      - name: Sous-modules présents
+        run: |
+          for s in HUB_base HUBsocle HUBapp_TEMPLATE_base HUBCSS hubctl_src hub-mcp; do
+            test -d "$s" || { echo "sous-module manquant: $s"; exit 1; }
+          done

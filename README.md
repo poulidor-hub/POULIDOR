@@ -1,7 +1,7 @@
 # POULIDOR — Parc applicatif HUB
 
-![version](https://img.shields.io/badge/version-0.80.12-blue)
-![licence](https://img.shields.io/badge/licence-projet%20interne-lightgrey)
+![version](https://img.shields.io/badge/version-0.80.13-blue)
+![licence](https://img.shields.io/badge/licence-AGPL--3.0-blue)
 
 Plateforme de développement et d'exécution pour applications métier, avec **SSO centralisé**,
 **déploiement Docker** et **pilotage unifié**.
@@ -31,10 +31,10 @@ POULIDOR/
 ├── HUBsocle/                 ← Socle applicatif versionné des apps (factory + images de base)
 ├── HUBapp_TEMPLATE_base/     ← Template canonique pour toute nouvelle app
 ├── HUBCSS/                   ← Design system (CSS + icônes + fonts, servi par le Hub)
-├── hub-mcp/                  ← Serveur MCP (63 outils IA pour piloter le Hub)
-├── APPS/                     ← Applications en production
+├── hub-mcp/                  ← Serveur MCP (66 outils IA pour piloter le Hub)
+├── APPS/                     ← Vos applications (vide dans la distribution publique — créez les vôtres depuis le template)
 ├── docs/                     ← Guides du parc (installation, hubctl, make, architecture)
-└── exports/                  ← Archives park-export
+└── exports/                  ← Archives park-export (local, non versionné)
 ```
 
 ## Architecture
@@ -43,7 +43,7 @@ POULIDOR/
 flowchart TB
     subgraph pilotage["🧭 Pilotage"]
         hubctl["hubctl<br/>TUI + CLI"]
-        mcp["hub-mcp<br/>65 outils IA"]
+        mcp["hub-mcp<br/>66 outils IA"]
     end
     subgraph hub["🌐 Hub central — HUB_base"]
         api["API FastAPI<br/>auth JWT/JWKS · OIDC · registry<br/>messages · backups · snapshots"]
@@ -74,11 +74,11 @@ flowchart TB
 | Composant | Version | Rôle |
 |---|---|---|
 | [`HUB_base`](https://github.com/POULIDOR-Audit-Developpement/HUB_base) | 3.61.x | Hub SSO : auth JWT/JWKS, OIDC, registre des apps, messagerie SSE, backups & snapshots, VPN |
-| [`HUBsocle`](https://github.com/POULIDOR-Audit-Developpement/HUBsocle) | 2.25.x | Socle versionné des apps : paquets `hub-socle` / `@poulidor/hub-socle`, images de base |
-| [`HUBapp_TEMPLATE_base`](https://github.com/POULIDOR-Audit-Developpement/HUBapp_TEMPLATE_base) | 2.28.x | Template canonique dont toute nouvelle app est issue |
-| [`Hubctl`](https://github.com/POULIDOR-Audit-Developpement/Hubctl) | 0.10.x | Pilotage du parc : TUI + CLI, ateliers, coffre, PRA |
-| [`HUBCSS`](https://github.com/POULIDOR-Audit-Developpement/HUBCSS) | 0.2.x | Design system Tailwind v4 + icônes Lucide, offline-first |
-| [`hub-mcp`](https://github.com/POULIDOR-Audit-Developpement/hub-mcp) | 0.4.x | Serveur MCP : 63 outils IA pour administrer le Hub |
+| [`HUBsocle`](https://github.com/POULIDOR-Audit-Developpement/HUBsocle) | 2.33.x | Socle versionné des apps : paquets `hub-socle` / `@poulidor/hub-socle`, images de base |
+| [`HUBapp_TEMPLATE_base`](https://github.com/POULIDOR-Audit-Developpement/HUBapp_TEMPLATE_base) | 2.35.x | Template canonique dont toute nouvelle app est issue |
+| [`Hubctl`](https://github.com/POULIDOR-Audit-Developpement/Hubctl) | 0.16.x | Pilotage du parc : TUI + CLI, ateliers, coffre, PRA |
+| [`HUBCSS`](https://github.com/POULIDOR-Audit-Developpement/HUBCSS) | 0.3.x | Design system Tailwind v4 + icônes Lucide, offline-first |
+| [`hub-mcp`](https://github.com/POULIDOR-Audit-Developpement/hub-mcp) | 0.4.x | Serveur MCP : 66 outils IA pour administrer le Hub |
 
 Chaque dépôt a son README détaillé (rôle, démarrage, tests) — les versions exactes vivent
 dans les fichiers `VERSION` de chaque composant (exception : `HUBCSS` → `package.json`,
@@ -129,7 +129,7 @@ Outil unique pour administrer tout le parc :
 
 ```bash
 # 1. Cloner le dépôt
-git clone --recurse-submodules git@github.com:POULIDOR-Audit-Developpement/POULIDOR.git
+git clone --recurse-submodules https://github.com/POULIDOR-Audit-Developpement/POULIDOR.git
 cd POULIDOR
 
 # 2. Installation tout-en-un (prérequis + Hub)

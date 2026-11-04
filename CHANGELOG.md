@@ -21,7 +21,7 @@
 
 | Élément | Détail |
 |---------|--------|
-| **Pointeur** | `hubctl_src` → **0.16.6** : timeout git configurable (`HUBCTL_GIT_TIMEOUT`, défaut relevé 30 s → 120 s), `TimeoutExpired` converti en Finding explicite (fini le crash `Command [...] timed out`), fetch non interactif (`GIT_TERMINAL_PROMPT=0`) et remède SSH/credential helper sur remote HTTPS sans identifiants — retours serveur client exemple-org |
+| **Pointeur** | `hubctl_src` → **0.16.6** : timeout git configurable (`HUBCTL_GIT_TIMEOUT`, défaut relevé 30 s → 120 s), `TimeoutExpired` converti en Finding explicite (fini le crash `Command [...] timed out`), fetch non interactif (`GIT_TERMINAL_PROMPT=0`) et remède SSH/credential helper sur remote HTTPS sans identifiants — retours serveur client (production) |
 | **Livrable client** | après `git pull` + `./hubctl update hub`, `./hubctl doctor` ne bloque plus sur connexion lente et diagnostique proprement les remotes HTTPS sans credentials |
 
 ## [0.80.9] - 4 novembre 2026
@@ -961,7 +961,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 
 - **HUB_base 3.71.1** : `APPS_HOST_PATH` dynamique — `install.sh` détecte et
   écrit le chemin réel de `APPS/` dans le `.env` généré (fin du chemin de
-  machine de dev `/home/kkleskk/...` en dur dans compose/config/.env.example).
+  machine de dev `/home/dev/...` en dur dans compose/config/.env.example).
   Corrige le precheck « Écriture du dossier APPS » en fail (`PermissionError`)
   sur serveur distant : la variable devient obligatoire dans le compose
   (`${VAR:?}`), défaut backend neutre, tests de non-régression ajoutés.
@@ -1526,7 +1526,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   l'api démarre en root, corrige la propriété des volumes de données
   (storage/uploads/certs/data) puis bascule en appuser via gosu ; caps
   CHOWN/SETUID/SETGID ajoutées au service api du compose.
-- Motivation : incident prod exemple-app (site exemple exemple-org) — volumes créés
+- Motivation : incident prod app-exemple (site client) — volumes créés
   par root → app non-root en lecture seule (SQLite readonly, locks Hub) →
   500 sur toute création. Un simple redémarrage répare désormais tout.
 # Changelog — POULIDOR
