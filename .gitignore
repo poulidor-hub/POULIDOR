@@ -31,3 +31,9 @@ checkpoint/
 # Rapports du banc de campagne (générés à l'exécution par banc.runner)
 scripts/campagne-flotte/rapport-campagne.*
 .openchamber/
+
+# Sessions agent + rapports clients : conservés localement, jamais publiés
+.superpowers/
+docs/migrationv1_rapport/
+docs/handover/
+docs/runbook-exemple-app-apps-socle.md
