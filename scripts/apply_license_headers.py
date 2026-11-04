@@ -73,7 +73,7 @@ STYLE_BY_NAME = {
 SKIP_DIR_PARTS = {"node_modules", "dist", "build", "vendor", "vendored",
                   ".venv", "venv", "__pycache__", "coverage", ".next",
                   ".github/workflows"}
-SKIP_SUFFIXES = (".min.js", ".min.css", ".min.mjs", ".d.ts")
+SKIP_SUFFIXES = (".min.js", ".min.css", ".min.mjs")
 MAX_BYTES = 1_000_000  # au-delà : probablement généré/minifié, on s'abstient
 
 CODING_RE = re.compile(r"^\s*#.*?coding[:=]\s*[-\w.]+")
