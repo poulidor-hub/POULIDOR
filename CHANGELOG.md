@@ -1,3 +1,12 @@
+## [0.80.10] - 4 novembre 2026
+
+### ⚡ Pointeur hubctl 0.16.6 — doctor tolérant liens lents / HTTPS sans identifiants
+
+| Élément | Détail |
+|---------|--------|
+| **Pointeur** | `hubctl_src` → **0.16.6** : timeout git configurable (`HUBCTL_GIT_TIMEOUT`, défaut relevé 30 s → 120 s), `TimeoutExpired` converti en Finding explicite (fini le crash `Command [...] timed out`), fetch non interactif (`GIT_TERMINAL_PROMPT=0`) et remède SSH/credential helper sur remote HTTPS sans identifiants — retours serveur client exemple-org |
+| **Livrable client** | après `git pull` + `./hubctl update hub`, `./hubctl doctor` ne bloque plus sur connexion lente et diagnostique proprement les remotes HTTPS sans credentials |
+
 ## [0.80.9] - 4 novembre 2026
 
 ### ⚡ sync-parc-version.sh — le bump méta resynchronise la version affichée (release-on-main)
