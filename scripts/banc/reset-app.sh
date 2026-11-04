@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # reset-app.sh — Réinitialiser une application sur un banc de test (usage DEV).
 #
 # Usage : scripts/banc/reset-app.sh <slug> [--full] [--yes] [--dry-run]

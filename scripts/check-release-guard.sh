@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # check-release-guard — garde-fou de release pour le méta-repo POULIDOR
 # (bump manuel : pas de sync_version.py ici — même gardes que
 # sync_version.py du HUB_base, incident 2026-10-04).

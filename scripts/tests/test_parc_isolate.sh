@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # test_parc_isolate.sh — régression : parc-isolate doit opérer sur le dépôt du
 # répertoire courant, y compris quand ce dépôt est un SUBMODULE.
 #

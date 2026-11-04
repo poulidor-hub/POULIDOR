@@ -1,4 +1,7 @@
 #!/bin/bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # Serveur MCP hub (mode standalone) — lancement autonome depuis le méta-repo.
 #
 # Utilisé par opencode.json (racine POULIDOR) : ["bash", "mcp-hub.sh"].

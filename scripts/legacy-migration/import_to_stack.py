@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 """
 import_to_stack.py — Adaptateur de migration : export JSON du hub legacy
 (hub-legacy `export_env.py`) → hub neuf (API admin POULIDOR/HUB_base).

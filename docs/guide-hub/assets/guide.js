@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 (function () {
   "use strict";
   // Source de vérité : fichier `VERSION` à la racine du parc POULIDOR.

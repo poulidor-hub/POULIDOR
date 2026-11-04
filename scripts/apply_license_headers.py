@@ -66,9 +66,13 @@ STYLE_BY_NAME = {
 }
 
 # Dossiers jamais en-têtés (défense en profondeur ; git ls-files exclut déjà
-# l'ignoré). Fichiers manifestement générés ou minifiés.
+# l'ignoré). Fichiers manifestement générés ou minifiés. Les workflows GitHub
+# sont exclus : leur modification exige le scope OAuth `workflow` (poussée
+# impossible avec un simple token `repo`) et ils restent couverts par le
+# LICENSE du dépôt.
 SKIP_DIR_PARTS = {"node_modules", "dist", "build", "vendor", "vendored",
-                  ".venv", "venv", "__pycache__", "coverage", ".next"}
+                  ".venv", "venv", "__pycache__", "coverage", ".next",
+                  ".github/workflows"}
 SKIP_SUFFIXES = (".min.js", ".min.css", ".min.mjs", ".d.ts")
 MAX_BYTES = 1_000_000  # au-delà : probablement généré/minifié, on s'abstient
 

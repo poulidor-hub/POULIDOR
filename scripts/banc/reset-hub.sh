@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 POULIDOR Audit & Développement (Valérian Poulidor)
+
 # reset-hub.sh — Réinitialiser le Hub d'un banc de test (usage DEV).
 #
 # Modes :
