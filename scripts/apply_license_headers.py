@@ -166,7 +166,11 @@ def main() -> int:
     for rel in tracked_files(root):
         path = root / rel
         rpath = path.resolve()
-        if any(part in SKIP_DIR_PARTS for part in rpath.parts):
+        rel_parts = rel.split("/")
+        if any(part in SKIP_DIR_PARTS for part in rel_parts):
+            continue
+        if any(rel_parts[i] == ".github" and rel_parts[i + 1] == "workflows"
+               for i in range(len(rel_parts) - 1)):
             continue
         name = path.name.lower()
         if name.endswith(SKIP_SUFFIXES):
