@@ -34,12 +34,17 @@
   <h2 id="demarrer">Bien démarrer en 5 étapes</h2>
   <table>
     <tr><th>#</th><th>Étape</th><th>Comment</th></tr>
-    <tr><td>1</td><td>Installer le serveur</td><td><code>sudo ./install.sh</code> (prérequis + Hub), ou <code>./hubctl init</code> si les prérequis existent.</td></tr>
+    <tr><td>1</td><td>Installer le serveur</td><td><code>sudo ./install.sh</code> (prérequis + Hub), ou <code>./hubctl init</code> si les prérequis existent — voir <a href="#installation">Guides d'installation</a>.</td></tr>
     <tr><td>2</td><td>Ouvrir le Hub</td><td><code>https://&lt;IP serveur&gt;</code> — connexion admin créée à l'installation.</td></tr>
     <tr><td>3</td><td>Lancer hubctl</td><td><code>./hubctl</code> — tableau de bord, démarrage/arrêt, mise à jour, coffre.</td></tr>
     <tr><td>4</td><td>Ajouter une app</td><td>Fichier <code>seed</code> YAML, <code>scripts/create_app.sh</code>, ou avec l'assistant IA.</td></tr>
     <tr><td>5</td><td>Aller plus loin</td><td>Suivre les renvois « voir … » de chaque section ci-dessous.</td></tr>
   </table>
+
+  <figure class="shot">
+    <img src="assets/screenshots/portail-apps.jpg" alt="Portail du Hub : catalogue « Mes Applications » avec recherche et filtres Prod / Atelier" loading="lazy">
+    <figcaption>Le portail du Hub : toutes vos applications derrière une seule connexion — recherche, favoris, filtres Prod / Atelier / Prod + Atelier.</figcaption>
+  </figure>
 
   <h2 id="catalogue">Les fonctionnalités du HUB</h2>
 
@@ -52,6 +57,11 @@
   aussi les utilisateurs, les rôles par app et les demandes de compte.
   <strong>Voir :</strong> <code>HUB_base/docs/GUIDE_ADMIN.md</code>,
   <code>HUB_base/docs/ARCHITECTURE.md</code>.</p>
+
+  <figure class="shot">
+    <img src="assets/screenshots/login.jpg" alt="Page de connexion du Hub : identifiant, mot de passe, demande de compte" loading="lazy">
+    <figcaption>Une seule connexion : le portail émet un jeton JWT signé (RSA) que toutes les apps vérifient via JWKS.</figcaption>
+  </figure>
 
   <h3>2. Bridge OIDC pour apps externes</h3>
   <p>Le Hub fait office de <strong>fournisseur d'identité</strong> (OpenID
@@ -89,6 +99,11 @@
   emplacement de secours hors disque (<strong>Emplacement PRA</strong>).
   <strong>Voir :</strong> <a href="attention-coffre.html">page Coffre</a>.</p>
 
+  <figure class="shot">
+    <img src="assets/screenshots/coffre.jpg" alt="UI Coffre hubctl : statut, contenu, réplication PRA et divergences apps" loading="lazy">
+    <figcaption>Coffre piloté depuis l'UI (onglet Sauvegardes → Coffre hubctl) : statut, contenu, emplacement PRA et divergences apps — restauration et changement de passphrase restant en CLI (<code>./hubctl vault</code>).</figcaption>
+  </figure>
+
   <h3>7. Export / restore &amp; disaster recovery</h3>
   <p>Archive chiffrée du parc complet (<code>./hubctl export</code>), restauration
   sur serveur neuf (<code>restore</code>) et assistant PRA
@@ -103,6 +118,11 @@
   <strong>Voir :</strong> <a href="attention-workshop.html">page Atelier</a>,
   skill <code>app-workshop-mover</code>.</p>
 
+  <figure class="shot">
+    <img src="assets/screenshots/ateliers.jpg" alt="Onglet Ateliers de l'administration : détection des clones -ws via .workshop.env, fermeture groupée" loading="lazy">
+    <figcaption>Onglet « Ateliers » de l'administration : détection des clones <code>-ws</code> (marqueur <code>.workshop.env</code>), état des conteneurs lu via Docker, fermeture groupée.</figcaption>
+  </figure>
+
   <h3>9. Déploiement &amp; cycle de vie des apps</h3>
   <p>Création depuis le template, configuration du dépôt git depuis l'UI
   (PAT GitHub incluse, repos privés OK), mise à jour ciblée ou du parc entier
@@ -110,6 +130,11 @@
   par le Hub, HTTPS/PKI avec re-sync automatique des certificats.
   <strong>Voir :</strong> <a href="make.html">guide make</a>,
   <code>docs/guide-developpement-template.md</code>.</p>
+
+  <figure class="shot">
+    <img src="assets/screenshots/admin-apps.jpg" alt="Administration › Applications : table des 31 apps avec filtres statut, catégorie, mode et gestion" loading="lazy">
+    <figcaption>Administration › Applications : registre complet des apps (slug, URL, utilisateurs, état) avec filtres statut / catégorie / production-atelier / gérées.</figcaption>
+  </figure>
 
   <h3>10. VPN WireGuard</h3>
   <p>Accès distant sécurisé au parc intégré au Hub : génération de config
@@ -127,6 +152,21 @@
   utilisateurs (identité : UUID stable, prénom/nom, renommage du login),
   déploiement par fichier seed.
   <strong>Voir :</strong> <code>HUB_base/docs/GUIDE_ADMIN.md</code>.</p>
+
+  <figure class="shot">
+    <img src="assets/screenshots/sante-apps.jpg" alt="Vue Santé des Applications : cartes par app avec statut Online, latence, uptime et boutons ops console" loading="lazy">
+    <figcaption>Santé des Applications : cartes « ops console » (démarrer, arrêter, restart, logs, socle, mise à jour, panneau branches 🌿), filtres instantanés Online / Degraded / Offline / Atelier actif.</figcaption>
+  </figure>
+
+  <figure class="shot">
+    <img src="assets/screenshots/admin-config.jpg" alt="Administration › Configuration : sous-onglets Groupes, Service Accounts, Clients OIDC, Apps GitHub, Accès et routage" loading="lazy">
+    <figcaption>Administration réorganisée en onglets à 2 niveaux : Applications, Sauvegardes, VPN, Configuration, Ateliers — Configuration regroupe Groupes, Service Accounts, Clients OIDC, Apps GitHub, Accès &amp; routage.</figcaption>
+  </figure>
+
+  <figure class="shot">
+    <img src="assets/screenshots/audit.jpg" alt="Page Audit : KPIs sessions et erreurs, heatmap d'activité du parc sur 7 jours, alertes" loading="lazy">
+    <figcaption>Page Audit : sessions live, heatmap d'activité du parc (UTC), KPIs (apps actives, échecs d'auth), alertes à traiter et export.</figcaption>
+  </figure>
 
   <h3>12. Debug assisté par IA</h3>
   <p>Un agent IA local (Ollama) diagnostique une app en panne :
@@ -154,6 +194,41 @@
   <strong>Voir :</strong> <code>docs/guide-developpement-template.md</code>,
   <code>HUBapp_TEMPLATE_base/docs/HUB_MCP.md</code>.</p>
 
+  <h2 id="installation">Guides d'installation</h2>
+
+  <h3>Nouvelle installation</h3>
+  <table>
+    <tr><th>Voie</th><th>Quand</th><th>Comment</th></tr>
+    <tr><td><strong>Tout-en-un</strong> <code>sudo ./install.sh</code></td><td>Serveur Debian / Ubuntu / Linux Mint vierge</td><td>Installe les prérequis (Docker, Python, git…), puis initialise et démarre le Hub. Les credentials admin s'affichent dans le récapitulatif final ; le Hub est ensuite sur <code>https://&lt;IP serveur&gt;</code>.</td></tr>
+    <tr><td><strong>Prérequis présents</strong> <code>./hubctl init</code></td><td>Docker, Python et git déjà installés, ou déploiement ciblé du Hub</td><td>Initialisation directe du Hub (wizard, PKI, registre). Détail pas à pas : <code>HUB_base/docs/GUIDE_INSTALLATION.md</code>.</td></tr>
+    <tr><td><strong>Manuelle</strong></td><td>Contrôle fin de chaque étape (reverse proxy existant, contraintes réseau…)</td><td>Suivre <code>HUB_base/docs/GUIDE_INSTALLATION.md</code>, puis enregistrer les apps.</td></tr>
+  </table>
+
+  <h3>Ajouter une application</h3>
+  <p>Trois voies équivalentes : fichier <strong>seed YAML</strong>
+  (<code>./hubctl seed apps.yaml</code>), script <code>scripts/create_app.sh</code>,
+  ou <strong>assistant IA</strong> (« Crée une app mon-outil dans POULIDOR » —
+  skill <code>create-hub-app</code>). L'app naît du template canonique, s'enregistre
+  au Hub et rejoint le portail. Points de vigilance par opération :
+  pages <a href="attention-ajouter-app.html">ajouter une app</a>,
+  <a href="attention-workshop.html">atelier</a>,
+  <a href="attention-bascule-dev-prod.html">bascule dev → prod</a>.</p>
+
+  <h3>Mettre à jour une installation existante</h3>
+  <p>La manip dépend de l'ancienneté de l'installation — les outils de mise à jour
+  ont été mis en place progressivement :</p>
+  <table>
+    <tr><th>Installation</th><th>La manip</th></tr>
+    <tr><td>≥ 0.74.10 (unification des updates, oct. 2026)</td><td><strong>Routine officielle</strong> : <code>./hubctl doctor</code> → <code>./hubctl --prod update hub</code> (bloquant) → <code>./hubctl --prod update all</code> → <code>./hub.sh status</code>.</td></tr>
+    <tr><td>hubctl présent, &lt; 0.74.10</td><td>Pull du méta + submodules pour récupérer le hubctl récent, puis routine officielle.</td></tr>
+    <tr><td>Pré-hubctl (&lt; 0.10.0, avant juil. 2026)</td><td><code>sudo ./install.sh</code> : resynchronise les submodules et reconverge le Hub, et met en place <code>hubctl</code> — puis bascule sur la routine officielle.</td></tr>
+    <tr><td>Erreur « historique divergent » (purge du 26/10/2026)</td><td>Réaligner le clone (<code>git fetch origin --prune</code> + <code>git reset --hard origin/main</code>) — procédure dans <code>docs/ops/mise-a-jour.md</code>.</td></tr>
+  </table>
+  <p>Rappel : <code>update-hub.sh</code> est <strong>déprécié</strong>, <code>./hub.sh update</code>
+  délègue à <code>hubctl update hub</code>. Le méta-repo est la source de vérité ;
+  jamais de <code>git pull</code> manuel dans un sous-module. Référence complète :
+  <code>docs/ops/mise-a-jour.md</code>.</p>
+
   <h2 id="renvois">Où trouver la doc détaillée</h2>
   <table>
     <tr><th>Document</th><th>Contenu</th></tr>
@@ -161,6 +236,7 @@
     <tr><td><a href="make.html">guide make</a> (ce dossier)</td><td>Cibles Makefile du Hub et des apps.</td></tr>
     <tr><td><a href="architecture.html">architecture</a> (ce dossier)</td><td>Composants du parc, prod vs atelier, coffre.</td></tr>
     <tr><td><code>docs/guide-parc-poulidor.md</code></td><td>Référence complète du parc (instantané daté).</td></tr>
+    <tr><td><code>docs/ops/mise-a-jour.md</code></td><td><strong>La routine de mise à jour officielle</strong> (doctor → update hub → update all, interdits, cas « historique réécrit »).</td></tr>
     <tr><td><code>docs/guide-developpement-template.md</code></td><td>Guide de développement d'une app (conventions, tests, release).</td></tr>
     <tr><td><code>HUB_base/docs/GUIDE_ADMIN.md</code></td><td>Administration du Hub au quotidien.</td></tr>
     <tr><td><code>HUB_base/docs/GUIDE_INSTALLATION.md</code></td><td>Installation détaillée / manuelle.</td></tr>
@@ -176,6 +252,6 @@
     les skills listés dans <code>AGENTS.md</code> encadrent ces opérations.
   </div>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.66.9</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.80.6</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

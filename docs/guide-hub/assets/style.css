@@ -146,3 +146,19 @@ footer {
   color: var(--muted);
   font-size: .85rem;
 }
+
+/* Captures d'écran du Hub (figure.shot) — statique, aucune animation */
+figure.shot {
+  margin: 1.25rem 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--code-bg);
+}
+figure.shot img { display: block; width: 100%; height: auto; }
+figure.shot figcaption {
+  padding: .5rem .75rem;
+  font-size: .85rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+}
