@@ -18,7 +18,7 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
 
 - App async (grep `create_async_engine` dans `backend/database.py`) fork du template
 - **NE PAS utiliser** si l'app est sync (`from sqlmodel import Session`) ou
-  non-Python (cf. audits exemple-app / exemple-app) — cadrage dédié requis
+  non-Python (cf. audits app-exemple / app-exemple-c) — cadrage dédié requis
 
 ## Recette (ordre strict)
 
@@ -50,7 +50,7 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    tournent AVANT `init_db`) ; **seeds et tâches asyncio métier →
    `lifespan_extra`** (tourne APRÈS `init_db`/`apply_migrations` ;
    `create_task` + `cancel`/`await` au `finally` pour un scheduler/worker) ;
-   **endpoint métier pris dans un router socle forké** (ex. exemple-app
+   **endpoint métier pris dans un router socle forké** (ex. APP_EXEMPLE_G
    `GET /api/m2m/employees/hub-identifier` dans le fork `routes/m2m.py`) :
    l'extraire vers un router app-side dédié AVANT de purger le router ;
    **`utils.py` hybride** (transverse + métier) : réexporter les fonctions
@@ -62,7 +62,7 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    documenter la dette (référence §3) ; **champs Settings « morts » : ne se
    fier qu'au grep des usages runtime `settings.X`** sur tout le backend —
    un usage dans une fonction évaluée au niveau module est vivant
-   (exemple-app `M2M_*TIMEOUT` : 500 AttributeError sinon).
+   (APP_EXEMPLE_G `M2M_*TIMEOUT` : 500 AttributeError sinon).
 4. **Infra** : `Dockerfile.backend` = `FROM poulidor/socle-api:${SOCLE_VERSION}`
    + `COPY backend/ /app/` + `COPY VERSION` ; compose arg `SOCLE_VERSION=?` +
    `additional_contexts: socle` (frontend) ; `.env.example` +
@@ -85,7 +85,7 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    extension** (`.jsx`/`.js`) ; `vite.config` + `resolve.preserveSymlinks:
    true` ; `Dockerfile.frontend` : `COPY --from=socle /frontend /socle/frontend`
    **avant** `npm install` ; `npm run build` vert.
-   **Bascule auth (app avec AuthContext forké — exemple-app 1.61.0)** : la
+   **Bascule auth (app avec AuthContext forké — app-exemple 1.61.0)** : la
    cohérence auth est **binaire** — un composant socle qui appelle
    `useAuth` ne fonctionne JAMAIS avec un `AuthProvider` forké (deux
    `createContext` distincts). Inventorier les imports socle consommateurs
@@ -101,8 +101,8 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    `canWrite() -> hasMinRole('user')`, `isViewer() ->
    getAppRole() === 'viewer'`, `loading -> restoring||ssoChecking`),
    une passe mécanique d'imports, dette documentée (cible : `hasMinRole`
-   direct dans les pages, pattern exemple-app). Un SEUL montage
-   `AuthProvider` (exemple-app le montait dans `main.jsx` ET `App.jsx`).
+   direct dans les pages, pattern app-exemple-h). Un SEUL montage
+   `AuthProvider` (app-exemple le montait dans `main.jsx` ET `App.jsx`).
    L'auto-SSO socle sonde `/api/health/detailed` (`hub.can_authenticate`)
    avant de rediriger : absent → fallback écran login. **Front axios
    conservé** (`services/api.js`) : aligner la clé de stockage sur
@@ -121,14 +121,14 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
    piège « slugs M2M renommés ») → corriger la config des slugs
    (`*_SLUG` du `.env`/defaults) si résolution `None` → **sonde des contrats
    EXPOSÉS aux consommateurs** (endpoint + slug réellement appelé par les
-   apps consommatrices : exemple-app était appelé sous le slug fantôme
-   `exemple-app` par exemple-app, fallback silencieux).
+   apps consommatrices : APP_EXEMPLE_G était appelé sous le slug fantôme
+   `app-exemple-g` par service-exemple, fallback silencieux).
 
 ## Pièges payés (chaque ligne = un incident réel)
 
 | Piège | Symptôme | Parade |
 |---|---|---|
-| Slug codé en dur dans les tokens de test | 403 « Actuel: aucun » en masse | `apps={get_settings().APP_SLUG: role}` — jamais `"exemple-app"` littéral |
+| Slug codé en dur dans les tokens de test | 403 « Actuel: aucun » en masse | `apps={get_settings().APP_SLUG: role}` — jamais `"app-exemple-b"` littéral |
 | MagicMock (nu) awaité dans les mocks | `TypeError: object MagicMock can't be used in 'await'`, hangs réseau | AsyncMock explicites sur chaque méthode du client mocké + fixture autouse offline patchant TOUTES les liaisons (`hub_socle.hub_client`, `hub_socle.app`, services qui l'importent) |
 | `hub_client` réel dans les tests | hang/retries réseau au 1er test authentifié | autouse `_offline_*` avant tout (§4) |
 | Bump VERSION sans dérivés | image socle/app avec paquet en retard | `sync_version.py` (ou script équivalent) APRÈS chaque bump |
@@ -140,30 +140,30 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
 | build `make build` en worktree | « failed to get build context socle » | shim `.worktrees/HUBsocle` (non commité) |
 | Volume frais root-owned + cap_drop ALL | crash-loop `PermissionError` au register | opt-in socle 2.26 : `user: "0"` + caps CHOWN/SETUID/SETGID (drop appuser fail-fast) |
 | Banc sur le slug de prod | arrête la prod (project name partagé) | slug `-banc` dédié + ports Hub réalloués |
-| Volumes d'une app migrée sous noms historiques | `APP_SLUG=exemple-app` ≠ `exemple-app-*` existants : le pattern `${APP_SLUG}-*` crée des volumes **vides** au redéploiement | préserver les noms explicites existants dans le compose (déviation commentée) |
+| Volumes d'une app migrée sous noms historiques | `APP_SLUG=app-exemple-h` ≠ `exemple-app-*` existants : le pattern `${APP_SLUG}-*` crée des volumes **vides** au redéploiement | préserver les noms explicites existants dans le compose (déviation commentée) |
 | `APP_SLUG` réel ≠ slug déduit du fork | un `hub_app_slug` legacy (underscores→tirets) peut masquer le vrai slug ; register sous un mauvais slug = SA fantôme | lire le slug réel : `GET /api/health` de l'app en prod **avant** d'écrire la config |
-| `flush()` sans `commit()` dans les handlers fork | écritures invisibles avec l'override de test : 201 au lieu de 409, DELETE→GET 200 | corriger systématiquement `flush()` → `commit()` (référence §3, miroir exemple-app 0.17.0 : 8 handlers) |
+| `flush()` sans `commit()` dans les handlers fork | écritures invisibles avec l'override de test : 201 au lieu de 409, DELETE→GET 200 | corriger systématiquement `flush()` → `commit()` (référence §3, miroir app-exemple-h 0.17.0 : 8 handlers) |
 | Migrations SQL passées à `migration_hooks` | les hooks tournent AVANT `init_db` → ALTER sur table inexistante, échec sur base neuve | SQL reste dans `backend/migrations/` (auto-appliqué par le socle) ; seeds → `lifespan_extra` |
-| Slugs M2M renommés (`salarie` → `exemple-app-v3`, `exemple-apps` → `exemple-app-api-v3`) | lookup exact muet, appels **silencieusement inopérants** | `resolve_service_slug()` avant chaque `call_discovered_service` + config `*_SLUG` alignée sur les slugs Hub réels |
+| Slugs M2M renommés (`mon-api` → `mon-api-api-v3`, `app-exemple-f` → `app-exemple-f-api-v3`) | lookup exact muet, appels **silencieusement inopérants** | `resolve_service_slug()` avant chaque `call_discovered_service` + config `*_SLUG` alignée sur les slugs Hub réels |
 | Mocks locaux de tests métier sans `resolve_service_slug` | `TypeError: object MagicMock can't be used in 'await'` en masse (piège 2 étendu) | chaque `patch("services.x.hub_client")` : `resolve_service_slug = AsyncMock(return_value=None)` ; slugs assertés via les **constantes du module**, jamais en littéral |
 | **`USER appuser` du socle persiste dans les layers** | le `RUN chown` de l'app tourne en appuser : échec silencieux (`\|\| true`) → `/app/storage` copié du contexte reste root → `Permission denied` sur credentials/JWKS au boot (exports 0.5.1) | `USER root` autour du chown, retour `USER appuser` après |
 | **Seeds de tests : `flush` sans commit** | sessions indépendantes (SQLite fichier) : la donnée seedée est invisible des sessions API → 404 en cascade (fork : StaticPool `:memory:` partageait la connexion) | `flush` → `commit` dans les fixtures de seed |
-| **Instance `hub_client` réelle dans les tests** | les modules avec `from hub_socle.hub_client import hub_client` gardent la référence **instance** : le patch du module ne les atteint pas → register/token réels pendant les tests (exemple-app 0.22.0) | capturer l'instance au chargement du conftest (`_REAL = _module.hub_client` AVANT tout patch), muter ses méthodes (AsyncMock) avec sauvegarde/restauration `_credentials` inclus |
-| **Champs Settings classés « morts » à tort** | un usage runtime `settings.X` dans un module évalué au niveau module → 500 `AttributeError: Settings has no attribute` (exemple-app `M2M_*TIMEOUT` : agrégation /integrations/employee) | verdict « mort » = grep des usages runtime `settings.X` sur TOUT le backend, pas seulement les imports ; champs vivants → `register_settings_extra` |
-| **Helper app-side avec `async_session_maker` autonome** | pointe la DB settings → cassé dans les tests (ConnectError 127.0.0.1:1) et masque l'override `get_db` (exemple-app `service_slugs`) | passer la session de requête en paramètre (`get_service_slugs(db)`, `resolve_service_slug(db, ...)`) |
+| **Instance `hub_client` réelle dans les tests** | les modules avec `from hub_socle.hub_client import hub_client` gardent la référence **instance** : le patch du module ne les atteint pas → register/token réels pendant les tests (APP_EXEMPLE_G 0.22.0) | capturer l'instance au chargement du conftest (`_REAL = _module.hub_client` AVANT tout patch), muter ses méthodes (AsyncMock) avec sauvegarde/restauration `_credentials` inclus |
+| **Champs Settings classés « morts » à tort** | un usage runtime `settings.X` dans un module évalué au niveau module → 500 `AttributeError: Settings has no attribute` (APP_EXEMPLE_G `M2M_*TIMEOUT` : agrégation /integrations/employee) | verdict « mort » = grep des usages runtime `settings.X` sur TOUT le backend, pas seulement les imports ; champs vivants → `register_settings_extra` |
+| **Helper app-side avec `async_session_maker` autonome** | pointe la DB settings → cassé dans les tests (ConnectError 127.0.0.1:1) et masque l'override `get_db` (APP_EXEMPLE_G `service_slugs`) | passer la session de requête en paramètre (`get_service_slugs(db)`, `resolve_service_slug(db, ...)`) |
 | **`make test-docker` avec `-n auto`** | OOM 512 Mo du conteneur → exit 137 (exports 0.5.1) | `XDIST_DOCKER_WORKERS ?= 2` dans le Makefile de l'app |
 | **Bump socle sans `scripts/sync_version.py`** | `hub_socle/__version.py` (incrusté par `hubctl socle build`) reste en retard → l'app affiche un `socle_version` faux (2.30.2→2.30.4 payés) | `scripts/sync_version.py` APRÈS chaque bump VERSION du socle, AVANT le build image |
-| **Composant socle consommant `useAuth` importé avec l'`AuthProvider` fork conservé** | crash « useAuth must be used within an AuthProvider » sur toutes les routes protégées, en prod (exemple-app 1.60.0) | cohérence auth **binaire** : `AuthProvider` socle partout, ou composants auth-socle recopiés fork-side (§5 bascule auth) |
-| **`user.role`/`user.roles` du fork lus après bascule** | le `user` socle est un payload JWT (`sub`/`apps`/`exp`) sans ces champs → guards `=== 'admin'` toujours faux, régression de droits silencieuse, AUCUN crash (exemple-app) | grep `user?.role\|user.username\|user.roles` dans l'audit + conversion `hasMinRole`/`getAppRole` (§5) |
+| **Composant socle consommant `useAuth` importé avec l'`AuthProvider` fork conservé** | crash « useAuth must be used within an AuthProvider » sur toutes les routes protégées, en prod (app-exemple 1.60.0) | cohérence auth **binaire** : `AuthProvider` socle partout, ou composants auth-socle recopiés fork-side (§5 bascule auth) |
+| **`user.role`/`user.roles` du fork lus après bascule** | le `user` socle est un payload JWT (`sub`/`apps`/`exp`) sans ces champs → guards `=== 'admin'` toujours faux, régression de droits silencieuse, AUCUN crash (app-exemple) | grep `user?.role\|user.username\|user.roles` dans l'audit + conversion `hasMinRole`/`getAppRole` (§5) |
 | **Intercepteur axios historique non aligné socle** | clé `access_token` + refresh form `/api/auth/token` vs socle `hub_token` + JSON `/api/auth/token/refresh` : double circuit en course sur la rotation du refresh token → déconnexions aléatoires | aligner clé + endpoint JSON + garde d'adoption : JWT stocké changé pendant l'appel → l'adopter et rejouer, jamais purger (§5) |
-| **Helpers fork `isAdmin`/`canWrite`/`isViewer` lus comme booléens sans `()`** | fonction toujours truthy → actions admin visibles de tous les rôles (exemple-app DashboardPage : bouton export pour tous) | grep des usages booléens des helpers dans l'audit — corriger à la bascule |
+| **Helpers fork `isAdmin`/`canWrite`/`isViewer` lus comme booléens sans `()`** | fonction toujours truthy → actions admin visibles de tous les rôles (app-exemple DashboardPage : bouton export pour tous) | grep des usages booléens des helpers dans l'audit — corriger à la bascule |
 
 ## Verification
 
 Une migration n'est « verte » qu'avec : `import main` OK sur host ·
 `make up` + `/api/health` → `socle_version` = pin attendu · page frontend
 HTTPS 200 **+ rendu vérifié** (une SPA crashée au boot répond 200 —
-exemple-app 1.60.0 : snapshot navigateur du Layout rendu, console sans
+app-exemple 1.60.0 : snapshot navigateur du Layout rendu, console sans
 « useAuth must be used » ; smoke sans backend : serveur statique sur
 `dist/` + JWT factice en `?token=` → Layout + banner rendus) · suite
 app 100 % verte · sondes M2M des consommateurs du slug ·

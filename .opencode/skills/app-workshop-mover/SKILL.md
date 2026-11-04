@@ -37,10 +37,10 @@ subnet diffèrent.
 
 ## When to Use
 
-- "Mets exemple-app-2 en atelier pour travailler dessus" → `./hubctl atelier exemple-app-2`
-- "Teste la montée en version d'exemple-app-2" → `./hubctl atelier exemple-app-2 --maj`
-- "Déploie exemple-app-2 en prod après validation atelier" → `./hubctl atelier exemple-app-2 --prod`
-- "Supprime l'atelier d'exemple-app-2" → re-`./hubctl atelier exemple-app-2` puis choix 3
+- "Mets APP_EXEMPLE en atelier pour travailler dessus" → `./hubctl atelier APP_EXEMPLE`
+- "Teste la montée en version d'APP_EXEMPLE" → `./hubctl atelier APP_EXEMPLE --maj`
+- "Déploie APP_EXEMPLE en prod après validation atelier" → `./hubctl atelier APP_EXEMPLE --prod`
+- "Supprime l'atelier d'APP_EXEMPLE" → re-`./hubctl atelier APP_EXEMPLE` puis choix 3
 - "Ferme tous les ateliers, je veux une base propre" → `./hubctl atelier --close-all` (+ `--yes` pour scripter)
 - Implémenter des évolutions du cycle atelier dans `hubctl` (`actions.py`)
 
@@ -165,7 +165,7 @@ INTERDIT ( risquerait de destroy la DB prod `X-postgres-data`).
 
 Le slug atelier est `{slug}-ws`. Il est piloté par `APP_SLUG` dans `.workshop.env`
 (et NON dans `.env` — `.env` reste `{slug}` pour la prod). ⚠️ Le slug est
-**slugifié** (lowercase, `_` → `-`) : `exemple-app-2` donne le projet `exemple-app-ws`.
+**slugifié** (lowercase, `_` → `-`) : `APP_EXEMPLE` donne le projet `app-exemple-ws`.
 Le `-ws` pilote :
 - `container_name` (nginx, db, api ont `-ws` en suffixe)
 - nom du volume (`X-ws-postgres-data`)

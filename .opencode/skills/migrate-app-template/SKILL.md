@@ -296,7 +296,7 @@ possédé par `root:root` : le montage masque le `/app/uploads` chown-é de l'im
 backups… avec un HTTP 500 côté client. Le bug est **latent** : il ne se manifeste
 qu'à la première écriture, souvent bien après la migration.
 
-**Incident de référence** (2026-08-22, exemple-app) : upload d'un message vocal mp3
+**Incident de référence** (2026-08-22, app-exemple-b_API) : upload d'un message vocal mp3
 → 500 « Échec de l'upload du message vocal », stack trace
 `PermissionError: [Errno 13] Permission denied: '/app/uploads/voicemail_….mp3'`.
 Le volume datait du 14/08 (créé quand l'API tournait en root), le durcissement était

@@ -2,9 +2,9 @@
 name: hub-oidc-manager
 description: >
   Utiliser pour gérer le bridge OIDC du HUB : clients OIDC (CRUD), SSO d'apps externes
-  (Vikunja, Nextcloud, Grafana…), test/debug du flow OIDC (authorize, token, userinfo,
+  (service-exemple, Nextcloud, Grafana…), test/debug du flow OIDC (authorize, token, userinfo,
   redirect_uri, JWKS), back-channel logout, refresh tokens. Triggers : OIDC, SSO, openid,
-  oauth, id_token, discovery OIDC, auto-register/JIT, Vikunja/Grafana/Nextcloud auth.
+  oauth, id_token, discovery OIDC, auto-register/JIT, service-exemple/Grafana/Nextcloud auth.
 ---
 
 # Hub OIDC Manager
@@ -24,7 +24,7 @@ standard (discovery, authorize, token, userinfo), et gère le cycle de vie des c
 | Situation | Action |
 |---|---|
 | « Activer OIDC » / « Le bridge OIDC ne marche pas » | [→] §1 Vérifier `OIDC_ISSUER` dans `.env` |
-| « Créer un client OIDC pour X » / « Connecter Vikunja/Grafana/Nextcloud au HUB » | [→] §2 Créer un client + §3 Configurer l'app |
+| « Créer un client OIDC pour X » / « Connecter service-exemple/Grafana/Nextcloud au HUB » | [→] §2 Créer un client + §3 Configurer l'app |
 | « Tester le flow OIDC » / « Valider que le SSO marche » | [→] §4 Test end-to-end (curl) |
 | « redirect_uri non autorisé » / « Could not authenticate against third party » | [→] §5 Debug — redirect_uri mismatch |
 | « client_secret invalide » | [→] §5 Debug — secret non substitué / incorrect |
@@ -321,7 +321,7 @@ curl -s http://$HUB_HOST:$HUB_API_PORT/api/oidc/userinfo \
    ```
 3. **Égalité stricte** — pas de prefix matching, pas de trailing slash diffèrent.
 
-**Exemple concret (Vikunja)** : Vikunja envoie `http://host:port/auth/openid/hub`
+**Exemple concret (service-exemple)** : service-exemple envoie `http://host:port/auth/openid/hub`
 (sans `/callback`), pas `http://host:port/auth/openid/hub/callback`.
 
 ### Erreur : `client_secret invalide`
@@ -453,7 +453,5 @@ curl -s -X POST http://$HUB_HOST:$HUB_API_PORT/api/oidc/backchannel-logout/<clie
 | JWKS endpoint | `HUB_base/hub/app/routes/auth.py:768-813` |
 | docker-compose OIDC vars | `HUB_base/docker-compose.yml:86-94` |
 | Tests OIDC (47 tests) | `HUB_base/hub/tests/test_oidc_*.py` |
-| Design Vikunja (référence intégration) | `docs/superpowers/specs/2026-07-22-vikunja-hub-integration-design.md` |
-| Plan 2 déploiement Vikunja | `docs/superpowers/plans/2026-07-22-plan-2-vikunja-deploy.md` |
-| App Vikunja déployée (référence) | `APPS/vikunja-service/` |
+| Intégration de référence (design, déploiement, app déployée) | (voir specs internes, non publiées) |
 | Spécifications OIDC | https://openid.net/specs/openid-connect-core-1_0.html |
