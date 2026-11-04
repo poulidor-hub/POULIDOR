@@ -1,3 +1,16 @@
+## [0.80.6] - 4 novembre 2026
+
+### 🔧 Pointeur hub-mcp 0.16.0 — profils MCP everyday/support/full + hub_parc_state
+
+- **`hub-mcp` → 0.16.0** : profils d'exposition MCP (`everyday` 21 outils par défaut,
+  `support` 49, `full` 66 ; `--profile` / `HUB_MCP_PROFILE`, bascule à chaud via
+  `opencode.json`) et nouvel outil `hub_parc_state` (état compact du parc en 1 appel,
+  dégradation gracieuse, formats réels du Hub). Détail : CHANGELOG hub-mcp 0.16.0.
+- Breaking assumé côté consommateurs MCP : défaut `full` → `everyday` ; les apps
+  basculent à la prochaine sync de leur copie `hub_mcp/` (`make sync-hub-tooling`).
+
+---
+
 ## [0.80.5] - 4 novembre 2026
 
 ### 🔧 Pointeur hubctl_src 0.16.4 — fix doctor (NameError)
