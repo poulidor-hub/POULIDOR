@@ -48,6 +48,11 @@ Détecter la source de version dans cet ordre :
    - Écrire la nouvelle valeur dans `VERSION` (avec saut de ligne final).
    - **Prépendre** une nouvelle entrée en tête du `CHANGELOG.md` (après le header `---`), au format de la section « Format ».
    - Synchroniser tout fichier dérivé présent ; absent → ignorer.
+   - **Méta-repo POULIDOR uniquement** — resynchroniser aussi la version **affichée** :
+     `bash scripts/sync-parc-version.sh <nouvelle_version>` (badge README, `guide.js`,
+     footers `data-parc-version` des pages `docs/guide-hub/`) — vérification :
+     `bash scripts/sync-parc-version.sh --check` (exit 1 = drift). **Inclure ces fichiers
+     au commit de release** (sinon la version affichée dérive — cf. garde-fous).
 5. **Sinon, `package.json` avec `"version"`** (ex. HUBCSS) :
    - `npm version <level> --no-git-tag-version` (met à jour `package.json` + `package-lock.json`).
    - Prépendre l'entrée CHANGELOG comme ci-dessus.
@@ -102,5 +107,6 @@ Date au format français. La section « Pour les utilisateurs » se place en tê
 - Ne jamais pousser sur `main` sans version incrémentée ni entrée CHANGELOG.
 - Une entrée CHANGELOG manquante ou placeholder non complétée = release incomplète.
 - Les fichiers dérivés listés par le cas de détection doivent figurer dans le commit de release (sinon bump incomplet — ex. `ff7ec5a`).
+- **Version affichée du méta-repo** : le badge README, `guide.js` et les footers `data-parc-version` de `docs/guide-hub/` dérivent vite s'ils sont corrigés à la main (0.66.9 affiché pour un parc en 0.80.x — 14 versions de retard, constaté le 2026-11-04). Passer par `scripts/sync-parc-version.sh` au moment du bump, jamais d'édition manuelle de ces fichiers pendant une release.
 - Ne pas committer de secrets, backups, ou artefacts d'environnement.
 - Ne pas utiliser de commandes template absentes du dépôt courant (ex. `make sync-env` si non défini).
