@@ -1,6 +1,6 @@
 # POULIDOR — Parc applicatif HUB
 
-![version](https://img.shields.io/badge/version-0.66.9-blue)
+![version](https://img.shields.io/badge/version-0.80.6-blue)
 ![licence](https://img.shields.io/badge/licence-projet%20interne-lightgrey)
 
 Plateforme de développement et d'exécution pour applications métier, avec **SSO centralisé**,
@@ -166,17 +166,43 @@ sont des **submodules** — `git pull` ne déplace pas leur pointeur. Et en prod
 statiques du frontend sont **cuits dans l'image Docker** (`COPY public/`) : un restart sans
 rebuild sert l'ancienne version (badge de version absent, nouveautés invisibles).
 
-```bash
-# 1. Pull du méta-repo + mise à jour des submodules
-git pull --recurse-submodules
-git submodule update --init --recursive
+### La routine officielle (serveur à jour — installations ≥ 0.74.10, oct. 2026)
 
-# 2. Rebuild + relance du Hub et des apps (build → up → health check)
-./hubctl update "*"   # tout (Hub + apps) — ou : ./hubctl update hub / <slug> pour cibler
+Le **méta-repo est la source de vérité** : la commande de mise à jour tire le méta,
+aligne les sous-modules, build → up → health check, avec rollback automatique
+(pointeur méta + submodule + snapshot DB) en cas d'échec. Le Hub est **bloquant**
+dans `update all` : s'il échoue, les apps ne sont pas touchées.
+
+```bash
+cd <racine-du-parc>
+
+./hubctl doctor               # 1. diagnostic des clones (rapport seul)
+./hubctl doctor --fix         #    si besoin : réalignements sûrs (confirmation, ou --yes)
+./hubctl --prod update hub    # 2. le Hub d'abord — BLOQUANT
+./hubctl --prod update all    #    ou d'un coup : hub + toutes les apps (hub d'abord)
+./hub.sh status               # 3. état des conteneurs + version déployée
 ```
 
-Alternative : relancer `sudo ./install.sh` — il resynchronise les submodules et
-reconverge le Hub (build + up-prod, cache Docker) même s'il tourne déjà.
+`./hub.sh update` délègue à `hubctl update hub` ; `update-hub.sh` est **déprécié**.
+Mode dev : `--dev` au lieu de `--prod`. Tout existe en `--dry-run`.
+
+### Selon l'ancienneté de votre installation
+
+Les outils de mise à jour ont été mis en place progressivement — la manip dépend
+de la version d'où vous partez :
+
+| Installation | La manip |
+|---|---|
+| **≥ 0.74.10** (unification des updates, oct. 2026) | La routine officielle ci-dessus, directement. |
+| **hubctl présent, < 0.74.10** (été → oct. 2026) | `git pull --recurse-submodules && git submodule update --init --recursive` au méta pour récupérer le hubctl récent, **puis** la routine officielle (elle-même utilise `update` tel qu'unifié en 0.74.10). `update-hub.sh` ne doit plus être utilisé. |
+| **Pré-hubctl** (< 0.10.0, avant juil. 2026) | `sudo ./install.sh` — il resynchronise les submodules et reconverge le Hub (build + up-prod, cache Docker) même s'il tourne déjà, et met en place `hubctl`. Ensuite, basculez sur la routine officielle. |
+| **Cas « historique réécrit »** (purge du 26/10/2026) | `update hub` échoue au pré-check « historique divergent » : réaligner le clone (`git fetch origin --prune && git checkout main && git reset --hard origin/main`) ou le re-cloneur — voir la doc ops. |
+
+> 📖 **La référence complète** : [`docs/ops/mise-a-jour.md`](docs/ops/mise-a-jour.md) —
+> rôles de chaque outil (`hubctl`, `hub.sh`, `make`), sémantique d'`update hub`,
+> les **interdits** (jamais de `git pull` manuel dans un sous-module, jamais de
+> push depuis un clone divergent, jamais de `docker compose down -v`) et le détail
+> du cas « historique réécrit ».
 
 ---
 
