@@ -1,3 +1,14 @@
+## [0.80.11] - 4 novembre 2026
+
+### ⚡ Purge open source de l'historique (filter-repo) + pointeurs
+
+| Élément | Détail |
+|---------|--------|
+| **Historique réécrit** | sessions agent (`.superpowers/`), rapports de migration client (`docs/migrationv1_rapport/`, `docs/handover/`, runbook exemple) et export d'environnement du Hub retirés de tout l'historique — conservés localement uniquement (gitignore) |
+| **IPs internes scrubées** | IP du serveur et réseaux clients remplacés par les plages de documentation RFC 5737 (192.0.2.x / 198.51.100.x / 203.0.113.x) dans tout l'historique |
+| **Clés des plans** | clés d'exemple des plans VPN/bastion remplacées par des paires/clés dummy générées |
+| **Pointeurs** | `HUB_base` → **3.80.3** (scrub secrets SA + fixtures), `HUBapp_TEMPLATE_base` → **2.35.4** (token_preview générique) |
+
 ## [0.80.10] - 4 novembre 2026
 
 ### ⚡ Pointeur hubctl 0.16.6 — doctor tolérant liens lents / HTTPS sans identifiants
