@@ -30,3 +30,4 @@ checkpoint/
 
 # Rapports du banc de campagne (générés à l'exécution par banc.runner)
 scripts/campagne-flotte/rapport-campagne.*
+.openchamber/
