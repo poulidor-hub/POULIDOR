@@ -1,3 +1,22 @@
+## [0.80.9] - 4 novembre 2026
+
+### ⚡ sync-parc-version.sh — le bump méta resynchronise la version affichée (release-on-main)
+
+- **Nouveau script `scripts/sync-parc-version.sh`** (méta-repo) : `sync <version>`
+  écrit la version dans le badge README, `PARC_VERSION` (`guide.js`) et les footers
+  `data-parc-version` des pages `docs/guide-hub/` ; `--check [<version>]` compare à
+  `VERSION` et sort 1 avec le détail fichier/fichier en cas de drift. Idempotent,
+  tolérant aux fichiers absents, exit 2 sur usage invalide.
+- **Skill `release-on-main` (cas 4, méta-repo)** : le resync de la version affichée
+  devient une étape du bump — fichiers dérivés à inclure au commit de release —
+  avec une entrée garde-fou documentant le drift réel (0.66.9 affiché pour un parc
+  en 0.80.x, 14 versions de retard, constaté le 2026-11-04 ; éditions manuelles
+  proscrites pendant une release).
+- **Rattrapage du drift** : version affichée resynchronisée 0.80.6 → 0.80.8
+  (commit `1a3aa5a`), puis 0.80.9 par ce release via le script — première
+  exécution du flux complet. Tests : rouge (drift détecté sur 14 fichiers),
+  vert (sync + `--check` sain), idempotence, usages invalides.
+
 ## [0.80.8] - 4 novembre 2026
 
 ### ⚡ Conformité juridique open source (double licence) + pointeurs
