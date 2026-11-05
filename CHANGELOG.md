@@ -1,3 +1,18 @@
+## [0.80.15] - 5 novembre 2026
+
+### ⚡ Hook gitleaks + runbook de migration clients post-purge OSS
+
+| Élément | Détail |
+|---------|--------|
+| **scripts/hooks/** | `pre-commit-gitleaks.sh` (bloque les secrets stagés) + `install-hooks.sh` (chaînage sans casser les hooks existants) — activation : `./scripts/hooks/install-hooks.sh` |
+| **scripts/migration-oss.sh** | assistant de migration unique pour les déploiements créés avant la purge OSS : remplace le dépôt git par un clone frais en préservant `.env*`, `APPS/`, `storage/`, `secrets/`, coffre, volumes (rollback trivial par `.git.pre-oss-*`) |
+| **docs/ops/mise-a-jour.md** | section « Transition purge open source » : pourquoi `update hub` échoue sur les vieux déploiements, procédure en 5 étapes, rollbacks |
+| **Pointeurs** | HUB_base **3.80.5** (hook gitleaks chaînable), HUBapp_TEMPLATE_base **2.35.6** (hub_mcp vendu 66 outils + hook gitleaks) |
+
+> ℹ️ Les clients avec un hub déjà déployé : voir la section « Transition purge
+> open source » de `docs/ops/mise-a-jour.md` — migration unique obligatoire
+> avant le prochain `update hub` (le service en cours n'est pas impacté).
+
 ## [0.80.14] - 5 novembre 2026
 
 ### ⚡ Purge round 2 de l'historique (docs internes + IPs) + pointeurs
