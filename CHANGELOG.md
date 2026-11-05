@@ -1,3 +1,13 @@
+## [0.80.17] - 5 novembre 2026
+
+### ⚙️ scripts/migration-oss.sh v3 — collisions untracked gérées
+
+- `git checkout -f` lors du remplacement du dépôt : les fichiers non versionnés
+  qui collident avec le nouvel arbre (ex. le script de migration récupéré à
+  l'étape 1, `opencode.json` local) sont écrasés par la version du dépôt ;
+  les données hors arbre (`.env*`, `APPS/`, `storage/`, `secrets/`, coffre,
+  volumes) restent intacts.
+
 ## [0.80.16] - 5 novembre 2026
 
 ### ⚙️ scripts/migration-oss.sh v2 — auth client préservée + rollback automatique
