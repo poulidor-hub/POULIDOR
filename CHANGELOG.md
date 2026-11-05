@@ -1,3 +1,14 @@
+## [0.80.14] - 5 novembre 2026
+
+### ⚡ Purge round 2 de l'historique (docs internes + IPs) + pointeurs
+
+| Élément | Détail |
+|---------|--------|
+| **Historique réécrit** | 14 chemins internes purgés de toutes les branches (docs/superpowers, plans, specs, seed, campagnes, https-flotte, migration-legacy, guide-parc-poulidor…) — conservés localement (gitignore) |
+| **IPs scrubées** | 192.0.2.10/.126/.50/.27 → RFC 5737 dans tout l'historique de HUB_base / HUBsocle / TEMPLATE / hub-mcp |
+| **Branches accidentelles** | branches exotiques contenant du code d'apps privées supprimées des remotes (HUB_base, exemple-app, exemple-app…) |
+| **Pointeurs** | HUB_base **3.80.4**, HUBsocle **2.33.3**, HUBapp_TEMPLATE_base **2.35.5**, HUBCSS **0.3.5**, hubctl_src **0.16.7**, hub-mcp **0.16.2** |
+
 ## [0.80.13] - 5 novembre 2026
 
 ### ⚡ Documentation open source — scrub final + community files + CI neutre
