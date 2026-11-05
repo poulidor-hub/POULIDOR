@@ -1,3 +1,14 @@
+## [0.80.16] - 5 novembre 2026
+
+### ⚙️ scripts/migration-oss.sh v2 — auth client préservée + rollback automatique
+
+| Élément | Détail |
+|---------|--------|
+| **Auth** | l'URL origin **existante** du déploiement est réutilisée (SSH/clé de déploiement) au lieu d'imposer HTTPS — l'ancienne version cassait l'authentification des clients |
+| **Rollback** | tout échec (fetch, checkout, sous-modules) restaure automatiquement le `.git` d'origine (`.git.pre-oss-*`) |
+| **Sous-modules** | checkout forcé puis réalignement sur `main` de chaque sous-module |
+| **docs/ops/mise-a-jour.md** | étape 1 ajoutée : récupération du script par `git fetch` + `git show` (sans merge), ce qui fonctionne même sur les déploiements pré-purge |
+
 ## [0.80.15] - 5 novembre 2026
 
 ### ⚡ Hook gitleaks + runbook de migration clients post-purge OSS
