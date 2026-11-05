@@ -49,9 +49,21 @@ sous-module (+ snapshot DB). Le Hub est **bloquant** dans `update all` : s'il
 
 Migration (une seule fois par serveur, ~15 min, données préservées) :
 
+**1. Récupérer le script** — un `git pull` est impossible (historiques sans
+ancêtre commun), mais `git fetch` seul fonctionne :
+
 ```bash
 cd <racine-du-parc>
-bash scripts/migration-oss.sh        # remplace le dépôt git par un clone frais
+git fetch origin
+mkdir -p scripts
+git show origin/main:scripts/migration-oss.sh > scripts/migration-oss.sh
+```
+
+**2. Lancer la migration** — l'URL SSH/auth de votre déploiement est réutilisée
+(toute erreur restaure automatiquement votre dépôt git d'origine) :
+
+```bash
+bash scripts/migration-oss.sh
 ./hub.sh up-prod                     # recréer si les images ont changé
 ./hubctl doctor                      # vérification complète
 ```
