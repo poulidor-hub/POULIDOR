@@ -37,6 +37,31 @@ health. En cas d'échec build/up/health : rollback du pointeur méta **et** du
 sous-module (+ snapshot DB). Le Hub est **bloquant** dans `update all` : s'il
 échoue, les apps ne sont pas touchées.
 
+## Transition purge open source (méta 0.80.14+) — MIGRATION UNIQUE
+
+> Les déploiements créés **avant le 4 novembre 2026** ne peuvent plus faire la
+> routine ci-dessus directement : l'historique du parc a été réécrit (purge de
+> secrets avant open source) et votre clone n'a plus d'ancêtre commun avec le
+> remote. `hubctl --prod update hub` échouera (« histories divergentes »,
+> sous-modules introuvables). **Le hub en production n'est pas impacté** :
+> les conteneurs tournent indépendamment de git, et vos données (`.env*`,
+> `APPS/`, `storage/`, `secrets/`, coffre, volumes) sont hors git.
+
+Migration (une seule fois par serveur, ~15 min, données préservées) :
+
+```bash
+cd <racine-du-parc>
+bash scripts/migration-oss.sh        # remplace le dépôt git par un clone frais
+./hub.sh up-prod                     # recréer si les images ont changé
+./hubctl doctor                      # vérification complète
+```
+
+Le script renomme l'ancien `.git` (rollback trivial possible) et conserve
+tous vos fichiers locaux. Après migration, la routine officielle ci-dessus
+redevient la norme. Les apps privées (dépôts sous `APPS/`) ne sont pas
+concernées : leurs dépôts n'ont pas été réécrits.
+
+
 ## Les interdits
 
 1. **Jamais de `git push` depuis un clone dont l'historique diverge** —
