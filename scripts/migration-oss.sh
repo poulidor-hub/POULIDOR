@@ -65,7 +65,10 @@ echo "== 2/5 Clone frais du méta (URL $URL) =="
 git init -q
 git remote add origin "$URL"
 git fetch --quiet origin || rollback
-git checkout -q -B "$BRANCH" "origin/$BRANCH" || rollback
+# -f : les fichiers non versionnés qui collident avec le nouvel arbre (ex. le
+# script de migration lui-même) sont écrasés par la version du dépôt ; les
+# données hors arbre (.env*, APPS/, storage/…) ne sont jamais touchées.
+git checkout -q -f -B "$BRANCH" "origin/$BRANCH" || rollback
 
 echo "== 3/5 Sous-modules (checkout forcé sur les pointeurs, données préservées) =="
 git submodule update --init --recursive --force || rollback
