@@ -1,3 +1,17 @@
+## [0.81.0] - 6 novembre 2026
+
+### ⚙️ Charte Jellycode — mode natif avec regroupement des tâches logiques via subagents
+
+- Point 7 de la charte (`.opencode/agent/jellycode.md`) : « Inline vs subagent » devient
+  « Native, avec regroupement des tâches logiques via subagents » — après validation d'un
+  plan, le mode natif regroupe les tâches logiques (même intention, mêmes fichiers, ou
+  indépendantes) et les dispatche à des subagents (parallèle si indépendantes, séquence
+  sinon) ; restent en inline : pilotage d'ensemble, décisions, intégration finale,
+  vérification.
+- Ligne miroir du persona synchronisée dans `AGENTS.md` ; description front-matter alignée.
+- Les copies locales `APPS/*/.opencode/agent/jellycode.md` (gitignorées, versions anciennes
+  du persona) seront réalignées lors des prochaines migrations d'app — choix utilisateur
+  du 06/11/2026.
 ## [0.80.17] - 5 novembre 2026
 
 ### ⚙️ scripts/migration-oss.sh v3 — collisions untracked gérées
