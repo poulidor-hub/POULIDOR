@@ -1,3 +1,14 @@
+## [0.81.1] - 6 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.81.0 — rôle par défaut viewer admin Hub + héritage atelier
+
+- Sous-module `HUB_base` → `3.81.0` (merge `feat/role-defaut-admin-viewer`, release `0968631e`) :
+  admin Hub sans rôle explicite → `viewer` par défaut (fini le « aucun rôle » au
+  login/refresh et l'`admin` implicite divergent de `/launch`//sso) ; atelier `{X}-ws`
+  hérite du rôle résolu de l'app de base (admin sans barrière d'accès ; non-admin avec
+  activation `user_workshop_access`, défaut `user`) ; dashboard `list_apps` aligné.
+  Détail : CHANGELOG HUB_base 3.81.0.
+
 ## [0.81.0] - 6 novembre 2026
 
 ### ⚙️ Charte Jellycode — mode natif avec regroupement des tâches logiques via subagents
