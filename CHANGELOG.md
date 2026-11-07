@@ -1,3 +1,14 @@
+## [0.81.2] - 7 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.82.0 — unlink atelier protégé (EROFS), réconciliation fantômes/orphelins
+
+- Sous-module `HUB_base` → `3.82.0` (merge `fix/atelier-ghost-cleanup`, release `f1f96b8f`) :
+  fix des compteurs atelier incohérents (diagnostic 2026-11-07 : disque 1 / DB 11 / admin 0) —
+  unlink `.workshop.env` protégé OSError (purge DB de la fiche `-ws` toujours exécutée),
+  `GET /api/admin/atelier` expose `ghosts`/`orphans`, `POST /api/admin/atelier/reconcile`
+  (purge cascade garde `is_workshop`), UI onglet Ateliers (purge fantômes + projets
+  orphelins), sélecteur Mode admin en re-fetch serveur. Détail : CHANGELOG HUB_base 3.82.0.
+
 ## [0.81.1] - 6 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.81.0 — rôle par défaut viewer admin Hub + héritage atelier
