@@ -1,3 +1,22 @@
+## [0.81.3] - 8 novembre 2026
+
+### ⚡ Pointeurs HUB_base 3.83.0 + hubctl 0.17.0 — overrides atelier par app (fix durable Task 0)
+
+- Sous-module `HUB_base` → `3.83.0` (`067c946a`) : fichier optionnel
+  `APPS/X/.workshop.overrides.env` (committé par l'app) fusionné dans l'env compose
+  `-ws` (create/maj/ship/remove) ; précédence `.env` prod < overrides < 8 clés
+  contrat ; absent no-op, illisible warning, clés réservées ignorées. Fix durable
+  du bug Task 0 (exemple-app : port prod 42690 re-tenté par l'atelier → restart
+  loop). Détail : CHANGELOG HUB_base 3.83.0.
+- Sous-module `hubctl_src` → `0.17.0` (`89171da`) : parité CLI du même mécanisme
+  (`_ws_override_env`/`_ws_merge_env`) + correction au passage : `_create_workshop`
+  passait `os.environ` complet au compose (contraire à la politique
+  `_COMPOSE_ENV_ALLOWLIST`, incident 2026-09) → allowlist strict. Détail :
+  CHANGELOG hubctl 0.17.0.
+- App consumatrice : `exemple-app` 3.5.2 (hors sous-modules) — overrides committés
+  5290/5291.
+- Doc : skill parc `app-workshop-mover` — section « Overrides atelier par app ».
+
 ## [0.81.2] - 7 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.82.0 — unlink atelier protégé (EROFS), réconciliation fantômes/orphelins

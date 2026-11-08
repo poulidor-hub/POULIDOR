@@ -247,6 +247,10 @@ le dépôt git »** dans la vue Santé (admin), ou `POST /api/apps/{slug}/git-co
 | `WS_REF` / `WS_COMMIT` | ref + commit du code testé (tracing du cycle `--maj`/`--prod`) ; `n/a` si `APPS/X` n'a pas de remote git |
 | `APP_SUBNET` | subnet `/24` dédié du réseau `-ws` (pool `10.210.x`) — toujours écrit ; pool épuisé ou docker injoignable → création refusée (fail-hard, parité voie UI). Ateliers legacy sans cette clé : signalés au menu, recréer |
 
+### Overrides atelier par app : `.workshop.overrides.env` (hubctl ≥ 0.17.0, HUB_base ≥ 3.83.0)
+
+Fichier optionnel `APPS/X/.workshop.overrides.env` (dotenv, **committé par l'app**), fusionné dans l'env de tout `docker compose -p X-ws` (create/maj/ship/remove, voies hubctl ET UI). Précédence : `.env` prod < **overrides** < `.workshop.env` (les clés de l'allocateur gagnent toujours). Cas d'usage : apps qui bindent des ports host métier depuis leur `.env` prod (ex. exemple-app `PHILIA_NG_PORT`) — sans lui, l'atelier retente le port prod → conflit → restart loop (bug « Task 0 », 07/11/2026). Clés réservées (les 8 du contrat) présentes dans le fichier → ignorées avec warning ; fichier absent → comportement identique ; fichier modifié non commité → bloque `--maj` (check working tree). Premier exemple : `APPS/exemple-app/.workshop.overrides.env` (5290/5291).
+
 ### Commandes
 
 ```bash
