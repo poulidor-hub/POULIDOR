@@ -83,7 +83,7 @@ Pas de mémorisation : la question est reposée à chaque push.
   Tolérances réelles : le préfixe `v` est parfois omis (`bump 3.60.1 + changelog`), et un suffixe descriptif est accepté (`bump v0.62.0 — HTTPS par défaut flotte`). Ne pas mélanger les deux styles dans un même dépôt — suivre l'historique local (`git log --oneline --grep="chore(release)"`).
 - Poursuivre le `git push` vers `main`.
 - **Sous-modules** : seuls les 6 composants sont des sous-modules du méta-repo (`HUB_base`, `HUBCSS`, `hub-mcp`, `HUBapp_TEMPLATE_base`, `hubctl_src`, `HUBsocle`). Les apps ne le sont **pas** (`APPS/*` est gitigné) → pour une app, rien à mettre à jour côté POULIDOR.
-- Si le dépôt poussé est l'un de ces sous-modules : le pointeur dans POULIDOR a changé → **c'est une release du méta-repo à part entière** : refaire tourner ce skill sur POULIDOR (bump + entrée CHANGELOG documentant le ou les pointeurs, ex. `bump 0.61.1 — pointeurs template 2.25.0 + HUB_base 3.60.1`), puis pousser POULIDOR. Le bump méta peut regrouper plusieurs pointeurs poussés dans la foulée.
+- Si le dépôt poussé est l'un de ces sous-modules : le pointeur dans POULIDOR a changé → **c'est une release du méta-repo à part entière** : refaire tourner ce skill sur POULIDOR (bump + entrée CHANGELOG documentant le ou les pointeurs, ex. `bump 0.61.1 — pointeurs template 2.25.0 + HUB_base 3.60.1`), puis pousser POULIDOR. **Le bump méta est OBLIGATOIRE et IMMÉDIAT (même session, même flux de travail que le push du sous-module)** — un pointeur poussé sans bump méta est un drift qui dort sans aucun signal (incident HUBsocle du 06/11/2026 : 2.34.0 poussée, pointeur méta oublié pendant 2 jours). Le regroupement de plusieurs pointeurs poussés dans la foulée reste autorisé, mais jamais leur report.
 
 ## Format de l'entrée CHANGELOG
 
@@ -104,6 +104,7 @@ Date au format français. La section « Pour les utilisateurs » se place en tê
 ## Garde-fous
 
 - **Re-vérifier `git status` juste avant tout bump/commit de release** : l'activité d'autres sessions (ou d'agents en worktree) peut apparaître en cours de route (incident HUB_base du 17/09/2026 : bump empilé sur une release non commitée d'une autre session). Si le dépôt est sale ou la branche a avancé sur origin → faire le point avant de bump.
+- **Drift de sous-module** : lancer `bash scripts/parc-meta-check` (méta-repo) **en début de session** et **avant toute release méta**. Exit 1 = drift de pointeur, WIP non commité dans un sous-module, ou agents actifs dans un registre — traiter avant de bump (jamais d'embarquement silencieux d'un pointeur étranger : ne stage que ses propres pointeurs).
 - Ne jamais pousser sur `main` sans version incrémentée ni entrée CHANGELOG.
 - Une entrée CHANGELOG manquante ou placeholder non complétée = release incomplète.
 - Les fichiers dérivés listés par le cas de détection doivent figurer dans le commit de release (sinon bump incomplet — ex. `ff7ec5a`).
