@@ -1,3 +1,15 @@
+## [0.81.4] - 8 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.83.1 — SSE anti-churn (présence en mémoire)
+
+- Sous-module `HUB_base` → `3.83.1` (`d80525b4`) : instrumentation du flux SSE
+  (cause de sortie + contexte de connexion), heartbeat en mémoire avec flush
+  batché par le sweeper (1 tx/120 s), session réutilisée au reconnect
+  (grâce 300 s). Le churn navigateur (~60 s, erratique) ne coûte plus aucune
+  écriture DB — fin des deadlocks `user_sessions`/`app_usage_segments`
+  (1 583 fermetures/24 h constatées pour 1 utilisateur). Détail :
+  CHANGELOG HUB_base 3.83.1.
+
 ## [0.81.3] - 8 novembre 2026
 
 ### ⚡ Pointeurs HUB_base 3.83.0 + hubctl 0.17.0 — overrides atelier par app (fix durable Task 0)
