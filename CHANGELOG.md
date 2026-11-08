@@ -1,3 +1,15 @@
+## [0.81.5] - 8 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.83.2 — post-audit SSE (logs, alertes, M2M, hygiène DB)
+
+- Sous-module `HUB_base` → `3.83.2` (`0eaa05a0`) : scrub token/beacon_token des
+  access logs + rotation Docker (50 Mo × 3) ; compteur mémoire des 401 SSE
+  (fin du trou noir de visibilité) ; rate limit `client_credentials` + TTL M2M
+  60 min ; purge `user_sessions` 180 j + index `login_at` (migration 063) ;
+  alertes admin sur seuils poussées via le canal messages (erreurs, auth,
+  deadlocks, capacité SSE, apps offline — cooldown 30 min). Détail :
+  CHANGELOG HUB_base 3.83.2.
+
 ## [0.81.4] - 8 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.83.1 — SSE anti-churn (présence en mémoire)
