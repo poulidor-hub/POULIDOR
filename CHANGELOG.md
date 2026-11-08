@@ -1,3 +1,18 @@
+## [0.81.6] - 8 novembre 2026
+
+### ⚡ Pointeur HUBsocle 2.34.0 + garde-fou anti-drift sous-modules
+
+- Sous-module `HUBsocle` → `2.34.0` (`6b807f3`) : dép runtime `python-docx`
+  du socle (rendu Word des apps fines, exemple-app). Release sous-module
+  du 06/11/2026 (poussée vers origin) dont le pointeur méta n'avait pas suivi —
+  régularisé.
+- Nouveau garde-fou `scripts/parc-meta-check` : détecte drift de pointeur,
+  WIP non commité dans un sous-module, agents actifs dans les registres
+  (exit 1 = anomalie). À lancer en début de session et avant toute release méta.
+- Skill `release-on-main` §5 durci : le bump méta après push d'un sous-module
+  passe de « peut regrouper » à **OBLIGATOIRE et immédiat** (même session) —
+  réponse à l'incident ci-dessus (drift resté invisible 2 jours).
+
 ## [0.81.5] - 8 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.83.2 — post-audit SSE (logs, alertes, M2M, hygiène DB)
