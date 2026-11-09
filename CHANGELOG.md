@@ -1,3 +1,14 @@
+## [0.82.6] - 9 novembre 2026
+
+### 🐛 Pointeur HUBsocle 2.34.3 — outbox skip GET
+
+- `HUBsocle` → `9cef06a` (2.34.3) : la garantie outbox ne couvre plus que
+  les écritures — un GET en échec (5xx / erreur réseau) n'est plus enfilé
+  (le replay ne transporte pas les query params : incident 422 m2m/sync
+  en boucle dans l'audit du Hub, cf. pointeur HUB_base 3.85.2 du même
+  jour). +5 tests, suite backend 390 vert. Propagation aux apps à leur
+  prochaine migration template.
+
 ## [0.82.5] - 9 novembre 2026
 
 ### 🐛 Pointeur HUB_base 3.85.2 — fix rate limit M2M par client_id
