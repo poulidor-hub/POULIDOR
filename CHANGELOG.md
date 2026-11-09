@@ -1,3 +1,19 @@
+## [0.81.8] - 9 novembre 2026
+
+### ⚡ CI oss-guard sans clonage des submodules privés
+
+- Job `no-private-data` : retrait de `submodules: recursive` — le
+  `GITHUB_TOKEN` est scopé au méta-repo et ne peut pas cloner les dépôts
+  privés de l'org (« Repository not found » au checkout : CI jamais verte
+  depuis la création du workflow). Le scan « aucune donnée privée
+  trackée » porte sur le contenu tracké du méta-repo ; les submodules
+  n'y sont que des pointeurs (gitlinks), leur contenu n'est pas tracké
+  ici.
+- Job `coherence-release` : le check de présence des sous-modules vérifie
+  désormais les gitlinks dans l'index (`git ls-files --stage`, mode
+  160000) au lieu de `test -d` sur les répertoires, qui échouait sur un
+  checkout sans initialisation des submodules.
+
 ## [0.81.7] - 9 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.83.3 — fix pic d'erreurs messages (payload alertes + unicité receipts)
