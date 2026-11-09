@@ -1,3 +1,13 @@
+## [0.82.5] - 9 novembre 2026
+
+### 🐛 Pointeur HUB_base 3.85.2 — fix rate limit M2M par client_id
+
+- `HUB_base` → `1d797028` (3.85.2) : fin des 429 en cascade sur `POST /api/auth/token`
+  (incident 09/11, 84 erreurs visibles dans l'audit) — le compteur M2M interne
+  est désormais keyé par **client_id** (20/60 s par service account) pour les
+  IP de la whitelist Docker, les apps ne se bloquent plus entre elles ;
+  compteur par IP 5/60 s inchangé pour l'externe. +2 tests, suite hôte 1618 vert.
+
 ## [0.82.4] - 9 novembre 2026
 
 ### 🐛 Pointeur hubctl 0.18.2
