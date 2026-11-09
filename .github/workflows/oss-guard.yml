@@ -14,9 +14,11 @@ jobs:
     name: Aucune donnée privée trackée
     runs-on: ubuntu-latest
     steps:
+      # Scan du contenu tracké du méta-repo SEUL. Les submodules sont des
+      # pointeurs (gitlinks) vers des dépôts PRIVÉS : le GITHUB_TOKEN est
+      # scopé au méta-repo et ne peut pas les cloner (« Repository not
+      # found »), et leur contenu n'est de toute façon pas tracké ici.
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Pas d'IP de serveur réel (plages scrubées → RFC 5737 uniquement)
         run: |
@@ -41,8 +43,9 @@ jobs:
           head -40 CHANGELOG.md | grep -q "## \[$v\]" \
             || { echo "CHANGELOG: pas d'entrée [$v] en tête (VERSION=$v)"; exit 1; }
 
-      - name: Sous-modules présents
+      - name: Sous-modules pointés (gitlinks dans l'index, sans cloner les dépôts privés)
         run: |
           for s in HUB_base HUBsocle HUBapp_TEMPLATE_base HUBCSS hubctl_src hub-mcp; do
-            test -d "$s" || { echo "sous-module manquant: $s"; exit 1; }
+            git ls-files --stage -- "$s" | grep -q '^160000' \
+              || { echo "pointeur de sous-module manquant: $s"; exit 1; }
           done
