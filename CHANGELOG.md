@@ -1,3 +1,13 @@
+## [0.82.3] - 9 novembre 2026
+
+### 🐛 Pointeur HUB_base 3.85.1 (dérivés de bump)
+
+- `HUB_base` → `df896173` (3.85.1) : badge « divergé » corrigé + dérivés de bump
+  (VERSION, INTEGRATION.md, index.html `?v=`, CHANGELOG) committés — le commit
+  initial 3.85.1 n'avait embarqué que le fix (dérivés manqués, incident type
+  ff7ec5a : `git add -A ':!secrets'` pathspec invalide sans interruption).
+
+## [0.82.2] - 9 novembre 2026
 ## [0.82.2] - 9 novembre 2026
 
 ### 🐛 Pointeur HUB_base 3.85.1
