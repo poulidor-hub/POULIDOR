@@ -23,13 +23,15 @@ jobs:
       - name: Pas d'IP de serveur réel (plages scrubées → RFC 5737 uniquement)
         run: |
           ! grep -rInE '192\.168\.1\.(68|126|50)\b|194\.177\.37\.106|10\.210\.(0|63)\.' \
-            --exclude-dir=.git --exclude-dir=node_modules . \
+            --exclude-dir=.git --exclude-dir=node_modules --exclude=oss-guard.yml . \
             || { echo "IP privée détectée dans les fichiers trackés"; exit 1; }
 
       - name: Pas de données clients nommées
         run: |
+          # --exclude=oss-guard.yml : le scan ne doit pas matcher ses propres
+          # patterns (le workflow cite les données recherchées).
           ! grep -rInE 'exemple-org|pr177\.exemple\.org|fede50\.priv' \
-            --exclude-dir=.git --exclude-dir=node_modules . \
+            --exclude-dir=.git --exclude-dir=node_modules --exclude=oss-guard.yml . \
             || { echo "Donnée client détectée dans les fichiers trackés"; exit 1; }
 
   coherence-release:

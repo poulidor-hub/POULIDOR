@@ -183,7 +183,7 @@
 | Élément | Détail |
 |---------|--------|
 | **Historique réécrit** | 14 chemins internes purgés de toutes les branches (docs/superpowers, plans, specs, seed, campagnes, https-flotte, migration-legacy, guide-parc-poulidor…) — conservés localement (gitignore) |
-| **IPs scrubées** | 192.0.2.10/.126/.50/.27 → RFC 5737 dans tout l'historique de HUB_base / HUBsocle / TEMPLATE / hub-mcp |
+| **IPs scrubées** | 4 IP privées réelles (plage 192.168.1.x) → RFC 5737 dans tout l'historique de HUB_base / HUBsocle / TEMPLATE / hub-mcp |
 | **Branches accidentelles** | branches exotiques contenant du code d'apps privées supprimées des remotes (HUB_base, exemple-app, exemple-app…) |
 | **Pointeurs** | HUB_base **3.80.4**, HUBsocle **2.33.3**, HUBapp_TEMPLATE_base **2.35.5**, HUBCSS **0.3.5**, hubctl_src **0.16.7**, hub-mcp **0.16.2** |
 
@@ -196,8 +196,8 @@
 | **SECURITY.md + CODE_OF_CONDUCT.md** | politiques FR ajoutées à la racine (signalement privé, divulgation coordonnée, Contributor Covenant adapté) |
 | **CI** | `.github/workflows/ci.yml` (runner self-hosted, clone SSH, sonde hub de prod) remplacée par `oss-guard.yml` neutre : pas d'IP privée trackée, pas de donnée client, cohérence VERSION/CHANGELOG, sous-modules présents |
 | **README** | badge licence AGPLv3 (fini « projet interne »), table des composants à jour (3.80.x / 2.33.x / 2.35.x / 0.16.x / 0.3.x / 0.16.x), compteur MCP harmonisé à 66 (source : AST `hub_mcp/tools.py`), clone en HTTPS, APPS/ annoté « vide dans la distribution publique » |
-| **skills .opencode** | noms d'apps clientes et de clients scrubés → génériques (exemple-app-2, salarie, vikunja, service.example.org, 203.0.113.10, exemple-app, exemple-app…) ; liens morts vers specs purgées neutralisés |
-| **CHANGELOG** | mentions exemple-org / chemin personnel scrubées |
+| **skills .opencode** | noms d'apps clientes et de clients scrubés → génériques (exemple-app-2, salarie, vikunja, exemple-app, exemple-app…) ; domaine et IP réels remplacés par des placeholders ; liens morts vers specs purgées neutralisés |
+| **CHANGELOG** | mentions du nom d'un client / chemin personnel scrubées |
 | **Pointeurs** | HUB_base **3.80.4**, HUBsocle **2.33.3**, HUBapp_TEMPLATE_base **2.35.5**, HUBCSS **0.3.5**, hubctl_src **0.16.7**, hub-mcp **0.16.2** |
 
 ## [0.80.12] - 4 novembre 2026
@@ -2175,7 +2175,7 @@ bre 2026
 - Pointeur submodule `HUB_base` → f25628b (release 3.58.0) : la gestion des
   droits PhiliaNG quitte l'admin du hub (UI + route proxy `/api/philia-rights/*`
   + tests) pour vivre exclusivement dans l'app exemple-app (page
-  `/users-rights`). Infra SNI/certs `service.example.org` inchangée.
+  `/users-rights`). Infra SNI/certs (domaine réel scrubé) inchangée.
 ## [0.58.0] - 15 septembre 2026
 ### ⚡ Outillage parc : gh, tests parallèles, Node.js, doctor enrichi
 Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
@@ -3271,7 +3271,7 @@ Première validation complète de l'installation de zéro sur Debian 12 pur (VM 
   OIDC/SLO/SA pour la cohérence entre `./install.sh` et `./hubctl init`.
 ## [0.33.0] - 10 août 2026
 ### ⚡ Mise à jour sous-modules + skill migrate-app-template
-- **HUB_base** → v3.27.0 : routage SNI `service.example.org` → proxy PhiliaNG transparent (nginx-ssl.conf)
+- **HUB_base** → v3.27.0 : routage SNI (domaine client scrubé) → proxy PhiliaNG transparent (nginx-ssl.conf)
 - **HUBapp_TEMPLATE_base** → v2.9.0 : affichage `APP_VERSION` dans le header de l'app
 - **Skills** : ajout du skill `migrate-app-template` pour mettre à jour les apps vers la dernière version du template
 ## [0.32.0] - 3 août 2026
