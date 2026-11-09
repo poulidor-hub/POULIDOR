@@ -1,3 +1,20 @@
+## [0.81.9] - 9 novembre 2026
+
+### ⚡ Scrub des données privées résiduelles + auto-exclusion du scan
+
+- Premier passage réel du job `no-private-data` (checkout réparé en
+  0.81.8) : fuite détectée dans le CHANGELOG lui-même — l'entrée
+  documentant l'opération de scrub citait les valeurs réelles (IP
+  privées et publiques, un domaine client, un nom de client), dont deux
+  vieilles entrées historiques (0.58.0, 0.33.0). 5 mentions scrubées,
+  sens historique conservé (placeholders génériques).
+- `oss-guard.yml` : exclusion du fichier du scan (`--exclude`) — le
+  scan « données clients » matchait ses propres patterns (la regex cite
+  littéralement une des données recherchées) et aurait échoué à jamais
+  sur lui-même.
+- Vérifié avant push : clone local sans submodules, les 4 checks du
+  workflow exécutés à l'identique → verts.
+
 ## [0.81.8] - 9 novembre 2026
 
 ### ⚡ CI oss-guard sans clonage des submodules privés
