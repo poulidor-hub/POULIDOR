@@ -12,6 +12,15 @@
   (front du Hub migré dans la même release, contrat M2M intact). Déployé et
   vérifié : migration 065 en base, API servie en 3.84.0, front `?v=3.84.0`.
 
+## [0.81.11] - 9 novembre 2026
+
+### ⚡ Pointeur HUBsocle 2.34.2
+
+- `HUBsocle` → `5271fbc` (2.34.2) : front socle — bandeau de messages
+  non-lus réparé (normalisation de la réponse paginée du Hub
+  `GET /api/messages/me`) ; détecté par l'E2E prod de exemple-app 1.1.2,
+  impactait toutes les apps fines (TypeError console, MessageBanner vide).
+
 ## [0.81.10] - 9 novembre 2026
 
 ### ⚡ Pointeur HUBsocle 2.34.1
