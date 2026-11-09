@@ -1,3 +1,12 @@
+## [0.82.4] - 9 novembre 2026
+
+### 🐛 Pointeur hubctl 0.18.2
+
+- `hubctl_src` → `c034f01` (0.18.2) : unit systemd update — `~/.docker` ajouté
+  aux `ReadWritePaths` (le client docker buildx écrit son activité, bloqué par
+  `ProtectHome=read-only` ⇒ build échoué au premier job réel, rollback propre).
+
+## [0.82.3] - 9 novembre 2026
 ## [0.82.3] - 9 novembre 2026
 
 ### 🐛 Pointeur HUB_base 3.85.1 (dérivés de bump)
