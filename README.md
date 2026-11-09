@@ -183,6 +183,12 @@ cd <racine-du-parc>
 ./hub.sh status               # 3. état des conteneurs + version déployée
 ```
 
+💡 **Alternative graphique (méta ≥ 0.82)** : les administrateurs peuvent mettre à jour
+le Hub et le socle depuis l'**interface Hub** — badge orange dans la navbar quand une
+version est disponible, bouton « Mettre à jour le Hub et le socle » (admin → onglet
+Mises à jour) avec suivi live. Détails : `docs/ops/mise-a-jour.md`, section « Mise à
+jour via l'interface Hub ». La CLI reste la voie de secours.
+
 `./hub.sh update` délègue à `hubctl update hub` ; `update-hub.sh` est **déprécié**.
 Mode dev : `--dev` au lieu de `--prod`. Tout existe en `--dry-run`.
 
