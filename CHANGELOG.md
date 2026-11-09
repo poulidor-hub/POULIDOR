@@ -1,3 +1,17 @@
+## [0.81.11] - 9 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.84.0
+
+- `HUB_base` → `4a5b7f29` (3.84.0) : **console notifications unifiée** — une seule
+  page « Notifications » adaptée au rôle (Ma boîte pour tous / Gestion pour les
+  admins, l'ancienne page admin Messages est absorbée). Suppression réelle côté
+  destinataire (`hidden_at`, migration **065**), `/api/messages/me` paginé + filtré +
+  regroupement SQL des alertes identiques ×N, purge avec comptage avant action
+  (`purge-preview`, garde urgent non lu, scope actifs), actions rapides et bulk
+  partout, fini le localStorage. Breaking assumé : `/me` répond désormais paginé
+  (front du Hub migré dans la même release, contrat M2M intact). Déployé et
+  vérifié : migration 065 en base, API servie en 3.84.0, front `?v=3.84.0`.
+
 ## [0.81.10] - 9 novembre 2026
 
 ### ⚡ Pointeur HUBsocle 2.34.1
