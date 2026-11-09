@@ -1,3 +1,18 @@
+## [0.81.7] - 9 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.83.3 — fix pic d'erreurs messages (payload alertes + unicité receipts)
+
+- Sous-module `HUB_base` → `3.83.3` (`cfc21e7a`) : incident 09/11/2026
+  (pic d'erreurs Hub, 42 erreurs/10 min sur `POST /api/messages/{id}/read`),
+  deux causes racines : payload SSE des alertes admin sans `id` (le front
+  rappelait /read avec `Date.now()` → overflow int32 asyncpg) et unicité
+  (message_id, user_id) des read receipts jamais effective (create_all avant
+  apply_migrations → doublons réels → « Multiple rows were found » en boucle).
+  Fix : id du message persisté dans le payload SSE + index unique nommé
+  (migration 064, dédoublonnage) + routes read/delivered/click tolérantes +
+  garde front anti-ids invalides. Vérifié en prod dev : 43 erreurs/min au pic
+  → 0 après déploiement. Détail : CHANGELOG HUB_base 3.83.3.
+
 ## [0.81.6] - 8 novembre 2026
 
 ### ⚡ Pointeur HUBsocle 2.34.0 + garde-fou anti-drift sous-modules
