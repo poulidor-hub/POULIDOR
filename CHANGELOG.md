@@ -1,3 +1,23 @@
+## [0.82.0] - 9 novembre 2026
+
+### ⚡ Centre de mises à jour : pointeurs hubctl 0.18.0 + HUB_base 3.85.0
+
+- `hubctl_src` → `d582078` (0.18.0) : **service hôte de mise à jour** `hubctl update --serve`
+  (port 8778, pattern atelier : statut git par composant avec cache TTL, job persistant
+  `~/.config/hubctl/update_state.json` exécutant strictement `hubctl update hub` —
+  mêmes pré-checks et rollback CLI —, unit systemd `hubctl-update.service` installée
+  via `hubctl init`, refus de cibles avec `--serve`, garde job obsolète, fix dry-run
+  argparse). +28 tests.
+- `HUB_base` → `e9e3f82b` (3.85.0) : **centre de mises à jour dans l'interface** —
+  routes admin `/api/admin/system/*` (passthrough strict/tolérant, audit), badge
+  navbar orange (admin), onglet « Mises à jour » (statut par composant, bouton unique
+  « Mettre à jour le Hub et le socle », suivi live du log, reconnexion automatique
+  pendant le redémarrage du Hub). +9 tests.
+- `docs/ops/mise-a-jour.md` : section « Mise à jour via l'interface Hub »
+  (prérequis `hubctl-update`, périmètre, arrêt systemd, voie de secours CLI) ;
+  note couverture builds (une release HUBsocle/image exige `hubctl socle build`).
+
+## [0.81.11] - 9 novembre 2026
 ## [0.81.11] - 9 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.84.0
