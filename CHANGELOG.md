@@ -1,3 +1,13 @@
+## [0.82.1] - 9 novembre 2026
+
+### 🐛 Pointeur hubctl 0.18.1
+
+- `hubctl_src` → `4b14b00` (0.18.1) : fix unit systemd `hubctl-update.service` —
+  la home réelle dans `ReadWritePaths` (le raccourci home de systemd se résout
+  à `/root` dans une unit système ⇒ crash 226/NAMESPACE au premier démarrage
+  en prod). Bloquant pour le déploiement du centre de mises à jour.
+
+## [0.82.0] - 9 novembre 2026
 ## [0.82.0] - 9 novembre 2026
 
 ### ⚡ Centre de mises à jour : pointeurs hubctl 0.18.0 + HUB_base 3.85.0
