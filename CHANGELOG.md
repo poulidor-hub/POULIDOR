@@ -1,3 +1,16 @@
+## [0.81.10] - 9 novembre 2026
+
+### ⚡ Pointeur HUBsocle 2.34.1
+
+- `HUBsocle` → `2a98bcc` (2.34.1) : **splitter SQL des migrations conscient
+  des blocs dollar-quoted** (plpgsql `$$…$$` / `$tag$…$tag$`) — un
+  `CREATE FUNCTION` n'est plus tronqué au premier `;` de son corps
+  (asyncpg « unterminated dollar-quoted string », migration jamais
+  appliquée, re-jouée en échec à chaque boot). Exposé et validé par la
+  migration full-text `005` de exemple-app 1.1.0 (première migration
+  plpgsql app-side du parc) ; image `poulidor/socle-api:2.34.1` reconstruite
+  et vérifiée in-image (`import hub_socle` = 2.34.1).
+
 ## [0.81.9] - 9 novembre 2026
 
 ### ⚡ Scrub des données privées résiduelles + auto-exclusion du scan
