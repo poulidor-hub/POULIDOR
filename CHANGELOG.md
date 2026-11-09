@@ -1,3 +1,12 @@
+## [0.82.2] - 9 novembre 2026
+
+### 🐛 Pointeur HUB_base 3.85.1
+
+- `HUB_base` → `f7e32407` (3.85.1) : badge « divergé » de l'onglet Mises à jour
+  affiché à tort sur le méta aligné (tableau `[]` truthy en JavaScript).
+  Constaté sur le déploiement réel 0.82.1.
+
+## [0.82.1] - 9 novembre 2026
 ## [0.82.1] - 9 novembre 2026
 
 ### 🐛 Pointeur hubctl 0.18.1
