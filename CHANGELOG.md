@@ -1,3 +1,16 @@
+## [0.82.19] - 10 novembre 2026
+
+### Changed
+
+- Pointeur **HUBsocle 2.34.10** — pin exact de la stack web :
+  `fastapi==0.162.4` + `starlette==1.10.0` (dépendance directe déclarée).
+  Motif : la fourchelle large faisait résoudre une version de fastapi
+  différente à chaque build d'image socle (2.34.8 → 0.162.2, 2.34.9 →
+  0.162.4) avec un changement de comportement d'inclusion des routers entre
+  les deux — divergence silencieuse apps/envs de test vs prod (incident
+  exemple-app 1.14.1). Toute montée fastapi/starlette passe désormais
+  par une release socle explicite.
+
 ## [0.82.18] - 10 novembre 2026
 
 ### ✨ Pointeur HUBsocle 2.34.9
