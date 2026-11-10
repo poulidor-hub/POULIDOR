@@ -459,6 +459,21 @@ Préparation de la publication publique du parc — aucune logique métier modif
 
 ---
 
+## [0.82.11] - 10 novembre 2026
+
+### 🐛 Pointeur HUB_base 3.85.6 — actions groupées sur les notifications dédupliquées
+
+- `HUB_base` → `039b84af` (3.85.6) : « Marquer lu » et « Supprimer » sur les
+  notifications groupées (×N) propagent désormais à toute la pile (propagation
+  au groupe dédupliqué titre+priorité+expéditeur, strictement per-user) — fin
+  des badges « Non lu » persistants et des lignes réapparaissant après
+  suppression ; toasts comptant les occurrences réellement traitées.
+  +5 tests ; domaine messages 62 vert (hôte, main fusionné avec 3.85.5) ;
+  suite docker 1555 vert (échecs préexistants vpn_dns/workshop_overrides
+  documentés : env hôte, non liés).
+
+---
+
 ## [0.80.5] - 4 novembre 2026
 
 ### 🔧 Pointeur hubctl_src 0.16.4 — fix doctor (NameError)
