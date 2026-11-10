@@ -459,6 +459,22 @@ Préparation de la publication publique du parc — aucune logique métier modif
 
 ---
 
+## [0.82.13] - 10 novembre 2026
+
+### 🐛 Pointeur HUB_base 3.85.8 — résolution structurelle du groupe dédupliqué
+
+- `HUB_base` → `ac5eb0d5` (3.85.8) : l'archivage, la restauration et la
+  suppression (définitive ou en masse) d'une notification groupée (×N)
+  traitent désormais la pile entière — même défaut que le mark-read/suppression
+  destinataire de 3.85.6, corrigé structurellement : source unique de la clé de
+  déduplication (`_group_partition`/`_group_key_conditions`), résolveur
+  générique `_resolve_group` à deux périmètres (destinataire/admin), toutes
+  les actions destinataires et admin passent dessus. Front Gestion : toasts au
+  compte réel. +4 tests, domaine messages 66 vert (hôte), suite docker
+  1564 vert.
+
+---
+
 ## [0.82.12] - 10 novembre 2026
 
 ### ✨ Pointeur HUB_base 3.85.7 — retrait de l'onglet « Messages » de la navbar du Hub
