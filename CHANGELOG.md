@@ -1,3 +1,12 @@
+## [0.82.21] - 10 novembre 2026
+
+### ✨ Pointeur HUBsocle 2.34.12
+
+- `HUBsocle` → `c7af144` (2.34.12) : dep `shapely` (polygones GeoJSON
+  secteurs/communes — exemple-app-api-v3, vague 6). Offline-first :
+  la dep migre en runtime du socle, aucune app fine ne pip-installe
+  au build.
+
 ## [0.82.20] - 10 novembre 2026
 
 ### Changed
