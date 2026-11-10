@@ -1,3 +1,11 @@
+## [0.82.15] - 10 novembre 2026
+
+### ✨ Pointeur HUBsocle 2.34.6
+
+- `HUBsocle` → `f03eae4` (2.34.6) : deps métier apps fines offline-first
+  vague 2 — `numpy`, `scipy>=1.13,<1.18` (pin kstest), `odfpy`
+  (exemple-app) et `pypdf` (exemple-app).
+
 ## [0.82.14] - 10 novembre 2026
 
 ### ✨ Pointeur HUBsocle 2.34.5
