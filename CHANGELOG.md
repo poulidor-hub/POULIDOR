@@ -17,6 +17,17 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
 (badge → clic → coupure → reconnexion → verdict).
 
 ## [0.82.6] - 10 novembre 2026
+## [0.82.10] - 10 novembre 2026
+
+### 🐛 Pointeur HUB_base 3.85.5 — GET /me livraison auto tolérante aux courses
+
+- `HUB_base` → `2051ee7c` (3.85.5) : la livraison auto de l'inbox
+  (`GET /api/messages/me`) absorbe l'`IntegrityError` de course
+  (receipt créé par une requête simultanée entre le SELECT de page et le
+  commit → UniqueViolation, 500 sur l'inbox — 1 occurrence 10/11 02:56).
+  Rollback + réponse 200 ; le prochain GET refera proprement. +1 test,
+  domaine messages 74 vert, suite hôte 1621 vert.
+
 ## [0.82.9] - 10 novembre 2026
 
 ### 🐛 Pointeurs HUB_base 3.85.4 + HUBsocle 2.34.4 — fin de l'incident nocturne (boucle d'atelier)
