@@ -1,3 +1,12 @@
+## [0.82.7] - 10 novembre 2026
+
+### ⚡ Release de validation du centre de mises à jour
+
+Aucun changement de contenu : cette release existe pour valider le flux complet
+du bouton « Mettre à jour le Hub et le socle » en conditions réelles
+(badge → clic → coupure → reconnexion → verdict).
+
+## [0.82.6] - 10 novembre 2026
 ## [0.82.6] - 9 novembre 2026
 
 ### 🐛 Pointeur HUBsocle 2.34.3 — outbox skip GET
