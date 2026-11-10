@@ -1,3 +1,11 @@
+## [0.82.17] - 10 novembre 2026
+
+### ✨ Pointeur HUBsocle 2.34.8
+
+- `HUBsocle` → `17eaa08` (2.34.8) : dep `reportlab` (génération PDF
+  courriers devis/contrat — exemple-V2, vague 4) ; PyPDF2 obsolète
+  migré vers `pypdf` côté app.
+
 ## [0.82.16] - 10 novembre 2026
 
 ### ✨ Pointeur HUBsocle 2.34.7
