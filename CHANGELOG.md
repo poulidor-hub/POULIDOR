@@ -1,3 +1,14 @@
+## [0.82.20] - 10 novembre 2026
+
+### Changed
+
+- Pointeur **HUBsocle 2.34.11** — fix release : `sync_version.py` oublié au
+  bump 2.34.10, fichiers dérivés (`backend/hub_socle/__version.py`,
+  `frontend/package.json`) restés à 2.34.9 — toute image
+  `poulidor/socle-api:2.34.10` construite rapportait `socle_version: 2.34.9`
+  (constaté côté exemple-app : `/api/health` sur pin 2.34.10).
+  Entrée 2.34.10 du CHANGELOG socle également replacée sous le header.
+
 ## [0.82.19] - 10 novembre 2026
 
 ### Changed
