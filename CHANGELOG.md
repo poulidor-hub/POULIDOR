@@ -1,3 +1,13 @@
+## [0.82.8] - 10 novembre 2026
+
+### ✨ Pointeur HUB_base 3.85.3
+
+- `HUB_base` → `77c4cc8e` (3.85.3) : rechargement automatique de la page admin
+  après une mise à jour (verdict visible, compte à rebours 8 s, retour direct
+  sur la vue admin ; en cas d'échec, journal + remède avant rechargement
+  manuel).
+
+## [0.82.7] - 10 novembre 2026
 ## [0.82.7] - 10 novembre 2026
 
 ### ⚡ Release de validation du centre de mises à jour
