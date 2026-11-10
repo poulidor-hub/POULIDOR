@@ -1,3 +1,12 @@
+## [0.82.16] - 10 novembre 2026
+
+### ✨ Pointeur HUBsocle 2.34.7
+
+- `HUBsocle` → `282385d` (2.34.7) : deps métier apps fines offline-first
+  vague 3 — `Pillow`, `Jinja2`, `weasyprint` (+ libs système
+  Pango/Cairo/fontes dans l'image) pour exemple-app ; `redis[hiredis]`,
+  `deepdiff` pour le cadrage exemple-app.
+
 ## [0.82.15] - 10 novembre 2026
 
 ### ✨ Pointeur HUBsocle 2.34.6
