@@ -459,7 +459,7 @@ Préparation de la publication publique du parc — aucune logique métier modif
 
 ---
 
-## [0.82.12] - 10 novembre 2026
+## [0.82.13] - 10 novembre 2026
 
 ### 🐛 Pointeur HUB_base 3.85.8 — résolution structurelle du groupe dédupliqué
 
