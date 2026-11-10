@@ -1,3 +1,11 @@
+## [0.82.18] - 10 novembre 2026
+
+### ✨ Pointeur HUBsocle 2.34.9
+
+- `HUBsocle` → `e6e8230` (2.34.9) : dep `xlwt` (export XLS Excel
+  97-2003 — exemple-app-v3, vague 5). Offline-first : la dep migre en
+  runtime du socle, aucune app fine ne pip-installe au build.
+
 ## [0.82.17] - 10 novembre 2026
 
 ### ✨ Pointeur HUBsocle 2.34.8
