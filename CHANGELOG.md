@@ -459,6 +459,18 @@ Préparation de la publication publique du parc — aucune logique métier modif
 
 ---
 
+## [0.82.12] - 10 novembre 2026
+
+### ✨ Pointeur HUB_base 3.85.7 — retrait de l'onglet « Messages » de la navbar du Hub
+
+- `HUB_base` → `a7f4bded` (3.85.7) : l'onglet « Messages » de la navbar du Hub
+  est retiré — la console notifications unifiée (Ma boîte / Gestion) reste
+  accessible depuis la cloche 🔔. Badge cloche conservé, fetch de stats mort
+  supprimé ; la préférence « badge navbar par priorité » ne pilote plus
+  d'affichage (retrait à décider séparément).
+
+---
+
 ## [0.82.11] - 10 novembre 2026
 
 ### 🐛 Pointeur HUB_base 3.85.6 — actions groupées sur les notifications dédupliquées
