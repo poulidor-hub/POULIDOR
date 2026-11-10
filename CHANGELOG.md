@@ -1,3 +1,11 @@
+## [0.82.14] - 10 novembre 2026
+
+### ✨ Pointeur HUBsocle 2.34.5
+
+- `HUBsocle` → `2760329` (2.34.5) : deps métier apps fines offline-first —
+  `extract-msg` (parsing .msg, migration exemple-app) et `lxml`
+  (structure DOCX, migration exemple-app).
+
 ## [0.82.8] - 10 novembre 2026
 
 ### ✨ Pointeur HUB_base 3.85.3
