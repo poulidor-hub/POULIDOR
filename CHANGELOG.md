@@ -7,8 +7,8 @@
   sur la vue admin ; en cas d'échec, journal + remède avant rechargement
   manuel).
 
-## [0.82.7] - 10 novembre 2026
-## [0.82.7] - 10 novembre 2026
+## [0.82.9] - 10 novembre 2026
+## [0.82.9] - 10 novembre 2026
 
 ### ⚡ Release de validation du centre de mises à jour
 
@@ -17,6 +17,22 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
 (badge → clic → coupure → reconnexion → verdict).
 
 ## [0.82.6] - 10 novembre 2026
+## [0.82.9] - 10 novembre 2026
+
+### 🐛 Pointeurs HUB_base 3.85.4 + HUBsocle 2.34.4 — fin de l'incident nocturne (boucle d'atelier)
+
+- `HUB_base` → `0b00e3f2` (3.85.4) : auto-approbation atelier par **fallback
+  nom** d'app approuvée non-atelier — l'atelier `exemple-app-ws` ne
+  trouvait jamais sa base (`exemple-app`, slug ≠ préfixe dérivé) et
+  restait pending à vie (2019 réinscriptions legacy + 2523×403 +
+  257×429 cette nuit). Renuméroté 3.85.4 : deux 3.85.3 sorties
+  simultanément (conflit CHANGELOG résolu, les deux contenus conservés).
+- `HUBsocle` → `d252ab9` (2.34.4) : **cooldown M2M** après 403
+  persistants (60 s → 30 min exponentiel entre cycles applicatifs, levé
+  au premier mint 200) — plus aucun martèlement register/token même en
+  cas de futur cas imprévu.
+- Résidus DB purgés (app `exemple-app-ws` + SA désactivé).
+
 ## [0.82.6] - 9 novembre 2026
 
 ### 🐛 Pointeur HUBsocle 2.34.3 — outbox skip GET
