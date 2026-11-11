@@ -1,3 +1,17 @@
+## [0.82.24] - 11 novembre 2026
+
+### ⚡ Outil parc : scripts/resync-flotte-i1.sh
+
+- Passe flotte du fix I1 (access logs nginx sans query string — JWT SSO
+  `?token=`/`refresh_token=`) sur les apps de `APPS/` : worktree
+  parc-isolate par app, patch `log_format noquery` (nginx.conf +
+  nginx-ssl.conf), patch `.env.example` (`HTTPS_ENABLED=true`,
+  `IS_SHARED=true` — défauts, `.env` déployés inchangés), bump patch +
+  CHANGELOG, merge sous lock, push, rebuild prod si l'app tourne, sonde
+  token factice non loggée (port réel du `.env` de l'app). Skips : apps
+  déjà patchées, dirty, sans nginx.conf/socle. Piloté : exports 0.5.2,
+  exemple-app 0.26.2.
+
 ## [0.82.23] - 11 novembre 2026
 
 ### ✨ Pointeur HUBapp_TEMPLATE_base 2.35.6
