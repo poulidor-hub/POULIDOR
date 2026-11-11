@@ -1,3 +1,24 @@
+# Changelog — POULIDOR (méta-repo)
+
+> Une entrée par release : bump de version, pointeur(s) de composant(s)
+> et/ou outillage. Ordre décroissant, séparé par `---`.
+
+---
+
+## [0.82.25] - 11 novembre 2026
+
+### ✨ Pointeur HUB_base 3.86.0
+
+- `HUB_base` → `655176d` (3.86.0) : notifications actionnables — aperçu du
+  body en liste (1 ligne tronquée) et lien d'action direct dans les lignes ;
+  alertes système (pic d'erreurs, échecs auth) → deeplink Audit in-app avec
+  filtres pré-remplis ; apps → leur `action_url` existante en nouvel onglet.
+  Traiter = lire : tracking clic + mark-read automatique. Fix mobile 3.85.9
+  inclus dans la foulée (table à scroll horizontal, déjà déployé).
+  Déployé sur l'instance locale, notif de démo injectée pour validation.
+
+---
+
 ## [0.82.24] - 11 novembre 2026
 
 ### ⚡ Outil parc : scripts/resync-flotte-i1.sh
@@ -11,6 +32,23 @@
   token factice non loggée (port réel du `.env` de l'app). Skips : apps
   déjà patchées, dirty, sans nginx.conf/socle. Piloté : exports 0.5.2,
   exemple-app 0.26.2.
+
+---
+
+## [0.82.24] - 11 novembre 2026
+
+### 🐛 Pointeur HUB_base 3.85.9
+
+- `HUB_base` → `bde2752` (3.85.9) : console notifications lisible en
+  mobile — `.notif-table { min-width: 46rem }` : la colonne Titre
+  (`text-break`) s'écrasait en pile verticale caractère par caractère
+  sur mobile (modes « Ma boîte » et « Gestion »), les colonnes latérales
+  à largeur fixe (~34 rem) empêchant `.table-responsive` de déclencher
+  jamais son scroll. En dessous de 46 rem, scroll horizontal natif
+  (charte HUBCSS) ; desktop inchangé. Déployé et vérifié sur l'instance
+  locale (CSS servi avec le correctif, footer v3.85.9).
+
+---
 
 ## [0.82.23] - 11 novembre 2026
 
@@ -574,30 +612,6 @@ Préparation de la publication publique du parc — aucune logique métier modif
   basculent à la prochaine sync de leur copie `hub_mcp/` (`make sync-hub-tooling`).
 
 ---
-
-## [0.82.25] - 11 novembre 2026
-
-### ✨ Pointeur HUB_base 3.86.0
-
-- `HUB_base` → `655176d` (3.86.0) : notifications actionnables — aperçu du
-  body en liste (1 ligne tronquée) et lien d'action direct dans les lignes ;
-  alertes système (pic d'erreurs, échecs auth) → deeplink Audit in-app avec
-  filtres pré-remplis ; apps → leur `action_url` existante en nouvel onglet.
-  Traiter = lire : tracking clic + mark-read automatique. Fix mobile 3.85.9
-  inclus dans la foulée (table à scroll horizontal, déjà déployé).
-  Déployé sur l'instance locale, notif de démo injectée pour validation.
-## [0.82.24] - 11 novembre 2026
-
-### 🐛 Pointeur HUB_base 3.85.9
-
-- `HUB_base` → `bde2752` (3.85.9) : console notifications lisible en
-  mobile — `.notif-table { min-width: 46rem }` : la colonne Titre
-  (`text-break`) s'écrasait en pile verticale caractère par caractère
-  sur mobile (modes « Ma boîte » et « Gestion »), les colonnes latérales
-  à largeur fixe (~34 rem) empêchant `.table-responsive` de déclencher
-  jamais son scroll. En dessous de 46 rem, scroll horizontal natif
-  (charte HUBCSS) ; desktop inchangé. Déployé et vérifié sur l'instance
-  locale (CSS servi avec le correctif, footer v3.85.9).
 
 ## [0.82.13] - 10 novembre 2026
 
