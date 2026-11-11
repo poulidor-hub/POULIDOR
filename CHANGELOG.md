@@ -561,6 +561,19 @@ Préparation de la publication publique du parc — aucune logique métier modif
 
 ---
 
+## [0.82.24] - 11 novembre 2026
+
+### 🐛 Pointeur HUB_base 3.85.9
+
+- `HUB_base` → `bde2752` (3.85.9) : console notifications lisible en
+  mobile — `.notif-table { min-width: 46rem }` : la colonne Titre
+  (`text-break`) s'écrasait en pile verticale caractère par caractère
+  sur mobile (modes « Ma boîte » et « Gestion »), les colonnes latérales
+  à largeur fixe (~34 rem) empêchant `.table-responsive` de déclencher
+  jamais son scroll. En dessous de 46 rem, scroll horizontal natif
+  (charte HUBCSS) ; desktop inchangé. Déployé et vérifié sur l'instance
+  locale (CSS servi avec le correctif, footer v3.85.9).
+
 ## [0.82.13] - 10 novembre 2026
 
 ### 🐛 Pointeur HUB_base 3.85.8 — résolution structurelle du groupe dédupliqué
