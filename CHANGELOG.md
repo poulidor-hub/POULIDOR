@@ -1,3 +1,15 @@
+## [0.82.23] - 11 novembre 2026
+
+### ✨ Pointeur HUBapp_TEMPLATE_base 2.35.6
+
+- `HUBapp_TEMPLATE_base` → `ca2e9b8` (2.35.6) : `/callback` SSO hors des
+  access logs nginx — les app fines socle reçoivent le JWT et le
+  refresh_token en query param au callback SSO ; nginx les loggait en
+  clair dans les logs persistants du conteneur (ticket I1, review
+  migration exemple-app 0.26.0). Fix déployé et vérifié en prod sur
+  exemple-app 0.26.1 ; le template protège désormais les futures apps
+  générées.
+
 ## [0.82.22] - 11 novembre 2026
 
 ### ✨ Pointeur HUBsocle 2.35.0
