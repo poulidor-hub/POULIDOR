@@ -575,6 +575,17 @@ Préparation de la publication publique du parc — aucune logique métier modif
 
 ---
 
+## [0.82.25] - 11 novembre 2026
+
+### ✨ Pointeur HUB_base 3.86.0
+
+- `HUB_base` → `655176d` (3.86.0) : notifications actionnables — aperçu du
+  body en liste (1 ligne tronquée) et lien d'action direct dans les lignes ;
+  alertes système (pic d'erreurs, échecs auth) → deeplink Audit in-app avec
+  filtres pré-remplis ; apps → leur `action_url` existante en nouvel onglet.
+  Traiter = lire : tracking clic + mark-read automatique. Fix mobile 3.85.9
+  inclus dans la foulée (table à scroll horizontal, déjà déployé).
+  Déployé sur l'instance locale, notif de démo injectée pour validation.
 ## [0.82.24] - 11 novembre 2026
 
 ### 🐛 Pointeur HUB_base 3.85.9
