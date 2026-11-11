@@ -1,3 +1,19 @@
+## [0.82.22] - 11 novembre 2026
+
+### ✨ Pointeur HUBsocle 2.35.0
+
+- `HUBsocle` → `b4ea9e8` (2.35.0) : upstream des extensions génériques
+  d'exemple-app avant sa migration app fine — `authenticate_websocket`
+  (auth WS query param), piggyback utilisateur (`HUB_USER_TOKEN` +
+  `user_token_context`, précédence explicite > ContextVar > M2M dans
+  `call_hub_endpoint`), `MaskTokenQueryParamFilter` (JWT en query param
+  jamais en clair dans les logs), fix front merge nested/flat
+  `queryOptions`/`mutationOptions`, pont CustomEvent
+  `open-message-archive`, dep runtime `faster-whisper>=1.0.3,<2.0`
+  (dictée). 14 tests socle ajoutés (408 verts).
+- Résidu release absorbé : badge README 0.82.21 (sync oublié du commit
+  0.82.21, motif ff7ec5a) écrasé par le sync 0.82.22.
+
 ## [0.82.21] - 10 novembre 2026
 
 ### ✨ Pointeur HUBsocle 2.34.12
