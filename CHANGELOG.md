@@ -5,6 +5,20 @@
 
 ---
 
+## [0.82.26] - 11 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.87.0 — onglet « Dépendances » (graphe inter-apps) dans le dashboard admin
+
+| Élément | Détail |
+|---------|--------|
+| **Pointeur** | `HUB_base` : `655176d2` → `5a87b774` (v3.86.0 → **v3.87.0**), merge `feature/dashboard-deps-graph` + release |
+| **Contenu** | Nouvel onglet admin « Dépendances » : graphe SVG statique des dépendances `app_dependencies` (depends.yaml poussé au register), statut hors registre visible, fraîcheur par `last_sync_at`, tableau compact. `GET /api/apps/dependencies` réutilisé tel quel. Détail complet : CHANGELOG HUB_base 3.87.0 |
+| **Déploiement** | hub-frontend rebuildé + hub-api redémarrés, vérifié en live (badge v3.87.0, onglet fonctionnel) |
+
+> ⚠️ Drift restant volontaire : pointeur `HUBapp_TEMPLATE_base` (`ca2e9b8` → `ff450d5`, v2.35.7 du 11/11) non embarqué ici — release du template à finaliser par son flux propre (ne pas embarquer silencieusement un pointeur étranger).
+
+---
+
 ## [0.82.25] - 11 novembre 2026
 
 ### ✨ Pointeur HUB_base 3.86.0
