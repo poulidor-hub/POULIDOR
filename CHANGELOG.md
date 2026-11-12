@@ -5,7 +5,26 @@
 
 ---
 
-## [0.82.28] - 12 novembre 2026
+## [0.82.29] - 12 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.87.1 — dashboard : modale de groupe 2 colonnes + groupe à 1 app = carte directe
+
+| Élément | Détail |
+|---------|--------|
+| **Pointeur** | `HUB_base` : `5a87b774` → `6b87a6b3` (**3.87.0** → **3.87.1**) |
+
+- **Fix dashboard** (`frontend/public/js/modules/dashboard.js`) : (1) les cartes
+  d'apps de la modale de groupe étaient écrasées en 4 colonnes de ~180 px
+  (breakpoints Bootstrap appliqués au viewport, pas à la modale `modal-lg`) →
+  `col-12 col-sm-6` en contexte modale, 2 colonnes de ~390 px quel que soit le
+  viewport ; (2) un groupe ne comptant qu'une seule app visible pour
+  l'utilisateur est éclaté — la carte de l'app rejoint la grille (tri
+  alphabétique) avec le badge du groupe conservé. Aucun changement backend ni
+  CSS. Détails : CHANGELOG HUB_base 3.87.1.
+- Vérifié en runtime sur la station (conteneur `hub-frontend` rebuildé depuis
+  `main`, cache-busting `?v=3.87.1`).
+
+---
 
 ### ⚡ Pointeur template 2.35.10 — COPY scripts/ dans l'image api, make test-docker vert
 
