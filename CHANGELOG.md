@@ -3,6 +3,27 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.82.30] - 12 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.87.2 — fix deadlocks PostgreSQL sur les fermetures SSE (ordre de verrouillage sessions → segments)
+
+| Élément | Détail |
+|---------|--------|
+| **Pointeur** | `HUB_base` : `6b87a6b3` → `a407a5b6` (**3.87.1** → **3.87.2**) |
+
+- **Fix backend** (`hub/app/routes/audit.py`, `events.py`, `usage_tracking.py`) :
+  31 deadlocks PostgreSQL en 33 h en prod (hub 60) sur les fermetures SSE —
+  AB-BA entre `handle_app_disconnect` (flush au commit, tri des mappers
+  SQLAlchemy émettant `app_usage_segments` avant `user_sessions`) et
+  `end_session` (autoflush émettant `user_sessions` avant les segments).
+  Correctif : ordre de verrouillage global unique — `SELECT ... FOR UPDATE`
+  sur la ligne `user_sessions` avant toute écriture session/segments
+  (nouveau helper `lock_session_for_close`), fermetures de segments dans
+  `no_autoflush`, filet `ORDER BY id`, fermeture idempotente sous verrou.
+  Preuve sur PostgreSQL réel : pré-fix `DeadlockDetectedError` + session non
+  fermée dès l'itération 3 ; post-fix 20 itérations concurrentes, 0 erreur.
+  Détails : CHANGELOG HUB_base 3.87.2 (tests TDD inclus).
+
 ---
 
 ## [0.82.29] - 12 novembre 2026
