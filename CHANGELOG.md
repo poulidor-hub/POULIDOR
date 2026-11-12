@@ -5,6 +5,31 @@
 
 ---
 
+## [0.82.27] - 12 novembre 2026
+
+### ⚡ Pointeurs template 2.35.9 + HUBsocle 2.35.1 — détection socle par compose + hints `make update-env`
+
+| Élément | Détail |
+|---------|--------|
+| **Pointeur** | `HUBapp_TEMPLATE_base` : `ca2e9b86` → `e09943cb` (**2.35.6** → **2.35.9**, embarque la 2.35.7 du 11/11 restée non pointée) |
+| **Pointeur** | `HUBsocle` : `b4ea9e87` → `bf6b3ddc` (**2.35.0** → **2.35.1**) |
+
+- **Template 2.35.8** : `sync_socle_version.py` juge une app « liée au socle »
+  via le compose (`compose_requires_socle()`, scan `docker-compose*.yml`) et
+  non plus la seule clé `APP_SOCLE_VERSION` du `.env` — une app héritée dont
+  le compose exige la clé mais dont le `.env` pré-socle ne l'a pas obtenait un
+  no-op silencieux puis un échec d'interpolation au build (incident station
+  2026-11-11 : 5 apps legacy bloquées, pin ajouté à la main). Clé ajoutée
+  automatiquement si l'image socle est construite localement, échec
+  actionnable (`./hubctl socle build`) sinon. Suite dédiée 5/5, backend
+  hôte 29/29.
+- **Template 2.35.9 + HUBsocle 2.35.1** : le hint `${APP_SOCLE_VERSION:?}` du
+  compose (et son équivalent dans `INITIALISE.py`) pointe vers `make
+  update-env` (fusion `.env.example` → `.env`, crée les clés manquantes) —
+  `make sync-env` n'aligne qu'une clé déjà présente. Apps existantes : les
+  deux fixes arriveront par la prochaine vague `migrate-app-template` (les
+  `.env` réparés à la main le 11/11 restent valides).
+
 ## [0.82.26] - 11 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.87.0 — onglet « Dépendances » (graphe inter-apps) dans le dashboard admin
