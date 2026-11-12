@@ -5,6 +5,24 @@
 
 ---
 
+## [0.82.28] - 12 novembre 2026
+
+### ⚡ Pointeur template 2.35.10 — COPY scripts/ dans l'image api, make test-docker vert
+
+| Élément | Détail |
+|---------|--------|
+| **Pointeur** | `HUBapp_TEMPLATE_base` : `e09943cb` → `834341f4` (**2.35.9** → **2.35.10**) |
+
+- **`Dockerfile.backend`** : `COPY scripts/ /app/scripts/` — les tests backend
+  qui importent les scripts du template (`test_sync_socle_version`,
+  `test_update_design_system`) cherchent `/app/scripts` en conteneur, jamais
+  copié → `ModuleNotFoundError` en collecte, `make test-docker` rouge depuis
+  l'introduction des tests. **7 passed / 2 errors → 22 passed / 0 error.**
+- Note ops : HUBsocle **2.35.1** (pointée en 0.82.27) exige un build d'image
+  local (`./hubctl socle build`) avant tout rebuild d'app — fait sur cette
+  station le 12/11 ; les autres stations la rencontreront à leur prochain
+  socle build (échec actionnable du détecteur, remède officiel).
+
 ## [0.82.27] - 12 novembre 2026
 
 ### ⚡ Pointeurs template 2.35.9 + HUBsocle 2.35.1 — détection socle par compose + hints `make update-env`
