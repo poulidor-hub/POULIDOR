@@ -3,6 +3,27 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.0] - 13 novembre 2026
+
+### 📣 Pour les utilisateurs
+- **Ajouté** : un serveur installé depuis votre propre fork (dépôt client) reçoit désormais **ses** mises à jour — fini de récupérer celles du dépôt principal POULIDOR sans le vouloir. Un nouveau script (`scripts/fork-remotes.sh`) configure tout en une commande.
+- **Amélioré** : vous gardez la main sur les nouveautés du dépôt principal : une seule commande (`fork-remotes.sh --pull-upstream`) les rapatrie dans votre fork quand vous le décidez, sans jamais y pousser vos spécificités.
+- **Amélioré** : la routine de mise à jour (`hubctl update`) ne change pas — c'est simplement la source qui pointe désormais vers votre fork.
+
+### ⚡ Outillage forks de déploiement — origin du fork = source des mises à jour, org officielle en upstream
+
+Le tooling du parc (`hubctl update`, `update-submodules.sh`, `hubctl doctor`) tire tout du remote `origin` du méta et des sous-modules ; un fork de déploiement dont `origin` pointe encore l'org officielle reçoit donc les updates de POULIDOR principal. Bascule des remotes, sans toucher au code hubctl :
+
+| Élément | Détail |
+|---------|--------|
+| **Ajouté** | `scripts/fork-remotes.sh` — bascule idempotente `origin` = fork / `upstream` = org officielle sur le méta et chaque sous-module ; surcharge locale `submodule.<nom>.url` dans `.git/config` (le `.gitmodules` versionné reste identique à l'officiel → zéro conflit au rapatriement amont) |
+| **Options** | `--check` / `--dry-run` (rapports), `--sub <nom>=<url>` répétable (forks renommés, ex. `HUB_base` → `<org>/HUB`), `--skip-submodules`, `--pull-upstream` (rapatriement amont : sous-modules d'abord, méta ensuite, fast-forward seul, pushes vers le fork uniquement) |
+| **Gardes** | fork de sous-module absent → conservé sur l'officiel avec warning ; WIP/divergence → sautés ; rattachement `main` des sous-modules détachés (comme `_ensure_branch_attached` de hubctl) ; jamais de `git submodule sync` après bascule (écraserait les surcharges) ; relance nécessaire après re-clone (PRA/migration, `.git/config` non versionné) |
+| **Doc** | `docs/ops/mise-a-jour.md` : nouvelle section « Forks de déploiement » (bascule, suivi amont, garde-fous) |
+| **Tests** | intégration sur repos factices (bare officiel + forks + déploiement cloné) : 5 scénarios — `--check`, `--dry-run`, bascule réelle, surcharge effective au re-init (`git submodule update --init` clone depuis le fork), `--pull-upstream` complet (push fork HUB renommé + méta) |
+
+---
+
 ## [0.83.0] - 13 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.87.3 + outillage maintenance Docker — diagnostic remplissage disque

@@ -1,6 +1,6 @@
 # POULIDOR — Parc applicatif HUB
 
-![version](https://img.shields.io/badge/version-0.83.0-blue)
+![version](https://img.shields.io/badge/version-0.84.0-blue)
 ![licence](https://img.shields.io/badge/licence-AGPL--3.0-blue)
 
 Plateforme de développement et d'exécution pour applications métier, avec **SSO centralisé**,
