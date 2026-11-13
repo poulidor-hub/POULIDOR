@@ -3,6 +3,21 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.83.0] - 13 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.87.3 + outillage maintenance Docker — diagnostic remplissage disque
+
+Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~168GB de déchets Docker (build cache 137,9GB jamais purgé, images inutilisées 66,8GB, 169 volumes orphelins ~19GB) et une fuite de logs (`hub-docker-socket-proxy` : 1,7GB en 5 jours sans rotation). Aucun mécanisme de purge Docker n'existait dans le parc.
+
+| Élément | Détail |
+|---------|--------|
+| **Pointeur** | `HUB_base` : `a407a5b6` → `e9558ee6` (**3.87.2** → **3.87.3**) — rotation logs json-file sur tous les services du compose (compose + compose.test) et snapshot `apps_code` filtré (exclusion artefacts de build + fichiers > 50MB ; snapshot complet ~3,5GB → ~0,5GB attendu) |
+| **Ajouté** | `scripts/parc-docker-maintenance.sh` — entretien Docker récurrent (dry-run par défaut) : purge build cache (`--keep-cache`, défaut 20GB), images inutilisées, volumes orphelins classés CACHE/DATA/INCONNUE (DATA et volumes inconnus derrière `--include-vol-data`), df avant/après |
+| **Ajouté** | `docs/DOCKER-MAINTENANCE.md` — usage, classification, cron suggéré |
+| **Rotation logs apps** | Pointeurs apps non concernés (gitignorés) — branches `fix/log-rotation` mergées dans les 4 repos : Gotenberg 0.7.4, exemple-app 0.26.5, exemple-app 0.22.8, exemple-app 0.14.4 |
+
+---
+
 ## [0.82.30] - 12 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.87.2 — fix deadlocks PostgreSQL sur les fermetures SSE (ordre de verrouillage sessions → segments)
