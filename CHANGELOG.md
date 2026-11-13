@@ -1,3 +1,21 @@
+## [0.84.1] - 14 novembre 2026
+
+### ⚡ Pointeurs composants — release test PRA (restore snapshot multi-Go + pra-restore apps)
+
+- **HUB_base 3.87.7** : restore snapshot en streaming — déchiffrement chunked
+  (fin du dépassement int32 openssl), pipeline zstd→tar sans intermédiaire
+  (fin des OOM memcg), extraction tar tolérante aux symlinks absolus et aux
+  résidus read-only. Validé par un test PRA réel sur VM Debian vierge
+  (snapshot 3,5 Go restauré : hub + 17 apps avec données réinjectées).
+- **hubctl_src 0.18.3** : pra-restore opérationnel bout en bout — login admin
+  sur /api/auth/token, réinjection sur backups 'success' uniquement, timeouts
+  couverts pour gros restores, dossier d'app résolu par APP_SLUG du .env.
+
+Contexte : premier test PRA complet (kit USB → VM Debian vierge → restore).
+13 findings documentés au journal `build/vm-lab/pra-restore/journal.md`.
+
+---
+
 # Changelog — POULIDOR (méta-repo)
 
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
