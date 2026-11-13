@@ -99,6 +99,69 @@ redevient la norme. Les apps privées (dépôts sous `APPS/`) ne sont pas
 concernées : leurs dépôts n'ont pas été réécrits.
 
 
+## Forks de déploiement : tirer SES propres mises à jour
+
+> Le tooling (`hubctl update`, `update-submodules.sh`, `hubctl doctor`) tire tout
+> du remote `origin` du méta et des sous-modules. Un fork de déploiement doit donc
+> avoir **origin = son propre fork** (c'est lui qui porte ses updates) et
+> **upstream = l'org officielle `POULIDOR-Audit-Developpement`** (rapatriement
+> volontaire contrôlé). Modèle déjà en place sur `HUB_base`.
+
+### Bascule d'un serveur (une fois par déploiement)
+
+```bash
+cd <racine-du-parc>                                  # branche main, arbre propre
+scripts/fork-remotes.sh --fork-url git@github.com:<org>/POULIDOR.git --check
+scripts/fork-remotes.sh --fork-url git@github.com:<org>/POULIDOR.git --dry-run
+scripts/fork-remotes.sh --fork-url git@github.com:<org>/POULIDOR.git --yes
+```
+
+Le script :
+
+- bascule `origin` du méta vers le fork et met l'**ancienne** origin en `upstream` ;
+- bascule chaque sous-module forké (détection d'existence par `git ls-remote` ;
+  un fork absent est **conservé sur l'officiel** avec un warning) ;
+- pose une **surcharge locale** `submodule.<nom>.url` dans `.git/config` du méta :
+  le `.gitmodules` versionné reste identique à l'officiel → **zéro conflit** au
+  rapatriement amont ;
+- affiche le récap des apps `APPS/*` (info : chaque app est un cas par déploiement,
+  géré par le seed / le coffre).
+
+Si un sous-module forké porte un **autre nom de repo** (ex. `HUB_base` forké en
+`<org>/HUB`), passe le mapping explicite (répétable) :
+
+```bash
+scripts/fork-remotes.sh --fork-url git@github.com:<org>/POULIDOR.git \
+  --sub HUB_base=git@github.com:<org>/HUB.git --yes
+```
+
+La routine de mise à jour reste **strictement identique** ensuite : `hubctl update
+hub` tire désormais de ton origin, c'est-à-dire ton fork.
+
+### Suivre l'amont officiel (rapatriement volontaire)
+
+```bash
+scripts/fork-remotes.sh --fork-url git@github.com:<org>/POULIDOR.git --pull-upstream
+./hubctl update hub            # appliquer (build + health)
+```
+
+`--pull-upstream` fait, dans cet ordre imposé : fast-forward de chaque sous-module
+forké depuis `upstream/main` **puis** fast-forward du méta — les pointeurs du méta
+doivent exister dans les forks avant d'être avancés. Pushes **vers le fork
+uniquement** ; toute divergence (WIP, historique divergent) est sautée avec un
+warning, jamais fusionnée automatiquement.
+
+### Garde-fous des forks
+
+1. **Jamais de `git push` vers `upstream`** (l'org officielle) depuis un fork —
+   `--pull-upstream` ne pousse que vers origin.
+2. **Jamais de `git submodule sync`** après la bascule : il réécrirait les URLs
+   officielles du `.gitmodules` par-dessus les surcharges du fork.
+3. **`.git/config` n'est pas versionné** : après un re-clone du méta (PRA,
+   migration OSS), **relancer le script** de bascule.
+4. Après bascule, resynchroniser le coffre (`hubctl vault sync`) pour que les
+   `git_url` des apps récapitulent les bons remotes.
+
 ## Les interdits
 
 1. **Jamais de `git push` depuis un clone dont l'historique diverge** —
