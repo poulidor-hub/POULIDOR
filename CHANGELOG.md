@@ -3,6 +3,33 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.15] - 14 novembre 2026
+
+### ⚡ Pointeurs HUB_base 3.91.0 + HUBsocle 2.36.0 — refonte préférences (secteurs gérés + secteur principal)
+
+Pointeurs poussés dans la même foulée (feature portail + socle associé) :
+
+- **HUB_base → 3.91.0** (`4fb5ef7d`, branche `feat/preferences-refonte`) :
+  refonte du système de préférences — secteurs gérés (renfort/binôme inclus)
+  + secteur principal (« 1er favori ») par l'utilisateur, migration 068
+  (`user_tags.is_primary` + `tag_categories.primary_enabled`, index partiel
+  unique), `PUT /my` en upsert diff avec valeurs obsolètes filtrées en 200
+  (`ignored`), résolveur valeurs live exemple-app (cache TTL 60 s +
+  negative-cache 15 s en panne, fallback snapshot), `onboarding_reason`
+  calculée serveur (modale supprimée du sessionStorage — plus de réaffichage
+  une fois le choix complet posé), nouveau claim JWT `tags_primary` émis sur
+  les 7 points d'émission user, endpoint M2M enrichi, frontend modale 2 temps
+  + page Mes préférences + case admin `primary_enabled`. +34 tests, suite
+  1741 passed ; review indépendante : 1 Important fixé (negative-cache),
+  5 Minor (2 fixés, 3 différés documentés).
+- **HUBsocle → 2.36.0** (`6b7dc16`, branche `feat/preferences-tags-claim`) :
+  le socle lit enfin les claims JWT `tags` / `tags_primary` —
+  `TokenPayload.tags`/`.tags_primary` (extraction tolérante, tokens anciens →
+  `None`) + dépendance `get_current_user_tags()` pour toutes les apps du
+  socle, sans appel réseau. +5 tests, suite 420 passed.
+
+---
+
 ## [0.84.14] - 14 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.90.3 — tri alphabétique des profils utilisateur
