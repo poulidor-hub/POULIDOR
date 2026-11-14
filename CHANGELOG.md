@@ -3,6 +3,21 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.13] - 14 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.90.2 — front HTTPS aligné (cache versionné, fix 404, CSP)
+
+Pointeur HUB_base → 3.90.2 (`37b05615`, branche `fix/ssl-cache-harmonization`) :
+`nginx-ssl.conf` n'avait reçu aucune des optimisations frontend de la 3.90.0
+(le front réel des utilisateurs est en HTTPS) — harmonisé avec `nginx.conf` :
+cache 7 jours des assets versionnés `?v=`, aucun header de cache sur les 404
+(`always` retiré, y compris sur la location hashed-assets), `location ^~ /api/`,
+CSP sans `cdn.jsdelivr.net` (bibliothèques vendored localement).
+> Note : le commit 876d920 a poussé un bump VERSION 0.84.12 sans entrée
+> CHANGELOG (numéro déjà pris par 48dc844) — réparation par la présente
+> entrée complète ; à retenir : re-pull origin avant tout bump méta.
+
+---
 ## [0.84.12] - 14 novembre 2026
 
 ### ⚡ Pointeurs HUB_base 3.90.1 + HUBapp_TEMPLATE_base 2.35.11 + Hubctl 0.18.5 — triage 3 bugs (gitignore SSL / openssl.cnf / clé 600)
