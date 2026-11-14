@@ -3,6 +3,19 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.7] - 14 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.88.2 — hygiène tests : fin des `cache_clear` résiduels
+
+`test_vpn.py` patche désormais le singleton Settings via monkeypatch au lieu
+de `get_settings.cache_clear()` (4 sites). La suppression du pansement
+accidentel a révélé une fuite masquée : `settings.github_token` muté par
+`test_github_catalog` sans snapshot (faisait gagner `_get_github_token` sur
+la DB de `test_workshop_service`) — champ ajouté au snapshot du conftest.
+`get_instance_id.cache_clear()` vérifié sans risque. Suite : 1685 tests OK.
+
+---
+
 ## [0.84.6] - 14 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.88.1 — suite de tests 100 % verte
