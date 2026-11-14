@@ -3,6 +3,18 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.5] - 14 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.88.0 — audit erreurs : `attempted_client_id`
+
+`error_logs` trace désormais le `client_id` tenté sur les échecs d'auth M2M
+de `/api/auth/token` (401 identifiants invalides, 403 SA désactivé, 429
+rate-limit — migration 066). L'API d'audit l'expose et la colonne
+« Utilisateur » affiche un badge « M2M tenté ». Motivé par la boucle de
+186 × 403 du 10-13/11, non attribuable depuis les logs.
+
+---
+
 ## [0.84.4] - 14 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.87.9 — fix UI collision `renderPagination`
