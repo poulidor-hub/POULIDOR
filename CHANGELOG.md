@@ -3,6 +3,22 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.14] - 14 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.90.3 — tri alphabétique des profils utilisateur
+
+Pointeur HUB_base → 3.90.3 (`c4f46010`, branche `fix/tri-profils-alpha`) : la
+colonne « Profil » de la vue utilisateurs du Hub affichait les profils dans
+l'ordre d'attribution des droits (ordre d'insertion `user_profiles`) —
+lisibilité corrigée par `order_by="Profile.name"` sur la relation SQLAlchemy
+`User.profiles` (liste, détail, PATCH, création triés en SQL, ce qui couvre
+aussi la modal « Appliquer un profil ») + `.order_by(User.username,
+Profile.name)` sur le endpoint M2M bulk-roles (cohérence apps consommatrices).
+2 tests de régression (cycle rouge/vert) ; suite verte : 1708 passed (hôte),
+1641 passed (Docker pouly-test ; 1 échec préexistant root/chmod hors périmètre).
+
+---
+
 ## [0.84.13] - 14 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.90.2 — front HTTPS aligné (cache versionné, fix 404, CSP)
