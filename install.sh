@@ -238,6 +238,37 @@ command -v gh &>/dev/null || warn "gh introuvable après installation (non bloqu
 command -v node &>/dev/null || warn "node introuvable après installation (non bloquant — MCP zai / build HUBCSS)."
 say ""
 
+# 1f. Pools d'adresses Docker (F14) — sans ça, le daemon n'offre que ≈31
+# sous-réseaux pour 33 apps × 1 network compose chacune + hub + stacks de
+# test → « invalid pool request: Pool overlaps » dès l'installation de la
+# flotte. Merge idempotent (dns/runtimes préservés) via python3 (vérifié
+# en 1e). Écrit avant le démarrage du daemon : pools actifs dès le boot.
+say "${BOLD}Configuration des pools d'adresses Docker${NC}"
+if python3 - <<'PYEOF'
+import json
+
+path = "/etc/docker/daemon.json"
+try:
+    with open(path) as f:
+        cfg = json.load(f)
+except FileNotFoundError:
+    cfg = {}
+cfg["default-address-pools"] = [
+    {"base": "172.16.0.0/12", "size": 24},
+    {"base": "10.200.0.0/14", "size": 24},
+]
+with open("/tmp/daemon.json.new", "w") as f:
+    json.dump(cfg, f, indent=4)
+PYEOF
+then
+    install -m 0644 /tmp/daemon.json.new /etc/docker/daemon.json
+    rm -f /tmp/daemon.json.new
+    ok "Pools d'adresses configurés (172.16/12 + 10.200/14 en /24 — ~5100 réseaux)"
+else
+    warn "Échec de la config des pools Docker (non bloquant — hubctl docker check)"
+fi
+say ""
+
 # ── Phase 2 : Services ───────────────────────────────────────────────────────
 
 say "${BOLD}Phase 2 — Configuration des services${NC}"
