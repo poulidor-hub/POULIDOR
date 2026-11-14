@@ -3,6 +3,18 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.4] - 14 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.87.9 — fix UI collision `renderPagination`
+
+`admin-vpn.js` redéfinissait `renderPagination` (chargé en dernier dans
+`index.html`, écrasait `audit.js`) sans rien retourner : les paginations
+des onglets Erreurs, Logs détaillés, détail d'app et profils utilisateurs
+écrivaient la chaîne `"undefined"` dans le DOM. Renommage de la variante
+VPN en `updateVpnPagination` — une seule définition globale subsiste.
+
+---
+
 ## [0.84.3] - 14 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.87.8 — allocateur : épinglage pools daemon tracé (F15)
