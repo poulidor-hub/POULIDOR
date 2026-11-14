@@ -323,6 +323,28 @@ docker exec <slug>-api touch /app/uploads/.rw_test \
 `api` (typiquement `uploads_data`) sont impactés. Si le volume n'existe pas encore
 (première création par `make up`), il hérite du chown de l'image → rien à faire.
 
+**Variante SSL — même classe de bug** : le durcissement non-root a aussi touché le
+frontend (commit template `821a3c3`, 14/08/2026) : `Dockerfile.frontend` → `USER nginx`
+(uid 101, conteneur 100% non-root) + mount `./ssl:/etc/nginx/ssl:ro`. Une app migrée
+**avant** le fix garde un `scripts/generate-ssl.sh` en `chmod 600 "$SSL_DIR/server.key"`
+(clé possédée par l'uid hôte 1000) → nginx uid 101 → `EACCES` sur `server.key` →
+**crash du boot frontend après upgrade template**, dès la première régénération des
+certs côté hôte (latent, comme B.6). Fix template de référence : `20f8615` (19/09/2026)
+— `chmod 644` + commentaire justificatif. **Non propagé aux apps existantes**
+(CHANGELOG template 2.11.1 : « Non propagé aux apps existantes ») : encore vivant dans
+`APPS/exemple-app` et `APPS/exemple-app`.
+
+```bash
+# Détection (dans l'app) :
+grep -n "chmod .*server.key" scripts/generate-ssl.sh   # 600 = à patcher
+grep -n "USER nginx" Dockerfile.frontend               # durcissement présent (≥ 821a3c3)
+
+# Remède — aligner le script sur le template ≥ 20f8615 :
+#   scripts/generate-ssl.sh : chmod 644 "$SSL_DIR/server.key"  (+ commentaire uid 101)
+chmod 644 ssl/server.key          # certs déjà à 600 côté hôte : débloquer le boot
+make up                           # redémarre le frontend avec les certs lisibles
+```
+
 ## Phase C — Backend core
 
 ### C.1 — Requirements
@@ -842,6 +864,7 @@ Avant de déclarer la migration terminée, vérifier :
 - [ ] **Bug « onglet qui se referme » corrigé** : AuthContext URL-first + purge refresh token (cf. D.3.1) — 1er clic depuis le dashboard ouvre l'app sans fermeture, pas de `refresh 401` dans les logs hub-api après un launch
 - [ ] **SSE authentifié** : `events/stream?token=` présent dans l'AuthContext (cf. D.3.2) — SSE 200 dans les logs hub-api quand l'app est ouverte, pas de boucle 401
 - [ ] **Volumes re-chown-és** : `/app/uploads` appartient à `appuser:appuser` et le test d'écriture passe (cf. B.6) — pas de `PermissionError` dans les logs api au premier upload/backup
+- [ ] **Clé SSL lisible par nginx (variante B.6)** : `scripts/generate-ssl.sh` en `chmod 644` sur `server.key` (fix template `20f8615`) — frontend démarré avec les certs régénérées, pas d'`EACCES` sur `server.key` dans les logs frontend (cf. B.6)
 - [ ] **`.env` migré (B.0)** : sauvegarde horodatée `.env.pre-migration-*` présente ; toutes les clés du nouveau `.env.example` présentes dans le `.env` (diff de clés vide dans le sens template → app) ; `POSTGRES_*`, ports, `APP_SLUG`, `APP_SUBNET`, `HUB_INSTANCE_ID` **identiques** à la sauvegarde ; données accessibles (endpoint métier ou comptage SQL sur la base existante)
 - [ ] Les composants métier de l'app sont préservés
 - [ ] Les nouvelles fonctionnalités template sont opérationnelles
