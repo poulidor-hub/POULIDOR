@@ -1,3 +1,19 @@
+## [0.84.2] - 14 novembre 2026
+
+### ⚡ install.sh : pools d'adresses Docker configurés au premier install
+
+Un serveur neuf installait Docker avec ses pools d'adresses par défaut
+(≈31 sous-réseaux) — saturés dès l'installation de la flotte de 33 apps
+(« invalid pool request: Pool overlaps » au démarrage des apps).
+
+`install.sh` configure désormais `default-address-pools` (172.16.0.0/12
+et 10.200.0.0/14 en /24 — ~5100 réseaux) dans /etc/docker/daemon.json
+avant le démarrage du daemon, en préservant dns/runtimes existants.
+Complément de hubctl 0.18.4 (`hubctl docker setup-pools` pour les
+machines déjà installées).
+
+---
+
 ## [0.84.1] - 14 novembre 2026
 
 ### ⚡ Pointeurs composants — release test PRA (restore snapshot multi-Go + pra-restore apps)
