@@ -3,6 +3,18 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.9] - 14 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.89.0 — graphe des dépendances inter-apps lisible
+
+Feat UI admin Hub : ordre des nœuds par barycentre (88 → 39 croisements sur
+les 30 deps actuelles, rendu déterministe), points d'ancrage des arêtes
+étalés le long des nœuds, épaisseur/opacité par fraîcheur, et bascule
+Graphe / Matrice (matrice d'adjacence, tooltip réutilisé). Front uniquement,
+sans lib ni animation. Détails : CHANGELOG HUB_base v3.89.0.
+
+---
+
 ## [0.84.8] - 14 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.88.3 — VPN WireGuard : restart unless-stopped
