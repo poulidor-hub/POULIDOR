@@ -3,6 +3,33 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.12] - 14 novembre 2026
+
+### ⚡ Pointeurs HUB_base 3.90.1 + HUBapp_TEMPLATE_base 2.35.11 + Hubctl 0.18.5 — triage 3 bugs (gitignore SSL / openssl.cnf / clé 600)
+
+- **HUB_base → 3.90.1** (`13ab794`) : `secrets/atelier_token` gitigné versionné
+  (token runtime `hubctl init` masqué jusqu'ici par un contournement local
+  `info/exclude` perdu au re-clone) — fin du statut « arbre sale » permanent
+  pour HUB_base côté update hub.
+- **HUBapp_TEMPLATE_base → 2.35.11** (`80dd82e`) : `ssl/openssl.cnf` détracké +
+  gitigné (fichier généré par station : IP LAN `hostname -I` → re-sel du dépôt à
+  chaque régénération de certs, vécu sur 28/31 apps) ; doc alignée (`.gitkeep`,
+  `HTTPS.md`, skill deploy-troubleshoot).
+- **Hubctl → 0.18.5** (`82e6930`) : statut « sale » = fichiers **suivis** modifiés
+  (`update_serve.py`, `hub_state.py` alignés sur `park_checks._dirty_tracked`) —
+  badge d'update qui ne s'allume plus sur un secret runtime ; garde atelier
+  `_ws_worktree_clean` volontairement inchangée (fail-closed). 43 tests ciblés
+  verts, 3 nouveaux.
+- **Skills** : variante SSL de l'incident B.6 documentée dans
+  `migrate-app-template` (durcissement `821a3c3` : `USER nginx` uid 101 + mount
+  `./ssl:ro` vs `generate-ssl.sh` hérité `chmod 600` → EACCES → crash boot
+  frontend ; remède : `chmod 644` ref `20f8615`) + item miroir checklist G.2.
+- **Apps affectées (hors submodules)** : patch ciblé poussé sur 6 dépôts
+  indépendants — clé SSL 644 : exemple-app, exemple-app ; détrack
+  openssl.cnf : exemple-app, exemple-app, exemple-app,
+  exemple-app.
+
+---
 ## [0.84.11] - 14 novembre 2026
 
 ### ⚡ Pointeurs HUB_base 3.90.0 + HUBsocle 2.35.3 — performance d'ouverture des apps en heure de pointe
