@@ -3,6 +3,19 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.10] - 14 novembre 2026
+
+### ⚡ Pointeur HUBsocle 2.35.2 — register M2M authentifié (mode enforced)
+
+Le socle minte désormais un token SA avant `POST /api/apps/register`
+(_do_register + self-healing) : le Hub bascule `m2m_enforcement_mode`
+de `compat` vers `enforced` au lieu de journaliser `legacy_reregistration`.
+Constat déclencheur : exemple-app réinscrite en legacy (14/11/2026),
+32 apps du parc en compat, aucune en enforced. Les apps basculeront
+à leur prochain ré-enregistrement authentifié (montée de version,
+self-healing) après adoption du socle ≥ 2.35.2.
+
+---
 ## [0.84.9] - 14 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.89.0 — graphe des dépendances inter-apps lisible
