@@ -3,6 +3,18 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.8] - 14 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.88.3 — VPN WireGuard : restart unless-stopped
+
+Incident 13/11 : restart du daemon docker → `hub-wireguard` (policy "no")
+jamais relancé, tunnel mort 30 h, accès mobile impossible. Policy passée à
+`unless-stopped` (honore `hubctl vpn down`, relance après restart daemon
+ou reboot) ; le boot hook systemd ne couvrait que les boots. Fix du
+commentaire de port (51821/udp réel).
+
+---
+
 ## [0.84.7] - 14 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.88.2 — hygiène tests : fin des `cache_clear` résiduels
