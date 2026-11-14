@@ -3,6 +3,18 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.6] - 14 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.88.1 — suite de tests 100 % verte
+
+Correction des 6 échecs pré-existants de la suite backend (1685 tests OK) :
+allocation app_deploy ancrée sur le host courant, override `hub_host`
+dans vpn_dns + snapshot de la fixture (champ jamais restauré), suppression
+du `get_settings.cache_clear()` qui désynchronisait les singletons Settings
+capturés à l'import (polluait oidc/slo). Tests uniquement — zéro code runtime.
+
+---
+
 ## [0.84.5] - 14 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.88.0 — audit erreurs : `attempted_client_id`
