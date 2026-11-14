@@ -10,7 +10,8 @@ Un serveur neuf installait Docker avec ses pools d'adresses par défaut
 et 10.200.0.0/14 en /24 — ~5100 réseaux) dans /etc/docker/daemon.json
 avant le démarrage du daemon, en préservant dns/runtimes existants.
 Complément de hubctl 0.18.4 (`hubctl docker setup-pools` pour les
-machines déjà installées).
+machines déjà installées) — pointeur hubctl_src 0.18.4 inclus
+(poussé dans la foulée du test PRA).
 
 ---
 
