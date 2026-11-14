@@ -1,3 +1,20 @@
+# Changelog — POULIDOR (méta-repo)
+
+> Une entrée par release : bump de version, pointeur(s) de composant(s)
+> et/ou outillage. Ordre décroissant, séparé par `---`.
+
+## [0.84.3] - 14 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.87.8 — allocateur : épinglage pools daemon tracé (F15)
+
+`reconcile_subnet_with_docker` trace désormais en warning tout subnet
+d'app épinglé dans les pools PAR DÉFAUT du daemon Docker (172.16/12,
+192.168/16) — chevauchement avec les pools de la machine hôte, constaté
+en production (claims 172.20-23/16, 192.168.x/20). Suite du test PRA
+et du fix pools Docker 0.84.2 / Hubctl 0.18.4.
+
+---
+
 ## [0.84.2] - 14 novembre 2026
 
 ### ⚡ install.sh : pools d'adresses Docker configurés au premier install
@@ -32,11 +49,6 @@ Contexte : premier test PRA complet (kit USB → VM Debian vierge → restore).
 13 findings documentés au journal `build/vm-lab/pra-restore/journal.md`.
 
 ---
-
-# Changelog — POULIDOR (méta-repo)
-
-> Une entrée par release : bump de version, pointeur(s) de composant(s)
-> et/ou outillage. Ordre décroissant, séparé par `---`.
 
 ## [0.84.0] - 13 novembre 2026
 
