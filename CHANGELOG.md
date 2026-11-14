@@ -3,6 +3,16 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.11] - 14 novembre 2026
+
+### ⚡ Pointeurs HUB_base 3.90.0 + HUBsocle 2.35.3 — performance d'ouverture des apps en heure de pointe
+
+- **HUB_base → 3.90.0** (`a916edd8`, branche `perf/hub-base-peak-hour`, 7 commits) : fin du goulot CPU sérialisé du hub-api à l'ouverture des apps (80+ utilisateurs) — cache mémoire de la clé privée RSA (~250 ms/mint récupérés), bcrypt/secret en thread pool, migration 067 (purge OAuth + 4 index hot-path), rotation refresh token en une seule transaction, throttle 5 s des broadcasts SSE `stats_updated`, vendoring local bootstrap/bootstrap-icons/echarts + cache 7 j des assets versionnés `?v=` (sans header de cache sur les 404) + `^~ /api/`. Vérifié en stack de test : jwks cold 40 ms → warm 1 ms, launch 30 ms, burst 20 refreshes mean 14,9 ms, 1639 tests passed.
+- **HUBsocle → 2.35.3** (`dd970c8`, branche `perf/socle-polling-light`, 2 commits) : polling du statut Hub `/api/health/detailed` 15 s → 60 s (charge permanente par onglet ouvert ÷ 4 sur le hub-api) + test d'amortissement (1 seul live call pour 3 polls, ≤ 1 mint M2M). Schéma d'API inchangé. 2.35.2 ayant été pris par la release register-M2M (`fb1e0f3`) sur main pendant le développement, la version a été renumérotée 2.35.3 au merge.
+- **Docs** : 2 plans d'implémentation ajoutés (`docs/superpowers/plans/2026-11-14-hub-base-perf-optimisation.md`, `2026-11-14-socle-polling-light.md`).
+- **Déploiement** : au prochain déploiement Hub, rebuild `hub-api` ET `hub-frontend` (nginx.conf + `/vendor/` vivent dans l'image frontend) ; vérifier la durée de la migration 067 au boot et la première exécution du nettoyage OAuth (backlog jamais purgé).
+
+---
 ## [0.84.10] - 14 novembre 2026
 
 ### ⚡ Pointeur HUBsocle 2.35.2 — register M2M authentifié (mode enforced)
