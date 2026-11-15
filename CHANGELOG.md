@@ -3,6 +3,16 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.19] - 15 novembre 2026
+
+### ⚡ Sync pointeurs — HUB_base 3.91.6 + HUBapp_TEMPLATE_base 2.36.1
+
+- **HUB_base → `309a456` (3.91.6)** : merge `fix/sa-owner-exact-match` — heuristique SA propriétaire en égalité exacte.
+- **HUBapp_TEMPLATE_base → `01361f4` (2.36.1)** : CSP `img-src https:` (tuiles Leaflet).
+- Contexte : sync général du parc (26 dépôts derrière `origin` pullés en fast-forward) — les submodules avaient avancé sur disque sans que le méta ne fige les pointeurs. Seuls ces deux pointeurs sont embarqués ; `hubctl_src` reste à `5af8b2e` (commit non poussé, à traiter séparément).
+
+---
+
 ## [0.84.18] - 15 novembre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.36.0 — socle 2.36.1 + /app/storage persistant
