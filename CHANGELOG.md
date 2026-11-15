@@ -2485,7 +2485,6 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 - Motivation : incident prod app-exemple (site client) — volumes créés
   par root → app non-root en lecture seule (SQLite readonly, locks Hub) →
   500 sur toute création. Un simple redémarrage répare désormais tout.
-# Changelog — POULIDOR
 ## [0.66.13] - 28 septembre 2026
 ### ⚡ Guide technique visualDev_guide.html à jour (audit complet vs code)
 - Audit ligne à ligne de `docs/visualDev_guide.html` contre le code réel (HUB_base
