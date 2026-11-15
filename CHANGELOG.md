@@ -1,7 +1,20 @@
 # Changelog — POULIDOR (méta-repo)
 
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
-> et/ou outillage. Ordre décroissant, séparé par `---`.
+> et/ou outillage. Ordre décroissant, séparé par `---
+
+## [0.84.16] - 15 novembre 2026
+
+### ⚡ Pointeurs sous-modules — fix sécurité headers nginx (CSP effectivement appliquée)
+
+- **HUB_base 3.91.2** (`94cfe12a`) : include factorisé des headers de sécurité nginx — les réponses HTML/assets du Hub partaient sans CSP/XFO/nosniff depuis la création (héritage `add_header` cassé par les locations de cache). Déployé en prod et vérifié (curl + rendu navigateur sous CSP active).
+- **HUBapp_TEMPLATE_base 2.35.12** (`682759c`) : même fix sur les confs nginx + `Dockerfile.frontend` du template (futures apps corrigées à la création).
+- **HUBsocle 2.36.1** (`8a661f0`) : image socle-web + `INITIALISE.py` (`INFRA_FILES` + `DOCKERFILE_FRONTEND`) ; dérivés de version resynchronisés (2.35.2 → 2.36.1, CI `version-sync` verte) ; image publiée via tag `v2.36.1`.
+- **HUBCSS 0.3.6** (`54ceac0`) : nosniff répété dans les 4 locations de `design-system.conf` (préventif — conf non déployée).
+- Apps déjà déployées : conf nginx cuite dans leurs images → migration ultérieure via `migrate-app-template`.
+
+---
+`.
 
 ## [0.84.15] - 14 novembre 2026
 
