@@ -3,6 +3,15 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.20] - 15 novembre 2026
+
+### ⚡ Pointeur hubctl_src 0.18.6 — units hôte bind passerelle docker0 réelle
+
+- **hubctl_src → `1b97af0` (0.18.6)** : fix packaging — les gabarits `packaging/*.service` (atelier 8777 / update 8778) bindent sur la **passerelle docker0 réelle** (`@DOCKER_GATEWAY@` substitué au rendu) au lieu de l'IP en dur `172.17.0.1` (Admin → Mises à jour « service injoignable » quand docker0 est déplacé — bug prod 15/11/2026).
+- Clôture le drift signalé au sync 0.84.19 : le commit `5af8b2e` pointé par le méta n'était **pas sur origin** — `main` de hubctl_src est désormais poussée et le pointeur méta résout correctement pour toute instance (`submodule update` fonctionnel).
+
+---
+
 ## [0.84.19] - 15 novembre 2026
 
 ### ⚡ Sync pointeurs — HUB_base 3.91.6 + HUBapp_TEMPLATE_base 2.36.1
