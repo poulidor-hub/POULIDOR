@@ -3,6 +3,14 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---
 
+## [0.84.17] - 15 novembre 2026
+
+### ⚡ Pointeur sous-module — HUB_base 3.91.3 (select-all notifications toutes pages)
+
+- **HUB_base 3.91.3** (`8e759514`) : fix console « Mes notifications » — le checkbox « tout sélectionner » ne sélectionnait que la page affichée (et la sélection était vidée à chaque changement de page) ; il sélectionne désormais **toutes les notifications matchant les filtres courants, toutes pages confondues** (fetch paginé au page_size max backend 100), avec persistance de la sélection à la navigation, état `indeterminate` du header, et actions en masse graduées (lots ≤ 500 IDs — cap backend `delete-batch`/`batch` — et « Marquer lu » par lots de 50). Test de régression autonome `frontend/tests/test_notifications_select_all.mjs` (9 scénarios, rouge sur l'ancien code). Aucun changement backend.
+
+---
+
 ## [0.84.16] - 15 novembre 2026
 
 ### ⚡ Pointeurs sous-modules — fix sécurité headers nginx (CSP effectivement appliquée)
