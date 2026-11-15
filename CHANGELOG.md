@@ -1,4 +1,9 @@
-## [0.84.16] - 15 novembre 2026
+# Changelog — POULIDOR (méta-repo)
+
+> Une entrée par release : bump de version, pointeur(s) de composant(s)
+> et/ou outillage. Ordre décroissant, séparé par `---`.
+
+## [0.84.18] - 15 novembre 2026
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.36.0 — socle 2.36.1 + /app/storage persistant
 
@@ -11,10 +16,6 @@ déploiement exemple-app 0.5.9). L'overlay `docker-compose.https.yml` (déjà
 présent) sert des certificats signés par la PKI du HUB via `cert_sync`.
 
 ---
-# Changelog — POULIDOR (méta-repo)
-
-> Une entrée par release : bump de version, pointeur(s) de composant(s)
-> et/ou outillage. Ordre décroissant, séparé par `---
 
 ## [0.84.17] - 15 novembre 2026
 
