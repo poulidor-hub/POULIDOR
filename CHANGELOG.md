@@ -1,3 +1,16 @@
+## [0.84.16] - 15 novembre 2026
+
+### ⚡ Pointeur HUBapp_TEMPLATE_base 2.36.0 — socle 2.36.1 + /app/storage persistant
+
+Pointeur du template → 2.36.0 (`f9ac86d`, branche
+`chore/socle-2.36.1-storage`) : toute **nouvelle application** créée depuis
+le template démarre sur le **socle 2.36.1** (register M2M authentifié +
+claims JWT `tags`/`tags_primary` — préférences du portail) avec le volume
+**`/app/storage` persistant** (credentials M2M + cache JWKS — fin du gap
+déploiement exemple-app 0.5.9). L'overlay `docker-compose.https.yml` (déjà
+présent) sert des certificats signés par la PKI du HUB via `cert_sync`.
+
+---
 # Changelog — POULIDOR (méta-repo)
 
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
