@@ -1,3 +1,13 @@
+## [0.85.8] - 16 novembre 2026
+
+### ⚡ Pointeur hubctl_src 0.20.2 — fin du flake park_checks ; suite ×3,5 plus rapide
+
+- **hubctl_src → `df23122` (0.20.2)** — correctif du flake intermittent des tests de timeout `park_checks` (issue Hubctl#2) : cause racine prouvée par instrumentation — les tests menu laissaient 14 poll workers daemon (`main_loop`, boucle `while True` inarrêtable) qui sous-traitaient docker/git réel pendant toute la suite et écrasaient le spy global `subprocess.run` de `test_park_checks` (journal des appels interceptés en flagrant délit).
+- Poll worker désormais arrêtable (`stop_poll_worker()`, Event + join), teardown dans les 3 fichiers de tests menu, spy filtré par argv (défense en profondeur). +2 tests (TDD).
+- Bonus mesuré : suite intégrale 440 s → 127 s (×3,5) ; 765 passed / 7 skipped sur 2 runs consécutifs, 0 failed. Flake annexe préexistant documenté (issue #3).
+
+---
+
 ## [0.85.7] - 16 novembre 2026
 
 ### ⚡ Pointeur hubctl_src 0.20.1 — restore DB du coffre : fin du succès mensonger
