@@ -3,6 +3,16 @@
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
 > et/ou outillage. Ordre décroissant, séparé par `---`.
 
+## [0.84.21] - 16 novembre 2026
+
+### ⚡ Pointeurs HUB_base 3.92.0 + hubctl_src 0.19.0 — PKI auto-réparation + coffre certs/ca
+
+- **HUB_base → `469b378` (3.92.0)** : `/api/apps/cert/issue` détecte un cert signé par une **ancienne CA** (rotation 3 nov 2026) et le réémet avec la CA courante — règle fail-safe, fallback `cryptography < 40`, cert corrompu ne provoque plus de 500. Les apps se réparent au cycle `cert_sync` (≤ 6 h) après toute rotation de CA. Déployé sur le hub (3.92.0 healthy).
+- **hubctl_src → `d9e4d93` (0.19.0)** : le coffre sauvegarde et restaure `certs/ca/` (ca.crt 0644 / ca.key 0600 / dossier 0700) via le chemin commun `Vault.restore()` (`restore_all` + kit PRA) — préserve la confiance des navigateurs après une reprise de sinistre. Sorties CLI/TUI/`/vault/status` enrichies (`entries.ca_certs`).
+- Contexte incident : rotation CA du 3 nov → flotte en `SEC_ERROR_BAD_SIGNATURE` ; réparation manuelle de 8 points d'entrée HTTPS + purge de 26 certs obsolètes dans `certs/server/` (archive `exports/certs-server-purge-20261116.tar.gz`). Suite : procédure de rotation documentée dans `scripts/https-flotte/PROCEDURE-CA.md` (gitigné).
+
+---
+
 ## [0.84.20] - 15 novembre 2026
 
 ### ⚡ Pointeur hubctl_src 0.18.6 — units hôte bind passerelle docker0 réelle
