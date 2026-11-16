@@ -1,3 +1,13 @@
+## [0.85.9] - 17 novembre 2026
+
+### ⚡ Pointeur hubctl_src 0.20.3 — fin du flake pause (issue Hubctl#3)
+
+- **hubctl_src → `ce68bfe` (0.20.3)** — trois tests créaient `pytest.MonkeyPatch()` manuellement sans `undo()` : `menu.pause` (×2, test_menu_loop) et `hub_state.get_apps_status` (test_menu_exhaustive, fuite jumelle) restaient remplacés pour tout le process — `test_pause_waits_for_enter` échouait si `test_menu_loop` passait avant lui (ordre personnalisé ; l'ordre canonique alphabétique épargnait le test, d'où l'invisibilité en full-suite).
+- Fix : conversion à la fixture `monkeypatch` (auto-undo) + 2 gardes d'intégrité de module (TDD, rouges sur l'état fautif) qui détecteront tout futur MonkeyPatch manuel oublié dans le fichier fautif lui-même.
+- Vérifié : batch déclencheur historique vert dans les deux sens ; 2 full-suites consécutives 767 passed / 7 skipped / 0 failed.
+
+---
+
 ## [0.85.8] - 16 novembre 2026
 
 ### ⚡ Pointeur hubctl_src 0.20.2 — fin du flake park_checks ; suite ×3,5 plus rapide
