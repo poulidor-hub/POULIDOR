@@ -1,3 +1,20 @@
+## [0.85.2] - 16 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.92.1 — self-healing SA enforced + audit des mutations SA
+
+- **Pointeur `HUB_base` → 3.92.1** : réinscription sans token autorisée en
+  mode enforced quand le SA owner d'une app a été supprimé (IP Docker
+  trusted déjà vérifiée par l'endpoint, branche `m2m_sa_recreated`
+  atteignable — fin du chicken-and-egg observé sur transmission côté
+  serveur distant) ; audit des mutations de service accounts (bascule
+  `is_active` → `sa_deactivated`/`sa_reactivated`, DELETE → `sa_deleted`,
+  regenerate-secret → `sa_secret_regenerated`).
+- Tests : 5 nouveaux (cycle rouge/vert), suite complète 1771 passed,
+  0 failed.
+- Incidents racines : SA - Impayé désactivé sans trace le 16/11
+  (auto-réparé par self-healing), SA transmission supprimé côté serveur
+  distant (fix manuel sa_b5d4d85).
+
 ## [0.85.1] - 16 novembre 2026
 
 ### ⚡ vm-lab : RAM/vCPU de la VM paramétrables
