@@ -12,14 +12,7 @@
 
 ## [0.85.2] - 16 novembre 2026
 
-### ⚡ Pointeur HUBsocle 2.37.1
-
-- Fix générateur `--backend rust` : `uuid` manquant au Cargo.toml des apps
-  rust générées (E0433 au build — régression 2.37.0, détectée au bench labo).
-  Détail : CHANGELOG HUBsocle 2.37.1.
-## [0.85.2] - 16 novembre 2026
-
-### ⚡ Pointeur HUB_base 3.92.1 — self-healing SA enforced + audit des mutations SA
+### ⚡ Pointeurs HUB_base 3.92.1 + HUBsocle 2.37.1
 
 - **Pointeur `HUB_base` → 3.92.1** : réinscription sans token autorisée en
   mode enforced quand le SA owner d'une app a été supprimé (IP Docker
@@ -33,6 +26,10 @@
 - Incidents racines : SA - Impayé désactivé sans trace le 16/11
   (auto-réparé par self-healing), SA transmission supprimé côté serveur
   distant (fix manuel sa_b5d4d85).
+- **Pointeur `HUBsocle` → 2.37.1** : fix générateur `--backend rust` —
+  `uuid` manquant au Cargo.toml des apps rust générées (E0433 au build —
+  régression 2.37.0, détectée au bench labo). Détail : CHANGELOG
+  HUBsocle 2.37.1.
 
 ## [0.85.1] - 16 novembre 2026
 
