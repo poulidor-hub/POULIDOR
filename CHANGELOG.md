@@ -1,3 +1,13 @@
+## [0.85.5] - 16 novembre 2026
+
+### ⚡ Harness fresh-install : build socle in-VM
+
+- `test-fresh-install.sh` : nouveau step `socle-build` (`./hubctl socle build`
+  dans la VM) avant la chaîne app — l'image `poulidor/socle-api` doit exister
+  dans le Docker de la VM pour que `make sync-env` d'une app Python passe.
+  Sans ce step, la phase app-E2E échouait systématiquement sur hôte propre
+  (l'image n'existe ni sur le Hub Docker Hub ni dans le docker de la VM neuve).
+  (Ré-émis en 0.85.5 après collision de numérotation avec 0.85.4.)
 ## [0.85.4] - 16 novembre 2026
 
 ### ⚡ CHANGELOG : répare le doublon [0.85.2]
