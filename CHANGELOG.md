@@ -1,3 +1,15 @@
+## [0.85.3] - 16 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.92.2 — sonde badge update navbar réservée aux admins
+
+- **Pointeur `HUB_base` → 3.92.2** : le probe `/api/admin/system/update-status`
+  (badge navbar « mise à jour disponible ») ne part plus au `DOMContentLoaded`
+  mais depuis `showDashboard()`, après le chargement de `currentUser`, avec
+  garde `is_admin` — les non-admins ne contactent plus jamais l'endpoint.
+  Fin des 401/403 récurrents qui polluaient le journal d'erreurs à chaque
+  chargement de dashboard (18 entrées le 13/11). Détail : CHANGELOG
+  HUB_base 3.92.2.
+
 ## [0.85.2] - 16 novembre 2026
 
 ### ⚡ Pointeur HUBsocle 2.37.1
