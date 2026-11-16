@@ -1,3 +1,21 @@
+## [0.85.0] - 16 novembre 2026
+
+### ⚡ Variante Rust du template + pointeur HUBsocle 2.37.0
+
+- **Pointeur `HUBsocle` → 2.37.0** : workspace Cargo `hub-client` 0.1.0
+  (contrat Hub en Rust paritaire : registry/self-heal, M2M/discovery/outbox,
+  auth JWKS/RS256, sqlx + migrations, routes core, backup format coffre 3.0),
+  squelette `app-skeleton`, `INITIALISE --backend rust` (Dockerfile
+  multi-stage pattern dataplane, compose durci + `APP_SOCLE_TARGET`,
+  `sync_hub_client.py`, Makefile patché), suite de contrat backend-agnostique
+  `tests/contract/` + `make test-contract` (verte canary-rust + canary-socle,
+  32 passed / 0 skipped), docs REFERENCE-APP-FINE §9. Détail : CHANGELOG
+  HUBsocle 2.37.0. Python/Hub/hubctl/coffre inchangés.
+- **Skill `create-hub-app`** : option `--backend {python,rust}` + critères de
+  choix de backend (spec §9 : Rust pour proxy/dataplane/haut débit/footprint ;
+  Python défaut pour CRUD métier).
+- Canary `canary-rust` généré et validé en réel (register → approbation →
+  `hub_connected:true`) ; app sous `APPS/canary-rust` (gitigné méta).
 # Changelog — POULIDOR (méta-repo)
 
 > Une entrée par release : bump de version, pointeur(s) de composant(s)
