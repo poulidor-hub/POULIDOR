@@ -1,3 +1,13 @@
+## [0.85.6] - 16 novembre 2026
+
+### ⚡ Pointeurs : HUB_base 3.93.0 + hubctl 0.20.0 — hub « cockpit » Administration
+
+- **HUB_base 3.93.0** : page Administration réorganisée en hub « cockpit » — cockpit système live (CPU/RAM/disque/charge/uptime via hubctl) à gauche, outils regroupés par thèmes à droite avec statuts réels, navigation par hash d'URL, pseudo-onglet Configuration supprimé, sprite Lucide HUBCSS vendored, code mort nettoyé. Proxy admin `GET /api/admin/system/stats`.
+- **hubctl 0.20.0** : nouvelle route `GET /stats` sur l'agent hôte (CPU par différentiel `/proc/stat`, mémoire, disque, charge, uptime) — contrat JSON consommé par le cockpit du Hub ; `pyproject.toml` resynchronisé (0.16.7 → 0.20.0).
+- Vérifié en sandbox Docker isolée (projet `pouly-verify`) : chaîne complète API hub → agent hôte → `/proc` réel, 11/11 tests ciblés en conteneur, rendu navigateur.
+
+---
+
 ## [0.85.5] - 16 novembre 2026
 
 ### ⚡ Harness fresh-install : build socle in-VM
