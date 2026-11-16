@@ -164,7 +164,7 @@ lab_start() { # lab_start <nom> : relance une VM existante (ex: après reboot h�
   [ -f "$VM_DISK" ] || { echo "✗ Overlay absent ($VM_DISK) — labo cassé." >&2; return 1; }
   rm -f "$VM_PIDFILE"
   qemu-system-x86_64 \
-    -enable-kvm -cpu host -m 4096 -smp 2 \
+    -enable-kvm -cpu host -m "${VM_LAB_RAM:-4096}" -smp "${VM_LAB_SMP:-2}" \
     -drive file="$VM_DISK",format=qcow2,if=virtio \
     -drive file="$VM_SEED",format=raw,if=virtio,readonly=on \
     -netdev user,id=net0,hostfwd=tcp:127.0.0.1:"$VM_PORT"-:22 \
