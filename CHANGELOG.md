@@ -1,3 +1,13 @@
+## [0.85.7] - 16 novembre 2026
+
+### ⚡ Pointeur hubctl_src 0.20.1 — restore DB du coffre : fin du succès mensonger
+
+- **hubctl_src → `4b5b1bd` (0.20.1)** — correctif PRA critique (issue Hubctl#1) : le replay DB de `hubctl vault restore` pouvait échouer en silence — psql, sans `ON_ERROR_STOP`, continuait sur les conflits FK et sortait 0, et `restore_all` rapportait « DB restaurée » sans regarder la valeur de retour de `_restore_db`. En run réel : deux applications non rejouées, restore déclaré succès (dump du coffre sain, replay manuel vérifié).
+- Correctif : `ON_ERROR_STOP=1` sur replay/rollback/TRUNCATE (le rollback du snapshot live, jusque-là inatteignable, joue désormais son rôle), TRUNCATE vérifié avant replay, comptage de lignes post-restore comparé aux sections du dump, tables parsées du dump (fin du risque dup keys sur `schema_migrations` aux re-restores), rapport « ⚠ DB NON restaurée » explicite.
+- +7 tests dans `test_vault_manager.py` ; suite 763 collected — 762 passed + 1 flake préexistant `park_checks` (pollution du `subprocess.run` global par un thread résiduel, issue dédiée ouverte).
+
+---
+
 ## [0.85.6] - 16 novembre 2026
 
 ### ⚡ Pointeurs : HUB_base 3.93.0 + hubctl 0.20.0 — hub « cockpit » Administration
