@@ -1,3 +1,10 @@
+## [0.85.1] - 16 novembre 2026
+
+### ⚡ vm-lab : RAM/vCPU de la VM paramétrables
+
+- `scripts/lib/vm-lab.sh` : la VM de labo démarre avec `VM_LAB_RAM` et
+  `VM_LAB_SMP` (défauts inchangés : 4096 Mo / 2 vCPU) — un labo Hub + 2 apps
+  a besoin de plus que le défaut pour des benchmarks sans contention.
 ## [0.85.0] - 16 novembre 2026
 
 ### ⚡ Variante Rust du template + pointeur HUBsocle 2.37.0
