@@ -129,6 +129,7 @@ check "hubctl-vpn-status" in_vm "cd ~/POULIDOR && ./hubctl vpn status"
 check "hubctl-start-prod" in_vm "cd ~/POULIDOR && ./hubctl start prod"
 
 # ── A8 : app de test bout-en-bout ──
+check "socle-build" in_vm 'cd ~/POULIDOR && ./hubctl socle build'
 check "app-create" in_vm 'cd ~/POULIDOR && bash scripts/create_app.sh testapp'
 check "app-init" in_vm 'cd ~/POULIDOR/APPS/testapp && printf "{\"format_version\": \"1.0\", \"app\": {\"slug\": \"testapp\", \"name\": \"Test App\", \"description\": \"App de test fresh-install\"}, \"client\": {\"name\": \"POULIDOR Test\", \"contact_name\": \"Jellycode\", \"contact_email\": \"test@local.lan\"}, \"license\": {\"quote_number\": \"TEST-2026-0001\", \"quote_date\": \"2026-08-17\", \"notice_year\": \"2026\"}, \"hub\": {\"host\": \"10.0.2.15\", \"api_port\": 8000, \"frontend_port\": 80}, \"ports\": {\"api\": 9045, \"frontend\": 4250}, \"options\": {\"clean_demo\": true, \"tailwind\": false}}" > profile.json && python3 INITIALISE.py --profile profile.json --yes && [ ! -f INITIALISE.py ]'
 # Whitelist du subnet VM + recreate hub-api (docker compose restart ne recharge
