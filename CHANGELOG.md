@@ -1,3 +1,13 @@
+## [0.85.4] - 16 novembre 2026
+
+### ⚡ CHANGELOG : répare le doublon [0.85.2]
+
+- Les releases du 16/11 (pointeurs `HUB_base` 3.92.1 et `HUBsocle` 2.37.1,
+  poussées par deux sessions parallèles) avaient créé deux entrées
+  distinctes au même numéro `[0.85.2]`. Fusionnées en une seule entrée
+  « Pointeurs HUB_base 3.92.1 + HUBsocle 2.37.1 » — aucune version
+  réellement rééditée, correction documentaire pure.
+
 ## [0.85.3] - 16 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.92.2 — sonde badge update navbar réservée aux admins
