@@ -1,3 +1,13 @@
+## [0.85.14] - 17 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.95.1
+
+- **Pointeur `HUB_base` → 3.95.1** : ajout du rapport de benchmarks POULIDOR
+  (novembre 2026) dans `docs/RAPPORT-BENCHMARKS-POULIDOR-2026-11.html` —
+  templates Rust/Python (×10 métier), installation (~6 min), PRA (374 ms),
+  charge Hub (800 SSE, 200 logins en 11 s) et table de dimensionnement.
+  Détail : CHANGELOG HUB_base 3.95.1. Le fix PRA hubctl 0.20.4 (replay DB
+  silencieux, Hubctl#1) est déjà couvert par les pointeurs 0.85.x précédents.
 ## [0.85.13] - 17 novembre 2026
 
 ### 🔧 Skill create-hub-app — séquence INITIALISE 12 étapes app fine (template 2.38.0)
