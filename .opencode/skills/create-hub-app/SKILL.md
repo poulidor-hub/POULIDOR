@@ -72,25 +72,28 @@ Ce que fait le script (`scripts/create_app.sh`, 67 lignes) :
 cd APPS/<slug> && python INITIALISE.py [--profile fichier.json] [--clean|--demo]
 ```
 
-Le script exécute **15 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/PYTHON/INITIALISE.py`, 2466 lignes — un wrapper racine `INITIALISE.py` délègue via `os.execv`) :
+Le script exécute **12 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/PYTHON/INITIALISE.py`, 2466 lignes — un wrapper racine `INITIALISE.py` délègue via `os.execv`) :
 
 | # | Étape | Fichier cible |
 |---|-------|---------------|
 | 1 | Création `.env` | `.env` (depuis `.env.example`, `APP_VERSION=0.0.1`) |
 | 2 | MAJ `.env.example` | `.env.example` |
 | 3 | MAJ `docker-compose.yml` | slug, ports fallback |
-| 4 | MAJ `backend/config.py` | Settings Pydantic |
-| 5 | MAJ `Dockerfile.frontend` | ARGs `VITE_*` |
-| 6 | MAJ `frontend/index.html` | titre HTML |
-| 7 | MAJ `frontend/Header.jsx` | `<h1>` |
-| 8 | MAJ `frontend/package.json` | `name` + `version=0.0.1` |
-| 9 | MAJ `frontend/src/config.js` | slug fallback |
-| 10 | MAJ fixtures de test | `conftest.py`, `test_m2m.py` |
-| 11 | Réinit `VERSION` | `VERSION` → `0.0.1` |
-| 12 | Réinit doc | `CHANGELOG.md` + `README.md` |
-| 13 | Nettoyage obsolètes | supprime `frontend/config.js` vestige |
-| 14 | **Certificat Hub** | `hub-app.yaml` — name/slug/description substitués ; kind `tool` → `spec.type: tool`, sinon `business` |
-| 15 | Génération `LICENSE.md` | propriétaire client ou générique |
+| 4 | MAJ `Dockerfile.frontend` | ARGs `VITE_*` |
+| 5 | MAJ `frontend/index.html` | titre HTML |
+| 6 | MAJ `frontend/package.json` | `name` + `version=0.0.1` |
+| 7 | **Personnalisation des tests backend** | `backend/tests/*.py` — `APP_SLUG` conftest + motifs `mon-app`/`Mon Application` ; `EXPECTED_TYPE` du test certificat mappé sur le kind |
+| 8 | Réinit `VERSION` | `VERSION` → `0.0.1` |
+| 9 | Réinit doc | `CHANGELOG.md` + `README.md` |
+| 10 | Nettoyage obsolètes | supprime `frontend/config.js` vestige + `__pycache__` |
+| 11 | **Certificat Hub** | `hub-app.yaml` — name/slug/description substitués ; kind `tool` → `spec.type: tool`, sinon `business` |
+| 12 | Génération `LICENSE.md` | propriétaire client ou générique |
+
+> **Historique** : les étapes ciblant l'ancienne génération (`backend/config.py`,
+> `Header.jsx`, `src/config.js`) ont été retirées en 2.38.0 — depuis 2.35.0
+> (app fine sur socle) ces fichiers n'existent plus dans le gabarit, et leur
+> absence faisait échouer tout scaffold (exit 1, pas de scripts d'action ni
+> de self-destruct) pendant 18 jours. Filet E2E ajouté : `backend/tests/test_initialise_e2e.py`.
 
 **Flags importants :**
 - `--profile fichier.json` : lit les infos depuis un profil client JSON (format `HUBapp_TEMPLATE_base/docs/client-profile.example.json`). ⚠️ **Seul ne suffit pas** : le récap `confirm_settings()` attend quand même une confirmation stdin → pour un flux réellement non-interactif (agent), ajouter `--yes`.
@@ -103,7 +106,7 @@ Le script exécute **15 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/
 
 Après succès, `INITIALISE.{py,sh,bat}` est **auto-supprimé** (self-destruct) ainsi que les scripts d'initialisation dans `ACTIONS/`. Les scripts d'action (`START`, `STOP`, `RESTART`, `LOGS`, etc.) sont générés dans `ACTIONS/PYTHON/`, `ACTIONS/LINUX/`, `ACTIONS/WINDOWS/`.
 
-**Certificat Hub (étape 14)** : l'app générée naît avec un `hub-app.yaml` valide à sa racine (schéma `hub.poulidor/v1`) — c'est lui qui rend l'app **visible dans le catalogue « Apps GitHub » du Hub** (Hub_base ≥ 3.94 ; sans manifeste valide, le repo est masqué et refusé à l'ajout, sauf bypass admin). Après création du dépôt GitHub, renseigner le champ optionnel `metadata.repository` (cross-checké par le Hub). Contrat détaillé : `HUB_base/docs/superpowers/specs/2026-11-16-github-apps-certification-design.md`.
+**Certificat Hub (étape 11)** : l'app générée naît avec un `hub-app.yaml` valide à sa racine (schéma `hub.poulidor/v1`) — c'est lui qui rend l'app **visible dans le catalogue « Apps GitHub » du Hub** (Hub_base ≥ 3.94 ; sans manifeste valide, le repo est masqué et refusé à l'ajout, sauf bypass admin). Après création du dépôt GitHub, renseigner le champ optionnel `metadata.repository` (cross-checké par le Hub). Contrat détaillé : `HUB_base/docs/superpowers/specs/2026-11-16-github-apps-certification-design.md`.
 
 **Environnement opencode embarqué** : l'app scaffoldée est immédiatement un environnement Jellycode autonome — `opencode.json` (`default_agent: jellycode`, plugin `superpowers` pinné, MCP `hub`), `.opencode/agent/jellycode.md` et les **skills app** (`.opencode/skills/`) sont copiés tels quels du template par `create_app.sh`. `INITIALISE.py` ne les modifie pas (aucun conflit). Pour le mettre à jour plus tard : `make sync-hub-tooling` (MCP + plugin) et le skill `migrate-app-template` (skills + persona).
 
