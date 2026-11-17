@@ -1,3 +1,12 @@
+## [0.85.10] - 17 novembre 2026
+
+### ⚡ Pointeur hubctl_src 0.20.4 — timeout des flux psql proportionnel (issue Hubctl#1, suite)
+
+- **hubctl_src → `e3bff22` (0.20.4)** — suite du fix restore DB (issue #1) : le timeout fixe de 30 s sur le replay (`_restore_db`) et le rollback (`_rollback_db`) tuerait en PRA un dump légitime volumineux (psql --inserts rejoue ligne par ligne) — pire, un rollback tué en plein rejeu laisse la base à l'état post-truncate. Fix : `_replay_timeout()` (plancher 30 s, croissance ~20 Ko/s, plafond 900 s anti-hang) branché sur les deux flux psql ; +2 tests TDD (suite 769 passed / 7 skipped).
+- Validé end-to-end en labo VM (scénario exact de l'incident du 16/11 : Hub frais, registre propre, coffre externe 3 apps) — restore complet (3 applications, counts base = dump sur toutes les tables) ; dump corrompu → échec explicitement remonté + base live intacte (rollback du snapshot).
+
+---
+
 ## [0.85.9] - 17 novembre 2026
 
 ### ⚡ Pointeur hubctl_src 0.20.3 — fin du flake pause (issue Hubctl#3)
