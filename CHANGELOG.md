@@ -19,42 +19,13 @@
 
 ---
 
-## [0.85.10] - 17 novembre 2026
+## [0.85.12] - 17 novembre 2026
 
-### ⚡ Pointeur hubctl_src 0.20.4 — timeout des flux psql proportionnel (issue Hubctl#1, suite)
+### ⚡ Pointeur HUB_base 3.95.0 — certification apps GitHub (3.94.0) + fiche app Applications
 
-- **hubctl_src → `e3bff22` (0.20.4)** — suite du fix restore DB (issue #1) : le timeout fixe de 30 s sur le replay (`_restore_db`) et le rollback (`_rollback_db`) tuerait en PRA un dump légitime volumineux (psql --inserts rejoue ligne par ligne) — pire, un rollback tué en plein rejeu laisse la base à l'état post-truncate. Fix : `_replay_timeout()` (plancher 30 s, croissance ~20 Ko/s, plafond 900 s anti-hang) branché sur les deux flux psql ; +2 tests TDD (suite 769 passed / 7 skipped).
-- Validé end-to-end en labo VM (scénario exact de l'incident du 16/11 : Hub frais, registre propre, coffre externe 3 apps) — restore complet (3 applications, counts base = dump sur toutes les tables) ; dump corrompu → échec explicitement remonté + base live intacte (rollback du snapshot).
-
----
-
-## [0.85.9] - 17 novembre 2026
-
-### ⚡ Pointeur hubctl_src 0.20.3 — fin du flake pause (issue Hubctl#3)
-
-- **hubctl_src → `ce68bfe` (0.20.3)** — trois tests créaient `pytest.MonkeyPatch()` manuellement sans `undo()` : `menu.pause` (×2, test_menu_loop) et `hub_state.get_apps_status` (test_menu_exhaustive, fuite jumelle) restaient remplacés pour tout le process — `test_pause_waits_for_enter` échouait si `test_menu_loop` passait avant lui (ordre personnalisé ; l'ordre canonique alphabétique épargnait le test, d'où l'invisibilité en full-suite).
-- Fix : conversion à la fixture `monkeypatch` (auto-undo) + 2 gardes d'intégrité de module (TDD, rouges sur l'état fautif) qui détecteront tout futur MonkeyPatch manuel oublié dans le fichier fautif lui-même.
-- Vérifié : batch déclencheur historique vert dans les deux sens ; 2 full-suites consécutives 767 passed / 7 skipped / 0 failed.
-
----
-
-## [0.85.8] - 16 novembre 2026
-
-### ⚡ Pointeur hubctl_src 0.20.2 — fin du flake park_checks ; suite ×3,5 plus rapide
-
-- **hubctl_src → `df23122` (0.20.2)** — correctif du flake intermittent des tests de timeout `park_checks` (issue Hubctl#2) : cause racine prouvée par instrumentation — les tests menu laissaient 14 poll workers daemon (`main_loop`, boucle `while True` inarrêtable) qui sous-traitaient docker/git réel pendant toute la suite et écrasaient le spy global `subprocess.run` de `test_park_checks` (journal des appels interceptés en flagrant délit).
-- Poll worker désormais arrêtable (`stop_poll_worker()`, Event + join), teardown dans les 3 fichiers de tests menu, spy filtré par argv (défense en profondeur). +2 tests (TDD).
-- Bonus mesuré : suite intégrale 440 s → 127 s (×3,5) ; 765 passed / 7 skipped sur 2 runs consécutifs, 0 failed. Flake annexe préexistant documenté (issue #3).
-
----
-
-## [0.85.7] - 16 novembre 2026
-
-### ⚡ Pointeur hubctl_src 0.20.1 — restore DB du coffre : fin du succès mensonger
-
-- **hubctl_src → `4b5b1bd` (0.20.1)** — correctif PRA critique (issue Hubctl#1) : le replay DB de `hubctl vault restore` pouvait échouer en silence — psql, sans `ON_ERROR_STOP`, continuait sur les conflits FK et sortait 0, et `restore_all` rapportait « DB restaurée » sans regarder la valeur de retour de `_restore_db`. En run réel : deux applications non rejouées, restore déclaré succès (dump du coffre sain, replay manuel vérifié).
-- Correctif : `ON_ERROR_STOP=1` sur replay/rollback/TRUNCATE (le rollback du snapshot live, jusque-là inatteignable, joue désormais son rôle), TRUNCATE vérifié avant replay, comptage de lignes post-restore comparé aux sections du dump, tables parsées du dump (fin du risque dup keys sur `schema_migrations` aux re-restores), rapport « ⚠ DB NON restaurée » explicite.
-- +7 tests dans `test_vault_manager.py` ; suite 763 collected — 762 passed + 1 flake préexistant `park_checks` (pollution du `subprocess.run` global par un thread résiduel, issue dédiée ouverte).
+- **HUB_base 3.94.0** *(agent certification)* : certificat `hub-app.yaml` obligatoire pour le catalogue GitHub — validation Pydantic `hub.poulidor/v1`, cache `github_repo_cache` (migration 069), scan de fond, catalogue filtré fail-closed, bypass admin journalisé ; +30 tests.
+- **Pointeur final `HUB_base → 9ffc024b`** : consolide le 6474a326 noté en 0.85.11 (l'ordre de push y est remplacé par ce pointeur unique, descendant des deux séries).
+- **HUB_base 3.95.0** *(agent apps-page-rework)* : page Administration ▸ Applications refondue — tableau 5 colonnes (Version, état composite) + **fiche app** (`#admin/apps/<slug>` : état, historique des déploiements, changelog, logs, Docker), fin du polling connectivité 30 s (SSE + test manuel), fix `/apps/all` (version + is_workshop/is_unmanaged transmis) ; fusion des deux séries dans le même merge (croisement de releases résolu sous lock).
 
 ---
 
