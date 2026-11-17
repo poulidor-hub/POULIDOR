@@ -1,3 +1,14 @@
+## [0.85.12] - 17 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.95.0 — certification apps GitHub (3.94.0) + fiche app Applications
+
+- **HUB_base 3.94.0** *(agent certification)* : certificat `hub-app.yaml` obligatoire pour le catalogue GitHub — validation Pydantic `hub.poulidor/v1`, cache `github_repo_cache` (migration 069), scan de fond, catalogue filtré fail-closed, bypass admin journalisé ; +30 tests.
+- **Pointeur final `HUB_base → 9ffc024b`** : consolide le 6474a326 noté en 0.85.11 (l'ordre de push y est remplacé par ce pointeur unique, descendant des deux séries).
+- **HUB_base 3.95.0** *(agent apps-page-rework)* : page Administration ▸ Applications refondue — tableau 5 colonnes (Version, état composite) + **fiche app** (`#admin/apps/<slug>` : état, historique des déploiements, changelog, logs, Docker), fin du polling connectivité 30 s (SSE + test manuel), fix `/apps/all` (version + is_workshop/is_unmanaged transmis) ; fusion des deux séries dans le même merge (croisement de releases résolu sous lock).
+
+---
+
+
 ## [0.85.11] - 17 novembre 2026
 
 ### 🏷️ Skill create-hub-app — certificat hub-app.yaml (compagnon Hub_base 3.94 / template 2.37)
@@ -16,16 +27,6 @@
 - ⚠️ Ordre de push (pointeurs → commits non encore poussés sur origin) :
   1. `HUB_base` main (`6474a326`) · 2. `HUBapp_TEMPLATE_base` main (`c5c6762`) ·
   3. `POULIDOR` main (0.85.11).
-
----
-
-## [0.85.12] - 17 novembre 2026
-
-### ⚡ Pointeur HUB_base 3.95.0 — certification apps GitHub (3.94.0) + fiche app Applications
-
-- **HUB_base 3.94.0** *(agent certification)* : certificat `hub-app.yaml` obligatoire pour le catalogue GitHub — validation Pydantic `hub.poulidor/v1`, cache `github_repo_cache` (migration 069), scan de fond, catalogue filtré fail-closed, bypass admin journalisé ; +30 tests.
-- **Pointeur final `HUB_base → 9ffc024b`** : consolide le 6474a326 noté en 0.85.11 (l'ordre de push y est remplacé par ce pointeur unique, descendant des deux séries).
-- **HUB_base 3.95.0** *(agent apps-page-rework)* : page Administration ▸ Applications refondue — tableau 5 colonnes (Version, état composite) + **fiche app** (`#admin/apps/<slug>` : état, historique des déploiements, changelog, logs, Docker), fin du polling connectivité 30 s (SSE + test manuel), fix `/apps/all` (version + is_workshop/is_unmanaged transmis) ; fusion des deux séries dans le même merge (croisement de releases résolu sous lock).
 
 ---
 
