@@ -1,3 +1,24 @@
+## [0.85.11] - 17 novembre 2026
+
+### 🏷️ Skill create-hub-app — certificat hub-app.yaml (compagnon Hub_base 3.94 / template 2.37)
+
+- **SKILL.md** : Phase C mise à jour — séquence INITIALISE en **15 étapes** (nouvelle
+  étape 14 « Certificat Hub » : `hub-app.yaml` personnalisé, kind `tool` →
+  `spec.type: tool`, sinon `business` ; ligne de code INITIALISE.py rafraîchie à
+  2466), tableau des étapes complété, et pont C→D documentant le contrat : l'app
+  générée naît **certifiée** (visible dans le catalogue « Apps GitHub » du Hub,
+  Hub_base ≥ 3.94 ; sans manifeste valide → masquée + refus à l'ajout sauf bypass
+  admin), champ optionnel `metadata.repository` à renseigner après création du
+  dépôt GitHub, référence vers la spec du 16/11.
+- Pointeurs sous-modules alignés sur les releases du jour : `HUB_base → 6474a326`
+  (3.94.0, certification du catalogue) et `HUBapp_TEMPLATE_base → c5c6762`
+  (2.37.0, certificat + étape INITIALISE).
+- ⚠️ Ordre de push (pointeurs → commits non encore poussés sur origin) :
+  1. `HUB_base` main (`6474a326`) · 2. `HUBapp_TEMPLATE_base` main (`c5c6762`) ·
+  3. `POULIDOR` main (0.85.11).
+
+---
+
 ## [0.85.10] - 17 novembre 2026
 
 ### ⚡ Pointeur hubctl_src 0.20.4 — timeout des flux psql proportionnel (issue Hubctl#1, suite)

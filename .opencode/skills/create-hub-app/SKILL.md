@@ -72,7 +72,7 @@ Ce que fait le script (`scripts/create_app.sh`, 67 lignes) :
 cd APPS/<slug> && python INITIALISE.py [--profile fichier.json] [--clean|--demo]
 ```
 
-Le script exécute **14 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/PYTHON/INITIALISE.py`, 2431 lignes — un wrapper racine `INITIALISE.py` délègue via `os.execv`) :
+Le script exécute **15 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/PYTHON/INITIALISE.py`, 2466 lignes — un wrapper racine `INITIALISE.py` délègue via `os.execv`) :
 
 | # | Étape | Fichier cible |
 |---|-------|---------------|
@@ -89,7 +89,8 @@ Le script exécute **14 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/
 | 11 | Réinit `VERSION` | `VERSION` → `0.0.1` |
 | 12 | Réinit doc | `CHANGELOG.md` + `README.md` |
 | 13 | Nettoyage obsolètes | supprime `frontend/config.js` vestige |
-| 14 | Génération `LICENSE.md` | propriétaire client ou générique |
+| 14 | **Certificat Hub** | `hub-app.yaml` — name/slug/description substitués ; kind `tool` → `spec.type: tool`, sinon `business` |
+| 15 | Génération `LICENSE.md` | propriétaire client ou générique |
 
 **Flags importants :**
 - `--profile fichier.json` : lit les infos depuis un profil client JSON (format `HUBapp_TEMPLATE_base/docs/client-profile.example.json`). ⚠️ **Seul ne suffit pas** : le récap `confirm_settings()` attend quand même une confirmation stdin → pour un flux réellement non-interactif (agent), ajouter `--yes`.
@@ -101,6 +102,8 @@ Le script exécute **14 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/
 - `--demo` : garde le contenu de démo pour explorer/exemple.
 
 Après succès, `INITIALISE.{py,sh,bat}` est **auto-supprimé** (self-destruct) ainsi que les scripts d'initialisation dans `ACTIONS/`. Les scripts d'action (`START`, `STOP`, `RESTART`, `LOGS`, etc.) sont générés dans `ACTIONS/PYTHON/`, `ACTIONS/LINUX/`, `ACTIONS/WINDOWS/`.
+
+**Certificat Hub (étape 14)** : l'app générée naît avec un `hub-app.yaml` valide à sa racine (schéma `hub.poulidor/v1`) — c'est lui qui rend l'app **visible dans le catalogue « Apps GitHub » du Hub** (Hub_base ≥ 3.94 ; sans manifeste valide, le repo est masqué et refusé à l'ajout, sauf bypass admin). Après création du dépôt GitHub, renseigner le champ optionnel `metadata.repository` (cross-checké par le Hub). Contrat détaillé : `HUB_base/docs/superpowers/specs/2026-11-16-github-apps-certification-design.md`.
 
 **Environnement opencode embarqué** : l'app scaffoldée est immédiatement un environnement Jellycode autonome — `opencode.json` (`default_agent: jellycode`, plugin `superpowers` pinné, MCP `hub`), `.opencode/agent/jellycode.md` et les **skills app** (`.opencode/skills/`) sont copiés tels quels du template par `create_app.sh`. `INITIALISE.py` ne les modifie pas (aucun conflit). Pour le mettre à jour plus tard : `make sync-hub-tooling` (MCP + plugin) et le skill `migrate-app-template` (skills + persona).
 
