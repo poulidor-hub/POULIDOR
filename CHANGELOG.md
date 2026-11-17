@@ -25,6 +25,42 @@
 
 ---
 
+## [0.85.15] - 17 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.95.2 — fiche app : sections longues plafonnées
+
+- **HUB_base 3.95.2** : l'historique des déploiements et le changelog de la fiche app sont plafonnés en hauteur (ascenseur natif `.appdetail-scroll`, overscroll contenu) — les apps à historique très long ne débordent plus ; smoke front étendu.
+- **Réparation docs** : structure du CHANGELOG HUB_base réparée (l'entrée 3.95.1 avait été insérée au-dessus de l'en-tête du fichier).
+
+---
+
+## [0.85.14] - 17 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.95.1
+
+- **Pointeur `HUB_base` → 3.95.1** : ajout du rapport de benchmarks POULIDOR
+  (novembre 2026) dans `docs/RAPPORT-BENCHMARKS-POULIDOR-2026-11.html` —
+  templates Rust/Python (×10 métier), installation (~6 min), PRA (374 ms),
+  charge Hub (800 SSE, 200 logins en 11 s) et table de dimensionnement.
+  Détail : CHANGELOG HUB_base 3.95.1. Le fix PRA hubctl 0.20.4 (replay DB
+  silencieux, Hubctl#1) est déjà couvert par les pointeurs 0.85.x précédents.
+## [0.85.13] - 17 novembre 2026
+
+### 🔧 Skill create-hub-app — séquence INITIALISE 12 étapes app fine (template 2.38.0)
+
+- **SKILL.md** : tableau Phase C aligné sur la séquence **12 étapes** du template
+  2.38.0 — retrait des étapes mortes de l'ancienne génération (backend/config.py,
+  Header.jsx, src/config.js — plus dans le gabarit depuis 2.35.0 app fine), étape 7
+  « Personnalisation des tests backend », certificat Hub en étape 11, note
+  historique sur la casse du scaffolding (18 jours, 2.35.0 → 2.37.0) et le filet
+  E2E `backend/tests/test_initialise_e2e.py`.
+- Pointeur sous-module : `HUBapp_TEMPLATE_base → 3cbb66d` (2.38.0, port INITIALISE
+  app fine, scaffold refonctionne). `HUB_base` inchangé (9ffc024b / 3.95.0).
+- ⚠️ Ordre de push : 1. `HUBapp_TEMPLATE_base` main (`3cbb66d`) · 2. `POULIDOR`
+  main (0.85.13). (`HUB_base` déjà à jour sur origin.)
+
+---
+
 ## [0.85.12] - 17 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.95.0 — certification apps GitHub (3.94.0) + fiche app Applications
