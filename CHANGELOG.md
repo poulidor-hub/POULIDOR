@@ -1,3 +1,17 @@
+## [0.85.25] - 18 novembre 2026
+
+### ⚡ Pointeurs sous-modules — HUBsocle 2.38.0 + HUBapp_TEMPLATE_base 2.39.1
+
+- **HUBsocle 2.38.0** : header paramétrable — `app_name` consommé depuis
+  `GET /api/config` (+ sync `document.title`), prop `title` en override ;
+  fin du titre « Template App - Hub Auth » affiché par toutes les apps fines
+  (visible sur horaires). Images socle-api/socle-web 2.38.0 construites
+  localement, APP_SOCLE_VERSION des apps alignées au prochain `make sync-env`.
+- **HUBapp_TEMPLATE_base 2.39.1** : route `/callback` SSO déclarée avant le
+  splat (`redirect /`) — fin de la 404 « Page introuvable » au lancement
+  d'une app depuis le dashboard Hub (pattern exemple-app généralisé au
+  template). Validé sur horaires 0.2.1.
+
 ## [0.85.24] - 18 novembre 2026
 
 ### ⚡ Pointeur sous-module — HUBsocle 2.37.2 (diagnostic cert_sync)
