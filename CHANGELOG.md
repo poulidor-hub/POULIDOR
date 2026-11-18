@@ -1,3 +1,11 @@
+## [0.85.16] - 18 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.95.3 — messages : course concurrente sur les accusés de lecture absorbée
+
+- **HUB_base 3.95.3** : `POST /api/messages/{id}/read` et `POST /api/messages/read-all` répondaient **500** (`UniqueViolationError` sur `uq_message_read_receipts_message_user`) quand une requête concurrente — auto-delivery du `GET /me` d'un autre onglet/refresh, ou second `POST /read` sur une autre occurrence du groupe dédupliqué — commite le même receipt `(message_id, user_id)` dans la fenêtre SELECT→commit (incident 18/11/2026 03:04). L'`IntegrityError` est désormais absorbée par rollback best-effort (réponse `already_read` / `marked_read: 0`), même remédiation que le `GET /me` (incident 10/11 02:56). Tests de course ajoutés (`test_messages_read_race.py`).
+
+---
+
 ## [0.85.14] - 17 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.95.1
