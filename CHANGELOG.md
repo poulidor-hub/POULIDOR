@@ -1,3 +1,9 @@
+## [0.85.22] - 18 novembre 2026
+
+### ⚡ Pointeur sous-module — HUB_base 3.97.2 (hotfix migration 070)
+
+- **HUB_base 3.97.2** : la 3.97.1 ne démarrait pas — le runner `apply_migrations()` découpe les fichiers SQL sur `;` sans respecter les commentaires (fragment orphelin exécuté, `MigrationError` fail-fast). Migration 070 réécrite sans point-virgule en commentaire, appliquée et vérifiée en prod locale (2 index créés, `ix_applications_id` supprimé, EXPLAIN : Index Only Scan au lieu de Seq Scan).
+
 ## [0.85.21] - 18 novembre 2026
 
 ### ⚡ Pointeur sous-module — HUB_base 3.97.1 (index service_account_app_access)
