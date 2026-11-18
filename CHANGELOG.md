@@ -1,3 +1,9 @@
+## [0.85.23] - 18 novembre 2026
+
+### ⚡ Pointeur sous-module — HUB_base 3.97.3 (garde-fou migrations)
+
+- **HUB_base 3.97.3** : test `test_migrations_split_guard.py` — simule le découpage du runner (`split(';')` + strip commentaires) sur toutes les migrations et échoue sur tout fragment non-SQL ; épingle l'incident 3.97.1. La classe de bug « `;` dans un commentaire SQL » est maintenant attrapée avant le push.
+
 ## [0.85.22] - 18 novembre 2026
 
 ### ⚡ Pointeur sous-module — HUB_base 3.97.2 (hotfix migration 070)
