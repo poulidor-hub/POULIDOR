@@ -1,3 +1,11 @@
+## [0.85.20] - 18 novembre 2026
+
+### ⚡ Pointeurs sous-modules — tuning PostgreSQL du parc
+
+- **HUB_base 3.97.0** : profil mémoire hub-db calibré sur mem_limit 1g (shared_buffers 256MB, work_mem 8MB, maintenance_work_mem 128MB) + `shm_size: 256m` + préchargement `pg_stat_statements` (`make db-pgss-enable` pour les déploiements existants).
+- **HUBapp_TEMPLATE_base 2.39.0** : profil mémoire PG explicite surchargeable du template (`PG_SHARED_BUFFERS`/`PG_EFFECTIVE_CACHE_SIZE`/`PG_WORK_MEM`/`PG_MAINTENANCE_WORK_MEM`/`PG_SHM_SIZE`), hérité par les apps scaffoldées.
+- Contexte : solutions 1 & 3 de l'analyse « optimisations PostgreSQL » (mémoire ciblée + instrumentation requêtes) ; les restores batchés d'exemple-app (1.62.1) et VaultWarden (0.4.1) ne sont pas des sous-modules (APPS/* gitigné).
+
 ## [0.85.19] - 18 novembre 2026
 
 ### ⚡ Docs skill create-hub-app — section Backend Rust restaurée
