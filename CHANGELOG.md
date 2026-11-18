@@ -1,4 +1,4 @@
-## [0.85.18] - 18 novembre 2026
+## [0.85.19] - 18 novembre 2026
 
 ### ⚡ Docs skill create-hub-app — section Backend Rust restaurée
 
@@ -13,7 +13,7 @@
 
 ---
 
-## [0.85.18] - 18 novembre 2026
+## [0.85.19] - 18 novembre 2026
 
 ### ⚡ Pointeur HUB_base → a939efdb/b915ec23 — hotfixes post-déploiement 3.96.0
 
