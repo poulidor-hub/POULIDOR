@@ -1,3 +1,18 @@
+## [0.85.18] - 18 novembre 2026
+
+### ⚡ Docs skill create-hub-app — section Backend Rust restaurée
+
+- Restauration de la sous-section « Backend Rust (`--backend rust`) » dans
+  `.opencode/skills/create-hub-app/SKILL.md` (portage manuel du commit
+  `02bfe0f0` de `feat/template-rust-variant`, perdu des rewrites 0.85.11/0.85.13) :
+  critères de choix backend par profil (Phase A point 7), flag `--backend` dans la
+  ligne INITIALISE, différences post-génération (crate + hub-client embarqué,
+  Dockerfile multi-stage, Makefile patché sync-env/test, filet de parité), ligne
+  « Variante Rust » dans les références. Motivation : scaffolding de
+  `APPS/exemple-app` (0.2.0, première app Rust du parc).
+
+---
+
 ## [0.85.16] - 18 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.95.3 — messages : course concurrente sur les accusés de lecture absorbée
