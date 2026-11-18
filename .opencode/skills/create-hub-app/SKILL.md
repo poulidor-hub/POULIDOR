@@ -1,6 +1,6 @@
 ---
 name: create-hub-app
-description: Use when the user wants to create or scaffold a new application on the HUB. Full workflow: collect info (slug, name, type, client profile, ports), run create_app.sh, execute INITIALISE.py, allocate ports, first boot with health check, and review backend conventions. Triggers on any request involving "créer une app", "nouvelle application", "scaffold une app", "démarrer une app Hub", or "générer une app depuis le template".
+description: Use when the user wants to create or scaffold a new application on the HUB. Full workflow: collect info (slug, name, type, client profile, ports), run create_app.sh, execute INITIALISE.py, allocate ports, first boot with health check, and review backend conventions. Triggers on any request involving "créer une app", "nouvelle application", "scaffold une app", "démarrer une app Hub", or "générer une app depuis le template". Also covers the Rust backend variant (`--backend rust` : crate axum avec hub-client embarquée, pour proxy/dataplane/haut débit).
 argument-hint: 'App requirements (slug, name, type, client profile path, ports)'
 ---
 
@@ -36,8 +36,17 @@ Avant de lancer le moindre script, collecte auprès de l'utilisateur :
    - `FRONTEND_PORT` : interface React (ex: 4250).
    - Laisser **vide** en général : le Hub alloue automatiquement.
 6. **Profil client** (si mode `client`) : chemin vers un fichier JSON structuré au format `docs/client-profile.example.json` dans le template. Contient `app.slug/name/description`, `client.name`, `license.quote_number/quote_date`, `hub.host/api_port/frontend_port`, `ports.api/frontend`.
+7. **Backend** (`--backend`, INITIALISE v2) : `python` (défaut) ou `rust`. Critères de choix par profil :
 
-Si le user n'a pas de préférence explicite : proposer type=`other`, ports=auto.
+   | Profil | Backend |
+   |--------|---------|
+   | Proxy, dataplane, transfert haut débit, taux de requêtes élevé | **Rust** (`--backend rust`) — mémoire prévisible, CPU maîtrisé, footprint < 100 Mo |
+   | CRUD métier, apps à forte intégration socle, vélocité dev prioritaire | **Python** (défaut) — goulot = DB/réseau, accès natif au socle, écosystème de skills existant |
+   | Engine externe wrappé (Gotenberg, Nominatim…) | **Python** — pattern historique inchangé |
+
+   En cas de doute : **Python** (défaut). Seuils à réévaluer après quelques mois d'apps Rust en usage réel (spéc « Variante Rust » §9). Détails : `HUBsocle/docs/REFERENCE-APP-FINE.md` §9.
+
+Si le user n'a pas de préférence explicite : proposer type=`other`, ports=auto, backend=`python`.
 
 ## Phase B — Scaffolder
 
@@ -69,7 +78,7 @@ Ce que fait le script (`scripts/create_app.sh`, 67 lignes) :
 ## Phase C — INITIALISE
 
 ```bash
-cd APPS/<slug> && python INITIALISE.py [--profile fichier.json] [--clean|--demo]
+cd APPS/<slug> && python INITIALISE.py [--profile fichier.json] [--backend {python,rust}] [--clean|--demo]
 ```
 
 Le script exécute **12 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/PYTHON/INITIALISE.py`, 2466 lignes — un wrapper racine `INITIALISE.py` délègue via `os.execv`) :
@@ -103,6 +112,44 @@ Le script exécute **12 étapes** séquentielles (`HUBapp_TEMPLATE_base/ACTIONS/
 - Mode auto : `python INITIALISE.py <nom>` (nom positionnel) — crée l'app sans questions mais **force type=`tool`**.
 - `--clean` (défaut) : nettoie le contenu de démonstration (modèles `Item`/`TestData`, routes `items.py`/`test_data.py`, composants frontend de démo). Produit un squelette minimal prêt à développer.
 - `--demo` : garde le contenu de démo pour explorer/exemple.
+- `--backend rust` : backend Rust (crate axum + `hub-client` embarquée) au lieu du socle FastAPI Python — cf. sous-section ci-dessous.
+
+### Backend Rust (`--backend rust`)
+
+Le tableau des 12 étapes ci-dessus décrit le backend **Python** ; en Rust, les
+étapes backend sont remplacées par la génération de la crate (VERSION,
+CHANGELOG, README, `.env.example`, compose, frontend — inférences identiques).
+Le reste du workflow (Phase B, allocation des ports, premier boot, healthcheck)
+est inchangé. Différences post-génération :
+
+- **`backend/`** : crate Rust (`main.rs` + routes métier) dépendant de
+  `backend/hub-client/` — la crate `hub-client` (contrat Hub, parité stricte
+  `hub_socle`) est **embarquée par copie** + `Cargo.lock` committé (build
+  reproductible). Squelette de référence : `HUBsocle/rust/app-skeleton`.
+- **`Dockerfile.backend`** : multi-stage (`rust:1-slim` builder →
+  `bookworm-slim` runtime, binaire strippé) au lieu de
+  `FROM poulidor/socle-api`.
+- **`.env`** : `BACKEND_KIND=rust`, `APP_HUB_CLIENT_VERSION` (version de la
+  crate embarquée), `APP_SOCLE_TARGET` (version socle visée).
+- **Makefile patché** : `make sync-env` appelle d'abord
+  `scripts/sync_hub_client.py` (aligne `APP_HUB_CLIENT_VERSION` sur la crate
+  embarquée — divergence → première commande en échec avec message
+  actionnable, rebuild image requis, la suivante passe) ; `make test` →
+  `cargo test` (l'image runtime ne contient pas de toolchain de test — pas de
+  pytest Docker, pas de couverture v1).
+- **Identique au backend Python** : infra (compose durci, nginx, scripts,
+  ACTIONS), frontend React (`@poulidor/hub-socle` + HUBCSS), migrations SQL
+  (auto-appliquées, `schema_migrations` partagée), contrat Hub (register,
+  JWKS, M2M, outbox, backup format coffre). Limites v1 : pas de `cert_sync`,
+  pas de runner de validation canari — cf. `HUBsocle/docs/REFERENCE-APP-FINE.md` §9.
+- **Filet de parité** : suite de contrat `HUBsocle/tests/contract/`
+  (`make test-contract` dans HUBsocle, `CONTRACT_BASE_URL` +
+  `CONTRACT_ADMIN_TOKEN`) ; matrice de compatibilité
+  `HUBsocle/rust/CHANGELOG.md`. La mise à jour d'une app Rust passe par
+  `sync_hub_client.py` + matrice (pas par `migrate-app-to-socle`).
+- Les conventions **Phase E** ci-dessous sont spécifiques au backend Python ;
+  une app Rust suit les conventions du workspace `HUBsocle/rust/` (tests
+  miroir `app-skeleton`).
 
 Après succès, `INITIALISE.{py,sh,bat}` est **auto-supprimé** (self-destruct) ainsi que les scripts d'initialisation dans `ACTIONS/`. Les scripts d'action (`START`, `STOP`, `RESTART`, `LOGS`, etc.) sont générés dans `ACTIONS/PYTHON/`, `ACTIONS/LINUX/`, `ACTIONS/WINDOWS/`.
 
@@ -201,4 +248,5 @@ L'app tourne. Pour la suite du développement :
 | Conventions backend | fichiers sources du tableau Phase E (models, migrations, compose, AuthContext, hub_auth) |
 | Messagerie Hub | `HUBapp_TEMPLATE_base/docs/HUB_MESSAGES.md` |
 | Migrations SQL | `HUBapp_TEMPLATE_base/.github/instructions/migrations-sql.instructions.md` |
+| Variante Rust | `HUBsocle/docs/REFERENCE-APP-FINE.md` (§9) · `HUBsocle/rust/CHANGELOG.md` (matrice de compat) · `HUBsocle/tests/contract/` (suite de contrat) |
 | Workshop mover | `.opencode/skills/app-workshop-mover/SKILL.md` |
