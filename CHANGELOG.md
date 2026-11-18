@@ -1,3 +1,9 @@
+## [0.85.21] - 18 novembre 2026
+
+### ⚡ Pointeur sous-module — HUB_base 3.97.1 (index service_account_app_access)
+
+- **HUB_base 3.97.1** : migration `070` — index sur `service_account_app_access (service_account_id)` et `(app_id)` (la requête dominante du Hub filtrait en Seq Scan, 2755 ms cumulés/h) + drop de l'index PK redondant `ix_applications_id` + modèles alignés. Requiert le rebuild de l'image `hub-api` (models.py modifié) et le restart (migration appliquée au boot).
+
 ## [0.85.20] - 18 novembre 2026
 
 ### ⚡ Pointeurs sous-modules — tuning PostgreSQL du parc
