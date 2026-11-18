@@ -1,3 +1,15 @@
+## [0.85.24] - 18 novembre 2026
+
+### ⚡ Pointeur sous-module — HUBsocle 2.37.2 (diagnostic cert_sync)
+
+- **HUBsocle 2.37.2** : `cert_sync` logue désormais explicitement une
+  `PermissionError` sur ssl/ (« non inscriptible par l'UID de l'API » :
+  UID courant, répertoire, propriétaire/mode, remède) au lieu d'un
+  traceback générique toutes les 6h. Cause racine de l'incident exemple-app :
+  certs générés en root par l'entrypoint frontend dans le bind partagé —
+  correctif app-side dans exemple-app 1.63.1. Prendra effet dans les apps au
+  prochain bump de leur APP_SOCLE_VERSION.
+
 ## [0.85.23] - 18 novembre 2026
 
 ### ⚡ Pointeur sous-module — HUB_base 3.97.3 (garde-fou migrations)
