@@ -13,11 +13,13 @@
 
 ---
 
-## [0.85.16] - 18 novembre 2026
+## [0.85.18] - 18 novembre 2026
 
-### ⚡ Pointeur HUB_base 3.95.3 — messages : course concurrente sur les accusés de lecture absorbée
+### ⚡ Pointeur HUB_base → a939efdb/b915ec23 — hotfixes post-déploiement 3.96.0
 
-- **HUB_base 3.95.3** : `POST /api/messages/{id}/read` et `POST /api/messages/read-all` répondaient **500** (`UniqueViolationError` sur `uq_message_read_receipts_message_user`) quand une requête concurrente — auto-delivery du `GET /me` d'un autre onglet/refresh, ou second `POST /read` sur une autre occurrence du groupe dédupliqué — commite le même receipt `(message_id, user_id)` dans la fenêtre SELECT→commit (incident 18/11/2026 03:04). L'`IntegrityError` est désormais absorbée par rollback best-effort (réponse `already_read` / `marked_read: 0`), même remédiation que le `GET /me` (incident 10/11 02:56). Tests de course ajoutés (`test_messages_read_race.py`).
+- **fix(release)** : marqueurs de conflit restés dans `index.html` (merge 3.96.0 mal résolu → sections fiche vides + marqueurs visibles) — retirés, image frontend reconstruite.
+- **fix(apps)** : la route `GET /apps/{slug}/docker-info` avait été détachée par le helper réseau inséré entre le décorateur et la fonction (422 "Field required" → mini-cockpit et section Docker morts) — route réattachée + test OpenAPI de non-régression.
+- Vérifié live : docker-info sans auth → 401 (route réelle), health v3.96.0, assets fiche v6 servis.
 
 ---
 
