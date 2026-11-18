@@ -33,18 +33,6 @@
 
 ---
 
-## [0.85.19] - 18 novembre 2026
-
-### ⚡ Pointeur HUB_base → a939efdb/b915ec23 — hotfixes post-déploiement 3.96.0
-
-- **fix(release)** : marqueurs de conflit restés dans `index.html` (merge 3.96.0 mal résolu → sections fiche vides + marqueurs visibles) — retirés, image frontend reconstruite.
-- **fix(apps)** : la route `GET /apps/{slug}/docker-info` avait été détachée par le helper réseau inséré entre le décorateur et la fonction (422 "Field required" → mini-cockpit et section Docker morts) — route réattachée + test OpenAPI de non-régression.
-- Vérifié live : docker-info sans auth → 401 (route réelle), health v3.96.0, assets fiche v6 servis.
-
----
-
----
-
 ## [0.85.17] - 18 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.96.0 — fiche app v6 (mini-cockpit, réglages inline, mode création)
