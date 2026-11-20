@@ -1,3 +1,14 @@
+## [0.85.26] - 20 novembre 2026
+
+### ⚡ Pointeur sous-module — HUB_base 3.97.4 (fix persistance VPN WireGuard)
+
+- **HUB_base 3.97.4** : persistance robuste du serveur VPN WireGuard (incident
+  20/11 — `wg0.conf` disparue du volume avec `vpn_enabled=true`, VPN mort
+  silencieux au redémarrage suivant). Toggle OFF arrêtant réellement le
+  conteneur (conf préservée), auto-réparation de la conf au boot de hub-api,
+  restart du conteneur si l'interface wg0 est absente. 44 tests VPN verts
+  (hôte + image runtime). Voir CHANGELOG HUB_base 3.97.4 pour le détail.
+
 ## [0.85.25] - 18 novembre 2026
 
 ### ⚡ Pointeurs sous-modules — HUBsocle 2.38.0 + HUBapp_TEMPLATE_base 2.39.1
