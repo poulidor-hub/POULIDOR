@@ -1,3 +1,14 @@
+## [0.85.27] - 20 novembre 2026
+
+### ⚡ scripts — hub-vpn-firewall.sh exécutable (mode git 100755)
+
+- Le `cp` du runbook d'installation ne pose pas le bit +x : systemd échouait en
+  **203/EXEC** et sudo déclarait le script « command not found ». Mode git
+  100644 → **100755** (aligné sur `hub-vpn-boot-sync.sh`). Commentaire
+  d'installation corrigé : le passage par install.sh (Phase 2f) n'existe pas,
+  runbook manuel complet documenté en tête de script (avec chmod +x explicite).
+
+
 ## [0.85.26] - 20 novembre 2026
 
 ### ⚡ Pointeur sous-module — HUB_base 3.97.4 (fix persistance VPN WireGuard)
