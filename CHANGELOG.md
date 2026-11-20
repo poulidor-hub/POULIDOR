@@ -1,3 +1,13 @@
+## [0.85.28] - 20 novembre 2026
+
+### ⚡ scripts — status du firewall VPN lisible
+
+- `hub-vpn-firewall.sh status` : ajout de `-v` au listing INPUT — sans lui,
+  `iptables -L -n` masque la colonne « in » et le filtre `grep wg0` ne
+  montrait AUCUNE règle INPUT alors qu'elles étaient appliquées (constat
+  prod 20/11). Les compteurs de paquets sont désormais visibles aussi.
+
+
 ## [0.85.27] - 20 novembre 2026
 
 ### ⚡ scripts — hub-vpn-firewall.sh exécutable (mode git 100755)
