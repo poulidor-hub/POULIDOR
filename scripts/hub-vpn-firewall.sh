@@ -90,7 +90,10 @@ if [ "${1:-}" = "status" ]; then
     echo "── DOCKER-USER ──"
     "$IPT" -L DOCKER-USER -n --line-numbers
     echo "── INPUT (règles wg0) ──"
-    "$IPT" -L INPUT -n --line-numbers | grep -E '(^Chain|wg0)' || true
+    # -v obligatoire : sans lui, iptables -L -n n'affiche PAS la colonne « in »
+    # (interface) — le grep wg0 ne matchait rien et laissait croire que les
+    # règles INPUT étaient absentes alors qu'elles étaient appliquées.
+    "$IPT" -L INPUT -n -v --line-numbers | grep -E '(^Chain|wg0)' || true
 else
     echo "✓ Cloisonnement VPN appliqué ($WG_IF → DNAT uniquement : hub + apps)"
 fi
