@@ -27,8 +27,12 @@
 # Idempotent : purge nos règles (marquées -m comment) puis les réinsère dans
 # le bon ordre. Relançable sans risque.
 #
-# Installé par install.sh (Phase 2f) vers /usr/local/sbin/hub-vpn-firewall.sh,
-# exécuté au boot par hub-vpn-firewall.service (oneshot, After=docker.service).
+# Installation (manuelle — pas de chemin automatisé install.sh) :
+#   sudo cp scripts/hub-vpn-firewall.sh /usr/local/sbin/
+#   sudo chmod +x /usr/local/sbin/hub-vpn-firewall.sh   # (mode git 100755 :
+#     cp ne pose PAS le bit +x — sans lui, systemd échoue en 203/EXEC)
+#   sudo cp scripts/systemd/hub-vpn-firewall.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now hub-vpn-firewall
 #
 # Usage :
 #   sudo hub-vpn-firewall.sh           # applique les règles
