@@ -1,3 +1,14 @@
+## [0.85.29] - 21 novembre 2026
+
+### ⚡ pointeur HUB_base 3.98.0 — notifications : fin du spam « App offline »
+
+- Pointeur sous-module `HUB_base` : 094d629d → 603620d8 (release 3.98.0).
+- Contenu : classification Docker des apps (arrêt volontaire ≠ panne), alerte
+  unique `warning` par épisode avec ré-armement, dashboard santé « Stoppée »
+  neutre + `summary.stopped`, sonde `/apps/status` docker-aware. Détails dans
+  le CHANGELOG HUB_base 3.98.0.
+
+
 ## [0.85.28] - 20 novembre 2026
 
 ### ⚡ scripts — status du firewall VPN lisible
