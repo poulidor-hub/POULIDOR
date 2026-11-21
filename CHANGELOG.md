@@ -1,3 +1,27 @@
+## [0.85.30] - 21 novembre 2026
+
+### ⚡ Pointeurs HUBapp_TEMPLATE_base 2.39.2 + HUBsocle 2.39.0 — contrat CSS socle explicite
+
+- Pointeur sous-module `HUBapp_TEMPLATE_base` : 3f3e5d7d → 5ba1d5d0
+  (release 2.39.2). Contenu : définitions des noms legacy émis par
+  `@poulidor/hub-socle` dans `app.css` (`.card`, `.btn*`, `.role-badge`,
+  `.category-badge`, `.empty-state`, `.card-intro/.card-actions`,
+  `.example-list-footer`) — la purge `715946f` les avait retirées en
+  supposant une migration `hub-*` jamais portée dans le socle :
+  `LoginPrompt` rendait son bouton non stylé dans toute app du template
+  (même cause racine que exemple-app 0.4.1).
+- Pointeur sous-module `HUBsocle` : 00ee8bd7 → 4f7439d0 (release 2.39.0,
+  minor). Contenu : `frontend/src/styles.css` — le socle LIVRE désormais
+  la feuille de style de ses composants (contrat CSS explicite,
+  `import '@poulidor/hub-socle/styles.css'`, tokens `--hub-*` only,
+  couverture 100 % des classes émises) ; contrat documenté dans
+  `docs/REFERENCE-APP-FINE.md` §5.7.
+- Stratégie : court terme les définitions existent en triple (template +
+  apps concernées + socle) — sans conflit (règles identiques) ; les
+  vagues `migrate-app-template` déduplicqueront côté apps en important
+  la feuille socle.
+
+
 ## [0.85.29] - 21 novembre 2026
 
 ### ⚡ pointeur HUB_base 3.98.0 — notifications : fin du spam « App offline »
