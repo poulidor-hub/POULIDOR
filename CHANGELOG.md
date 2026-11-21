@@ -1,3 +1,18 @@
+## [0.85.31] - 21 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.99.0 — refonte admin Préférences + Secteur principal exposé
+
+- Pointeur sous-module `HUB_base` : 603620d8 → 7788a1da (release 3.99.0, minor).
+- Contenu : page admin « Préférences » refondue (style dense « pro » validé en
+  maquette) — onglet Utilisateurs (recherche + filtres ★/prefs, colonne Secteur
+  principal, tri, pagination 50), onglet Catégories (stats fondues dans la
+  toolbar, colonnes ★ Principal / Source M2M·app), modals « sections empilées »
+  (slug live, segmenté Unique/Multiples, switch ★, CSV/M2M) ; API tags :
+  `GET /users` expose `primary` (1 requête groupée, zéro N+1) et les catégories
+  exposent `source_app_name` ; passerelle ★ dans l'édition admin d'un user
+  (envoi `{tags, primary}`). Tests : +6 tags (1793 verts en conteneur).
+
+
 ## [0.85.30] - 21 novembre 2026
 
 ### ⚡ Pointeurs HUBapp_TEMPLATE_base 2.39.2 + HUBsocle 2.39.0 — contrat CSS socle explicite
