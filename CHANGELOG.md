@@ -1,3 +1,15 @@
+## [0.85.33] - 22 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.100.1 — vue santé : filtre au re-rendu + fixes responsive mobile
+
+- Pointeur sous-module `HUB_base` : 7a7fcc08 → e3f0d683+release 3.100.1 (patch).
+- Contenu : filtre actif réappliqué au re-rendu complet du sondage (la grille
+  n'apparaît plus non filtrée avec un filtre actif) ; responsive mobile de la
+  vue santé — pill atelier ellipsée (elle élargissait toute la page), boutons
+  du panneau atelier en icônes 28 px (⬆/▸/🗑, aria-label + title), recherche
+  flexible. Valide en maquette mobile avant/après (companion).
+
+---
 ## [0.85.32] - 22 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.100.0 — vue santé apps : cartes compactes + actions multi-conteneurs fiables + live SSE
