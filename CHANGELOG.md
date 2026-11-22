@@ -1,3 +1,22 @@
+## [0.85.32] - 22 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.100.0 — vue santé apps : cartes compactes + actions multi-conteneurs fiables + live SSE
+
+- Pointeur sous-module `HUB_base` : 7788a1da → 7a7fcc08 (release 3.100.0, minor).
+- Contenu : fix racine du bug « Arrêter ne ferme pas l'app » — stop/start/restart
+  ne coupaient qu'UN conteneur par app (ordre arbitraire du daemon sur 2-3
+  conteneurs partageant `APP_SLUG`) → actions sur le **groupe compose complet**
+  (dérivation du project depuis les conteneurs matchés, exclusion `hub_base`),
+  résultat par conteneur (`containers[]`), « Stoppée » group-aware (tous les
+  conteneurs off), `containers_count` dans `GET /api/apps/health`. Front :
+  cartes compactes 6/ligne, pastille statut, menu d'actions ⋯ unique (items
+  selon statut), feedback spinner + toast « n/n conteneurs », re-sonde
+  immédiate + +5 s, mise à jour live des cartes via SSE. Tests : +24 health
+  (1890 verts hôte ×3) ; test-docker : 3 échecs préexistants environnementaux
+  (preuve A/B sur base + cause `certs/` réels documentés dans le CHANGELOG
+  HUB_base, branche « tests-env » à venir).
+
+---
 ## [0.85.31] - 21 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.99.0 — refonte admin Préférences + Secteur principal exposé
