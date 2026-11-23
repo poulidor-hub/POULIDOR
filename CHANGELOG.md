@@ -1,3 +1,16 @@
+## [0.85.37] - 23 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.103.0 — vue santé : sondage Docker-first, atelier agrégé, chargement unifié
+
+- Pointeur sous-module `HUB_base` : b0ad3a67 → 25e97f82 (release 3.103.0, minor).
+- Contenu : sonde de santé Docker-first (une app arrêtée n'est plus sondée en
+  HTTP — fin des timeouts jusqu'à 15 s par app off) ; état atelier agrégé dans
+  la réponse `/api/apps/health` (`workshop: {exists, ws_ref, ws_commit,
+  git_ok}`) — le front rend la grille complète en un seul fetch/rendu, plus de
+  vague de N × `GET /{slug}/workshop` ; chips MàJ toujours async (non
+  bloquants). 3 nouveaux tests + durcissement des tests HTTP existants.
+
+---
 ## [0.85.36] - 23 novembre 2026
 
 ### ⚡ Benchmark GED v0.4.0 — validation réelle & stress (38/0, 15k docs)
