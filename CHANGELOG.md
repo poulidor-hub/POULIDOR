@@ -1,3 +1,17 @@
+## [0.85.38] - 23 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.103.1 — vue santé : fix latences (états Docker batchés en thread)
+
+- Pointeur sous-module `HUB_base` : 25e97f82 → 17e37a8a (release 3.103.1, patch).
+- Contenu : fix de la régression latence introduite par le Docker-first de la
+  3.103.0 — `get_container_state` (synchrone) appelé par chaque probe bloquait
+  l'event loop et gonflait les latences affichées en cascade (gradient 1277 →
+  36 ms selon l'ordre alphabétique). Désormais un unique appel Docker batché
+  (`get_container_states_batch`, UNE liste pour tous les slugs) est exécuté en
+  thread par la route ; les probes lisent un dict en O(1). Garde structurelle
+  anti-régression + tests migrés.
+
+---
 ## [0.85.37] - 23 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.103.0 — vue santé : sondage Docker-first, atelier agrégé, chargement unifié
