@@ -1,3 +1,18 @@
+## [0.86.0] - 23 novembre 2026
+
+### ⚡ Règle « petit nombre d'abord » pour tests/benchmarks — pointeur template 2.40.0
+
+- Skill `vm-lab` : nouvelle règle 6 — tout run en volume (injection de
+  données, restore, run de perf, génération en masse) démarre par un run
+  réduit (5 items / 1 table / 1 itération) pour valider le workflow
+  bout-en-bout avant montée au volume cible ; ligne « pièges » associée
+  (run massif lancé d'emblée → échec en pleine exécution).
+- Pointeur `HUBapp_TEMPLATE_base` 2.39.2 → 2.40.0 : même règle appliquée au
+  skill `data-generate` (voie A.2 : seed à n=5 avant le volume cible +
+  anti-pattern).
+- Validé par micro-test subagents (contrôle sans règle : seed 200k direct ;
+  avec règle : run réduit 5/5 avant montée).
+
 ## [0.85.38] - 23 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.103.1 — vue santé : fix latences (états Docker batchés en thread)
