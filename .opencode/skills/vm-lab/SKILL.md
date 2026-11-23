@@ -68,6 +68,7 @@ Puis diagnostic libre : santé (`curl localhost:8000/api/health`), apps du clien
 3. **Périmètre** : `destroy` ne touche que `build/vm-lab/<nom>` — ne jamais y déroger, jamais toucher `build/fresh-install/`.
 4. **Hygiène disque** : `list` avant/après ; détruis les labos obsolètes (⚠ >7j) ; max 2 labos simultanés.
 5. **Pas de secrets clients persistés** dans les labos au-delà du nécessaire — destroy après diagnostic.
+6. **Petit nombre d'abord** : tout test/benchmark en volume (injection de données, restore, run de perf, génération en masse) commence par un run à échelle réduite — même workflow, petit nombre (ex. 5 items, 1 table, 1 itération) — pour valider la chaîne bout-en-bout. On ne monte au volume cible qu'après un run réduit vert : un run massif qui échoue sur une erreur détectable à n=5, c'est du temps perdu.
 
 ## Pièges capitalisés (test fresh-install, 17 août 2026)
 
@@ -80,6 +81,7 @@ Puis diagnostic libre : santé (`curl localhost:8000/api/health`), apps du clien
 | `INITIALISE.py --profile` interactif | `--yes` (template ≥ v2.14.0) |
 | `install.sh`/`hubctl init` prompts | réponses par défaut pipées (`printf '\n\n\n\n'`) |
 | Runs longs tués par le timeout du lanceur | `setsid nohup … < /dev/null &` + polling du rapport |
+| Run massif (benchmark/injection/restore) lancé d'emblée → échoue en pleine exécution sur une erreur de workflow | Run réduit d'abord (petit nombre : 5 items / 1 table / 1 itération) pour valider le workflow, puis montée au volume cible (règle 6) |
 
 ## Limites actuelles
 
