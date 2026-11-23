@@ -1,3 +1,17 @@
+## [0.85.34] - 23 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.101.0 — audit : heatmap bornée à now + recherche uptime + paginations
+
+- Pointeur sous-module `HUB_base` : f6015423 → 6694a183 (release 3.101.0, minor).
+- Contenu : fix heatmap « Activité du parc » de la page Audit — les sessions
+  ouvertes ne remplissent plus les cellules futures du jour courant (clamp à
+  `now` + cleanup stale dans `/api/audit/usage/heatmap`, tests déterministes) ;
+  onglet « Uptime utilisateurs » : recherche filtrée triée alphabétiquement à la
+  place du select non trié ; onglet « Sessions » : deux cartes séparées paginées
+  (50/page, plus d'ascenseur commun, code mort supprimé) ; liste « En ce moment »
+  paginée par 8 (compteur total inchangé).
+
+---
 ## [0.85.33] - 22 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.100.1 — vue santé : filtre au re-rendu + fixes responsive mobile
