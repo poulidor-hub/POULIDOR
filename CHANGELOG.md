@@ -1,3 +1,17 @@
+## [0.85.35] - 23 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.102.0 — vue santé : vignettes à hauteur stable, menu ⋯ ancré au coin, confirmation Redémarrer
+
+- Pointeur sous-module `HUB_base` : 6694a183 → b0ad3a67 (release 3.102.0, minor).
+- Contenu : fix UX du menu d'actions ⋯ de la vue santé — les vignettes ont
+  désormais une hauteur constante dès le premier rendu (slots cachés pour
+  version/conteneurs/chip atelier + min-heights corps/footer), le bouton ⋯ est
+  ancré au coin bas-droit de la carte (plus jamais wrappé seul sur une ligne),
+  le menu s'ouvre au-dessus du bouton (flip inversé) : les vagues de chargement
+  ne font plus glisser la liste sous le curseur (fin des misclicks
+  « Logs → Redémarrer »). « Redémarrer » demande confirmation comme « Arrêter ».
+
+---
 ## [0.85.34] - 23 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.101.0 — audit : heatmap bornée à now + recherche uptime + paginations
