@@ -1,3 +1,21 @@
+## [0.85.36] - 23 novembre 2026
+
+### ⚡ Benchmark GED v0.4.0 — validation réelle & stress (38/0, 15k docs)
+
+- Nouveau doc `docs/performance/bench-ged-2026-11-23.md` : campagne complète sur labo VM
+  type client (Hub 3.100.1 + GED 0.4.0 auto-enregistrée, données 100 % synthétiques seed 42).
+- Phase 1 fonctionnelle : **38 PASS / 0 FAIL** — cycle document complet (extraction, OCR,
+  versioning, soft delete), Meili + repli SQL dégradé, garde-fous (SHA-256, bornes 50 Mo/10
+  fichiers, metadata), cloisonnement RH/médico-social fail-closed, échéances J-30, purge RGPD.
+- Stress S1-S5 à 15 238 docs : search plat ~700 rps (p95 24-28 ms, 0 erreur à c=200),
+  upload 80-100 Mo/s (borne 50 Mo appliquée proprement), rebuild Meili 2,1 s @15k,
+  OCR 12,8 scans/min (texte indexé vérifié), repli dégradé ×7,7 mais 200 OK partout,
+  charge mixte 0 erreur à c=200.
+- Découvertes documentées : **BUG-01** (type_code avec underscore accepté à la création mais
+  refusé au stockage → 422 uploads), knob `GED_WORKER_POLL_MS` documenté mais absent du
+  compose (inerte), ingestion worker bornée par le poll (défaut 2 000 ms ≈ 0,5 job/s).
+
+---
 ## [0.85.35] - 23 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.102.0 — vue santé : vignettes à hauteur stable, menu ⋯ ancré au coin, confirmation Redémarrer
