@@ -1,3 +1,15 @@
+## [0.86.3] - 24 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.104.2 — launcher : chip « Désactivées », apps désactivées masquées par défaut
+
+- Pointeur sous-module `HUB_base` : 1f38bf52 → d7fca418 (release 3.104.2, patch).
+- Contenu : le launcher « Mes Applications » masque désormais les 22 apps
+  désactivées (`is_active=false`, cartes grisées « En maintenance ») par
+  défaut — la vue principale ne montre que les apps utilisables. Chip
+  « Désactivées » dans la barre de filtres pour les afficher à la demande
+  (préférence mémorisée).
+
+---
 ## [0.86.2] - 24 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.104.1 — vue santé : périmètre du rendu d'attente aligné sur /apps/health
