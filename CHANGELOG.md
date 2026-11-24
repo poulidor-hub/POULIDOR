@@ -1,3 +1,21 @@
+## [0.86.4] - 25 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.104.3 — sécurité : jeton GitHub non journalisé ni diffusé, hôte des applications validé
+
+- Pointeur sous-module `HUB_base` : d7fca418 → 8dd5ad16 (release 3.104.3, patch).
+- Contenu : deux correctifs de sécurité du Hub —
+  - la valeur d'un réglage sensible (jeton GitHub) n'est plus journalisée en clair
+    ni diffusée par SSE à tous les utilisateurs connectés ; la vérification TLS est
+    réactivée sur les cinq appels vers l'API GitHub ;
+  - l'hôte déclaré par une application (`custom_host`, allocation de ports) passe par
+    un validateur unique (422 si mal formé), et une `proxy_pass` non conforme ne produit
+    plus de vhost dans la configuration nginx générée.
+- Branches fusionnées dans `HUB_base` : `fix/settings-secret-leak`, `fix/routing-host-injection`.
+- Aucun autre pointeur ne bouge (HUBsocle, HUBapp_TEMPLATE_base, HUBCSS, Hubctl, hub-mcp).
+- **Action après mise à jour** : faire tourner le jeton d'accès GitHub, qui a pu être
+  journalisé ou diffusé avant cette version.
+
+---
 ## [0.86.3] - 24 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.104.2 — launcher : chip « Désactivées », apps désactivées masquées par défaut
