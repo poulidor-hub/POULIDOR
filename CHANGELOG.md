@@ -1,3 +1,15 @@
+## [0.86.2] - 24 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.104.1 — vue santé : périmètre du rendu d'attente aligné sur /apps/health
+
+- Pointeur sous-module `HUB_base` : 1f38bf52 (release 3.104.1, patch, au-dessus
+  de 3.104.0 « register idempotent M2M » de la session parallèle).
+- Contenu : fix du flash au chargement de la vue santé — la vague d'attente
+  (`GET /apps/all`) filtre désormais sur le même périmètre que le sondage
+  (`is_active && !is_unmanaged`) : plus d'affichage de 37 apps qui se réduisaient
+  à 16 au rendu final.
+
+---
 ## [0.86.1] - 24 novembre 2026
 
 ### 📣 Pour les utilisateurs
