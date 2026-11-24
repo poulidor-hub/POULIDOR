@@ -1,3 +1,23 @@
+## [0.86.1] - 24 novembre 2026
+
+### 📣 Pour les utilisateurs
+
+- **Amélioré** : les applications du parc lançant plusieurs instances (API + workers) démarrent
+  désormais sans se disputer leurs identifiants — plus de fausses alertes « secret invalide »
+  au lancement, des logs de boot silencieux.
+
+### ⚡ Pointeurs sous-modules
+
+- HUBsocle 2.40.0 — registry multi-instances : écritures atomiques (credentials + JWKS, tmp
+  unique inter-conteneurs), resync sous flock avec adoption du fichier partagé, register
+  idempotent (`X-Hub-Register-Idempotent` / `secret_rotated:false`), env
+  `HUB_CLIENT_STORAGE_DIR` ; parité Rust/Python complète (139 tests Rust + 442 Python).
+- HUB_base 3.104.0 — register idempotent : sur preuve M2M valide du SA owner, réinscription
+  sans rotation du secret (`secret_rotated:false`) ; tous les autres chemins inchangés ;
+  5 tests idempotents à effets réels.
+- GED 0.7.0 (hors sous-modules) — volume partagé `hub_shared_state`, crate socle 2.40.0
+  re-vendorée, config app migrée côté app, fusion avec l'auto-scaling vague 2.1 (161 tests).
+
 ## [0.86.0] - 23 novembre 2026
 
 ### ⚡ Règle « petit nombre d'abord » pour tests/benchmarks — pointeur template 2.40.0
