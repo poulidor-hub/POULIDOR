@@ -39,7 +39,7 @@ scripts/campagne-flotte/rapport-campagne.*
 docs/migrationv1_rapport/
 docs/handover/
 /docs/campagne-flotte/REX-*.md
-docs/runbook-exemple-app-apps-socle.md
+docs/runbook-*.local.md
 
 # Artefacts internes v3 — conservés localement, jamais publiés
 /docs/superpowers/
