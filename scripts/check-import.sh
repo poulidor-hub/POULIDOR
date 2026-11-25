@@ -93,8 +93,9 @@ section_s1() {
 
     if [ -f .gitmodules ]; then pass ".gitmodules présent"; else fail ".gitmodules absent"; fi
 
+    local -a sous_modules=(HUB_base HUBCSS hub-mcp HUBapp_TEMPLATE_base hubctl_src HUBsocle)
     local sm
-    for sm in HUB_base HUBCSS hub-mcp HUBapp_TEMPLATE_base hubctl_src; do
+    for sm in "${sous_modules[@]}"; do
         if [ -d "$sm" ] && [ -n "$(ls -A "$sm" 2>/dev/null)" ]; then
             pass "sous-module '$sm' initialisé"
         else
@@ -111,28 +112,44 @@ section_s1() {
         elif [ "$n_shifted" -gt 0 ]; then
             warn "$n_shifted sous-module(s) décalé(s) du commit pointé"
         else
-            pass "git submodule status : les 5 sous-modules sont alignés"
+            pass "git submodule status : les ${#sous_modules[@]} sous-modules sont alignés"
         fi
     else
         warn "git indisponible ou pas un dépôt — skip git submodule status"
     fi
 
-    # B1 : manifest.json vs .gitmodules (hubctl_src manquant dans manifest)
+    # B1 : manifest.json vs .gitmodules (tous les sous-modules n'y sont pas listés)
     if [ -f manifest.json ] && command -v python3 >/dev/null 2>&1; then
-        local n_manifest
+        local n_manifest absents=""
         n_manifest=$(python3 -c "import json; print(len(json.load(open('manifest.json'))))" 2>/dev/null || echo 0)
-        if [ "$n_manifest" -lt 5 ]; then
-            warn "B1 : manifest.json ne liste que $n_manifest sous-module(s) sur 5 — hubctl_src absent. Les outils qui s'appuient sur manifest.json oublient le lanceur hubctl."
+        if [ "$n_manifest" -lt "${#sous_modules[@]}" ]; then
+            for sm in "${sous_modules[@]}"; do
+                python3 -c 'import json, sys; sys.exit(0 if sys.argv[1] in json.load(open("manifest.json")) else 1)' "$sm" 2>/dev/null \
+                    || absents="${absents:+$absents, }$sm"
+            done
+            warn "B1 : manifest.json ne liste que $n_manifest sous-module(s) sur ${#sous_modules[@]} — absent(s) : $absents. Les outils qui s'appuient sur manifest.json les ignorent (dont le lanceur hubctl si hubctl_src est absent)."
         else
             pass "manifest.json cohérent avec .gitmodules"
         fi
     fi
 
-    # Accès SSH GitHub
+    # Accès GitHub (SSH ou HTTPS) : les sous-modules sont en HTTPS ; un déploiement
+    # par clé de déploiement garde l'accès SSH. Tant que les dépôts sont privés,
+    # l'HTTPS exige un gestionnaire d'identifiants configuré sur le poste.
+    local acces_ssh=0 acces_https=0
     if ssh -o BatchMode=yes -o ConnectTimeout=3 -T git@github.com 2>&1 | grep -qi "successfully authenticated"; then
-        pass "accès SSH GitHub fonctionnel"
+        acces_ssh=1
+    fi
+    if GIT_TERMINAL_PROMPT=0 timeout 15 git ls-remote --exit-code \
+            https://github.com/POULIDOR-Audit-Developpement/POULIDOR.git HEAD >/dev/null 2>&1; then
+        acces_https=1
+    fi
+    if [ "$acces_ssh" -eq 1 ] && [ "$acces_https" -eq 1 ]; then
+        pass "accès GitHub fonctionnel (SSH et HTTPS)"
+    elif [ "$acces_ssh" -eq 1 ] || [ "$acces_https" -eq 1 ]; then
+        pass "accès GitHub fonctionnel ($([ "$acces_ssh" -eq 1 ] && printf SSH || printf HTTPS))"
     else
-        warn "SSH GitHub non vérifié ou clé absente — clone/fetch des sous-modules impossible sans ça"
+        warn "accès GitHub non vérifié (ni SSH ni HTTPS) — clone/fetch des sous-modules impossible sans ça"
     fi
 }
 
