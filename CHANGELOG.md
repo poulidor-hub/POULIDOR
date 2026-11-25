@@ -1,3 +1,29 @@
+## [0.86.6] - 25 novembre 2026
+
+### ⚡ Pointeur template 2.40.1 — Makefile : compose relit `.env` à chaud (fin du build sur la version de socle précédente)
+
+- Pointeur sous-module `HUBapp_TEMPLATE_base` : bdadcfba → 8a855864 (release 2.40.1, patch).
+- Contenu : à chaque montée de socle, `make build` construisait l'API sur
+  `poulidor/socle-api:<version précédente>` alors que `sync-env` venait d'aligner
+  `APP_SOCLE_VERSION` — il fallait lancer le build deux fois. Cause racine :
+  `include .env` + `export` figent les valeurs au parsing de make, `sync-env`
+  réécrit le `.env` pendant la même invocation, et l'environnement exporté
+  (périmé) prime sur le `.env` pour l'interpolation compose. Même classe que le
+  contournement hubctl 0.25.1 sur `FRONTEND_HTTPS_PORT`.
+- Correctif dans le template : `COMPOSE`/`COMPOSE_DEV` retirent de l'environnement
+  de compose les clés du `.env` (format canonique `CLE=…`), qui relit alors le
+  fichier à chaud. Couvre aussi le régime « clés d'allocation vides »
+  (`API_PORT=`, `APP_SUBNET=` → « APP_SUBNET manquant » au build). Inchangé :
+  surcharge `make … CLE=valeur`, configuration du CLI et de compose
+  (`COMPOSE_*`, `DOCKER_*`), export des autres recettes.
+- Tests : 11 tests de régression exécutent le vrai Makefile (rouge sur 2.40.0) ;
+  vrai `docker compose build` vérifié.
+- **Apps existantes non couvertes** : les 38 Makefiles d'apps portent le bloc
+  `include .env` + `export` et le même défaut. Le Makefile n'est pas en
+  remplacement automatique (`migrate-app-template`, B.2 : comparer et fusionner) :
+  le correctif n'atteint une app qu'à sa prochaine migration template. D'ici là,
+  un `make build` doit être relancé après une montée de socle.
+
 ## [0.86.5] - 25 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.105.0 — sécurité : inscription des applications fermée à toute entrée publique, jeton du propriétaire requis
