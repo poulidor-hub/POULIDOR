@@ -1,0 +1,10 @@
+# Adresses d'auteur et de committer autorisées — lues par scripts/hooks/check-author.sh
+# Une expression rationnelle (POSIX étendue) par ligne, comparée sans tenir
+# compte de la casse. Lignes vides et commentaires (#) ignorés.
+# Toute autre adresse : commit refusé (contournement explicite : OSS_AUTHOR_SKIP=1).
+
+# Mainteneur — commits à venir et historique réécrit
+^117841560\+Poutchouli@users\.noreply\.github\.com$
+
+# Jellycode, agent de développement du parc
+^dev@poulidor\.fr$
