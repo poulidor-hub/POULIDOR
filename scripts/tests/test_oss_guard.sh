@@ -309,6 +309,78 @@ echo "$OUT" | grep -qF "et 11 autres, non listées" || fail "11 bis : la troncat
 pass "11 bis plus de 50 correspondances : liste tronquée et annoncée, comptes exacts"
 git -C "$R" reset -q --hard "$DEPART"
 
+# ══ Les exceptions : .oss-guard-allow, à la racine du dépôt ══════════════════
+# Un fichier listé y référence fonctionnellement un outil interne : son contenu
+# n'est pas signalé. Chemin exact seulement. Restent examinés : les messages de
+# commit, les chemins ajoutés ou renommés, et un chemin suivi qui contient une
+# valeur interdite. Le compte final annonce les fichiers ignorés.
+ALLOW="$R/.oss-guard-allow"
+mkdir "$R/outils"
+printf 'outil = %s\n' "$LITTERAL" > "$R/outils/reference.txt"
+printf 'outil = %s\n' "$LITTERAL" > "$R/outils/second.txt"
+commit "ajout de deux fichiers qui référencent l'outil"
+
+# ── 11 ter. sans fichier d'exceptions : rien ne change ───────────────────────
+[ ! -e "$ALLOW" ] || fail "11 ter fixture : .oss-guard-allow ne devrait pas exister"
+run_garde scan-tree "$MOTIFS"
+doit_refuser "11 ter scan-tree sans exceptions" "outils/reference.txt:1" "outils/second.txt:1"
+printf '%s\n' "$OUT" | grep -q "ignoré" && fail "11 ter : le compte final parle d'exceptions alors qu'il n'y en a pas — sortie : $OUT"
+run_garde scan-range "$MOTIFS" HEAD~1..HEAD
+doit_refuser "11 ter scan-range sans exceptions" "outils/reference.txt:1" "outils/second.txt:1"
+pass "11 ter fichier d'exceptions absent : comportement inchangé"
+
+# ── 11 quater. fichiers listés : non signalés en scan-tree comme en scan-range ──
+# Espaces de fin de ligne, fin de ligne CRLF, commentaire, ligne vide, et un
+# chemin qui ne correspond à aucun fichier.
+printf '# exceptions : fichiers qui référencent fonctionnellement un outil interne\n\noutils/reference.txt   \n   \noutils/second.txt\r\n# commentaire\noutils/absent.txt\n' > "$ALLOW"
+commit "exceptions"
+run_garde scan-tree "$MOTIFS"
+doit_accepter "11 quater scan-tree"
+printf '%s\n' "$OUT" | grep -qF "2 fichier(s) ignoré(s) par .oss-guard-allow" \
+    || fail "11 quater scan-tree : compte final sans « 2 fichier(s) ignoré(s) par .oss-guard-allow » — sortie : $OUT"
+printf '%s\n' "$OUT" | grep -q '^  ' && fail "11 quater scan-tree : une ligne de détail est affichée alors que tout est ignoré — sortie : $OUT"
+run_garde scan-range "$MOTIFS" HEAD~2..HEAD
+doit_accepter "11 quater scan-range, ajout des fichiers puis des exceptions"
+printf '%s\n' "$OUT" | grep -qF "2 fichier(s) ignoré(s) par .oss-guard-allow" \
+    || fail "11 quater scan-range : compte final sans « 2 fichier(s) ignoré(s) par .oss-guard-allow » — sortie : $OUT"
+pass "11 quater fichiers listés : ignorés en scan-tree et en scan-range ; commentaire, ligne vide, espaces de fin et CRLF ne comptent pas"
+
+# ── 11 quinquies. même préfixe, non listé : examiné ──────────────────────────
+cp "$R/outils/reference.txt" "$R/outils/reference.txt.bak"
+printf 'outil = %s\n' "$LITTERAL" > "$R/outils/reference.txt2"
+commit "deux fichiers au préfixe d'un fichier listé"
+run_garde scan-tree "$MOTIFS"
+doit_refuser "11 quinquies scan-tree" "outils/reference.txt.bak:1" "outils/reference.txt2:1" "2 fichier(s) ignoré(s) par .oss-guard-allow"
+run_garde scan-range "$MOTIFS" HEAD~1..HEAD
+doit_refuser "11 quinquies scan-range" "outils/reference.txt.bak:1" "outils/reference.txt2:1"
+git -C "$R" rm -q outils/reference.txt.bak outils/reference.txt2
+commit "retrait des fichiers au préfixe"
+pass "11 quinquies un fichier qui ne partage que le préfixe d'un chemin listé reste examiné"
+
+# ── 11 sexies. un commit qui touche un fichier listé : message et chemin restent examinés ──
+echo precis >> "$R/outils/reference.txt"
+commit "message qui cite $LITTERAL"              # ligne ajoutée propre, message fautif
+run_garde scan-range "$MOTIFS" HEAD~1..HEAD
+doit_refuser "11 sexies message d'un commit qui touche un fichier listé" "message de commit" "motif n°2"
+git -C "$R" mv outils/second.txt "outils/$LITTERAL.txt"
+commit "renommage d'un fichier listé vers un chemin interdit"
+run_garde scan-range "$MOTIFS" HEAD~1..HEAD
+doit_refuser "11 sexies renommage d'un fichier listé" "chemin renommé" "motif n°2"
+pass "11 sexies message de commit et chemin renommé : examinés même pour un fichier listé"
+
+# ── 11 septies. l'exception porte sur le contenu : un chemin suivi fautif reste signalé ──
+# Le fichier d'exceptions est ici non suivi : lister un chemin fautif y écrirait
+# la valeur interdite.
+git -C "$R" rm -q --cached .oss-guard-allow
+printf 'outils/%s.txt\n' "$LITTERAL" >> "$ALLOW"
+run_garde scan-tree "$MOTIFS"
+doit_refuser "11 septies chemin suivi d'un fichier listé" "chemin suivi" "motif n°2" "2 fichier(s) ignoré(s) par .oss-guard-allow"
+[ "$(printf '%s\n' "$OUT" | grep -c '^  ')" -eq 1 ] || fail "11 septies : seule la ligne du chemin devrait être en détail — sortie : $OUT"
+pass "11 septies un chemin suivi qui contient une valeur interdite reste signalé, même pour un fichier listé"
+
+rm -f "$ALLOW"
+git -C "$R" reset -q --hard "$DEPART"
+
 # ══ Le hook pre-push, simulé par son entrée standard ══════════════════════════
 git init -q -b main --bare "$TMP/origin.git"
 git -C "$R" remote add origin "$TMP/origin.git"
@@ -346,6 +418,23 @@ run_hook "$MOTIFS" "refs/heads/main $DEUX refs/heads/main $LOIN" "refs/heads/aut
 doit_refuser "13 seconde référence fautive" "refs/heads/autre" "quatre.txt:1"
 git -C "$R" reset -q --hard "$DEUX"
 pass "13 pre-push : plage propre → acceptation ; plusieurs références examinées"
+
+# ── 13 ter. un fichier listé dans .oss-guard-allow passe le hook ; son message, non ──
+printf 'hote = %s\n' "$LITTERAL" > "$R/reference.txt"
+printf '# exception\nreference.txt\n' > "$R/.oss-guard-allow"
+commit "fichier listé dans les exceptions"
+LISTE="$CIBLE"
+run_hook "$MOTIFS" "refs/heads/main $LISTE refs/heads/main $LOIN"
+doit_accepter "13 ter fichier listé"
+printf '%s\n' "$OUT" | grep -qF "1 fichier(s) ignoré(s) par .oss-guard-allow" \
+    || fail "13 ter : compte final sans « 1 fichier(s) ignoré(s) par .oss-guard-allow » — sortie : $OUT"
+echo y >> "$R/reference.txt"
+commit "message fautif sur un fichier listé : $LITTERAL"
+run_hook "$MOTIFS" "refs/heads/main $CIBLE refs/heads/main $LOIN"
+doit_refuser "13 ter message fautif" "message de commit" "refs/heads/main"
+git -C "$R" rm -q reference.txt .oss-guard-allow
+commit "retrait du fichier listé"
+pass "13 ter pre-push : le contenu d'un fichier listé passe, le message de commit non"
 
 # ── 13 bis. une commande de l'analyse qui lirait l'entrée standard ne doit pas voler les lignes suivantes ─
 # Enveloppeur de test : il consomme l'entrée standard avant de lancer la vraie garde.

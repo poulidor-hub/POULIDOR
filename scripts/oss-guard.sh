@@ -20,6 +20,17 @@
 #       pas examinées : un commit de nettoyage ne doit pas être bloqué par les
 #       valeurs qu'il retire.
 #
+# Exceptions — .oss-guard-allow, à la racine du dépôt examiné :
+#   un chemin exact par ligne, relatif à la racine ; lignes vides et
+#   commentaires (#) ignorés ; espaces de fin de ligne retirés. Fichier absent :
+#   aucune exception. Le CONTENU d'un fichier listé n'est pas signalé, en
+#   scan-tree comme en scan-range (lignes ajoutées). Un fichier qui ne partage
+#   que le préfixe d'un chemin listé reste examiné. Restent examinés dans tous
+#   les cas : les messages de commit, les chemins ajoutés ou renommés, et — en
+#   scan-tree — un chemin suivi qui contient une valeur interdite, même celui
+#   d'un fichier listé. Le compte final annonce les fichiers ignorés par
+#   exception ; aucune ligne correspondante n'est affichée pour autant.
+#
 # Le fichier de motifs tient une expression rationnelle étendue par ligne ;
 # lignes vides et commentaires (#) ignorés. La comparaison ne tient pas compte
 # de la casse : un nom s'écrit en slug, en CamelCase ou en majuscules. Il reste
@@ -85,6 +96,34 @@ for i in "${!MOTIFS[@]}"; do
     if [ "$RC" -gt 1 ]; then sortir2 "motif n°${NUMS[$i]} invalide (expression rationnelle incorrecte) — $fichier"; fi
     if [ "$RC" -eq 0 ]; then sortir2 "motif n°${NUMS[$i]} accepte la chaîne vide : il correspondrait à tout — $fichier"; fi
 done
+
+# ── Les exceptions : .oss-guard-allow, à la racine ────────────────────────────
+# EXEMPTS : chemins exacts, relatifs à la racine, dont le contenu n'est pas
+# signalé. Lignes vides et commentaires ignorés ; espaces de fin de ligne retirés.
+# IGNORES et n_ignores : fichiers et correspondances épargnés, pour le compte final.
+declare -A EXEMPTS=() IGNORES=()
+n_ignores=0
+if [ -f "$racine/.oss-guard-allow" ]; then
+    while IFS= read -r ligne || [ -n "$ligne" ]; do
+        ligne="${ligne%"${ligne##*[![:space:]]}"}"     # espaces de fin de ligne
+        case "$ligne" in
+            ''|'#'*) ;;
+            *) EXEMPTS["$ligne"]=1 ;;
+        esac
+    done < "$racine/.oss-guard-allow"
+fi
+# annoncer_ignores : le compte des fichiers épargnés par exception (rien s'il n'y en a pas).
+annoncer_ignores() {
+    [ "$n_ignores" -gt 0 ] || return 0
+    echo "ℹ oss-guard : ${#IGNORES[@]} fichier(s) ignoré(s) par .oss-guard-allow ($n_ignores correspondance(s) non signalée(s))."
+}
+# ligne_exemptee <métadonnées d'une ligne ajoutée> : la ligne appartient à un
+# fichier listé dans .oss-guard-allow ; renseigne alors CHEMIN_EXEMPT.
+ligne_exemptee() {
+    local genre
+    IFS=$'\t' read -r genre _ CHEMIN_EXEMPT _ <<< "$1"
+    [ "$genre" = A ] && [ -n "${EXEMPTS[$CHEMIN_EXEMPT]:-}" ]
+}
 
 # ── Extraits masqués ─────────────────────────────────────────────────────────
 # delimiteur <motif> : un délimiteur d'expression sed absent du motif.
@@ -175,6 +214,7 @@ rapporter_chemin() {
 
 scan_tree() {
     local i trouve chemin total=0 rapide_contenu
+    IGNORES=(); n_ignores=0
     sans_e git -C "$racine" -c core.quotePath=false ls-files > "$tmp/chemins"
     [ "$RC" -eq 0 ] || sortir2 "impossible de lire les chemins suivis de « $racine » (git ls-files, code $RC)"
     # Passe rapide : rien dans le contenu ni dans les chemins → terminé.
@@ -193,9 +233,15 @@ scan_tree() {
         sans_e git -C "$racine" -c core.quotePath=false grep -n -i -I -E -e "${MOTIFS[$i]}" -- . > "$tmp/arbre"
         [ "$RC" -le 1 ] || sortir2 "impossible de lire les fichiers suivis de « $racine » (git grep, code $RC)"
         while IFS= read -r trouve; do
+            chemin="$(chemin_de "$trouve")"
+            if [ -n "${EXEMPTS[$chemin]:-}" ]; then      # exception : contenu non signalé
+                IGNORES["$chemin"]=1; n_ignores=$((n_ignores + 1))
+                continue
+            fi
             total=$((total + 1))
             [ "$total" -gt "$MAX_RAPPORTS" ] || rapporter_arbre "$trouve" "$i"
         done < "$tmp/arbre"
+        # Un chemin suivi n'est pas couvert par une exception.
         sans_e grep -i -E -e "${MOTIFS[$i]}" "$tmp/chemins" > "$tmp/chemins.trouves"
         [ "$RC" -le 1 ] || sortir2 "lecture impossible (grep, code $RC)"
         while IFS= read -r chemin; do
@@ -206,9 +252,11 @@ scan_tree() {
     if [ "$total" -gt "$MAX_RAPPORTS" ]; then echo "  … et $((total - MAX_RAPPORTS)) autres, non listées."; fi
     if [ "$total" -eq 0 ]; then
         echo "✅ oss-guard : aucune valeur interdite dans les fichiers suivis (${#MOTIFS[@]} motifs)."
+        annoncer_ignores
         return 0
     fi
     echo "✗ oss-guard : $total correspondance(s) de valeurs interdites dans les fichiers suivis."
+    annoncer_ignores
     return 1
 }
 
@@ -244,7 +292,8 @@ commits_concernes() {
 }
 
 scan_range() {
-    local plage="$1" i paires trouve n total=0 nb
+    local plage="$1" i paires trouve n meta total=0 nb
+    IGNORES=(); n_ignores=0
     : > "$tmp/lignes"; : > "$tmp/chemins"
     : > "$tmp/numeros.lignes"; : > "$tmp/numeros.chemins"
 
@@ -314,21 +363,28 @@ scan_range() {
             while IFS= read -r trouve; do
                 n="${trouve%%:*}"
                 [ $((n % 2)) -eq 0 ] || continue     # ligne impaire : métadonnées
+                meta="$(sed -n "$((n - 1))p" "$tmp/$paires")"
+                if [ "$paires" = lignes ] && ligne_exemptee "$meta"; then
+                    IGNORES["$CHEMIN_EXEMPT"]=1; n_ignores=$((n_ignores + 1))
+                    continue
+                fi
                 total=$((total + 1))
                 echo "$n" >> "$tmp/numeros.$paires"
                 [ "$total" -le "$MAX_RAPPORTS" ] || continue
-                rapporter "${trouve#*:}" "$(sed -n "$((n - 1))p" "$tmp/$paires")" "$i"
+                rapporter "${trouve#*:}" "$meta" "$i"
             done < "$tmp/trouves"
         done
     done
-    if [ "$total" -eq 0 ]; then     # la passe rapide avait vu des métadonnées
+    if [ "$total" -eq 0 ]; then     # la passe rapide n'avait vu que des lignes épargnées
         echo "✅ oss-guard : rien d'interdit dans $nb commit(s) examiné(s) (plage « $plage »)."
+        annoncer_ignores
         return 0
     fi
     if [ "$total" -gt "$MAX_RAPPORTS" ]; then echo "  … et $((total - MAX_RAPPORTS)) autres, non listées."; fi
     # Commits distincts concernés, sur TOUTES les correspondances (une passe par fichier).
     nb="$(commits_concernes)"
     echo "✗ oss-guard : $total correspondance(s) de valeurs interdites dans $nb commit(s) (plage « $plage »)."
+    annoncer_ignores
     return 1
 }
 
