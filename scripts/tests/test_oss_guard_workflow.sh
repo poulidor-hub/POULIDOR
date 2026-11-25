@@ -132,7 +132,9 @@ printf '# doc\nchemin doc : /home/utilisateur/projet et /home/user/src, ou /home
 commit "chemins d'exemple"
 lancer 3
 [ "$RC" -eq 0 ] || fail "chemins d'exemple de la documentation : le pas 3 devrait réussir — sortie : $OUT"
-printf 'XDG=/home/jean.dupont/.local\n' > "$R/env.sh"
+# Le chemin fautif est assemblé à l'exécution : ce fichier de test ne doit lui-même
+# citer aucun chemin personnel, sous peine d'être signalé par le pas qu'il vérifie.
+printf 'XDG=/home/%s/.local\n' 'jean.dupont-test' > "$R/env.sh"
 commit "chemin personnel"
 lancer 3
 [ "$RC" -ne 0 ] || fail "chemin personnel dans un fichier suivi : le pas 3 devrait échouer — sortie : $OUT"

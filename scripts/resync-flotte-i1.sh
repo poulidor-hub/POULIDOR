@@ -15,7 +15,7 @@
 #
 # Usage : bash resync-flotte-i1.sh [app1 app2 ...]   (sans argument = toutes)
 set -uo pipefail
-POULIDOR=/home/kkleskk/MyCOMPANY/HUB_stack/POULIDOR
+POULIDOR="${POULIDOR:-$HOME/MyCOMPANY/HUB_stack/POULIDOR}"
 APPS_DIR="$POULIDOR/APPS"
 ISOLATE="$POULIDOR/scripts/parc-isolate"
 LOG="/tmp/opencode/resync-flotte-i1-$(date +%H%M%S).log"

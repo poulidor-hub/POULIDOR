@@ -15,8 +15,9 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-# Décommenter/adapter si le dépôt POULIDOR ne vit pas au chemin par défaut :
-#Environment=POULIDOR_DIR=/chemin/vers/POULIDOR
+# Chemin du dépôt POULIDOR. Le script le prend sinon dans le HOME de
+# l'utilisateur qui le lance — ici root, sans HOME utile : indiquer le chemin.
+#Environment=POULIDOR_DIR=/home/utilisateur/MyCOMPANY/HUB_stack/POULIDOR
 ExecStart=/usr/local/sbin/hub-vpn-boot-sync.sh
 # Couvre l'attente hub-db (5 min max) + le sync lui-même.
 TimeoutStartSec=420
