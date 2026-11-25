@@ -1,3 +1,17 @@
+## [0.88.0] - 25 novembre 2026
+### ⚡ Neutralisation open source de l'arbre — valeurs d'exemple, HTTPS absolu, garde étendue, captures neutres
+- **Arbre du méta** : valeurs réelles (adresses IP, noms d'hôtes, identifiants de clients,
+  noms d'applications et d'outils privés) remplacées par des valeurs d'exemple ;
+  `.gitmodules`/`manifest.json` en HTTPS absolu ; `opencode.json` passe à `share: disabled` ;
+  une sauvegarde suivie quitte l'arbre ; 7 captures refaites sur banc neutre (noms d'exemple).
+- **Garde** : `scripts/oss-guard.sh` (scan insensible à la casse des motifs interdits, examen
+  des chemins et des messages, exceptions par `.oss-guard-allow`) ; workflow `oss-guard.yml`
+  réécrit (motifs servis par la variable de dépôt `OSS_FORBIDDEN_PATTERNS`) ;
+  `scripts/lib/url-scheme.sh` ; `scripts/migration-oss.sh` (surcharge `submodule.<nom>.url`
+  en SSH pour les déploiements par clé de déploiement) + banc de test.
+- **Pointeurs** : HUB_base 3.106.0, HUBsocle 2.40.1, HUBapp_TEMPLATE_base 2.40.2,
+  hubctl_src 0.20.5, hub-mcp 0.16.3 — passe de neutralisation « valeurs d'exemple »
+  dans les cinq sous-modules.
 ## [0.87.0] - 25 novembre 2026
 
 ### ⚡ Filet de sécurité du dépôt — hooks bloquants, garde d'identité, garde des valeurs interdites
