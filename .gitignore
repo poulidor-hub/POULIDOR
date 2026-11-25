@@ -26,6 +26,8 @@ docs/superpowers/
 
 # Agent debug Granite — config temporaire
 opencode.debug.json
+# Sauvegarde de opencode.json faite par OpenChamber : locale, jamais suivie
+opencode.json.openchamber.backup
 checkpoint/
 
 # Rapports du banc de campagne (générés à l'exécution par banc.runner)
