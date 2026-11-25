@@ -1,3 +1,31 @@
+## [0.87.0] - 25 novembre 2026
+
+### ⚡ Filet de sécurité du dépôt — hooks bloquants, garde d'identité, garde des valeurs interdites
+
+- **Hook de commit (`scripts/hooks/pre-commit-gitleaks.sh`)** : le commit est refusé quand
+  `gitleaks` est absent du poste, au lieu de passer en silence (contournement explicite :
+  `GITLEAKS_SKIP=1`). Appel à gitleaks corrigé pour la 8.30.1 (l'option `-q` n'existe plus
+  et faisait croire à un secret).
+- **Installateur (`scripts/hooks/install-hooks.sh [--all]`)** : idempotent, il chaîne son
+  bloc derrière un hook existant sans jamais l'écraser (l'ancienne version écrasait un hook
+  déjà chaîné quand on la relançait), refuse sept situations à risque avant toute écriture,
+  et avec `--all` couvre le méta et ses 6 sous-modules.
+- **Garde d'identité (`scripts/hooks/check-author.sh` + `allowed-authors.txt`)** : un commit
+  signé avec une adresse non autorisée est refusé (`OSS_AUTHOR_SKIP=1` pour passer outre).
+- **Garde des valeurs interdites (`scripts/oss-guard.sh`, `scripts/hooks/pre-push-oss-guard.sh`)** :
+  `scan-tree` et `scan-range` cherchent des motifs lus dans un fichier local, hors dépôt
+  (`~/.config/poulidor/oss-forbidden.txt` par défaut, jamais affiché) ; le hook `pre-push`
+  refuse un push qui apporte une valeur interdite dans un fichier suivi, un chemin ajouté
+  ou un message de commit.
+- **Faux positifs de référence** : `.gitleaksignore` (1 empreinte de fixture de test) ;
+  `gitleaks git --log-opts="main --full-history"` rend 0 finding. Les empreintes contiennent
+  le sha du commit : à régénérer après toute réécriture d'historique.
+- **Tests** : `scripts/tests/test_pre_commit_gitleaks.sh`, `test_install_hooks.sh`,
+  `test_check_author.sh`, `test_oss_guard.sh` — fixtures temporaires, avec de vrais
+  `git commit` et `git push` sur des dépôts locaux.
+
+- **Pointeurs** | `HUB_base` → **3.105.1** (filet de sécurité du dépôt : hook gitleaks bloquant, `.gitleaksignore`).
+
 ## [0.86.6] - 25 novembre 2026
 
 ### ⚡ Pointeur template 2.40.1 — Makefile : compose relit `.env` à chaud (fin du build sur la version de socle précédente)
