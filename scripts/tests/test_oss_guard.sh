@@ -158,6 +158,29 @@ git -C "$R" rm -q serveur.txt
 commit "retrait serveur"
 pass "6 second motif : expression rationnelle reconnue, numéro = ligne du fichier (commentaires et lignes vides sautés)"
 
+# ── 6 bis. la casse ne protège pas : un motif minuscule attrape ses variantes ─
+# Un nom s'écrit en slug, en CamelCase ou en majuscules : la comparaison ne tient
+# pas compte de la casse, et le rapport masque la variante elle-même.
+VARIANTE='Interdit-Hote-Fictif42'
+printf 'hote = %s\n' "$VARIANTE" > "$R/serveur.txt"
+mkdir "$R/dossier-$VARIANTE"
+echo propre > "$R/dossier-$VARIANTE/notes.md"
+commit "variante majuscule"
+run_garde scan-tree "$MOTIFS"
+doit_refuser "6 bis scan-tree" "serveur.txt:1" "motif n°6" "chemin suivi"
+printf '%s\n' "$OUT" | grep -qF -- "$VARIANTE" && fail "6 bis scan-tree : la variante est affichée en clair — sortie : $OUT"
+run_garde scan-range "$MOTIFS" HEAD~1..HEAD
+doit_refuser "6 bis scan-range" "serveur.txt:1" "chemin ajouté" "motif n°6"
+printf '%s\n' "$OUT" | grep -qF -- "$VARIANTE" && fail "6 bis scan-range : la variante est affichée en clair — sortie : $OUT"
+echo x >> "$R/serveur.txt"
+commit "message en majuscules : $VARIANTE"
+run_garde scan-range "$MOTIFS" HEAD~1..HEAD
+doit_refuser "6 bis message" "message de commit" "motif n°6"
+printf '%s\n' "$OUT" | grep -qF -- "$VARIANTE" && fail "6 bis message : la variante est affichée en clair — sortie : $OUT"
+git -C "$R" rm -q -r serveur.txt "dossier-$VARIANTE"
+commit "nettoyage"
+pass "6 bis comparaison sans casse : une variante majuscule d'un motif minuscule est refusée, et masquée"
+
 # ── 7. une ligne ajoutée dont le contenu commence par « ++ » n'est pas un en-tête ─
 printf '++ %s\n' "$LITTERAL" >> "$R/base.txt"
 commit "ligne qui ressemble à un en-tête"

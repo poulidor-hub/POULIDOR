@@ -21,10 +21,12 @@
 #       valeurs qu'il retire.
 #
 # Le fichier de motifs tient une expression rationnelle étendue par ligne ;
-# lignes vides et commentaires (#) ignorés. Il reste local : son contenu n'est
-# jamais affiché. Aucune ligne correspondante n'est affichée en entier : seul
-# un extrait masqué l'est (toutes les valeurs interdites y sont masquées, de
-# même que les adresses IP et les adresses e-mail).
+# lignes vides et commentaires (#) ignorés. La comparaison ne tient pas compte
+# de la casse : un nom s'écrit en slug, en CamelCase ou en majuscules. Il reste
+# local : son contenu n'est jamais affiché. Aucune ligne correspondante n'est
+# affichée en entier : seul un extrait masqué l'est (toutes les valeurs
+# interdites y sont masquées, de même que les adresses IP et les adresses
+# e-mail).
 #
 # Codes de sortie : 0 rien ; 1 au moins une correspondance ; 2 fichier de
 # motifs absent, vide ou inutilisable.
@@ -94,11 +96,11 @@ delimiteur() {
     printf '/'
 }
 # expr_sed <motif> <remplacement> : l'expression sed qui remplace toutes les
-# occurrences du motif.
+# occurrences du motif, sans tenir compte de la casse (comme la recherche).
 expr_sed() {
     local d; d="$(delimiteur "$1")"
-    if [ "$d" = / ]; then printf 's/(%s)/%s/g' "${1//\//\\/}" "$2"
-    else printf 's%s(%s)%s%s%sg' "$d" "$1" "$d" "$2" "$d"; fi
+    if [ "$d" = / ]; then printf 's/(%s)/%s/gI' "${1//\//\\/}" "$2"
+    else printf 's%s(%s)%s%s%sgI' "$d" "$1" "$d" "$2" "$d"; fi
 }
 # ecrire_masques <fichier> [rang d'un motif épargné] : le script sed qui
 # masque toutes les valeurs interdites (le motif épargné devient MARQUE), puis
@@ -176,25 +178,25 @@ scan_tree() {
     sans_e git -C "$racine" -c core.quotePath=false ls-files > "$tmp/chemins"
     [ "$RC" -eq 0 ] || sortir2 "impossible de lire les chemins suivis de « $racine » (git ls-files, code $RC)"
     # Passe rapide : rien dans le contenu ni dans les chemins → terminé.
-    sans_e git -C "$racine" grep -q -I -E "${TOUS[@]}" -- .
+    sans_e git -C "$racine" grep -q -i -I -E "${TOUS[@]}" -- .
     case "$RC" in
         0|1) rapide_contenu="$RC" ;;
         *) sortir2 "impossible de lire les fichiers suivis de « $racine » (git grep, code $RC)" ;;
     esac
-    sans_e grep -q -E "${TOUS[@]}" "$tmp/chemins"
+    sans_e grep -q -i -E "${TOUS[@]}" "$tmp/chemins"
     [ "$RC" -le 1 ] || sortir2 "lecture impossible (grep, code $RC)"
     if [ "$rapide_contenu" -eq 1 ] && [ "$RC" -eq 1 ]; then
         echo "✅ oss-guard : aucune valeur interdite dans les fichiers suivis (${#MOTIFS[@]} motifs)."
         return 0
     fi
     for i in "${!MOTIFS[@]}"; do
-        sans_e git -C "$racine" -c core.quotePath=false grep -n -I -E -e "${MOTIFS[$i]}" -- . > "$tmp/arbre"
+        sans_e git -C "$racine" -c core.quotePath=false grep -n -i -I -E -e "${MOTIFS[$i]}" -- . > "$tmp/arbre"
         [ "$RC" -le 1 ] || sortir2 "impossible de lire les fichiers suivis de « $racine » (git grep, code $RC)"
         while IFS= read -r trouve; do
             total=$((total + 1))
             [ "$total" -gt "$MAX_RAPPORTS" ] || rapporter_arbre "$trouve" "$i"
         done < "$tmp/arbre"
-        sans_e grep -E -e "${MOTIFS[$i]}" "$tmp/chemins" > "$tmp/chemins.trouves"
+        sans_e grep -i -E -e "${MOTIFS[$i]}" "$tmp/chemins" > "$tmp/chemins.trouves"
         [ "$RC" -le 1 ] || sortir2 "lecture impossible (grep, code $RC)"
         while IFS= read -r chemin; do
             total=$((total + 1))
@@ -297,9 +299,9 @@ scan_range() {
     ' "$tmp/noms"
 
     # 3. Une passe rapide, puis motif par motif — pour le numéro de motif.
-    sans_e grep -q -E "${TOUS[@]}" "$tmp/lignes"
+    sans_e grep -q -i -E "${TOUS[@]}" "$tmp/lignes"
     local rapide_l=$RC
-    sans_e grep -q -E "${TOUS[@]}" "$tmp/chemins"
+    sans_e grep -q -i -E "${TOUS[@]}" "$tmp/chemins"
     local rapide_c=$RC
     if [ "$rapide_l" -eq 1 ] && [ "$rapide_c" -eq 1 ]; then
         echo "✅ oss-guard : rien d'interdit dans $nb commit(s) examiné(s) (plage « $plage »)."
@@ -307,7 +309,7 @@ scan_range() {
     fi
     for i in "${!MOTIFS[@]}"; do
         for paires in lignes chemins; do
-            sans_e grep -n -E -e "${MOTIFS[$i]}" "$tmp/$paires" > "$tmp/trouves"
+            sans_e grep -n -i -E -e "${MOTIFS[$i]}" "$tmp/$paires" > "$tmp/trouves"
             [ "$RC" -le 1 ] || sortir2 "lecture impossible (grep, code $RC)"
             while IFS= read -r trouve; do
                 n="${trouve%%:*}"
