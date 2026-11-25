@@ -16,11 +16,12 @@
 # PRÉREQUIS (hôte) :
 #   - qemu-kvm, qemu-utils, cloud-image-utils installés
 #   - image de base présente : build/fresh-install/base/debian-12-generic-amd64.qcow2
-#   - agent SSH actif avec accès à l'org GitHub (ssh-add -l non vide)
-#     → le forward d'agent sert au clone depuis la VM.
+#   - dépôts du parc publics : le clone se fait en HTTPS anonyme, sans agent SSH.
+#     Tant qu'ils sont privés, un clone HTTPS réclame un jeton (le harnais n'en
+#     fournit pas : utiliser un labo, scripts/lib/vm-lab.sh).
 #
 # Découvertes intégrées (phase A, voir build/fresh-install/RAPPORT-FINAL.md) :
-#   - host key GitHub absente d'une machine neuve → ssh-keyscan préalable
+#   - host key GitHub absente d'une machine neuve → sans objet depuis le clone HTTPS
 #   - install.sh / hubctl init interactifs → réponses par défaut pipées
 #   - INITIALISE.py --profile demande une confirmation finale → printf 'O\n'
 #   - allocate-ports refuse les IP hors whitelist → whitelist du subnet VM
@@ -104,14 +105,12 @@ echo "Run : $RUN_DIR (VM port $VM_PORT)" | tee -a "$RUN_DIR/report.txt"
 # ── A2 : VM neuve ──
 check "vm-create" vm_create
 
-# ── A3 : clone + sous-modules (agent forwardé par vm_ssh) ──
-check "agent-forward" in_vm 'test -n "$SSH_AUTH_SOCK" && ssh-add -l >/dev/null'
-check "github-hostkey" in_vm 'mkdir -p ~/.ssh && chmod 700 ~/.ssh && ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null'
-check "clone" in_vm "git clone --recurse-submodules git@github.com:POULIDOR-Audit-Developpement/POULIDOR.git ~/POULIDOR"
+# ── A3 : clone + sous-modules (HTTPS anonyme, comme un utilisateur du parc public) ──
+check "clone" in_vm "git clone --recurse-submodules https://github.com/POULIDOR-Audit-Developpement/POULIDOR.git ~/POULIDOR"
 if [ -n "$BRANCH" ]; then
   check "checkout-branch" vm_push_branch "$BRANCH"
 fi
-check "submodules" in_vm 'cd ~/POULIDOR && [ "$(git submodule status | wc -l)" -eq 5 ] && ls HUB_base/docker-compose.yml hubctl_src/hubctl HUBapp_TEMPLATE_base/Makefile >/dev/null'
+check "submodules" in_vm 'cd ~/POULIDOR && [ "$(git submodule status | wc -l)" -eq 6 ] && ls HUB_base/docker-compose.yml hubctl_src/hubctl HUBapp_TEMPLATE_base/Makefile >/dev/null'
 
 # ── A4 : install (réponses par défaut pipées) ──
 check "install" in_vm "cd ~/POULIDOR && printf '\n\n\n\n\n\n\n\n' | sudo ./install.sh"

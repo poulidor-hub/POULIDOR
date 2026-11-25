@@ -287,7 +287,7 @@
   `.example-list-footer`) — la purge `715946f` les avait retirées en
   supposant une migration `hub-*` jamais portée dans le socle :
   `LoginPrompt` rendait son bouton non stylé dans toute app du template
-  (même cause racine que exemple-app 0.4.1).
+  (même cause racine que exemple-app-14 0.4.1).
 - Pointeur sous-module `HUBsocle` : 00ee8bd7 → 4f7439d0 (release 2.39.0,
   minor). Contenu : `frontend/src/styles.css` — le socle LIVRE désormais
   la feuille de style de ses composants (contrat CSS explicite,
@@ -354,7 +354,7 @@
   localement, APP_SOCLE_VERSION des apps alignées au prochain `make sync-env`.
 - **HUBapp_TEMPLATE_base 2.39.1** : route `/callback` SSO déclarée avant le
   splat (`redirect /`) — fin de la 404 « Page introuvable » au lancement
-  d'une app depuis le dashboard Hub (pattern exemple-app généralisé au
+  d'une app depuis le dashboard Hub (pattern exemple-app-9 généralisé au
   template). Validé sur horaires 0.2.1.
 
 ## [0.85.24] - 18 novembre 2026
@@ -364,9 +364,9 @@
 - **HUBsocle 2.37.2** : `cert_sync` logue désormais explicitement une
   `PermissionError` sur ssl/ (« non inscriptible par l'UID de l'API » :
   UID courant, répertoire, propriétaire/mode, remède) au lieu d'un
-  traceback générique toutes les 6h. Cause racine de l'incident exemple-app :
+  traceback générique toutes les 6h. Cause racine de l'incident exemple-app-2 :
   certs générés en root par l'entrypoint frontend dans le bind partagé —
-  correctif app-side dans exemple-app 1.63.1. Prendra effet dans les apps au
+  correctif app-side dans exemple-app-2 1.63.1. Prendra effet dans les apps au
   prochain bump de leur APP_SOCLE_VERSION.
 
 ## [0.85.23] - 18 novembre 2026
@@ -393,7 +393,7 @@
 
 - **HUB_base 3.97.0** : profil mémoire hub-db calibré sur mem_limit 1g (shared_buffers 256MB, work_mem 8MB, maintenance_work_mem 128MB) + `shm_size: 256m` + préchargement `pg_stat_statements` (`make db-pgss-enable` pour les déploiements existants).
 - **HUBapp_TEMPLATE_base 2.39.0** : profil mémoire PG explicite surchargeable du template (`PG_SHARED_BUFFERS`/`PG_EFFECTIVE_CACHE_SIZE`/`PG_WORK_MEM`/`PG_MAINTENANCE_WORK_MEM`/`PG_SHM_SIZE`), hérité par les apps scaffoldées.
-- Contexte : solutions 1 & 3 de l'analyse « optimisations PostgreSQL » (mémoire ciblée + instrumentation requêtes) ; les restores batchés d'exemple-app (1.62.1) et VaultWarden (0.4.1) ne sont pas des sous-modules (APPS/* gitigné).
+- Contexte : solutions 1 & 3 de l'analyse « optimisations PostgreSQL » (mémoire ciblée + instrumentation requêtes) ; les restores batchés d'exemple-app-2 (1.62.1) et VaultWarden (0.4.1) ne sont pas des sous-modules (APPS/* gitigné).
 
 ## [0.85.19] - 18 novembre 2026
 
@@ -406,7 +406,7 @@
   ligne INITIALISE, différences post-génération (crate + hub-client embarqué,
   Dockerfile multi-stage, Makefile patché sync-env/test, filet de parité), ligne
   « Variante Rust » dans les références. Motivation : scaffolding de
-  `APPS/exemple-app` (0.2.0, première app Rust du parc).
+  `APPS/exemple-app-14` (0.2.0, première app Rust du parc).
 
 ---
 
@@ -426,7 +426,7 @@
   ligne INITIALISE, différences post-génération (crate + hub-client embarqué,
   Dockerfile multi-stage, Makefile patché sync-env/test, filet de parité), ligne
   « Variante Rust » dans les références. Motivation : scaffolding de
-  `APPS/exemple-app` (0.2.0, première app Rust du parc).
+  `APPS/exemple-app-14` (0.2.0, première app Rust du parc).
 
 ---
 
@@ -673,7 +673,7 @@ Pointeur du template → 2.36.0 (`f9ac86d`, branche
 le template démarre sur le **socle 2.36.1** (register M2M authentifié +
 claims JWT `tags`/`tags_primary` — préférences du portail) avec le volume
 **`/app/storage` persistant** (credentials M2M + cache JWKS — fin du gap
-déploiement exemple-app 0.5.9). L'overlay `docker-compose.https.yml` (déjà
+déploiement exemple-app-8 0.5.9). L'overlay `docker-compose.https.yml` (déjà
 présent) sert des certificats signés par la PKI du HUB via `cert_sync`.
 
 ---
@@ -710,7 +710,7 @@ Pointeurs poussés dans la même foulée (feature portail + socle associé) :
   + secteur principal (« 1er favori ») par l'utilisateur, migration 068
   (`user_tags.is_primary` + `tag_categories.primary_enabled`, index partiel
   unique), `PUT /my` en upsert diff avec valeurs obsolètes filtrées en 200
-  (`ignored`), résolveur valeurs live exemple-app (cache TTL 60 s +
+  (`ignored`), résolveur valeurs live exemple-app-16 (cache TTL 60 s +
   negative-cache 15 s en panne, fallback snapshot), `onboarding_reason`
   calculée serveur (modale supprimée du sessionStorage — plus de réaffichage
   une fois le choix complet posé), nouveau claim JWT `tags_primary` émis sur
@@ -779,9 +779,9 @@ CSP sans `cdn.jsdelivr.net` (bibliothèques vendored localement).
   `./ssl:ro` vs `generate-ssl.sh` hérité `chmod 600` → EACCES → crash boot
   frontend ; remède : `chmod 644` ref `20f8615`) + item miroir checklist G.2.
 - **Apps affectées (hors submodules)** : patch ciblé poussé sur 6 dépôts
-  indépendants — clé SSL 644 : exemple-app, exemple-app ; détrack
-  openssl.cnf : exemple-app, exemple-app, exemple-app,
-  exemple-app.
+  indépendants — clé SSL 644 : exemple-app-22, exemple-app-15 ; détrack
+  openssl.cnf : exemple-app-10, exemple-app-13, exemple-app-19,
+  exemple-app-23.
 
 ---
 ## [0.84.11] - 14 novembre 2026
@@ -801,7 +801,7 @@ CSP sans `cdn.jsdelivr.net` (bibliothèques vendored localement).
 Le socle minte désormais un token SA avant `POST /api/apps/register`
 (_do_register + self-healing) : le Hub bascule `m2m_enforcement_mode`
 de `compat` vers `enforced` au lieu de journaliser `legacy_reregistration`.
-Constat déclencheur : exemple-app réinscrite en legacy (14/11/2026),
+Constat déclencheur : exemple-app-8 réinscrite en legacy (14/11/2026),
 32 apps du parc en compat, aucune en enforced. Les apps basculeront
 à leur prochain ré-enregistrement authentifié (montée de version,
 self-healing) après adoption du socle ≥ 2.35.2.
@@ -959,7 +959,7 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
 | **Pointeur** | `HUB_base` : `a407a5b6` → `e9558ee6` (**3.87.2** → **3.87.3**) — rotation logs json-file sur tous les services du compose (compose + compose.test) et snapshot `apps_code` filtré (exclusion artefacts de build + fichiers > 50MB ; snapshot complet ~3,5GB → ~0,5GB attendu) |
 | **Ajouté** | `scripts/parc-docker-maintenance.sh` — entretien Docker récurrent (dry-run par défaut) : purge build cache (`--keep-cache`, défaut 20GB), images inutilisées, volumes orphelins classés CACHE/DATA/INCONNUE (DATA et volumes inconnus derrière `--include-vol-data`), df avant/après |
 | **Ajouté** | `docs/DOCKER-MAINTENANCE.md` — usage, classification, cron suggéré |
-| **Rotation logs apps** | Pointeurs apps non concernés (gitignorés) — branches `fix/log-rotation` mergées dans les 4 repos : Gotenberg 0.7.4, exemple-app 0.26.5, exemple-app 0.22.8, exemple-app 0.14.4 |
+| **Rotation logs apps** | Pointeurs apps non concernés (gitignorés) — branches `fix/log-rotation` mergées dans les 4 repos : Gotenberg 0.7.4, exemple-app-12 0.26.5, exemple-app-5 0.22.8, exemple-app-15 0.14.4 |
 
 ---
 
@@ -1088,7 +1088,7 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
   CHANGELOG, merge sous lock, push, rebuild prod si l'app tourne, sonde
   token factice non loggée (port réel du `.env` de l'app). Skips : apps
   déjà patchées, dirty, sans nginx.conf/socle. Piloté : exports 0.5.2,
-  exemple-app 0.26.2.
+  exemple-app-12 0.26.2.
 
 ---
 
@@ -1115,8 +1115,8 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
   access logs nginx — les app fines socle reçoivent le JWT et le
   refresh_token en query param au callback SSO ; nginx les loggait en
   clair dans les logs persistants du conteneur (ticket I1, review
-  migration exemple-app 0.26.0). Fix déployé et vérifié en prod sur
-  exemple-app 0.26.1 ; le template protège désormais les futures apps
+  migration exemple-app-12 0.26.0). Fix déployé et vérifié en prod sur
+  exemple-app-12 0.26.1 ; le template protège désormais les futures apps
   générées.
 
 ## [0.82.22] - 11 novembre 2026
@@ -1124,7 +1124,7 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
 ### ✨ Pointeur HUBsocle 2.35.0
 
 - `HUBsocle` → `b4ea9e8` (2.35.0) : upstream des extensions génériques
-  d'exemple-app avant sa migration app fine — `authenticate_websocket`
+  d'exemple-app-12 avant sa migration app fine — `authenticate_websocket`
   (auth WS query param), piggyback utilisateur (`HUB_USER_TOKEN` +
   `user_token_context`, précédence explicite > ContextVar > M2M dans
   `call_hub_endpoint`), `MaskTokenQueryParamFilter` (JWT en query param
@@ -1140,7 +1140,7 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
 ### ✨ Pointeur HUBsocle 2.34.12
 
 - `HUBsocle` → `c7af144` (2.34.12) : dep `shapely` (polygones GeoJSON
-  secteurs/communes — exemple-app-api-v3, vague 6). Offline-first :
+  secteurs/communes — exemple-app-16-api-v3, vague 6). Offline-first :
   la dep migre en runtime du socle, aucune app fine ne pip-installe
   au build.
 
@@ -1152,7 +1152,7 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
   bump 2.34.10, fichiers dérivés (`backend/hub_socle/__version.py`,
   `frontend/package.json`) restés à 2.34.9 — toute image
   `poulidor/socle-api:2.34.10` construite rapportait `socle_version: 2.34.9`
-  (constaté côté exemple-app : `/api/health` sur pin 2.34.10).
+  (constaté côté exemple-app-7 : `/api/health` sur pin 2.34.10).
   Entrée 2.34.10 du CHANGELOG socle également replacée sous le header.
 
 ## [0.82.19] - 10 novembre 2026
@@ -1165,7 +1165,7 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
   différente à chaque build d'image socle (2.34.8 → 0.162.2, 2.34.9 →
   0.162.4) avec un changement de comportement d'inclusion des routers entre
   les deux — divergence silencieuse apps/envs de test vs prod (incident
-  exemple-app 1.14.1). Toute montée fastapi/starlette passe désormais
+  exemple-app-11 1.14.1). Toute montée fastapi/starlette passe désormais
   par une release socle explicite.
 
 ## [0.82.18] - 10 novembre 2026
@@ -1173,7 +1173,7 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
 ### ✨ Pointeur HUBsocle 2.34.9
 
 - `HUBsocle` → `e6e8230` (2.34.9) : dep `xlwt` (export XLS Excel
-  97-2003 — exemple-app-v3, vague 5). Offline-first : la dep migre en
+  97-2003 — exemple-app-17-v3, vague 5). Offline-first : la dep migre en
   runtime du socle, aucune app fine ne pip-installe au build.
 
 ## [0.82.17] - 10 novembre 2026
@@ -1181,7 +1181,7 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
 ### ✨ Pointeur HUBsocle 2.34.8
 
 - `HUBsocle` → `17eaa08` (2.34.8) : dep `reportlab` (génération PDF
-  courriers devis/contrat — exemple-V2, vague 4) ; PyPDF2 obsolète
+  courriers devis/contrat — exemple-app-24-V2, vague 4) ; PyPDF2 obsolète
   migré vers `pypdf` côté app.
 
 ## [0.82.16] - 10 novembre 2026
@@ -1190,8 +1190,8 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
 
 - `HUBsocle` → `282385d` (2.34.7) : deps métier apps fines offline-first
   vague 3 — `Pillow`, `Jinja2`, `weasyprint` (+ libs système
-  Pango/Cairo/fontes dans l'image) pour exemple-app ; `redis[hiredis]`,
-  `deepdiff` pour le cadrage exemple-app.
+  Pango/Cairo/fontes dans l'image) pour exemple-app-1 ; `redis[hiredis]`,
+  `deepdiff` pour le cadrage du proxy transparent.
 
 ## [0.82.15] - 10 novembre 2026
 
@@ -1199,15 +1199,15 @@ Diagnostic disque (13/11/2026) sur un serveur du parc : 606GB utilisés dont ~16
 
 - `HUBsocle` → `f03eae4` (2.34.6) : deps métier apps fines offline-first
   vague 2 — `numpy`, `scipy>=1.13,<1.18` (pin kstest), `odfpy`
-  (exemple-app) et `pypdf` (exemple-app).
+  (exemple-app-9) et `pypdf` (exemple-app-23).
 
 ## [0.82.14] - 10 novembre 2026
 
 ### ✨ Pointeur HUBsocle 2.34.5
 
 - `HUBsocle` → `2760329` (2.34.5) : deps métier apps fines offline-first —
-  `extract-msg` (parsing .msg, migration exemple-app) et `lxml`
-  (structure DOCX, migration exemple-app).
+  `extract-msg` (parsing .msg, migration exemple-app-26) et `lxml`
+  (structure DOCX, migration exemple-app-8).
 
 ## [0.82.8] - 10 novembre 2026
 
@@ -1244,8 +1244,8 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
 ### 🐛 Pointeurs HUB_base 3.85.4 + HUBsocle 2.34.4 — fin de l'incident nocturne (boucle d'atelier)
 
 - `HUB_base` → `0b00e3f2` (3.85.4) : auto-approbation atelier par **fallback
-  nom** d'app approuvée non-atelier — l'atelier `exemple-app-ws` ne
-  trouvait jamais sa base (`exemple-app`, slug ≠ préfixe dérivé) et
+  nom** d'app approuvée non-atelier — l'atelier `exemple-app-11-ws` ne
+  trouvait jamais sa base (`exemple-app-11`, slug ≠ préfixe dérivé) et
   restait pending à vie (2019 réinscriptions legacy + 2523×403 +
   257×429 cette nuit). Renuméroté 3.85.4 : deux 3.85.3 sorties
   simultanément (conflit CHANGELOG résolu, les deux contenus conservés).
@@ -1253,7 +1253,7 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
   persistants (60 s → 30 min exponentiel entre cycles applicatifs, levé
   au premier mint 200) — plus aucun martèlement register/token même en
   cas de futur cas imprévu.
-- Résidus DB purgés (app `exemple-app-ws` + SA désactivé).
+- Résidus DB purgés (app `exemple-app-11-ws` + SA désactivé).
 
 ## [0.82.6] - 9 novembre 2026
 
@@ -1354,7 +1354,7 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
 
 - `HUBsocle` → `5271fbc` (2.34.2) : front socle — bandeau de messages
   non-lus réparé (normalisation de la réponse paginée du Hub
-  `GET /api/messages/me`) ; détecté par l'E2E prod de exemple-app 1.1.2,
+  `GET /api/messages/me`) ; détecté par l'E2E prod de exemple-app-18 1.1.2,
   impactait toutes les apps fines (TypeError console, MessageBanner vide).
 
 ## [0.81.10] - 9 novembre 2026
@@ -1366,7 +1366,7 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
   `CREATE FUNCTION` n'est plus tronqué au premier `;` de son corps
   (asyncpg « unterminated dollar-quoted string », migration jamais
   appliquée, re-jouée en échec à chaque boot). Exposé et validé par la
-  migration full-text `005` de exemple-app 1.1.0 (première migration
+  migration full-text `005` de exemple-app-18 1.1.0 (première migration
   plpgsql app-side du parc) ; image `poulidor/socle-api:2.34.1` reconstruite
   et vérifiée in-image (`import hub_socle` = 2.34.1).
 
@@ -1423,7 +1423,7 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
 ### ⚡ Pointeur HUBsocle 2.34.0 + garde-fou anti-drift sous-modules
 
 - Sous-module `HUBsocle` → `2.34.0` (`6b807f3`) : dép runtime `python-docx`
-  du socle (rendu Word des apps fines, exemple-app). Release sous-module
+  du socle (rendu Word des apps fines, exemple-app-6). Release sous-module
   du 06/11/2026 (poussée vers origin) dont le pointeur méta n'avait pas suivi —
   régularisé.
 - Nouveau garde-fou `scripts/parc-meta-check` : détecte drift de pointeur,
@@ -1556,7 +1556,7 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
 |---------|--------|
 | **Historique réécrit** | 14 chemins internes purgés de toutes les branches (docs/superpowers, plans, specs, seed, campagnes, https-flotte, migration-legacy, guide-parc-poulidor…) — conservés localement (gitignore) |
 | **IPs scrubées** | 4 IP privées réelles (plage 192.168.1.x) → RFC 5737 dans tout l'historique de HUB_base / HUBsocle / TEMPLATE / hub-mcp |
-| **Branches accidentelles** | branches exotiques contenant du code d'apps privées supprimées des remotes (HUB_base, exemple-app, exemple-app…) |
+| **Branches accidentelles** | branches exotiques contenant du code d'apps privées supprimées des remotes (HUB_base, exemple-app-7, exemple-app-29…) |
 | **Pointeurs** | HUB_base **3.80.4**, HUBsocle **2.33.3**, HUBapp_TEMPLATE_base **2.35.5**, HUBCSS **0.3.5**, hubctl_src **0.16.7**, hub-mcp **0.16.2** |
 
 ## [0.80.13] - 5 novembre 2026
@@ -1568,7 +1568,7 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
 | **SECURITY.md + CODE_OF_CONDUCT.md** | politiques FR ajoutées à la racine (signalement privé, divulgation coordonnée, Contributor Covenant adapté) |
 | **CI** | `.github/workflows/ci.yml` (runner self-hosted, clone SSH, sonde hub de prod) remplacée par `oss-guard.yml` neutre : pas d'IP privée trackée, pas de donnée client, cohérence VERSION/CHANGELOG, sous-modules présents |
 | **README** | badge licence AGPLv3 (fini « projet interne »), table des composants à jour (3.80.x / 2.33.x / 2.35.x / 0.16.x / 0.3.x / 0.16.x), compteur MCP harmonisé à 66 (source : AST `hub_mcp/tools.py`), clone en HTTPS, APPS/ annoté « vide dans la distribution publique » |
-| **skills .opencode** | noms d'apps clientes et de clients scrubés → génériques (exemple-app-2, salarie, vikunja, exemple-app, exemple-app…) ; domaine et IP réels remplacés par des placeholders ; liens morts vers specs purgées neutralisés |
+| **skills .opencode** | noms d'applications clientes et de clients remplacés par des valeurs génériques ; domaine et IP réels remplacés par des placeholders ; liens morts vers specs purgées neutralisés |
 | **CHANGELOG** | mentions du nom d'un client / chemin personnel scrubées |
 | **Pointeurs** | HUB_base **3.80.4**, HUBsocle **2.33.3**, HUBapp_TEMPLATE_base **2.35.5**, HUBCSS **0.3.5**, hubctl_src **0.16.7**, hub-mcp **0.16.2** |
 
@@ -1584,7 +1584,7 @@ du bouton « Mettre à jour le Hub et le socle » en conditions réelles
 
 | Élément | Détail |
 |---------|--------|
-| **Historique réécrit** | sessions agent (`.superpowers/`), rapports de migration client (`docs/migrationv1_rapport/`, `docs/handover/`, runbook exemple) et export d'environnement du Hub retirés de tout l'historique — conservés localement uniquement (gitignore) |
+| **Historique réécrit** | sessions agent (`.superpowers/`), rapports de migration client (`docs/migrationv1_rapport/`, `docs/handover/`, runbook local) et export d'environnement du Hub retirés de tout l'historique — conservés localement uniquement (gitignore) |
 | **IPs internes scrubées** | IP du serveur et réseaux clients remplacés par les plages de documentation RFC 5737 (192.0.2.x / 198.51.100.x / 203.0.113.x) dans tout l'historique |
 | **Clés des plans** | clés d'exemple des plans VPN/bastion remplacées par des paires/clés dummy générées |
 | **Pointeurs** | `HUB_base` → **3.80.3** (scrub secrets SA + fixtures), `HUBapp_TEMPLATE_base` → **2.35.4** (token_preview générique) |
@@ -1728,11 +1728,11 @@ Préparation de la publication publique du parc — aucune logique métier modif
 
 ## [0.79.1] - 2 novembre 2026
 
-### 📚 Skill migrate-app-to-socle — bascule auth front (pièges exemple-app 1.60.0)
+### 📚 Skill migrate-app-to-socle — bascule auth front (pièges exemple-app-2 1.60.0)
 
 - **`.opencode/skills/migrate-app-to-socle/SKILL.md`** (étape 5 + table
   « Pièges payés » + Verification) : la recette ne couvrait pas la
-  bascule auth du front — l'app exemple-app 1.60.0 a déployé un crash
+  bascule auth du front — l'app exemple-app-2 1.60.0 a déployé un crash
   généralisé (« useAuth must be used within an AuthProvider ») malgré
   les gates existants.
 - **Nouvelle règle : cohérence auth binaire** — un composant socle qui
@@ -1751,7 +1751,7 @@ Préparation de la publication publique du parc — aucune logique métier modif
   SPA crashée au boot répond 200 — c'est exactement ce qui a filtré) +
   technique du smoke JWT factice (`dist/` statique + `?token=`).
 - Skill validé par test d'application subagent fresh-context (GREEN) sur
-  le scénario réel de l'incident (RED documenté : exemple-app 1.60.0).
+  le scénario réel de l'incident (RED documenté : exemple-app-2 1.60.0).
 
 ---
 
@@ -1809,7 +1809,7 @@ Préparation de la publication publique du parc — aucune logique métier modif
   `https://<slug>.<zone>` (dnsmasq `hub-dns` + vhosts SNI générés + wildcard
   PKI) ; nouvelle vue admin « Accès & routage » (remplace l'onglet Réseau et la
   modal Pool de ports ; ports en lecture seule) ; création d'app sans saisie de
-  ports ; WireGuard pousse le DNS du hub ; services tiers visibles (PhiliaNG
+  ports ; WireGuard pousse le DNS du hub ; services tiers visibles (application métier
   migrée) ; création sans ports = allocation automatique.
 - Vérification live : résolution 42 noms via le résolveur (VPN), SNI cert
   wildcard « Verification OK » → app 200, renommage live régénéré.
@@ -1872,18 +1872,18 @@ Préparation de la publication publique du parc — aucune logique métier modif
   `schema_migrations`) + migration socle `091_outbox_index_target_slug.sql`
   (index `outbox(target_slug)`, diagnostic M2M « qui appelle quel slug »).
 - **Banc de confiance parc** : première montée de socle testée en rollout sur
-  les **7 apps fines** (canary-socle, exemple-app, exemple-app,
-  exemple-app 2.29.0→2.30.7, exports, exemple-app, exemple-app) —
+  les **7 apps fines** (canary-socle, exemple-app-13, exemple-app-19,
+  exemple-app-11 2.29.0→2.30.7, exports, exemple-app-10, exemple-app-5) —
   7/7 healthy, `socle_version` 2.30.7, migration 091 appliquée exactement une
-  fois par app, hub reconnecté. Détail : quirk Makefile exemple-app
+  fois par app, hub reconnecté. Détail : quirk Makefile exemple-app-5
   (l'alignement socle est appelé par la cible `help`, pas `sync-env`).
 
 ## [0.78.8] - 1er novembre 2026
 
-### 📄 Skill `migrate-app-to-socle` — REX exports + exemple-app · pointeur HUBsocle 2.30.6
+### 📄 Skill `migrate-app-to-socle` — REX exports + exemple-app-5 · pointeur HUBsocle 2.30.6
 
 - **HUBsocle 2.30.6** (docs) : `REFERENCE-APP-FINE.md` enrichi du REX des
-  migrations exports 0.5.x et exemple-app 0.22.0 (tâche asyncio métier dans
+  migrations exports 0.5.x et exemple-app-5 0.22.0 (tâche asyncio métier dans
   `lifespan_extra`, stratégie proportionnée flush/commit pour gros métier,
   8 nouveaux pièges §8).
 - **Skill `migrate-app-to-socle`** : étape 2 (sync_version.py socle
@@ -1898,10 +1898,10 @@ Préparation de la publication publique du parc — aucune logique métier modif
 ## [0.78.7] - 31 octobre 2026
 ## [0.78.7] - 31 octobre 2026
 
-### 📄 Skill `migrate-app-to-socle` — capitalisation REX exemple-app · pointeur HUBsocle 2.30.2
+### 📄 Skill `migrate-app-to-socle` — capitalisation REX exemple-app-13 · pointeur HUBsocle 2.30.2
 
 - **HUBsocle 2.30.2** (docs-only) : `REFERENCE-APP-FINE.md` enrichi du retour
-  d'expérience de la migration exemple-app 0.17.0 — migrations app
+  d'expérience de la migration exemple-app-13 0.17.0 — migrations app
   auto-appliquées depuis `/app/migrations` (jamais dans `migration_hooks`,
   qui tournent avant `init_db` ; seeds → `lifespan_extra`), audit `flush()`
   sans `commit()` des handlers fork (§3), 5 nouveaux pièges §8 (volumes
@@ -1924,7 +1924,7 @@ Préparation de la publication publique du parc — aucune logique métier modif
   `hub-frontend`). Front, `/api/`, SSE et uploads restent intégralement servis
   en :443 ; les flux machine (:8000 interne, ALLOWED_ORIGINS https) ne cassent
   pas. Vérifié live : 301 sur localhost + LAN IP, 200/health/SSE en HTTPS.
-- Cohérence parc : socle (canari) et template (exemple-app) redirigeaient déjà
+- Cohérence parc : socle (canari) et template (exemple-app-2) redirigeaient déjà
   (`return 301` + `HTTPS_ENABLED=true`) — le Hub était le dernier maillon.
 
 ---
@@ -1935,7 +1935,7 @@ Préparation de la publication publique du parc — aucune logique métier modif
 
 - **HUBsocle 2.33.1** : `StorageManager.save_bytes_at_path` (écriture à
   chemin relatif exact, anti-traversée) — restauration backup des fichiers
-  métier exemple-app à leur emplacement d'origine. Image vérifiée 2.33.1.
+  métier exemple-app-2 à leur emplacement d'origine. Image vérifiée 2.33.1.
 
 ## [0.78.11] - 1er novembre 2026
 
@@ -1943,7 +1943,7 @@ Préparation de la publication publique du parc — aucune logique métier modif
 
 - **HUBsocle 2.33.0** : dependencies runtime `sqlmodel`, `pandas`,
   `openpyxl`, `xlrd`, `typer`, `passlib[bcrypt]`, `bcrypt` (offline-first,
-  apps fines migrées — vague B8, exemple-app) + peerDeps front en bornes basses
+  apps fines migrées — vague B8, exemple-app-2) + peerDeps front en bornes basses
   (`react >=18.2.0` accepte React 19, `lucide-react >=0.460.0`).
 - Image vérifiée : `hub_socle 2.33.0`, imports OK dans
   `poulidor/socle-api:2.33.0`.
@@ -2052,12 +2052,12 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 ### ⚡ Nouveau skill `migrate-app-to-socle` — recette de conversion app fine (vague B8)
 
 - **Ajouté** : skill parc `.opencode/skills/migrate-app-to-socle/` — la recette de migration d'une app fork vers l'app fine (audit d'entrées create_app, purge transverses, migrations inline → hooks, infra socle, frontend @poulidor/hub-socle, conftest hermétique §4 + canari, release + banc), avec la table des **12 pièges payés** pendant les conversions réelles (slug de test codé en dur, MagicMock awaité, dérivés de bump, add -A relatif, project name compose en worktree, symlink npm, extensions d'imports Rollup, opt-in réparation volumes…)
-- **Source** : capitalisation des conversions réelles de la session (template 2.35.0, exemple-app T1-T4, socle 2.28/2.29) — la vérification GREEN continue se fera sur exemple-app (G1-G3)
+- **Source** : capitalisation des conversions réelles de la session (template 2.35.0, exemple-app-19 T1-T4, socle 2.28/2.29) — la vérification GREEN continue se fera sur exemple-app-10 (G1-G3)
 
 ---
 ## [0.77.7] - 30 octobre 2026
 
-### ⚡ Pointeur HUBsocle 2.28.0 → 2.29.0 — upstream extensions téléphonie + exemple-app
+### ⚡ Pointeur HUBsocle 2.28.0 → 2.29.0 — upstream extensions de l'app exemple-app-25 + exemple-app-10
 
 - **Pointeur HUBsocle 2.29.0** (pré-requis vague B8-1) : restore clear_existing FK-safe (ordre topologique inverse + savepoint par DELETE — bugs 06/09 et 24/10), `require_role_or_service` + claim JWT `roles`, `hub_client.resolve_service_slug` (slugs suffixés lab), credentials M2M depuis l'env. Suite 323 → 342 tests. Banc HFT vert (1.9.3 sur socle 2.29.0, 295 tests).
 
@@ -2067,7 +2067,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.34.0 → 2.35.0 — le template devient app fine (fin de la duplication à la source)
 
 - **Pointeur template 2.35.0** : conversion app fine sur HUBsocle 2.28 — `Dockerfile.backend` `FROM poulidor/socle-api`, `main.py` = `create_app()`, −16 540 lignes (+365), frontend sur `@poulidor/hub-socle`, conftest hermétique + canari 7 tests. Toute app créée depuis ce template naît synchronisée au socle (`APP_SOCLE_VERSION`, alignée par `make sync-env`). Smoke create_app validé : app neuve boot du premier coup (ports Hub, health OK).
-- Suite template 27 tests (le reste vit au socle : 323). Prochaine étape : migration par vagues des apps existantes (exemple-app, exemple-app, exports).
+- Suite template 27 tests (le reste vit au socle : 323). Prochaine étape : migration par vagues des apps existantes (exemple-app-26, exemple-app-8, exports).
 
 ---
 ## [0.77.5] - 30 octobre 2026
@@ -2082,7 +2082,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 ### ⚡ Pointeur HUBsocle 2.27.0 → 2.28.0 — absorption des durcissements template (phase A conversion app fine)
 
 - **Pointeur HUBsocle 2.28.0** : le socle absorbe 8 durcissements du template en un seul exemplaire — auth JWKS async-safe (cache kid:PEM, fetch hors loop, retry unique, `require_role` fail-closed), migrations strictes (splitter apostrophes/chaînes, échec partiel = non marquée), storage confiné (anti-traversée get/delete), outbox crash-safe (claims expirés repris 600 s, SKIP LOCKED), hub_client version-aware (ré-enregistrement si version changée), backup download FileResponse (fin du ZIP en RAM), allowlist IA `m2m_share` câblée au catalogue (défaut fermé), entrypoint `/app/DATA`, pydantic v2
-- Suite socle 256 → **323 tests** ; revue de branche indépendante (verdict MERGE après fix, I-2 câblage corrigé) ; banc de qualification exemple-app en cours (pin `APP_SOCLE_VERSION=2.28.0`)
+- Suite socle 256 → **323 tests** ; revue de branche indépendante (verdict MERGE après fix, I-2 câblage corrigé) ; banc de qualification exemple-app-11 en cours (pin `APP_SOCLE_VERSION=2.28.0`)
 
 ---
 ## [0.77.2] - 29 octobre 2026
@@ -2143,7 +2143,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.33.3 — conseil de recréation make up
 
-- **HUBapp_TEMPLATE_base 2.33.3** : le conseil de recréation de `sync_hub_host.py` recommandait `docker compose up -d --force-recreate` — un compose brut recrée les conteneurs sans l'overlay HTTPS de l'app (incident exemple-app 27-28/10/2026 : port 4231 perdu). Conseil aligné sur `make up` / ACTION UPDATE ; propagation aux 6 apps instanciées par patch ciblé (releases APPS du jour)
+- **HUBapp_TEMPLATE_base 2.33.3** : le conseil de recréation de `sync_hub_host.py` recommandait `docker compose up -d --force-recreate` — un compose brut recrée les conteneurs sans l'overlay HTTPS de l'app (incident exemple-app-12 27-28/10/2026 : port 4231 perdu). Conseil aligné sur `make up` / ACTION UPDATE ; propagation aux 6 apps instanciées par patch ciblé (releases APPS du jour)
 - Les pointeurs HUB_base / HUBsocle / hub-mcp / hubctl_src restent volontairement non commités (travail d'autres sessions)
 
 ## [0.75.2] - 28 octobre 2026
@@ -2152,7 +2152,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 
 - **HUB_base 3.75.3** : badge de l'onglet Applications admin — compteur fantôme corrigé.
   Cause : un atelier enregistré avant son app de base (dérivation de slug divergente,
-  ex. `exemple-app-ws` vs `exemple-app`) reste `pending` à vie et gonfle le badge sans
+  ex. `exempleapp-5-ws` vs `exemple-app-5`) reste `pending` à vie et gonfle le badge sans
   jamais être visible (liste d'approbation retirée de l'HTML, ateliers masqués par défaut).
   Fix : badge cliquable → filtre « En attente » + ateliers visibles ; sémantique unifiée
   `updatePendingAppsBadge` (pending uniquement, plus de divergence SSE vs tableau) ;
@@ -2165,16 +2165,16 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 
 - **HUB_base 3.75.1** : 503 dédiés sur close-all — token manquant/illisible (message de resync) et timeout `down -v` (> 600 s : « fermeture toujours en cours », distinct du « service injoignable »)
 - **Spec ateliers amendée (réalité recette)** : bind `--host 172.17.0.1` assumé (joignabilité hub-api, invisible LAN ; nftables en itération 2), 207 fait foi (pas de 500), token manuel documenté, divergence `containers_state` documentée (renommage `containers_map` en itération 2)
-- E2E réelle validée bout en bout : liste verbale, barrière irreversible, confirmation admin → close-all réel (`closed: [exemple-app, exemple-app]`, zéro résidu)
+- E2E réelle validée bout en bout : liste verbale, barrière irreversible, confirmation admin → close-all réel (`closed: [exemple-app-9, exemple-app-2]`, zéro résidu)
 
 ## [0.75.0] - 27 octobre 2026
 
-### ✨ Ateliers pilotables par l'agent exemple-app + bouton admin Hub
+### ✨ Ateliers pilotables par l'agent exemple-app-12 + bouton admin Hub
 
 - **Pointeur hubctl 0.14.0** : `hubctl atelier serve` — mini-serveur HTTP localhost (list/close-all authentifiés, unit systemd durcie) — la fermeture d'atelier devient scriptable et appelable par le Hub
 - **Pointeur HUB_base 3.75.0** : `GET/POST /api/admin/atelier` (liste native socket :ro + proxy close-all 600 s, 503 verbalisable) + section admin **« Ateliers »** (tableau, fermeture globale confirmée)
 - **Pointeur hub-mcp 0.15.0** : tools `hub_atelier_list` (read) + `hub_atelier_close_all` (irreversible côté apps) — catalogue 65 outils
-- Conso : exemple-app 0.21.0 (registre 46 exposés, prompt v10) suit ; spec/plan : `docs/specs/2026-10-27-atelier-agent-design.md` + `docs/plans/2026-10-27-atelier-agent.md`
+- Conso : exemple-app-12 0.21.0 (registre 46 exposés, prompt v10) suit ; spec/plan : `docs/specs/2026-10-27-atelier-agent-design.md` + `docs/plans/2026-10-27-atelier-agent.md`
 
 ## [0.74.14] - 27 octobre 2026
 
@@ -2203,8 +2203,8 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 
 ### ⚡ Pointeur submodule HUBapp_TEMPLATE_base 2.33.2
 
-- **Template 2.33.2** : resync artefact `hub_mcp/` sur hub-mcp v0.4.2 (77 → 63 outils — fix `hub_backup_trigger` 404 hérité par les apps scaffoldées, incident exemple-app du 25/10) + `sync-hub-tooling` à chemins robustes (APPS/<slug> et worktrees — l'unique voie de mise à jour du catalogue était cassée en silence), `hub.ts` template protégé de la copie méta-repo en retard
-- **exemple-app v0.20.1** (app hors submodule, poussée séparément) : même correctif + registre IA adapté (44 exposés, read 26 / write 15 / irreversible 3) + prompt v9.1 — validé E2E : `hub_backup_trigger` exemple-app → 202 puis backup success
+- **Template 2.33.2** : resync artefact `hub_mcp/` sur hub-mcp v0.4.2 (77 → 63 outils — fix `hub_backup_trigger` 404 hérité par les apps scaffoldées, incident exemple-app-12 du 25/10) + `sync-hub-tooling` à chemins robustes (APPS/<slug> et worktrees — l'unique voie de mise à jour du catalogue était cassée en silence), `hub.ts` template protégé de la copie méta-repo en retard
+- **exemple-app-12 v0.20.1** (app hors submodule, poussée séparément) : même correctif + registre IA adapté (44 exposés, read 26 / write 15 / irreversible 3) + prompt v9.1 — validé E2E : `hub_backup_trigger` exemple-app-2 → 202 puis backup success
 
 ## [0.74.11] - 27 octobre 2026
 
@@ -2275,7 +2275,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   `up --build` échouaient (« additional privileges requested »). Le `build: !override`
   de contournement dans `docker-compose.test.yml` (3.74.1) est supprimé (il masquait
   tout futur build arg du compose principal). Preuve : builds rouges reproduits puis
-  verts sur les 4 images (hub-api, hub-frontend, et le même fix sur exemple-app
+  verts sur les 4 images (hub-api, hub-frontend, et le même fix sur exemple-app-19
   1.14.5), fusion `docker-compose.test.yml` validée.
 
 ---
@@ -2338,9 +2338,9 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 ### ⚡ Pointeur composant — HUB_base 3.72.0
 
 - `HUB_base` → `e6c518a` (**3.72.0**) : nouvel endpoint M2M
-  `GET /api/users/m2m/list` (spec exemple-app §5.5) — listing users pour
+  `GET /api/users/m2m/list` (spec exemple-app-18 §5.5) — listing users pour
   Service Accounts (résolution user_id ↔ username pour l'affichage local des
-  apps, ex. exemple-app) ; réservé SA (403 pour token humain), non filtré
+  apps, ex. exemple-app-18) ; réservé SA (403 pour token humain), non filtré
   par app autorisée, users inactifs inclus (flag `is_active`). Tests TDD
   (2 nouveaux, suite 1382 passed hôte + runtime Docker `pouly-test`).
   Note : le pointeur est poussé alors que le WIP de la session parallèle
@@ -2356,7 +2356,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   deploy-troubleshoot enrichi — diagnostic de l'échec de build
   « additional privileges requested: pass --allow=network.host »
   (buildx >= 0.37.2, GHSA-gwr2-q96m-6682) et remède APP_BUILD_NETWORK=default
-  (apps interpolant build.network, référence exemple-app >= 1.24.1) ;
+  (apps interpolant build.network, référence exemple-app-7 >= 1.24.1) ;
   sinon pin buildx 0.37.1 en attendant la release compose corrigée.
 
 ## [0.74.2] - 21 octobre 2026
@@ -2469,9 +2469,9 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 - **HUBapp_TEMPLATE_base 2.31.0** : `scripts/sync_socle_version.py` +
   ligne `sync-env` — `APP_SOCLE_VERSION` suit automatiquement le socle
   construit localement (apps fines sur image socle). Motivation :
-  déploiement serveur exemple-app (`.env` figé après 3 bumps
+  déploiement serveur exemple-app-11 (`.env` figé après 3 bumps
   socle → "pull access denied"). No-op pour les apps inline ; source
-  copiée par INITIALISE v2 du socle (INFRA_DIRS). exemple-app
+  copiée par INITIALISE v2 du socle (INFRA_DIRS). exemple-app-11
   1.9.0 l'a déjà (backport manuel effectué).
 
 ---
@@ -2483,7 +2483,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 - **HUBsocle 2.27.0** : setting `BACKUP_INCLUDE_FILES` (défaut True,
   inchangé) — `false` pour les apps stockage de fichiers : le backup ZIP
   ne contient que la base (transferts, préférences, table uploaded_files
-  avec les chemins), pas les binaires. Motivation : exemple-app —
+  avec les chemins), pas les binaires. Motivation : exemple-app-11 —
   ses uploads SONT la donnée primaire (26 Go admissibles) ; ils restent
   dans leur volume, le backup ne porte que les métadonnées.
   Suite socle : 256 passed.
@@ -2497,11 +2497,11 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 - **HUBsocle 2.26.0** : backport template — backup/restore en streaming
   disque (fin du ZIP en RAM / OOM ~150 Mo), auto-réparation des volumes
   root opt-in (gosu, `USER appuser` conservé par défaut), pin
-  SQLAlchemy `<2.1` (drift build). Motivation : migration exemple-app
+  SQLAlchemy `<2.1` (drift build). Motivation : migration exemple-app-11
   1.7.0 (26 Go admissibles → backup RAM risqué au backup_all du coffre ;
   volumes root sans réparation en mode strict). Suite socle : 254 passed.
 - **HUBapp_TEMPLATE_base 2.30.2** : fix `allocate_ports` repli localhost
-  (prérequis migration exemple-app).
+  (prérequis migration exemple-app-11).
 
 ---
 
@@ -2578,7 +2578,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 
 - **HUB_base 3.71.1** : `APPS_HOST_PATH` dynamique — `install.sh` détecte et
   écrit le chemin réel de `APPS/` dans le `.env` généré (fin du chemin de
-  machine de dev `/home/dev/...` en dur dans compose/config/.env.example).
+  machine de dev en dur dans compose/config/.env.example).
   Corrige le precheck « Écriture du dossier APPS » en fail (`PermissionError`)
   sur serveur distant : la variable devient obligatoire dans le compose
   (`${VAR:?}`), défaut backend neutre, tests de non-régression ajoutés.
@@ -2626,8 +2626,8 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   Docker vivant avant l'écriture du `.env` (`get_project_network_subnets`
   + `reconcile_subnet_with_docker`, le réseau gagne) : Compose ne recrée
   plus jamais le réseau d'une app vivante, cause racine des échecs
-  « Échec (2) de 'make' » (exemple-app) et « network not found »
-  (exemple-app-test). Sous-réseaux d'allocation non plus scopés par host
+  « Échec (2) de 'make' » (exemple-app-13) et « network not found »
+  (exemple-app-9-test). Sous-réseaux d'allocation non plus scopés par host
   (démon Docker partagé, host instable) — fin des collisions cross-host.
 - **hubctl_src 0.10.5 + HUBsocle 2.25.2** : releases documentées en
   0.72.8/0.72.7, pointeurs déjà alignés (leur statut « modifié » provenait
@@ -2641,7 +2641,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 ### ⚡ Pointeur hubctl 0.10.5
 
 - hubctl 0.10.5 : atelier — le health check accepte désormais le format
-  `{"status":"ok"}` des apps Node d'ancien template (ex. exemple-app),
+  `{"status":"ok"}` des apps Node d'ancien template (ex. exemple-app-7),
   au lieu du seul `{"status":"healthy"}` du template courant. Cause
   racine des rollbacks systématiques à la création d'atelier sur ces
   apps, quel que soit le timeout.
@@ -2697,7 +2697,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 ### ⚡ Pointeur HUB_base 3.70.1 — sync préférences M2M authentifiée
 
 - HUB_base 3.70.0 → 3.70.1 : la synchronisation des préférences
-  (tags) depuis une app source (ex. exemple-app-api-v3) échouait en
+  (tags) depuis une app source (ex. exemple-app-16-api-v3) échouait en
   401/502 — `routes/tags.py` appelle désormais les apps avec un token
   de service éphémère (Bearer) et `import_m2m` tolère le format
   `{"values": [...]}`. Détails dans le CHANGELOG HUB_base.
@@ -2733,13 +2733,13 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   statique exhaustif de HUBCSS v0.2.4 (atomes sans étage structurel, Timeline-h
   = composant d'app dans la DS, double échelles espace/typo, z-index magiques,
   piège `@source` démo), du template (3 couches CSS, DataTable monolithe 410 l.,
-  alias legacy) et des apps (exemple-app, exemple-app : doubles retours, cartes dans
+  alias legacy) et des apps (exemple-app-2, exemple-app-9 : doubles retours, cartes dans
   cartes, scrolls imbriqués, 3 toolbars/page, 12 variantes de Header).
 - 7 règles cibles de structure de page + roadmap en 3 phases (HUBCSS structurel,
   template exemplaire, socle partagé) avec critères de succès mesurables.
 ## [0.72.0] - 7 octobre 2026
 
-### ⚡ Rapatriement sélectif du fork exemple_stack — fix https-flotte + outil migration legacy
+### ⚡ Rapatriement sélectif d'un fork privé — fix https-flotte + outil migration legacy
 
 - `scripts/https-flotte/activer.py` : rebuild frontend via un override
   jetable `docker-compose.build-host-tmp.yml` (`build.network: host`) —
@@ -2750,12 +2750,12 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   suite complète : 95 passed.
 - Nouveau `scripts/legacy-migration/import_to_stack.py` (v1) : import
   users / applications / rôles depuis l'export JSON du hub legacy
-  hub-legacy (`export_env.py`) vers l'API admin du hub neuf — dry-run par
+  (`export_env.py`) vers l'API admin du hub neuf — dry-run par
   défaut (`--apply` pour appliquer), mots de passe temporaires +
   `must_change_password`, URLs réécrites `localhost` →
   `host.docker.internal`, existants inchangés ; service_accounts en
   rapport-only (secrets Fernet legacy = chantier dédié). Stdlib only.
-- Rapatrié du fork privé `Federation-exemple-50/exemple_stack` (84 commits
+- Rapatrié d'un fork privé (84 commits
   d'avance) : le banc de test `scripts/bench-legacy/`, le suivi de
   campagne et les artefacts de session restent volontairement côté
   fork (périmètre prod = fixes et outils opérationnels uniquement).
@@ -2829,7 +2829,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 - **3.66.0 — réseau** : `POST /api/config/network/propagation-plan/apply-and-recreate`
   (écrit l'IP dans les `.env` des apps validées puis recrée leurs conteneurs,
   opérations atelier tracées) ; résolution slug→répertoire par `APP_SLUG`
-  (les apps `exemple-app`/`exemple-app`, jusque-là `no_env`, deviennent
+  (les apps `exemple-app-11`/`exemple-app-21`, jusque-là `no_env`, deviennent
   propageables) ; champ `env_dir` dans le plan ; UI onglet Réseau :
   « Propager et recréer (N) » + sélection des apps à propager + polling du lot.
   9 tests dédiés, suite hôte 1314 passed.
@@ -3006,11 +3006,11 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
      UTC — plus de « il y a 2 h » juste après une sync en UTC+2) ;
   4. **« Voir l'app »** : recherche sur le slug de l'APP liée
      (`integrated_app_slug` ajouté à `GET /api/apps/github/repos`) —
-     exemple-app-2 trouve désormais l'app `exemple-app` ; POULIDOR pointe `hub`
+     `ExempleApp-2` trouve désormais l'app `exemple-app-2` ; POULIDOR pointe `hub`
      (app système, non listée dans l'onglet Applications).
 - **Re-test E2E post-déploiement** : les 4 points vérifiés sur le Hub réel
   (v3.62.7) — table restaurée après reload, « sync il y a 6 h » conservé sur
-  filtre vide, `exemple-app` affiché (1/13) après « Voir l'app ».
+  filtre vide, `exemple-app-2` affiché (1/13) après « Voir l'app ».
 ---
 ## [0.71.4] - 3 octobre 2026
 ### 🎨 UI — pointeur HUB_base 3.62.6 : refonte de la vue « Apps GitHub »
@@ -3024,22 +3024,22 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   Synchroniser n'est plus écrasée au premier clic.
 - **Validation** : maquettes approuvées (Visual Companion), parcours réel
   vérifié sur le Hub (vue cartes 3 colonnes, vue table, modal token, badge
-  « token valide », exemple-app marqué « Intégré » via le fix already_
+  « token valide », exemple-app-9 marqué « Intégré » via le fix already_
   integrated), logs backend propres, `node --check` vert sur tout le front.
 ---
 ## [0.71.3] - 3 octobre 2026
 ### 🔧 Fix — pointeur HUB_base 3.62.5 : déploiement GitHub des apps réparé
 - **Pointeur `HUB_base` 3.62.4 → 3.62.5** — trois causes d'échec du
   déploiement d'apps depuis le front-end corrigées et validées E2E
-  (cobaye `exemple-app-test`, template v0.3.0) :
+  (cobaye `exemple-app-9-test`, template v0.3.0) :
   1. `get_hub_host()` en exécution conteneurisée (critique) — l'IP interne
      Docker (`10.42.x.x`) était poussée aux apps déployées : health KO,
      `hub_connected=false`, aucun auto-enregistrement ;
   2. URLs SSH (`git@host:path`) jamais converties en HTTPS — le clone
-     échouait sans binaire ssh (4 échecs exemple-app) ;
+     échouait sans binaire ssh (4 échecs exemple-app-11) ;
   3. catalogue GitHub : repo affiché « Dispo » alors que son slug était déjà
      pris par une app sans `git_repo_url` (409 au clic).
-- **Validation E2E post-fix** : déploiement #10 `exemple-app-test` success,
+- **Validation E2E post-fix** : déploiement #10 `exemple-app-9-test` success,
   `hub_connected=true`, auto-enregistrement avec l'IP LAN
   (`http://192.0.2.10:9005`), 0 warning HUB_HOST, 299 tests verts.
 ---
@@ -3073,16 +3073,16 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
 ### ⚡ Charte Jellycode + pointeur template
 - Charte Jellycode (`.opencode/agent/jellycode.md`) : `data-generate`
   ajouté à la liste des skills app — générer des données de test sans
-  données réelles (synthétique, ou anonymisation via exemple-app).
+  données réelles (synthétique, ou anonymisation via exemple-app-9).
 - Pointeur `HUBapp_TEMPLATE_base` → 2.29.0 (679f42a) : nouveau skill socle
   `data-generate` (règle de parc : jamais de données réelles en dev/test ;
-  voie A synthétique seedée, voie B anonymisation exemple-app obligatoire)
+  voie A synthétique seedée, voie B anonymisation exemple-app-9 obligatoire)
   + charte template à jour.
 ---
 ## [0.70.0] - 30 septembre 2026
-### ⚡ Docs design app exemple-app
-- **Ajouté** : `docs/specs/2026-09-30-exemple-app-design.md` — spécification complète de la nouvelle app `exemple-app` (anonymisation de données CSV/XLSX/ODS, génération statistique ≤ 1M lignes, validation KS/Wasserstein/TVD)
-- **Ajouté** : `docs/plans/2026-09-30-exemple-app-implementation.md` — plan d'implémentation en 17 tâches (exécuté intégralement, app livrée en v0.1.0 dans `APPS/exemple-app`)
+### ⚡ Docs design app exemple-app-9
+- **Ajouté** : `docs/specs/2026-09-30-exemple-app-9-design.md` — spécification complète de la nouvelle app `exemple-app-9` (anonymisation de données CSV/XLSX/ODS, génération statistique ≤ 1M lignes, validation KS/Wasserstein/TVD)
+- **Ajouté** : `docs/plans/2026-09-30-exemple-app-9-implementation.md` — plan d'implémentation en 17 tâches (exécuté intégralement, app livrée en v0.1.0 dans `APPS/exemple-app-9`)
 ---
 ## [0.70.1] - 1er octobre 2026
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.28.4 — header responsive mobile
@@ -3218,7 +3218,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   (**v2.28.2** : skill app `hub-notifications`, doc TTL JWT 15 min → 8h).
 ## [0.66.8] - 23 septembre 2026
 ### ⚡ Runbook : socle minimum 2.28.1 (garde HUB_HOST legacy)
-- `docs/runbook-exemple-app-apps-socle.md` : socle requis passé de 2.28.0 à
+- `docs/runbook-apps-socle.local.md` : socle requis passé de 2.28.0 à
   **2.28.1** — le garde `HUB_HOST` (sync_hub_host) est indispensable sur le
   banc legacy (sinon écrasement par l'IP docker interne du hub, register M2M
   en timeout). Cycle pilote validé : app `test-socle-228` scaffoldée depuis
@@ -3230,18 +3230,18 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   Hub y répond déjà — le hub legacy annonce l'IP docker interne de son
   conteneur, qui écrasait l'IP LAN joignable à chaque `make sync-env`
   (register M2M en timeout). Découvert par le pilote `test-socle-228` sur le
-  banc exemple-app.
+  banc du hub legacy.
 ## [0.66.6] - 23 septembre 2026
-### ⚡ Runbook exemple-app + pointeur HUBapp_TEMPLATE_base → 2.28.0
+### ⚡ Runbook du hub legacy + pointeur HUBapp_TEMPLATE_base → 2.28.0
 - `HUBapp_TEMPLATE_base` 2.28.0 : les apps socle tournent désormais sur le hub
-  legacy hub-legacy (3.9.x, pré-H9) sans blocage de sous-réseau —
+  `hub-legacy` (3.9.x, pré-H9) sans blocage de sous-réseau —
   `scripts/set_app_subnet.py` (écriture manuelle de `APP_SUBNET`, plage dédiée
-  exemple-app `198.51.100.20/16`, disjonction réseaux Docker actifs + `.env`
+  legacy `198.51.100.20/16`, disjonction réseaux Docker actifs + `.env`
   voisins, `--check`/`--force`/backup horodaté) + fallback local automatique
   dans `ACTIONS/PYTHON/allocate_ports.py` (hub sans `allocate-ports` →
   allocation locale ; hub neuf inchangé). +23 tests, smoke réel banc.
-- **Ajouté** : `docs/runbook-exemple-app-apps-socle.md` — procédure de déploiement
-  d'une app socle sur exemple-app (propagation 2 fichiers, plage 198.51.100.20/16
+- **Ajouté** : `docs/runbook-apps-socle.local.md` — procédure de déploiement
+  d'une app socle sur le hub legacy (propagation 2 fichiers, plage 198.51.100.20/16
   vs 10.50/16 hub neuf et 10.210.x ateliers, dégradations legacy acceptées :
   SSE, grâce refresh, PKI, deps/sync-report, et risque recovery M2M si le
   hub legacy est patché ≥ 3.9.5).
@@ -3286,7 +3286,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   `systematic-debugging` toujours applicables.
 - **Skill `agent-isolation-git`** : procédure fast-path scriptée documentée
   (politique stricte inchangée — worktree obligatoire sans exception).
-- **Descriptions de skills parc resserrées** (migrate-app-template, exemple-app,
+- **Descriptions de skills parc resserrées** (migrate-app-template, proxy-transparent,
   hub-oidc-manager, app-workshop-mover) : triggers conservés, prose explicative
   coupée (chargées dans chaque prompt système).
 ## [0.65.1] - 21 septembre 2026
@@ -3296,14 +3296,14 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   répétition sur cible, fenêtre jour J) + validation 48 h + rollback + incidents.
 - Chaque étape : commande exacte, sortie attendue ligne à ligne, case à cocher,
   critère de succès — **exécutée dans cet ordre sur banc neuf** (VM `client-mig-gd`
-  + banc legacy exemple-lab, zéro improvisation) : restore legacy complet, purge/rejeu
+  + banc legacy, zéro improvisation) : restore legacy complet, purge/rejeu
   fourche 027, comptages hub et données métier identiques, apps hub_connected zéro 403.
 ## [0.65.1] - 21 septembre 2026
 ### ⚡ Pointeur HUBapp_TEMPLATE_base → 2.26.3
 - `HUBapp_TEMPLATE_base` 2.26.3 : le garde-fou d'instance Hub
   (`sync_hub_host.py`) documente désormais la procédure de bascule
   volontaire (corriger `HUB_HOST`, supprimer `HUB_INSTANCE_ID`, relancer
-  `make sync-env`) — retour d'expérience exemple-app 1.1.2.
+  `make sync-env`) — retour d'expérience exemple-app-20 1.1.2.
 ---
 ## [0.66.3] - 22 septembre 2026
 ### 🧪 Cheatsheet dev banc + scripts de reset
@@ -3347,7 +3347,7 @@ Deux releases distinctes ont porté le numéro 0.78.3 :
   hub legacy → archive chiffrable au format park-export (modes `--inventory`/`--extract`,
   stop échelonné -t 30 + attente readiness pg, dumps via démarrage temporaire des seuls
   postgres, garde d'appartenance compose `working_dir`, trap EXIT de relance, manifest
-  contractuel + self-check). Testé sur banc exemple-lab : 34/34 dumps, zéro PANIC.
+  contractuel + self-check). Testé sur le banc legacy : 34/34 dumps, zéro PANIC.
 - **`scripts/migration-legacy/encrypt_archive.py`** : chiffrement PARKEV1 (réutilise
   `park_export.encrypt_archive`) — round-trip déchiffrement `hubctl restore` prouvé.
 - **`scripts/migration-legacy/rewrite_urls.py`** : réécriture idempotente des URLs hub
@@ -3403,10 +3403,10 @@ bre 2026
 - **MCP** : « ~85 outils » → « ~65 outils » (65 réellement exposés, comptés sur
   hubctl 0.10.0).
 ## [0.63.1] - 20 septembre 2026
-### 🏷️ Skill `proxy-ia` renommé `exemple-app`
-- Le skill suit le renommage de l'application de référence : **Proxy Métier**
-  (slug Hub `exemple-app`, ex-exemple-app / PhiliaNG).
-- Dossier `.opencode/skills/proxy-ia/` → `.opencode/skills/exemple-app/`,
+### 🏷️ Skill du proxy transparent : `proxy-ia` renommé `proxy-transparent`
+- Le skill suit le renommage de l'application de référence, dont le nom est
+  neutralisé en open source (slug `exemple-app`, anciens noms retirés).
+- Dossier `.opencode/skills/proxy-ia/` → `.opencode/skills/proxy-transparent/`,
   frontmatter `name`, titre et nom du pattern alignés. Aucune autre référence
   dans le repo (le persona `jellycode.md` ne cite pas le skill).
 ## [0.63.0] - 20 septembre 2026
@@ -3422,7 +3422,7 @@ bre 2026
 - **migrate-app-template** : refs « 2.8.0 » → lecture dynamique de `HUBapp_TEMPLATE_base/VERSION`, G.1 aligné `release-on-main`.
 - **app-workshop-mover** : atelier miroir prod (hubctl 0.10.0) — `HTTPS_ENABLED` (7+1 clés),
   `_ws_compose_files`, slugification, `input()`, numéros de ligne retirés (anti-drift).
-- **proxy-ia** : app de référence renommée **Proxy Métier** (slug `exemple-app`, ex-exemple-app).
+- **proxy-transparent** : app de référence renommée (slug `exemple-app`, anciens noms neutralisés).
 - **hub-oidc-manager** : espace parasite dans un trigger.
 ## [0.62.1] - 20 septembre 2026
 ### 🔧 Pointeur submodule — HUB_base 3.61.1 (SAN certs : localhost)
@@ -3446,7 +3446,7 @@ bre 2026
 - **Campagne flotte** : 22 apps activées en HTTPS (backup + checkpoint + vérifs,
   playbook `scripts/https-flotte/`), portail mis à jour automatiquement (re-register
   JIT), banc de campagne PASS 75/75. Reportées (socle sans mécanisme SSL, à leur
-  migration) : exemple-app, exemple-app, exemple-app. Rapport : `scripts/https-flotte/rapport-https.md`.
+  migration) : exemple-app-22, exemple-app-27, exemple-app-25. Rapport : `scripts/https-flotte/rapport-https.md`.
 - `PROCEDURE-CA.md` : import de la CA sur les postes (Windows + Firefox) — zéro
   avertissement navigateur une fois la CA importée.
 ---
@@ -3458,7 +3458,7 @@ bre 2026
 ## [0.61.1] - 19 septembre 2026
 ### ⚡ Pointeurs submodules — fix backups volumineux (OOM) + nginx 1G
 - **HUBapp_TEMPLATE_base → 2.25.0** (b1bb1e9) : création de backup en
-  streaming disque (fin de l'OOM > 150 Mo, incident exemple-app du 19/09),
+  streaming disque (fin de l'OOM > 150 Mo, incident exemple-app-2 du 19/09),
   mem_limit api 1G, nginx client_max_body_size 1G. Détail : CHANGELOG du
   submodule.
 - **HUB_base → 3.60.1** (02b6782) : nginx client_max_body_size 50M → 1G
@@ -3582,12 +3582,12 @@ bre 2026
   (self-service OIDC, socle-check, pilotage atelier depuis la vue Santé,
   moniteur jeton GitHub, changement d'IP propagé, backups par mot de passe,
   identité stable + renommage, atelier réécrit), retrait de la fonction
-  « Droits Philia » reflété (23 modules), chiffres réactualisés
+  « Droits de l'application métier » reflété (23 modules), chiffres réactualisés
   (tests ≈1020, tables 36, endpoints ≈270). Livrable HTML reconstruit.
 ## [0.58.1] - 15 septembre 2026
-### ⚡ HUB_base 3.58.0 — retrait de la fonction « Droits Philia » du portail
+### ⚡ HUB_base 3.58.0 — retrait de la fonction « Droits de l'application métier » du portail
 - Pointeur submodule `HUB_base` → f25628b (release 3.58.0) : la gestion des
-  droits PhiliaNG quitte l'admin du hub (UI + route proxy `/api/philia-rights/*`
+  droits de l'application métier quitte l'admin du hub (UI + route proxy `/api/app-rights/*`
   + tests) pour vivre exclusivement dans l'app exemple-app (page
   `/users-rights`). Infra SNI/certs (domaine réel scrubé) inchangée.
 ## [0.58.0] - 15 septembre 2026
@@ -3626,16 +3626,16 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   serveur, secret une seule fois, SA multi-apps 409, JWT user 403).
 - Finalité : premier déploiement d'app 100 % automatique — SSO Vikunja
   sans `HUB_ADMIN_PASSWORD` côté app (spec :
-  `APPS/MIGRATION/exemple-app/docs/superpowers/specs/2026-09-14-oidc-self-provisioning-design.md`).
+  `APPS/MIGRATION/exemple-app-15/docs/superpowers/specs/2026-09-14-oidc-self-provisioning-design.md`).
 - Suite HUB_base : 1098 passed / 0 failed (10 nouveaux tests
   `test_oidc_self_client.py`).
 ---
 ## [0.56.1] - 14 septembre 2026
-### ⚡ Docs : runbook de portage du fix socle jsonb (exemple-app, exemple-app)
+### ⚡ Docs : runbook de portage du fix socle jsonb (exemple-app-22, exemple-app-13)
 - Nouveau `docs/runbook-portage-socle-jsonb.md` : procédure complète (TDD :
   test porté, RED, patch exact, GREEN ; release-on-main app ; déploiement
   prod ; vérifications ; rollback) pour publier le fix HUBsocle v2.23.4
-  dans les releases futures de `exemple-app` et `exemple-app`
+  dans les releases futures de `exemple-app-22` et `exemple-app-13`
   (ces apps embarquent une copie historique de `routes/backup.py`).
 - Procédure validée sur clone scratch (RED vérifié, 7/7 GREEN, patch depuis
   les extraits de la doc elle-même).
@@ -3672,16 +3672,16 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   `backend/tests/test_backup_jsonb_values.py` (7 tests), suite complète
   **203 passed**.
 - Détecté par les tests de transfert des bancs isolés (13-14/09) :
-  `exemple-app`, `exemple-app`, `exemple-app` ; image
+  `exemple-app-22`, `exemple-app-13`, `exemple-app-11` ; image
   `poulidor/socle-api:2.23.4` construite, apps bancs reconstruites.
 - Note : les apps embarquant une copie historique de `routes/backup.py`
-  (exemple-app, exemple-app) devront porter le fix à leur
+  (exemple-app-22, exemple-app-13) devront porter le fix à leur
   prochaine release.
 ## [0.55.6] - 12 septembre 2026
 ### ⚡ Pointeur HUB_base v3.52.2 — passage en atelier depuis la vue santé (apps au dossier ≠ slug)
 - HUB_base v3.52.2 : les routes atelier contrôlaient le dépôt git sur
   `APPS/{slug}/` — pour les apps dont le dossier diffère du slug
-  (ex. `exemple-app` → « exemple-app »), le bouton « Créer l'atelier »
+  (ex. dossier `exemple-app-11` → slug « mon-app »), le bouton « Créer l'atelier »
   de la vue Santé échouait en 400 « pas de repo git ». Tous les contrôles
   passent désormais par le résolveur `_app_dir(slug)` (v3.52.1) : le passage
   en atelier fonctionne de bout en bout pour ces applications.
@@ -3690,7 +3690,7 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
 ### ⚡ Pointeur HUB_base v3.52.1 — bloc atelier visible pour les apps au dossier ≠ slug
 - HUB_base v3.52.1 : le Hub résolvait le dossier d'une app par `APPS/{slug}/` ;
   pour les apps dont le dossier technique diffère du slug (ex. `APPS/exemple-app`
-  pour « philia-proxy »), l'atelier apparaissait inexistant dans la vue Santé
+  pour le slug « mon-app »), l'atelier apparaissait inexistant dans la vue Santé
   (pas de bloc « Atelier : … », absent du filtre « Atelier actif ») et les
   opérations atelier depuis le Hub étaient vouées à l'échec. Nouveau résolveur
   `_app_dir` (scan des `APP_SLUG` des `.env`, repli historique), branché sur
@@ -3718,10 +3718,10 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   apps prod (et inversement) ; le discovery prod↔prod est préservé.
 - Voir le CHANGELOG HUB_base v3.52.0 pour le détail technique.
 ## [0.55.2] - 11 septembre 2026
-### ⚡ Pointeur HUB_base v3.51.0 — page admin « Droits Philia » (phase 1)
-- HUB_base v3.51.0 : nouvel onglet Admin > « Droits Philia » — lecture des
-  périmètres PhiliaNG (habilitations mo + agences/groupes) et suppression
-  d'un droit, exécutée via l'app philia-proxy (proxy Hub→app authentifié par
+### ⚡ Pointeur HUB_base v3.51.0 — page admin « Droits de l'application métier » (phase 1)
+- HUB_base v3.51.0 : nouvel onglet Admin > « Droits de l'application métier » — lecture des
+  périmètres de l'application métier (habilitations mo + agences/groupes) et suppression
+  d'un droit, exécutée via l'app exemple-app (proxy Hub→app authentifié par
   token de service TTL 90 s, audit des deux côtés).
 - Voir le CHANGELOG HUB_base v3.51.0 pour le détail technique.
 ## [0.55.1] - 10 septembre 2026
@@ -3730,7 +3730,7 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   caché, fix deadlock flock M2M, liste backups triée/cohérente,
   `discovered_count` live, erreurs restore surfacées, conftest hermétique —
   191 tests. Campagne de banc : 24✅/0❌/4⚠️ (2 tickets 🔴 filés HUB_base).
-- **exemple-app 1.4.2** en prod sur ce socle (pilote à jour).
+- **exemple-app-11 1.4.2** en prod sur ce socle (pilote à jour).
 ## [0.55.0] - 10 septembre 2026
 ### ⚡ HUBsocle 2.23.0 — INITIALISE v2 (générateur d'apps fines)
 - **HUBsocle 2.23.0** (tag `v2.23.0`) : `INITIALISE.py` génère une app fine
@@ -3738,7 +3738,7 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   settings, commits explicites, herméticité tests, frontend socle via
   `file:`/`additional_contexts`). `docs/REFERENCE-APP-FINE.md` = doc vivante
   du pattern. 188 tests.
-- Pilote phase 2b déployé : exemple-app 1.4.1 (frontend socle + ticket
+- Pilote phase 2b déployé : exemple-app-11 1.4.1 (frontend socle + ticket
   get_db, socle 2.22.5).
 ## [0.54.4] - 11 septembre 2026
 ### ⚡ hub.sh selftest — validation réelle du cycle stop→start
@@ -3780,7 +3780,7 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   {"storage": impl})` fonctionnel (setattr module + registre) ;
   `routes/backup.py` résout `storage_manager` à l'appel via proxy lazy —
   8 sites d'usage inchangés. 175 tests. Pré-requis du pilote phase 2.
-- **Pilote phase 2 déployé** : exemple-app 1.3.0 en prod sur le socle
+- **Pilote phase 2 déployé** : exemple-app-11 1.3.0 en prod sur le socle
   (`APP_SOCLE_VERSION=2.22.1`) — première app « à jour » de `hubctl socle status`.
 ## [0.54.0] - 9 septembre 2026
 ### ⚡ Sous-module HUBsocle + hubctl 0.8.0 — socle applicatif versionné (phase 1)
@@ -3809,8 +3809,8 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
 ### ⚡ Pointeur HUB_base 3.50.2 — allocation de subnets : réseaux Docker épinglés manuellement exclus
 - **HUB_base 3.50.2** : `POST /api/apps/allocate-ports` pouvait attribuer un
   sous-réseau déjà occupé par un réseau Docker créé hors Hub (épinglage
-  manuel, stack tiers) — constaté sur exemple-app : allocation de
-  `198.51.100.41/24` alors que `exemple-app-network` l'occupe → `docker compose up`
+  manuel, stack tiers) — constaté sur exemple-app-25 : allocation de
+  `198.51.100.41/24` alors que `exemple-app-8-network` l'occupe → `docker compose up`
   en échec « Pool overlaps with other one on this address space ». Les ports
   étaient déjà filtrés par scan Docker du réel ; ce n'était pas le cas des
   sous-réseaux (seule la table `port_allocations` était consultée).
@@ -3819,12 +3819,12 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   (flag `subnet_scan_docker_enabled`, host local, thread) fusionné dans
   `allocate_ports_for_app` (allocation neuve **et** backfill paresseux).
   6 tests TDD, suite port_allocation 26/26.
-- **Validation** : rebuild `hub-api` en prod locale — allocation exemple-app
+- **Validation** : rebuild `hub-api` en prod locale — allocation exemple-app-25
   renvoie désormais `198.51.100.43/24` en sautant 10.50.5/.6/.7 épinglés
-  manuellement ; allocations orphelines exemple-app purgées du registre.
-- **Nettoyage parc** : instance doublon `hubv2-exemple-app` (dépôt POULIDOR-lab)
+  manuellement ; allocations orphelines exemple-app-25 purgées du registre.
+- **Nettoyage parc** : instance doublon `hubv2-exemple-app-25` (dépôt POULIDOR-lab)
   supprimée (containers + volumes + réseau 198.51.100.44/24) ; reliques de volumes
-  `lab-exemple-app-*` supprimées ; exemple-app ré-épinglée sur `198.51.100.42/24`
+  `lab-exemple-app-25-*` supprimées ; exemple-app-25 ré-épinglée sur `198.51.100.42/24`
   (premier slot libre du pool au moment du fix).
 ## [0.53.20] - 7 septembre 2026
 ### 📣 Pour les utilisateurs
@@ -3843,15 +3843,15 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
 ## [0.53.19] - 7 septembre 2026
 ### ⚡ Pointeur HUBapp_TEMPLATE_base 2.21.1 — self-healing M2M compatible Hub legacy
 - **hub_client (template 2.21.1)** : `_recover_credentials` gère les Hubs
-  legacy sans rotation M2M au register (ex. exemple pré-H9) — register 200 sans
+  legacy sans rotation M2M au register (ex. hub-legacy pré-H9) — register 200 sans
   `client_secret` → fallback `POST /api/apps/me/regenerate-secret`
   (`X-Slug`/`X-Client-ID`, whitelist réseau Docker). Corrige la déconnexion
   Hub des apps à jour du template après perte de credentials sur un Hub
   legacy (log « Hub sans correctif T1 ? »).
 - **Validation** : TDD (2 tests, suite template 157 passed) + E2E poulidor-lab
-  contre le hub legacy `exemple-lab` (recovery OK, token M2M réel) — voir
+  contre le hub legacy du banc de test (recovery OK, token M2M réel) — voir
   `build/vm-lab/poulidor-lab/journal.md` session 3.
-- **APPS/exemple-app v0.4.0** (dépôt séparé, hors pointeurs) : hub_client
+- **APPS/exemple-app-27 v0.4.0** (dépôt séparé, hors pointeurs) : hub_client
   synchronisé + release incluant rôles manager / édition conditionnelle.
 ## [0.53.18] - 7 septembre 2026
 ### 📣 Pour les utilisateurs
@@ -3955,17 +3955,17 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   général des données restaurées. Structure corrigée : reset du rôle avant
   le resync, savepoint par table, pré-check colonne via
   `information_schema`. 155 tests passants.
-- **exemple-app 1.12.4** (repo dédié) : même fix — backup b6d61ff0 restauré
+- **exemple-app-25 1.12.4** (repo dédié) : même fix — backup b6d61ff0 restauré
   506/506 lignes (181 phone_users, 1 groupement, 2 voicemails, 313
   import_changes, 2 csv_imports), séquences resynchronisées. La migration
-  de save exemple-app fonctionne de bout en bout.
+  de save exemple-app-25 fonctionne de bout en bout.
 ## [0.53.9] - 6 septembre 2026
 ### 🔧 Pointeurs HUBapp_TEMPLATE 2.20.7 (+ fix transaction abortée restore)
 - **HUBapp_TEMPLATE 2.20.7** (4bd31fa..0ce9319) : pré-check
   `pg_get_serial_sequence` avant `setval` + reset
   `session_replication_role` tolérant — le restore des apps ne rollback
   plus générallement après l'import des données. Porté sur
-  exemple-app 1.12.3 (parité).
+  exemple-app-25 1.12.3 (parité).
 ## [0.53.8] - 6 septembre 2026
 ### ⚡ Skill migrate-app-template enrichi (retour d'expérience 8 migrations réelles)
 - **Règle d'or documentée** : fusion « template d'abord, métier réinjecté » pour
@@ -3989,7 +3989,7 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
 - **HUBapp_TEMPLATE 2.20.6** (ae57c00..4bd31fa) : suite du fix restore —
   `session_replication_role=replica` pendant l'import (cycles de FK non
   déferrables) + resynchronisation des séquences après import (ids
-  explicites). 155 tests passants. Porté sur exemple-app 1.12.2.
+  explicites). 155 tests passants. Porté sur exemple-app-25 1.12.2.
 ## [0.53.7] - 6 septembre 2026
 ### 🔧 Pointeur HUB_base 3.47.5 → 3.48.0 — atelier : socle accès par utilisateur
 - **HUB_base 3.48.0** (9c9f4ab..89a7a7a) : merge de `feat/atelier-user-access`
@@ -4047,7 +4047,7 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   l'identifiant du cookie (désormais un `oidc_sub` immuable) vers l'utilisateur et
   révoque par **username courant d'abord puis oidc_sub** (double appel best-effort
   dédupliqué). Pour un utilisateur renommé, la révocation des sessions distantes
-  (traducteurs exemple-app) ne manque plus la session indexée sous le nouveau nom.
+  (traducteurs exemple-app-15) ne manque plus la session indexée sous le nouveau nom.
   Best-effort préservé : 404/500 loggés, jamais bloquants.
 ## [0.53.1] - 5 septembre 2026
 ### 🛡️ Pointeur HUB_base 3.47.0 → 3.47.1 — backup/restore des ancres identitaires
@@ -4074,7 +4074,7 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
 - Nouveau `docs/handover/2026-09-05-sync-centralisation.md` : transfert de connaissances
   de la session exemple-app-16_API_v3 (v1.12.0, incluse dans la 1.13.0 déployée) à
   destination du chantier d'orchestrateur central de synchronisation : topologie des
-  flux (exemple-app → exemple-app / exemple-app-7 → exemple-app), invariants de
+  flux (exemple-app-17 → exemple-app-19 / exemple-app-7 → exemple-app-16), invariants de
   sécurité (liaison matricule-only, fiabilité `match_confidence >= 100`, homonymes →
   refus, seuil de désactivation à 3 syncs), réconciliation assistée des matricules,
   purge admin avec dry-run, incident de format d'identifiant divergent (`000xxx` vs
@@ -4095,7 +4095,7 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
 - Apps du parc (hors submodules, releases indépendantes synchronisées sur la feature) :
   **exemple-app-16_API_v3 1.13.0** — matching contact par `user_uuid` (fallback legacy
   `sam_account_name` + backfill à la connexion), préférences immunes au renommage,
-  nom hub priorisé à l'affichage ; **exemple-app_v3 0.3.0 → 0.3.1** — ré-import CSV :
+  nom hub priorisé à l'affichage ; **exemple-app-17_v3 0.3.0 → 0.3.1** — ré-import CSV :
   `nom_usuel`/`prenom` rafraîchis si fournis (propagation mariage depuis la paie).
 - Specs + plan : `docs/superpowers/specs/2026-09-05-identite-utilisateur-rename-uuid-design.md`,
   `docs/superpowers/plans/2026-09-05-identite-utilisateur-rename-uuid.md`.
@@ -4149,8 +4149,8 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   dérivées (`FRONTEND_HTTPS_PORT`, `APP_SUBNET`) **absentes** (pas seulement vides)
   du `.env` — `re.sub` ne remplaçait aucune ligne mais le rapport annonçait
   « ✅ fusionné ». Correctif : `re.subn` + ajout en fin de fichier. Cas réel validé
-  (exemple-app : `APP_SUBNET` désormais écrit, valeurs critiques inchangées).
-- **exemple-app v1.15.0** (repo indépendant) : `make update-env` câblé (B.0),
+  (exemple-app-7 : `APP_SUBNET` désormais écrit, valeurs critiques inchangées).
+- **exemple-app-7 v1.15.0** (repo indépendant) : `make update-env` câblé (B.0),
   clé `FRONTEND_HTTPS_PORT` ajoutée au `.env.example` personnalisé, hygiène
   `.gitignore` `.env.pre-*` (backups = secrets).
 ## [0.51.2] - 2 septembre 2026
@@ -4163,9 +4163,9 @@ Spécification `docs/superpowers/specs/2026-09-15-outillage-parc-design.md` :
   place), les appels M2M résolvent vers les instances prod, pas de groupe à emmener.
   `report_sync` / `depends.yaml` / endpoints Hub (réels) inchangés.
 - **Propagation aux copies d'apps** (repos indépendants, releases patch poussées) :
-  exemple-app 0.3.1, exemple-app 0.12.1, exemple-app 0.9.1, exemple-app 1.10.1,
-  exemple-app 0.10.1 (master) — cette dernière avec réparation du frontmatter YAML
-  du skill (absent → skill non chargé). **Non propagé** : exemple-app (atelier
+  exemple-app-27 0.3.1, exemple-app-13 0.12.1, exemple-app-1 0.9.1, exemple-app-19 1.10.1,
+  exemple-app-15 0.10.1 (master) — cette dernière avec réparation du frontmatter YAML
+  du skill (absent → skill non chargé). **Non propagé** : exemple-app-7 (atelier
   actif + working tree dirty — à resynchroniser après clôture de l'atelier) ;
   copie dans `hubctl_src/hubctl_cli/_trash/` ignorée (corbeille).
 ## [0.51.1] - 2 septembre 2026
@@ -4248,7 +4248,7 @@ Hub (`workshop_service`, `.workshop.env` 7 clés) :
   - Incident réel documenté (déploiement client) : compose neuf tiré par git + `.env` ancien → `APP_SUBNET` manquant, puis `cp .env.example .env` hasardeux.
   - Description du skill enrichie (triggers : `.env` obsolète, base inaccessible après migration).
 - **2.20.0** : `scripts/update_env.py` + cible `make update-env` dans le template, `.gitignore` `.env.pre-*` (sauvegardes de `.env` = secrets).
-- Application du parc migrée avec ce processus : **exemple-app** (UI HUBCSS 0.2.0, fix tables 0.2.1, update-env 0.3.0 — dépôt `exemple50/exemple-app`, indépendant du méta-repo).
+- Application du parc migrée avec ce processus : **exemple-app-27** (UI HUBCSS 0.2.0, fix tables 0.2.1, update-env 0.3.0 — dépôt `exemple-org/exemple-app-27`, indépendant du méta-repo).
 ---
 ## [0.49.0] - 1er septembre 2026
 ### 🛡️ Pointeur sous-module HUB_base v3.44.4 → v3.45.0
@@ -4456,7 +4456,7 @@ Hub (`workshop_service`, `.workshop.env` 7 clés) :
 - **HUB_base v3.34.2** — self-healing M2M : sélection du SA *propriétaire* au ré-enregistrement (corrige la rotation du secret d'un SA étranger pour les apps partagées) + recréation automatique du SA disparu (audit `m2m_sa_recreated`).
 - **HUBapp_TEMPLATE_base v2.15.1** — client : `_recover_credentials` via register trusted (voie `regenerate-secret` morte post-H9), payload recover complet.
 ### 📦 Apps
-- **exemple-app-7 v1.7.1** (repo dédié) — creds M2M persistés en volume + self-healing via register + fix slug d'accès frontend (`exemple-app` → `exemple-app`). Incident 401 du 20/08 clos : app sur l'identité officielle (9003/4206), données migrées.
+- **exemple-app-7 v1.7.1** (repo dédié) — creds M2M persistés en volume + self-healing via register + fix slug d'accès frontend (ancien slug avec séparateur → slug officiel). Incident 401 du 20/08 clos : app sur l'identité officielle (9003/4206), données migrées.
 - **exemple-app v2.15.4** (repo dédié) — alias réseau `backend` remplaçant le lien Docker legacy (crash-loop frontend à chaque recréation api).
 ---
 ## [0.39.2] - 21 août 2026
@@ -4588,22 +4588,22 @@ Première validation complète de l'installation de zéro sur Debian 12 pur (VM 
 - **HUB_base** → v3.31.1 : merge de `feat/audit-usage-charts` sur `main` — embarque
   v3.28.5 (les 401 sur `/api/events/stream` ne sont plus enregistrés dans `error_logs`,
   ~14 000 entrées/jour observées le 2026-08-15 ; rejet côté client inchangé), v3.29.0
-  (cert PhiliaNG auto-généré), v3.30.0 (groupes d'applications), v3.31.0 (visualisations
+  (cert du proxy de l'application métier auto-généré), v3.30.0 (groupes d'applications), v3.31.0 (visualisations
   audit : uptime utilisateurs, heatmap parc, stats par application) et v3.31.1 (perf
   agrégats 90 j + filtre app sur `/usage/apps`). *(Pointeur sous-module avancé —
   réconciliation effectuée.)*
 - **HUBapp_TEMPLATE_base** → v2.12.0 : re-synchro périodique (6 h) des certificats HTTPS
   depuis la PKI du HUB (`cert_sync.py`) — la rotation du cert du HUB se propage sans
   intervention manuelle. *(Pointeur sous-module avancé.)*
-- **exemple-app** → v1.27.0 (dépôt indépendant, hors sous-modules) : vue groupée arborescente
+- **exemple-app-2** → v1.27.0 (dépôt indépendant, hors sous-modules) : vue groupée arborescente
   des contrats + correctifs recherche/filtres cumulatifs.
 - **4 apps legacy corrigées** (SSE du Hub désormais authentifié via `?token=`, pattern
   template — notifications SSE fonctionnelles + fin de la boucle 401) :
-  - **exemple-app** → v0.0.2
+  - **exemple-app-20** → v0.0.2
   - **exemple-app-16_API_v3** → v1.6.1
-  - **exemple-app_v3** → v0.2.1 (package.json réaligné)
-  - **exemple-app** → v1.0.6 (package.json réaligné ; **push GitHub bloqué** :
-    droits d'écriture manquants sur `Federation-exemple-50/exemple-app` — commit prêt
+  - **exemple-app-17_v3** → v0.2.1 (package.json réaligné)
+  - **exemple-app-19** → v1.0.6 (package.json réaligné ; **push GitHub bloqué** :
+    droits d'écriture manquants sur `exemple-org/exemple-app-19` — commit prêt
     localement)
 - **Purge** : 14 344 erreurs 401 SSE historiques supprimées de `error_logs`.
 - **Skills** : `migrate-app-template` — nouvelle section **D.3.2** (SSE authentifié :
@@ -4629,7 +4629,7 @@ Première validation complète de l'installation de zéro sur Debian 12 pur (VM 
 ### 🔒 Correctifs sécurité parc — audit du 10 mai 2026 (fin de chantier)
 - **HUBapp_TEMPLATE_base** → v2.11.1 : durcissement des conteneurs (audit #21) — `no-new-privileges` + `cap_drop: ALL` sur les trois services compose (caps minimales pour postgres, zéro pour l'api, `NET_BIND_SERVICE` pour le frontend) ; frontend **100 % non-root** (`USER nginx`, pattern `HUB_base/frontend`). Non propagé aux apps existantes (effectif à la prochaine migration template).
 - **exemple-app** (app, hors sous-modules) → v2.15.2 : SSE — fin du décodage JWT sans vérification de signature et du fallback anonyme par cookie (audit #12) ; token validé via `hub_auth.decode_token` (RS256), 401 sinon, + 5 tests de régression.
-- **exemple-app** (app, hors sous-modules) → v1.26.1 : retrait de la publication du port Postgres 5432 sur l'hôte (recommandation audit « ne jamais publier la DB ») — accès réseau Docker interne uniquement.
+- **exemple-app-2** (app, hors sous-modules) → v1.26.1 : retrait de la publication du port Postgres 5432 sur l'hôte (recommandation audit « ne jamais publier la DB ») — accès réseau Docker interne uniquement.
 ---
 ## [0.35.5] - 14 août 2026
 ### ⚡ HUBapp_TEMPLATE_base v2.11.0 — Canevas de cahier des charges (100 % métier)
@@ -4641,14 +4641,14 @@ Première validation complète de l'installation de zéro sur Debian 12 pur (VM 
 - **HUB_base** → v3.28.4 : suppression de la vue d'aide « Guide de maintenance » (bouton `?` de la navbar, modale `#guideModal` et logique `showGuideModal`). Vue jugée inutile.
 ---
 ## [0.35.3] - 12 août 2026
-### 🔧 HUB_base v3.28.3 — SNI PhiliaNG automatique
-- **HUB_base** : `nginx-philia-ng.conf` utilise `host.docker.internal:4443` au lieu d'une IP hardcodée. Le HUB se déploie sur n'importe quel serveur sans modifier la config SNI PhiliaNG.
+### 🔧 HUB_base v3.28.3 — SNI du proxy de l'application métier automatique
+- **HUB_base** : `nginx-philia-ng.conf` utilise `host.docker.internal:4443` au lieu d'une IP hardcodée. Le HUB se déploie sur n'importe quel serveur sans modifier la config SNI du proxy.
 - **HUB_base** : `docker-compose.yml` ajoute `extra_hosts: host.docker.internal:host-gateway` au service `hub-frontend`.
 ## [0.35.2] - 12 août 2026
 ### ⚡ Skills enrichis + submodules bumped + script check-import
 - **HUB_base** → v3.28.2 : Docker GID configurable via `HOST_DOCKER_GID`, fix comment `is_workshop`.
 - **hubctl_src** → v0.4.0 : shell marker portable (`_install_shell_marker`), auto-source `.secrets`, cleanup legacy `APP_Workshop/`.
-- **Skills** : `app-workshop-mover`, `proxy-ia` enrichis ; `create-hub-app`, `vault-manager` corrigés.
+- **Skills** : `app-workshop-mover`, `proxy-transparent` enrichis ; `create-hub-app`, `vault-manager` corrigés.
 - **Manifest** : ajout de `hubctl_src` dans `manifest.json` pour la découverte complète du parc.
 - **README** : suppression de la référence `APP_Workshop/` (obsolète depuis le nouveau schéma atelier).
 - **`.secrets.example`** : mise à jour des variables d'exemple.
@@ -4656,16 +4656,16 @@ Première validation complète de l'installation de zéro sur Debian 12 pur (VM 
 - **`.superpowers/sdd/`** : rapports de tâches mis à jour.
 ## [0.35.1] - 11 août 2026
 ### ⚡ Fixes HUB_base + hubctl_src
-- **HUB_base** → v3.28.1 : PhiliaNG nginx conditionnel — ne crash plus au boot
-  si les certificats `certs/server/philia-ng/` sont absents (machine sans PhiliaNG).
+- **HUB_base** → v3.28.1 : proxy nginx conditionnel — ne crash plus au boot
+  si les certificats `certs/server/philia-ng/` sont absents (machine sans le proxy).
 - **hubctl_src** → v0.3.2 : fix `_sync_db_password_if_needed()` — la commande
   `psql -d` utilisait `POSTGRES_USER` au lieu de `POSTGRES_DB`, empêchant la
   sync du mot de passe DB quand un volume existait.
 ## [0.35.0] - 11 août 2026
-### ⚡ Nouveau skill proxy-ia et correction release-on-main
-- **Skills** : ajout du skill `proxy-ia` — pattern générique de proxy transparent
+### ⚡ Nouveau skill proxy-transparent et correction release-on-main
+- **Skills** : ajout du skill `proxy-transparent` — pattern générique de proxy transparent
   avec overlay JS, cache collectif L1/L2, piggyback du token utilisateur, et
-  recherches backend dans le cache. Cas de référence : PhiliaNG / philiang.
+  recherches backend dans le cache. Cas de référence : une application web tierce.
 - **release-on-main** : correction du comportement par défaut — le CHANGELOG
   est désormais purement technique, le patchnote utilisateur n'est rédigé que
   sur demande explicite (plus de question automatique au push).
@@ -4685,7 +4685,7 @@ Première validation complète de l'installation de zéro sur Debian 12 pur (VM 
   OIDC/SLO/SA pour la cohérence entre `./install.sh` et `./hubctl init`.
 ## [0.33.0] - 10 août 2026
 ### ⚡ Mise à jour sous-modules + skill migrate-app-template
-- **HUB_base** → v3.27.0 : routage SNI (domaine client scrubé) → proxy PhiliaNG transparent (nginx-ssl.conf)
+- **HUB_base** → v3.27.0 : routage SNI (domaine client scrubé) → proxy transparent de l'application métier (nginx-ssl.conf)
 - **HUBapp_TEMPLATE_base** → v2.9.0 : affichage `APP_VERSION` dans le header de l'app
 - **Skills** : ajout du skill `migrate-app-template` pour mettre à jour les apps vers la dernière version du template
 ## [0.32.0] - 3 août 2026
@@ -4830,7 +4830,7 @@ Première validation complète de l'installation de zéro sur Debian 12 pur (VM 
 - **Amélioré** : l'atelier (création d'un environnement de test pour une app) garantit désormais le redémarrage de la production en cas d'erreur inattendue.
 - **Amélioré** : robustesse de l'export et de la restauration de parc — l'archive détecte correctement un dump de base de données manquant, et la restauration est compatible avec Python 3.10 et 3.11.
 ### 🛡️ Robustesse — `hubctl` (Palier 3)
-- **`_norm` cohérent Compose v2** (`hub_state.py`) : remplace les séparateurs par `-` au lieu de les supprimer → fin des collisions `exemple-app` ≡ `exemple` (faux statut d'app).
+- **`_norm` cohérent Compose v2** (`hub_state.py`) : remplace les séparateurs par `-` au lieu de les supprimer → fin des collisions `exemple-app` ≡ `exempleapp` (faux statut d'app).
 - **Labels Docker dict/str** (`hub_state.py`) : `_docker_api_containers` gère maintenant le format `"Labels":{"key":"val"}` (certaines versions/API Docker le produisent) en plus du format comma-separated. Sans cela, l'ancien code plantait sur `AttributeError: 'dict' object has no attribute 'split'` → toutes les apps affichées « stopped ».
 - **Timeouts `auto_detect`** (`auto_detect.py`) : `subprocess.check_output` appelé sans `timeout=` → ajout de `timeout=5`/`timeout=10` + catch `TimeoutExpired`. Évite que le boot gèle si le daemon Docker est dans un état dégradé.
 - **Injection SQL `ALTER USER`** (`actions.py:278`) : extraction de `_build_alter_user_sql` (échappement des quotes + validation de l'identifiant SQL). L'ancienne interpolation `f"ALTER USER ... '{password}'"` cassait silencieusement le bootstrap si le mot de passe contenait une apostrophe.
@@ -5433,7 +5433,7 @@ les overrides de variables d'environnement (blue-green).
 - **Branche renommée `master` → `main`** : aligne le méta-repo sur les 4
   submodules et ACTIVE le garde-fou `release-on-main` (auparavant désactivé
   sur le repo principal).
-- **`00_INSTRUCTION_BIBLE/` supprimée** : lignée « exemple » entièrement périmée
+- **`00_INSTRUCTION_BIBLE/` supprimée** : lignée « legacy » entièrement périmée
   (HUB/ vs HUB_base/, PostgreSQL 16 vs 15, skills déplacés, référence master).
   README mis à jour pour pointer vers les docs vivantes.
 - **`.github/instructions/` déplacé** vers `HUBapp_TEMPLATE_base/.github/`
@@ -5568,7 +5568,7 @@ les overrides de variables d'environnement (blue-green).
 ## [0.9.1] - 1er juillet 2026
 ### ⚡ Exclusion des applications du méta-dépôt
 - Les applications ne sont plus incluses dans POULIDOR : `APP_Workshop/` est désormais
-  ignoré (comme `APPS/`), et les sous-modules imbriqués `APP_Workshop/{exemple-app-2,exemple-app,exemple-app}`
+  ignoré (comme `APPS/`), et les sous-modules imbriqués `APP_Workshop/{exemple-app-2,exemple-app-1,exemple-app-3}`
   sont désenregistrés (`.gitmodules` + `.git/config` nettoyés, gitlinks retirés de l'index).
 - Les dépôts d'app restent autonomes sur disque (leur propre `.git` + remote) — seul le
   suivi par le méta-dépôt est supprimé.
@@ -5641,12 +5641,12 @@ les overrides de variables d'environnement (blue-green).
   sémantique Esc/Ctrl‑C, _MergedKeyBindings pour text/confirm/password, sortie propre
   en mode non-interactif (pas de TTY).
 - Gestion de l'état du serveur avec arrêt par timeout d'inactivité.
-### 🖥️ Pages exemple-apps — fiche client et GED
+### 🖥️ Pages exemple-app-4 — fiche client et GED
 - Nouvelles pages d'audit client : fiche client et gestion documentaire GED.
-- Design dark pixel ajouté à la spec exemple-apps.
+- Design dark pixel ajouté à la spec exemple-app-4.
 ### 📚 Documentation
 - Guide d'usage et vérification end‑to‑end de hubctl.
-- Plan d'implémentation et spec pour l'audit UX/UI exemple-apps.
+- Plan d'implémentation et spec pour l'audit UX/UI exemple-app-4.
 - Amendement du plan hubctl (renommage hubctl_cli).
 ## [0.4.1] - 28 juin 2026
 ### ⚙️ Jellycode défini comme agent par défaut

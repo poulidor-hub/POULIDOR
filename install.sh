@@ -344,7 +344,7 @@ if git rev-parse --is-inside-work-tree &>/dev/null; then
     if sudo -u "$REAL_USER" git submodule update --init --recursive; then
         ok "Submodules synchronisés"
     else
-        warn "Échec de synchro des submodules (clé SSH ?). Vérifie : git submodule update --init --recursive"
+        warn "Échec de synchro des submodules (droits d'accès aux dépôts ?). Vérifie : git submodule update --init --recursive"
     fi
 fi
 

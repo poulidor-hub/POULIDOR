@@ -1,7 +1,7 @@
-# RUNBOOK — Portage du fix socle v2.23.4 (jsonb/asyncpg) dans exemple-app et exemple-app
+# RUNBOOK — Portage du fix socle v2.23.4 (jsonb/asyncpg) dans exemple-app-22 et exemple-app-13
 
 > **Destinataire** : IA ou développeur devant publier la correction sur les apps
-> `exemple-app` et `exemple-app`. Procédure complète, testée en
+> `exemple-app-22` et `exemple-app-13`. Procédure complète, testée en
 > conditions réelles sur les bancs POULIDOR-lab (13-14/09/2026).
 >
 > **Priorité** : normale-forte. En prod, le restore de ces deux apps échoue
@@ -34,14 +34,14 @@ ne sont jamais restaurées.
 
 | App | VERSION source | Repo | Fichier à patcher |
 |---|---|---|---|
-| `exemple-app` | 0.4.0 | `git@github.com:Federation-exemple-50/exemple-app.git` | `backend/routes/backup.py` |
-| `exemple-app` | 0.15.0 | `git@github.com:Federation-exemple-50/exemple-app.git` | `backend/routes/backup.py` |
+| `exemple-app-22` | 0.4.0 | `https://github.com/exemple-org/exemple-app-22.git` | `backend/routes/backup.py` |
+| `exemple-app-13` | 0.15.0 | `https://github.com/exemple-org/exemple-app-13.git` | `backend/routes/backup.py` |
 
 Vérification préalable (les deux apps ont le même code, une seule occurrence du
 pattern, ligne ~248) :
 
 ```bash
-git clone git@github.com:Federation-exemple-50/<APP>.git && cd <APP>
+git clone https://github.com/exemple-org/<APP>.git && cd <APP>
 grep -c 'deserialized = {k: _deserialize_value(v) for k, v in row_data.items()}' backend/routes/backup.py
 # attendu : 1   (sinon, stop — le code local diverge, adaptation requise)
 grep -c '_normalize_db_value' backend/routes/backup.py
@@ -194,13 +194,13 @@ python3 -m pytest tests/test_backup_jsonb_values.py -q     # 7 passed
 python3 -m pytest tests/ -q                                # suite complète : 0 régression
 ```
 
-Référence banc : exemple-app 7/7 + suite verte ; exemple-app idem.
+Référence banc : exemple-app-22 7/7 + suite verte ; exemple-app-13 idem.
 
 ## 4. release-on-main de l'app
 
 - **Bump PATCH** de `VERSION` (correction uniquement) :
-  - exemple-app : 0.4.0 → **0.4.1**
-  - exemple-app : 0.15.0 → **0.15.1**
+  - exemple-app-22 : 0.4.0 → **0.4.1**
+  - exemple-app-13 : 0.15.0 → **0.15.1**
 - **CHANGELOG** : prépender l'entrée (format du dépôt), section
   `### ⚡ Corrigé : restore — colonnes jsonb rejetées par asyncpg` avec la
   référence HUBsocle v2.23.4.
@@ -218,7 +218,7 @@ curl -sf "http://localhost:$(grep '^API_PORT=' .env | cut -d= -f2)/api/health"
 
 ⚠️ Mémo incidents banc (à ne pas reproduire) : lors de la mise à jour du
 `.env`/compose, ne jamais laisser un conteneur banc pointer un volume partagé
-avec prod (la séquence exacte a vidé le datadir prod de `exemple-app`, réparé
+avec prod (la séquence exacte a vidé le datadir prod de `exemple-app-21`, réparé
 depuis le banc hubv2 — cf. journal du banc du 13-14/09).
 
 ## 6. Vérification fonctionnelle post-déploiement
@@ -240,8 +240,8 @@ Le patch est purement additif (une fonction + un wrapping). Rollback :
 
 | App | Fix socle | Test porté | Release app | Déployé prod |
 |---|---|---|---|---|
-| exemple-app | v2.23.4 | ✓ (banc) | à faire (0.4.1) | à faire |
-| exemple-app | v2.23.4 | ✓ (banc) | à faire (0.15.1) | à faire |
+| exemple-app-22 | v2.23.4 | ✓ (banc) | à faire (0.4.1) | à faire |
+| exemple-app-13 | v2.23.4 | ✓ (banc) | à faire (0.15.1) | à faire |
 
 Source de vérité du fix : HUBsocle `main` @ `209f1cb` (v2.23.4) ;
 journaux : `POULIDOR-lab/journal-transferts-2026-09-13.md` et

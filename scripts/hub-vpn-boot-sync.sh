@@ -23,9 +23,12 @@
 # =============================================================================
 set -uo pipefail
 
-# Répertoire du dépôt POULIDOR — adapter à l'installation si différent
-# (ou surcharger via Environment=POULIDOR_DIR=... dans l'unité).
-POULIDOR_DIR="${POULIDOR_DIR:-/home/kkleskk/MyCOMPANY/HUB_stack/POULIDOR}"
+# Répertoire du dépôt POULIDOR : par défaut, $HOME de l'utilisateur qui lance
+# le script (usage à la main). Depuis l'unité systemd — lancée par root, sans
+# HOME d'utilisateur — le chemin doit être fixé dans l'unité :
+#   Environment=POULIDOR_DIR=<chemin du dépôt POULIDOR>
+# Sinon le script s'arrête sur « hubctl introuvable » (étape 3), sans rien tenter.
+POULIDOR_DIR="${POULIDOR_DIR:-${HOME:+$HOME/MyCOMPANY/HUB_stack/POULIDOR}}"
 
 log() { echo "[hub-vpn-sync] $*"; }
 

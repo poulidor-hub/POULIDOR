@@ -332,7 +332,7 @@ frontend (commit template `821a3c3`, 14/08/2026) : `Dockerfile.frontend` → `US
 certs côté hôte (latent, comme B.6). Fix template de référence : `20f8615` (19/09/2026)
 — `chmod 644` + commentaire justificatif. **Non propagé aux apps existantes**
 (CHANGELOG template 2.11.1 : « Non propagé aux apps existantes ») : encore vivant dans
-`APPS/exemple-app` et `APPS/exemple-app`.
+`APPS/exemple-app-22` et `APPS/exemple-app-15`.
 
 ```bash
 # Détection (dans l'app) :
@@ -434,7 +434,7 @@ cp HUBapp_TEMPLATE_base/backend/routes/test_data.py   APPS/<slug>/backend/routes
 sous gating `ENABLE_DEMO_ENDPOINTS`) : les copier **même si l'app les avait
 supprimés**, sinon `ModuleNotFoundError: No module named 'routes.items'` au boot.
 Exception : si `routes/preferences.py` de l'app est une **variante métier**
-(ex. `DIPECUserPreference` + CRUD lieux), la conserver — ne pas écraser par le
+(ex. `MonEntiteUserPreference` + CRUD lieux), la conserver — ne pas écraser par le
 template — et retirer `test_preferences.py` du socle si inapplicable (le documenter).
 
 ### C.5 — Migrations SQL

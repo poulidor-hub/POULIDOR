@@ -4,7 +4,7 @@
 
 """
 import_to_stack.py — Adaptateur de migration : export JSON du hub legacy
-(hub-legacy `export_env.py`) → hub neuf (API admin POULIDOR/HUB_base).
+(hub legacy `export_env.py`) → hub neuf (API admin POULIDOR/HUB_base).
 
 Périmètre v1 :
   - users       : créés s'ils manquent (mot de passe temporaire + must_change_password ;

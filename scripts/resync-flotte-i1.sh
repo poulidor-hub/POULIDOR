@@ -2,7 +2,7 @@
 # resync-flotte-i1.sh — Passe flotte : access logs nginx sans query string
 # (ticket I1 — JWT SSO ?token= ?refresh_token= jamais loggés).
 #
-# Validé sur exemple-app 0.26.2 (prod, 11/11/2026) : /callback?token= silencieux,
+# Validé sur exemple-app-12 0.26.2 (prod, 11/11/2026) : /callback?token= silencieux,
 # /chat?token= silencieux (le cas qui fuyait encore après 0.26.1), accès sans
 # query toujours loggé au format noquery.
 #
@@ -15,7 +15,7 @@
 #
 # Usage : bash resync-flotte-i1.sh [app1 app2 ...]   (sans argument = toutes)
 set -uo pipefail
-POULIDOR=/home/kkleskk/MyCOMPANY/HUB_stack/POULIDOR
+POULIDOR="${POULIDOR:-$HOME/MyCOMPANY/HUB_stack/POULIDOR}"
 APPS_DIR="$POULIDOR/APPS"
 ISOLATE="$POULIDOR/scripts/parc-isolate"
 LOG="/tmp/opencode/resync-flotte-i1-$(date +%H%M%S).log"
@@ -106,8 +106,8 @@ entry = f"""## [{ver}] - 11 novembre 2026
   n'affecte pas les `.env` déployés).
 - Trade-off : les routes SPA apparaissent comme `/index.html` (URI interne
   après fallback try_files). Logs backend inchangés (masquage `token=`
-  actif côté socle). Motif : ticket I1 — review migration exemple-app 0.26.0,
-  fix de référence exemple-app 0.26.2.
+  actif côté socle). Motif : ticket I1 — review migration exemple-app-12 0.26.0,
+  fix de référence exemple-app-12 0.26.2.
 
 """
 open(p, "w", encoding="utf-8").write(entry + c)

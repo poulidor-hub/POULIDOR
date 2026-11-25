@@ -104,7 +104,7 @@
 
   <figure class="shot">
     <img src="assets/screenshots/coffre.jpg" alt="UI Coffre hubctl : statut, contenu, réplication PRA et divergences apps" loading="lazy">
-    <figcaption>Coffre piloté depuis l'UI (onglet Sauvegardes → Coffre hubctl) : statut, contenu, emplacement PRA et divergences apps — restauration et changement de passphrase restant en CLI (<code>./hubctl vault</code>).</figcaption>
+    <figcaption>Coffre piloté depuis l'UI (Administration › Sauvegardes › Coffre hubctl) : statut, contenu, emplacement PRA et divergences apps — restauration et changement de passphrase restant en CLI (<code>./hubctl vault</code>).</figcaption>
   </figure>
 
   <h3>7. Export / restore &amp; disaster recovery</h3>
@@ -122,8 +122,8 @@
   skill <code>app-workshop-mover</code>.</p>
 
   <figure class="shot">
-    <img src="assets/screenshots/ateliers.jpg" alt="Onglet Ateliers de l'administration : détection des clones -ws via .workshop.env, fermeture groupée" loading="lazy">
-    <figcaption>Onglet « Ateliers » de l'administration : détection des clones <code>-ws</code> (marqueur <code>.workshop.env</code>), état des conteneurs lu via Docker, fermeture groupée.</figcaption>
+    <img src="assets/screenshots/ateliers.jpg" alt="Vue Ateliers de l'administration : détection des clones -ws via .workshop.env, ports, état des conteneurs, fermeture groupée" loading="lazy">
+    <figcaption>Vue « Ateliers » de l'administration (Administration › Ateliers) : détection des clones <code>-ws</code> (marqueur <code>.workshop.env</code>), ports, état des conteneurs lu via Docker, fermeture groupée.</figcaption>
   </figure>
 
   <h3>9. Déploiement &amp; cycle de vie des apps</h3>
@@ -135,8 +135,8 @@
   <code>docs/guide-developpement-template.md</code>.</p>
 
   <figure class="shot">
-    <img src="assets/screenshots/admin-apps.jpg" alt="Administration › Applications : table des 31 apps avec filtres statut, catégorie, mode et gestion" loading="lazy">
-    <figcaption>Administration › Applications : registre complet des apps (slug, URL, utilisateurs, état) avec filtres statut / catégorie / production-atelier / gérées.</figcaption>
+    <img src="assets/screenshots/admin-apps.jpg" alt="Administration › Applications : liste des applications avec version, état et filtres" loading="lazy">
+    <figcaption>Administration › Applications : les applications du parc, ateliers compris (version, état, actif), avec filtres statut / mode production-atelier / catégorie / gestion / groupe ; le détail de chaque application (slug, URL, utilisateurs) est dans sa fiche.</figcaption>
   </figure>
 
   <h3>10. VPN WireGuard</h3>
@@ -146,24 +146,26 @@
   <strong>Voir :</strong> <code>./hubctl vpn --help</code>.</p>
 
   <h3>11. Administration &amp; observabilité</h3>
-  <p>Dashboard santé des apps refondu (cartes « ops console », filtres
-  instantanés, panneau <strong>branches 🌿</strong> pour envoyer une branche
-  GitHub en atelier), page <strong>Audit</strong> (sessions live, heatmap
-  d'activité, alertes), administration réorganisée en <strong>onglets à 2
-  niveaux</strong> (Applications, Sauvegardes, VPN, Configuration + sous-onglets
-  Groupes, Service Accounts, Clients OIDC, Apps GitHub, Réseau), gestion des
+  <p>Vue <strong>Santé des Applications</strong> (cartes par application :
+  latence, uptime, version, conteneurs ; filtres instantanés ; menu
+  <strong>⋯</strong> pour les actions, dont l'envoi d'une branche GitHub en
+  atelier 🌿), page <strong>Audit</strong> (sessions live, heatmap d'activité,
+  alertes), accueil de l'administration avec <strong>cockpit système</strong> et
+  outils regroupés par thème (Applications : Applications, Groupes, Dépendances,
+  Apps GitHub, Ateliers ; accès et sécurité : VPN, Clients OIDC, Service
+  Accounts, Accès &amp; routage ; Sauvegardes), gestion des
   utilisateurs (identité : UUID stable, prénom/nom, renommage du login),
   déploiement par fichier seed.
   <strong>Voir :</strong> <code>HUB_base/docs/GUIDE_ADMIN.md</code>.</p>
 
   <figure class="shot">
-    <img src="assets/screenshots/sante-apps.jpg" alt="Vue Santé des Applications : cartes par app avec statut Online, latence, uptime et boutons ops console" loading="lazy">
-    <figcaption>Santé des Applications : cartes « ops console » (démarrer, arrêter, restart, logs, socle, mise à jour, panneau branches 🌿), filtres instantanés Online / Degraded / Offline / Atelier actif.</figcaption>
+    <img src="assets/screenshots/sante-apps.jpg" alt="Vue Santé des Applications : cartes par application avec statut, latence, uptime, version et menu d'actions" loading="lazy">
+    <figcaption>Santé des Applications : cartes par application (latence, uptime, version, conteneurs ; actions dans le menu ⋯ : démarrer, arrêter, redémarrer, logs, socle, mise à jour, branches 🌿), filtres instantanés Online / Degraded / Offline / Atelier.</figcaption>
   </figure>
 
   <figure class="shot">
-    <img src="assets/screenshots/admin-config.jpg" alt="Administration › Configuration : sous-onglets Groupes, Service Accounts, Clients OIDC, Apps GitHub, Accès et routage" loading="lazy">
-    <figcaption>Administration réorganisée en onglets à 2 niveaux : Applications, Sauvegardes, VPN, Configuration, Ateliers — Configuration regroupe Groupes, Service Accounts, Clients OIDC, Apps GitHub, Accès &amp; routage.</figcaption>
+    <img src="assets/screenshots/admin-config.jpg" alt="Accueil de l'administration : cockpit système et outils regroupés par thème" loading="lazy">
+    <figcaption>Accueil de l'administration : cockpit système (métriques de l'hôte lues via <code>hubctl</code>) et outils regroupés par thème — applications (Applications, Groupes, Dépendances, Apps GitHub, Ateliers), accès et sécurité (VPN, Clients OIDC, Service Accounts, Accès &amp; routage), sauvegardes.</figcaption>
   </figure>
 
   <figure class="shot">

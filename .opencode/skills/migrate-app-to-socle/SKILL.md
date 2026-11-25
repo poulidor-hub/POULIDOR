@@ -140,7 +140,7 @@ d'extension + 12 pièges) et le plan de vague en cours (ledger SDD).
 | build `make build` en worktree | « failed to get build context socle » | shim `.worktrees/HUBsocle` (non commité) |
 | Volume frais root-owned + cap_drop ALL | crash-loop `PermissionError` au register | opt-in socle 2.26 : `user: "0"` + caps CHOWN/SETUID/SETGID (drop appuser fail-fast) |
 | Banc sur le slug de prod | arrête la prod (project name partagé) | slug `-banc` dédié + ports Hub réalloués |
-| Volumes d'une app migrée sous noms historiques | `APP_SLUG=app-exemple-h` ≠ `exemple-app-*` existants : le pattern `${APP_SLUG}-*` crée des volumes **vides** au redéploiement | préserver les noms explicites existants dans le compose (déviation commentée) |
+| Volumes d'une app migrée sous noms historiques | `APP_SLUG=app-exemple-h` ≠ `exemple-app-13-*` existants : le pattern `${APP_SLUG}-*` crée des volumes **vides** au redéploiement | préserver les noms explicites existants dans le compose (déviation commentée) |
 | `APP_SLUG` réel ≠ slug déduit du fork | un `hub_app_slug` legacy (underscores→tirets) peut masquer le vrai slug ; register sous un mauvais slug = SA fantôme | lire le slug réel : `GET /api/health` de l'app en prod **avant** d'écrire la config |
 | `flush()` sans `commit()` dans les handlers fork | écritures invisibles avec l'override de test : 201 au lieu de 409, DELETE→GET 200 | corriger systématiquement `flush()` → `commit()` (référence §3, miroir app-exemple-h 0.17.0 : 8 handlers) |
 | Migrations SQL passées à `migration_hooks` | les hooks tournent AVANT `init_db` → ALTER sur table inexistante, échec sur base neuve | SQL reste dans `backend/migrations/` (auto-appliqué par le socle) ; seeds → `lifespan_extra` |

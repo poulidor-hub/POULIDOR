@@ -62,17 +62,18 @@ du log et reconnexion automatique pendant le redémarrage du Hub.
   reste lisible dans `~/.config/hubctl/update_state.json` et les logs dans
   `~/.config/hubctl/update_logs/`.
 
-## Transition purge open source (méta 0.80.14+) — MIGRATION UNIQUE
+## Réécriture d'historique : migration du déploiement (méta 0.80.14+)
 
-> Les déploiements créés **avant le 4 novembre 2026** ne peuvent plus faire la
-> routine ci-dessus directement : l'historique du parc a été réécrit (purge de
-> secrets avant open source) et votre clone n'a plus d'ancêtre commun avec le
-> remote. `hubctl --prod update hub` échouera (« histories divergentes »,
-> sous-modules introuvables). **Le hub en production n'est pas impacté** :
-> les conteneurs tournent indépendamment de git, et vos données (`.env*`,
-> `APPS/`, `storage/`, `secrets/`, coffre, volumes) sont hors git.
+> Chaque réécriture de l'historique du parc — la purge open source du
+> **4 novembre 2026**, puis la réécriture qui précède son passage en public —
+> met dans ce cas tout déploiement créé **avant** elle : la routine ci-dessus
+> ne marche plus directement. Votre clone n'a plus d'ancêtre commun avec le
+> remote ; `hubctl --prod update hub` échouera (« histories divergentes »,
+> sous-modules introuvables). **Le hub en production n'est pas impacté** : les
+> conteneurs tournent indépendamment de git, et vos données (`.env*`, `APPS/`,
+> `storage/`, `secrets/`, coffre, volumes) sont hors git.
 
-Migration (une seule fois par serveur, ~15 min, données préservées) :
+Migration (une fois par serveur et par réécriture, ~15 min, données préservées) :
 
 **1. Récupérer le script** — un `git pull` est impossible (historiques sans
 ancêtre commun), mais `git fetch` seul fonctionne :
@@ -85,18 +86,28 @@ git show origin/main:scripts/migration-oss.sh > scripts/migration-oss.sh
 ```
 
 **2. Lancer la migration** — l'URL SSH/auth de votre déploiement est réutilisée
-(toute erreur restaure automatiquement votre dépôt git d'origine) :
+(toute erreur restaure automatiquement votre dépôt git d'origine). Les
+sous-modules étant en HTTPS dans le `.gitmodules`, un déploiement par clé de
+déploiement (origin en SSH) les fait passer par la même clé :
 
 ```bash
 bash scripts/migration-oss.sh
+```
+
+**3. Avant de relancer le Hub** — la valeur par défaut de `PHILIA_NG_DOMAIN`
+(hôte du proxy) change avec cette version : si votre `.env` ne la définit pas,
+ajoutez-y explicitement le domaine que votre proxy sert aujourd'hui, sinon
+`server_name` et le certificat émis ne correspondront plus.
+
+```bash
 ./hub.sh up-prod                     # recréer si les images ont changé
 ./hubctl doctor                      # vérification complète
 ```
 
 Le script renomme l'ancien `.git` (rollback trivial possible) et conserve
 tous vos fichiers locaux. Après migration, la routine officielle ci-dessus
-redevient la norme. Les apps privées (dépôts sous `APPS/`) ne sont pas
-concernées : leurs dépôts n'ont pas été réécrits.
+redevient la norme. Les apps de `APPS/` ne sont pas concernées : leurs dépôts
+ne sont pas réécrits.
 
 
 ## Forks de déploiement : tirer SES propres mises à jour
@@ -120,7 +131,9 @@ Le script :
 
 - bascule `origin` du méta vers le fork et met l'**ancienne** origin en `upstream` ;
 - bascule chaque sous-module forké (détection d'existence par `git ls-remote` ;
-  un fork absent est **conservé sur l'officiel** avec un warning) ;
+  un fork absent est **conservé sur l'officiel** avec un warning) ; l'URL du fork
+  reprend le schéma de `--fork-url` (SSH ou HTTPS) — le `.gitmodules` officiel
+  est en HTTPS, un fork privé reste donc accessible par clé ;
 - pose une **surcharge locale** `submodule.<nom>.url` dans `.git/config` du méta :
   le `.gitmodules` versionné reste identique à l'officiel → **zéro conflit** au
   rapatriement amont ;

@@ -22,7 +22,7 @@ Labos VM **Debian 12 persistants et nommés** pour reproduire, diagnostiquer et 
 
 - `qemu-kvm`, `qemu-utils`, `cloud-image-utils` installés ; `/dev/kvm` présent
 - Image de base : auto-trouvée (hardlink) depuis `build/fresh-install/base/` si elle existe, sinon vm-lab affiche la commande `wget` exacte
-- Agent SSH actif (`ssh-add -l` non vide) pour les clones GitHub depuis la VM
+- Clones GitHub depuis la VM en HTTPS anonyme (dépôts publics) ; tant qu'ils sont privés : agent SSH actif (`ssh-add -l` non vide)
 - Disque : garde-fous auto (≤ 2 labos, ≥ 20 Go libres) — ne pas contourner
 
 ## Recettes
@@ -40,8 +40,7 @@ scripts/test-fresh-install.sh [--branch <branche>] [--keep]
 
 ```bash
 scripts/lib/vm-lab.sh create repro-<bug>          # VM Debian 12 neuve (~2-3 min)
-scripts/lib/vm-lab.sh ssh repro-<bug> 'ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts'
-scripts/lib/vm-lab.sh ssh repro-<bug>             # puis : git clone --recurse-submodules … && sudo ./install.sh
+scripts/lib/vm-lab.sh ssh repro-<bug>             # puis : git clone --recurse-submodules <URL HTTPS> && sudo ./install.sh
 scripts/lib/vm-lab.sh push repro-<bug> <branche>  # ou : pousser TA branche (bundles sous-modules inclus)
 # … itérer librement (le labo persiste entre tes commandes/sessions) …
 scripts/lib/vm-lab.sh destroy repro-<bug>         # quand fini — note le résultat au journal avant
@@ -75,7 +74,7 @@ Puis diagnostic libre : santé (`curl localhost:8000/api/health`), apps du clien
 | Piège | Parade |
 |---|---|
 | SSH monte avant la fin de cloud-init (git absent juste après boot) | `vm_create` attend `cloud-init status --wait` — ne pas court-circuiter |
-| Host key GitHub absente d'une machine neuve → clone échoue | `ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts` avant le clone |
+| Host key GitHub absente d'une machine neuve → un clone **SSH** échoue (sans objet en HTTPS) | `ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts` avant un clone SSH |
 | `docker compose restart` ne recharge PAS le `.env` | utiliser `docker compose up -d <svc>` (recreate) |
 | `allocate-ports` 403 depuis un subnet non whitelisté | `APP_WHITELIST_NETWORKS` dans `HUB_base/.env` + recreate hub-api (init détecte le LAN depuis v0.5.2) |
 | `INITIALISE.py --profile` interactif | `--yes` (template ≥ v2.14.0) |

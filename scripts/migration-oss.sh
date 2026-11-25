@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # =============================================================================
-# Migration unique vers l'historique post-purge open source (méta 0.80.14+).
+# Migration d'un déploiement vers l'historique réécrit (open source, méta 0.80.14+).
+# À rejouer après chaque réécriture de l'historique du parc : une fois par serveur
+# et par réécriture.
 # =============================================================================
 # Contexte : l'historique git a été réécrit (purge de secrets avant open
 # source). Un déploiement existant ne peut plus faire `hubctl update` :
@@ -13,7 +15,10 @@
 #
 # Auth : l'URL origin EXISTANTE de votre déploiement est réutilisée (SSH/clé de
 # déploiement). Override possible : --url <URL>. En cas d'échec, l'ancien .git
-# est restauré automatiquement (rollback sans perte).
+# est restauré automatiquement (rollback sans perte). Les sous-modules sont en
+# HTTPS dans le .gitmodules (clone anonyme) : quand l'URL utilisée est en SSH,
+# leur URL est surchargée en SSH dans le .git/config du clone neuf, pour qu'ils
+# passent par la même clé.
 #
 # Récupération du script depuis un déploiement existant (pas besoin de merge) :
 #   git fetch origin && git show origin/main:scripts/migration-oss.sh > scripts/migration-oss.sh
@@ -71,6 +76,23 @@ git fetch --quiet origin || rollback
 git checkout -q -f -B "$BRANCH" "origin/$BRANCH" || rollback
 
 echo "== 3/5 Sous-modules (checkout forcé sur les pointeurs, données préservées) =="
+# Le .gitmodules est en HTTPS. Un déploiement par clé de déploiement (URL en
+# git@) n'a pas d'identifiants HTTPS : l'URL de chaque sous-module est surchargée
+# en SSH dans CE clone (.git/config, submodule.<nom>.url, comme scripts/fork-remotes.sh) ;
+# le .gitmodules reste tel quel. Une règle url.<base>.insteadOf ne suffirait pas :
+# le clone d'un sous-module ne lit pas la configuration du superprojet.
+if [[ "$URL" == git@* ]]; then
+    n=0
+    while read -r nom officielle; do
+        case "$officielle" in
+            https://github.com/*)
+                git config "submodule.${nom}.url" "git@github.com:${officielle#https://github.com/}"
+                n=$((n + 1)) ;;
+        esac
+    done < <(git config --file .gitmodules --get-regexp '^submodule\.[^.]+\.url$' \
+             | while read -r cle valeur; do nom="${cle#submodule.}"; printf '%s\t%s\n' "${nom%.url}" "$valeur"; done)
+    echo "  URL en SSH : $n sous-module(s) surchargé(s) en SSH dans .git/config (même clé que le méta)"
+fi
 git submodule update --init --recursive --force || rollback
 
 echo "== 4/5 Réalignement des sous-modules =="

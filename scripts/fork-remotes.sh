@@ -12,7 +12,10 @@
 #   - upstream = l'org officielle POULIDOR (rapatriement volontaire contrôlé) ;
 #   - sous-modules : basculés pareillement, avec surcharge LOCALE dans
 #     `.git/config` (`submodule.<nom>.url`) — le `.gitmodules` versionné reste
-#     identique à l'officiel, donc zéro conflit au rapatriement amont.
+#     identique à l'officiel, donc zéro conflit au rapatriement amont. Le
+#     `.gitmodules` officiel est en HTTPS (clone anonyme) : une URL de fork
+#     dérivée prend le schéma de --fork-url (SSH ou HTTPS), pour qu'un fork
+#     privé reste accessible par clé.
 #
 # Usage :
 #   scripts/fork-remotes.sh --fork-url git@github.com:<org>/POULIDOR.git [options]
@@ -45,6 +48,10 @@
 # =============================================================================
 
 set -euo pipefail
+
+case "${BASH_SOURCE[0]}" in */*) dossier="${BASH_SOURCE[0]%/*}" ;; *) dossier="." ;; esac
+# shellcheck source=scripts/lib/url-scheme.sh
+source "$dossier/lib/url-scheme.sh"
 
 OFFICIAL_ORG="POULIDOR-Audit-Developpement"
 FORK_URL=""
@@ -82,9 +89,16 @@ if [ -n "$(git status --porcelain)" ]; then
   echo "    mais aligne ton WIP avant toute mise à jour (hubctl update)."
 fi
 
-# L'org du fork, dérivée de --fork-url (git@github.com:<org>/POULIDOR.git ou
-# https://github.com/<org>/POULIDOR.git).
-FORK_ORG=$(basename "$(dirname "${FORK_URL%.git}")")
+# L'org du fork, dérivée de --fork-url, quelle que soit sa forme
+# (git@github.com:<org>/POULIDOR.git, ssh://git@github.com/<org>/POULIDOR.git ou
+# https://github.com/<org>/POULIDOR.git) : l'avant-dernier segment du chemin du
+# dépôt. La forme git@hôte:chemin n'a pas de schéma : son « : » vaut un « / ».
+FORK_CHEMIN="$FORK_URL"
+case "$FORK_CHEMIN" in
+    *://*) ;;
+    *:*)   FORK_CHEMIN="${FORK_CHEMIN/:/\/}" ;;
+esac
+FORK_ORG=$(basename "$(dirname "${FORK_CHEMIN%.git}")")
 
 # L'upstream officiel du méta = l'ancienne origin si elle pointe l'org officielle.
 CUR_ORIGIN=$(git remote get-url origin)
@@ -213,6 +227,8 @@ if [ "$SKIP_SUBMODULES" -eq 0 ]; then
       fork_url="${SUB_MAP[$name]}"
     else
       fork_url="${official//$OFFICIAL_ORG/$FORK_ORG}"
+      # Le .gitmodules est en HTTPS : l'URL du fork prend le schéma de --fork-url.
+      fork_url="$(to_fork_scheme "$FORK_URL" "$fork_url")"
       [ "$fork_url" != "$official" ] || { echo "  ⚠️  $name : URL non dérivable ($official) — passe par --sub $name=<url>"; continue; }
     fi
     # Test « initialisé » : path/.git doit exister (fichier gitdir absorbé OU

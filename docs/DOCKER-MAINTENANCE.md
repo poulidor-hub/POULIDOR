@@ -12,7 +12,7 @@ Aucune purge Docker n'existait dans le parc. Constat sur un serveur
 - images inutilisées : **49 GB** ;
 - **169 volumes orphelins** (~19 GB) : caches cargo (~11,5 GB),
   `postgres-data` de branches/worktrees mortes, volumes d'une app supprimée
-  (`exemple-app`).
+  (`exemple-app-27`).
 
 Le script permet soit un **rapport** (défaut), soit une **purge cadrée**
 (`--apply`).

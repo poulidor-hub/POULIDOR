@@ -2,6 +2,14 @@
 # (l'ancienne CI self-hosted — pointeurs SSH + sonde hub de prod — ne se
 #  transpose pas à un dépôt public ; les vérifications de build/health
 #  restent locales au parc, via ./hubctl doctor.)
+#
+# Ce fichier ne contient aucune valeur interdite : un workflow public qui les
+# cite les publie. Les motifs (une expression rationnelle étendue par ligne)
+# viennent de la variable de dépôt OSS_FORBIDDEN_PATTERNS — réglage :
+# Settings > Secrets and variables > Actions > Variables — et sont examinés par
+# scripts/oss-guard.sh, qui ne les affiche jamais. La variable se pose depuis le
+# fichier de motifs local du mainteneur :
+#   gh variable set OSS_FORBIDDEN_PATTERNS --body "$(cat ~/.config/poulidor/oss-forbidden.txt)"
 name: OSS guard
 
 on:
@@ -13,26 +21,46 @@ jobs:
   no-private-data:
     name: Aucune donnée privée trackée
     runs-on: ubuntu-latest
+    # Une variable de dépôt n'est pas transmise à une pull_request venue d'un
+    # fork : le job ne tourne pas dans ce cas (à chaque push, et pour les
+    # pull_request nées dans le dépôt).
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.fork == false
     steps:
-      # Scan du contenu tracké du méta-repo SEUL. Les submodules sont des
-      # pointeurs (gitlinks) vers des dépôts PRIVÉS : le GITHUB_TOKEN est
-      # scopé au méta-repo et ne peut pas les cloner (« Repository not
-      # found »), et leur contenu n'est de toute façon pas tracké ici.
+      # Scan du méta-repo SEUL, sans cloner les sous-modules : ce sont des dépôts
+      # distincts, publiés en même temps que le méta, et leur contenu n'est pas
+      # suivi ici.
       - uses: actions/checkout@v4
 
-      - name: Pas d'IP de serveur réel (plages scrubées → RFC 5737 uniquement)
+      - name: Motifs interdits (variable de dépôt OSS_FORBIDDEN_PATTERNS)
+        env:
+          OSS_FORBIDDEN_PATTERNS: ${{ vars.OSS_FORBIDDEN_PATTERNS }}
         run: |
-          ! grep -rInE '192\.168\.1\.(68|126|50)\b|194\.177\.37\.106|10\.210\.(0|63)\.' \
-            --exclude-dir=.git --exclude-dir=node_modules --exclude=oss-guard.yml . \
-            || { echo "IP privée détectée dans les fichiers trackés"; exit 1; }
+          if [ -z "$OSS_FORBIDDEN_PATTERNS" ]; then
+            echo "::error::La variable de dépôt OSS_FORBIDDEN_PATTERNS est absente ou vide. Réglage : Settings > Secrets and variables > Actions > Variables."
+            exit 1
+          fi
+          # La variable arrive par l'environnement, jamais inline dans le script :
+          # les motifs sont des expressions rationnelles.
+          printf '%s\n' "$OSS_FORBIDDEN_PATTERNS" > "$RUNNER_TEMP/oss-forbidden.txt"
+          chmod 600 "$RUNNER_TEMP/oss-forbidden.txt"
 
-      - name: Pas de données clients nommées
+      - name: Aucune valeur interdite (contenu et chemins suivis)
+        run: scripts/oss-guard.sh scan-tree "$RUNNER_TEMP/oss-forbidden.txt"
+
+      - name: Pas de chemin personnel
         run: |
-          # --exclude=oss-guard.yml : le scan ne doit pas matcher ses propres
-          # patterns (le workflow cite les données recherchées).
-          ! grep -rInE 'exemple-org|pr177\.exemple\.org|fede50\.priv' \
-            --exclude-dir=.git --exclude-dir=node_modules --exclude=oss-guard.yml . \
-            || { echo "Donnée client détectée dans les fichiers trackés"; exit 1; }
+          # $HOME dans les scripts, /home/utilisateur/… dans la documentation.
+          # Fichiers suivis seuls ; un chemin qui finit la ligne compte aussi.
+          rc=0
+          git grep -I -n -E '/home/[a-z0-9_.-]+(/|$)' -- . > "$RUNNER_TEMP/chemins-personnels.txt" || rc=$?
+          if [ "$rc" -gt 1 ]; then
+            echo "::error::git grep a échoué (code $rc) : contrôle des chemins personnels impossible."
+            exit 1
+          fi
+          if grep -vE '/home/(utilisateur|user|<)' "$RUNNER_TEMP/chemins-personnels.txt"; then
+            echo "::error::Chemin personnel dans un fichier suivi : $HOME dans les scripts, /home/utilisateur/… dans la documentation."
+            exit 1
+          fi
 
   coherence-release:
     name: VERSION / CHANGELOG cohérents
@@ -45,7 +73,7 @@ jobs:
           head -40 CHANGELOG.md | grep -q "## \[$v\]" \
             || { echo "CHANGELOG: pas d'entrée [$v] en tête (VERSION=$v)"; exit 1; }
 
-      - name: Sous-modules pointés (gitlinks dans l'index, sans cloner les dépôts privés)
+      - name: Sous-modules pointés (gitlinks dans l'index, sans cloner les sous-modules)
         run: |
           for s in HUB_base HUBsocle HUBapp_TEMPLATE_base HUBCSS hubctl_src hub-mcp; do
             git ls-files --stage -- "$s" | grep -q '^160000' \
