@@ -1,3 +1,31 @@
+## [0.86.5] - 25 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.105.0 — sécurité : inscription des applications fermée à toute entrée publique, jeton du propriétaire requis
+
+- Pointeur sous-module `HUB_base` : 8dd5ad16 → e19b3444 (release 3.105.0, minor).
+- Contenu : correctifs de sécurité du Hub sur l'inscription des applications —
+  - les cinq routes d'inscription sont refusées par toute entrée publique, celle du Hub
+    comme celle des applications (dont les frontaux proxifient `/hub/`) : blocs nginx et
+    garde côté Hub indépendante de la configuration nginx ;
+  - réinscrire une application existante exige le jeton de son compte de service
+    propriétaire (règle jusqu'ici réservée au mode `enforced`) ; le compte propriétaire
+    suit le nom de l'application ; le partage et la spécification OpenAPI exigent aussi
+    un jeton ;
+  - une application non approuvée n'est plus publiée par le routage ; l'approbation et
+    le rejet le republient ;
+  - la suite de tests du Hub est devenue déterministe (course du limiteur de statistiques SSE).
+- Branches fusionnées dans `HUB_base` : `fix/tests-orphan-stats-task`, `fix/entry-public-closed`,
+  `fix/register-owner-token`, `fix/routing-pending-apps` (intégration `secu/inscription-integration`).
+- Aucun autre pointeur ne bouge (HUBsocle, HUBapp_TEMPLATE_base, HUBCSS, Hubctl, hub-mcp).
+- **Avant de mettre à jour un serveur** : cette version requiert un socle d'application 2.36.0 ou
+  plus récent. Relever, dans l'audit du Hub, les applications dont la dernière ré-inscription
+  sans jeton a abouti par réparation (`legacy_reregistration`) : elles recevront désormais 401
+  et demandent le parcours de récupération (`HUB_base/docs/GUIDE_INSTALLATION.md`).
+- **Limite connue** : le compte de service d'une application est identifié par son nom ; une
+  application homonyme d'un service partagé, une fois approuvée, peut se faire passer pour lui.
+  Un lien de propriété explicite est au programme d'un chantier dédié.
+
+---
 ## [0.86.4] - 25 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.104.3 — sécurité : jeton GitHub non journalisé ni diffusé, hôte des applications validé
