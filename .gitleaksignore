@@ -1,0 +1,2 @@
+# Faux positifs triés le 25/11/2026 : fixtures de tests et exemples de documentation. À régénérer après toute réécriture d'historique : les empreintes contiennent le sha du commit.
+db99a73ac38f5bb80b476fcae69b1d050e3040bb:scripts/test_flux_complet.sh:generic-api-key:74
