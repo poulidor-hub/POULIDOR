@@ -34,7 +34,7 @@ standard (discovery, authorize, token, userinfo), et gère le cycle de vie des c
 
 ## Ne PAS utiliser pour
 
-- **SSO JWT maison** des apps template (Vaultwarden, exemple-app…) → ce sont des apps
+- **SSO JWT maison** des apps template (Vaultwarden, exemple-app-11…) → ce sont des apps
   avec `hub_client.py` M2M, pas de l'OIDC. Voir `INTEGRATION.md`.
 - **Auto-login iframe Vaultwarden** → Vaultwarden ne supporte PAS OIDC nativement.
   Son auto-register est un hack frontend (provisioning + iframe), pas géré par ce skill.

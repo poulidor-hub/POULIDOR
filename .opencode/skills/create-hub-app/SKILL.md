@@ -23,7 +23,7 @@ Workflow complet pour créer/scaffolder une nouvelle application sur le Hub POUL
 
 Avant de lancer le moindre script, collecte auprès de l'utilisateur :
 
-1. **Slug** : identifiant unique de l'app (`^[a-z][a-z0-9-]*[a-z0-9]$`, min 3 caractères). Exemples : `mon-app`, `factures`, `exemple-apps`.
+1. **Slug** : identifiant unique de l'app (`^[a-z][a-z0-9-]*[a-z0-9]$`, min 3 caractères). Exemples : `mon-app`, `factures`, `exemple-app`.
 2. **Nom** : nom lisible (ex: « Facturation », « exemple-apps »).
 3. **Description** : courte (1-2 phrases).
 4. **Type d'app** (`INITIALISE.py` modes) :

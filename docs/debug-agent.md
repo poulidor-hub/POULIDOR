@@ -37,7 +37,7 @@ Vous pouvez forcer un modele : `./hubctl debug --setup --model 2b`
 ### Session de debug (lecture seule par defaut)
 
 ```bash
-./hubctl debug exemple-app
+./hubctl debug exemple-app-1
 ```
 
 L'IA analyse les logs, configs et statut des conteneurs, puis propose des
@@ -46,7 +46,7 @@ commandes a executer manuellement (copier-coller).
 ### Session de debug (semi-auto)
 
 ```bash
-./hubctl debug exemple-app --rw
+./hubctl debug exemple-app-1 --rw
 ```
 
 L'IA peut executer des actions non-destructives (restart, recreate) directement.
@@ -55,7 +55,7 @@ Les actions destructives (down, rm, reset) demandent confirmation.
 ### Forcer un modele
 
 ```bash
-./hubctl debug exemple-app --model 2b
+./hubctl debug exemple-app-1 --model 2b
 ```
 
 ## Desactivation
