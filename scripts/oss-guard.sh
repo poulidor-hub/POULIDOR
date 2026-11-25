@@ -9,7 +9,9 @@
 #
 # Usage :
 #   oss-guard.sh scan-tree  <fichier-motifs> [<racine>]
-#       cherche les motifs dans les fichiers suivis de <racine> (défaut : .).
+#       cherche les motifs dans les fichiers suivis de <racine> (défaut : .) :
+#       leur contenu et leurs chemins — le nom d'un fichier ou d'un dossier
+#       suffit à identifier un client ou un outil privé.
 #   oss-guard.sh scan-range <fichier-motifs> <plage> [<racine>]
 #       cherche les motifs dans les commits de <plage> — toute plage que
 #       `git log` comprend ; `<commit>^!` pour un seul commit —, limité à ce
@@ -142,29 +144,49 @@ extraire() {
     printf '%s' "$extrait"
 }
 
-# ── scan-tree : les fichiers suivis ──────────────────────────────────────────
-# rapporter_arbre <chemin:numero:ligne> <rang du motif> : une ligne de `git grep -n`.
-rapporter_arbre() {
-    local brut="$1" i="$2" chemin reste numero
-    chemin="${brut%%:*}"; reste="${brut#*:}"
-    # Un chemin peut contenir « : » : le numéro de ligne est le premier segment
-    # numérique suivi de « : ».
+# ── scan-tree : les fichiers suivis, contenu et chemins ───────────────────────
+# chemin_de <chemin:numero:ligne> : le chemin d'une ligne de `git grep -n`.
+# Un chemin peut contenir « : » : le numéro de ligne est le premier segment
+# numérique suivi de « : ».
+chemin_de() {
+    local chemin="${1%%:*}" reste="${1#*:}"
     while ! [[ "$reste" =~ ^[0-9]+: ]] && [[ "$reste" == *:* ]]; do
         chemin="$chemin:${reste%%:*}"; reste="${reste#*:}"
     done
+    printf '%s' "$chemin"
+}
+
+# rapporter_arbre <chemin:numero:ligne> <rang du motif> : une ligne de `git grep -n`.
+rapporter_arbre() {
+    local brut="$1" i="$2" chemin reste numero
+    chemin="$(chemin_de "$brut")"; reste="${brut#"$chemin":}"
     numero="${reste%%:*}"
     printf '  %s:%s — motif n°%s — extrait : %s\n' "$(masquer "$chemin")" "$numero" "${NUMS[$i]}" \
         "$(extraire "${reste#*:}" "$i")"
 }
 
+# rapporter_chemin <chemin> <rang du motif> : un chemin suivi qui contient une
+# valeur interdite.
+rapporter_chemin() {
+    printf '  %s — chemin suivi — motif n°%s\n' "$(extraire "$1" "$2")" "${NUMS[$2]}"
+}
+
 scan_tree() {
-    local i trouve total=0
+    local i trouve chemin total=0 rapide_contenu
+    sans_e git -C "$racine" -c core.quotePath=false ls-files > "$tmp/chemins"
+    [ "$RC" -eq 0 ] || sortir2 "impossible de lire les chemins suivis de « $racine » (git ls-files, code $RC)"
+    # Passe rapide : rien dans le contenu ni dans les chemins → terminé.
     sans_e git -C "$racine" grep -q -I -E "${TOUS[@]}" -- .
     case "$RC" in
-        1) echo "✅ oss-guard : aucune valeur interdite dans les fichiers suivis (${#MOTIFS[@]} motifs)."; return 0 ;;
-        0) ;;
+        0|1) rapide_contenu="$RC" ;;
         *) sortir2 "impossible de lire les fichiers suivis de « $racine » (git grep, code $RC)" ;;
     esac
+    sans_e grep -q -E "${TOUS[@]}" "$tmp/chemins"
+    [ "$RC" -le 1 ] || sortir2 "lecture impossible (grep, code $RC)"
+    if [ "$rapide_contenu" -eq 1 ] && [ "$RC" -eq 1 ]; then
+        echo "✅ oss-guard : aucune valeur interdite dans les fichiers suivis (${#MOTIFS[@]} motifs)."
+        return 0
+    fi
     for i in "${!MOTIFS[@]}"; do
         sans_e git -C "$racine" -c core.quotePath=false grep -n -I -E -e "${MOTIFS[$i]}" -- . > "$tmp/arbre"
         [ "$RC" -le 1 ] || sortir2 "impossible de lire les fichiers suivis de « $racine » (git grep, code $RC)"
@@ -172,8 +194,18 @@ scan_tree() {
             total=$((total + 1))
             [ "$total" -gt "$MAX_RAPPORTS" ] || rapporter_arbre "$trouve" "$i"
         done < "$tmp/arbre"
+        sans_e grep -E -e "${MOTIFS[$i]}" "$tmp/chemins" > "$tmp/chemins.trouves"
+        [ "$RC" -le 1 ] || sortir2 "lecture impossible (grep, code $RC)"
+        while IFS= read -r chemin; do
+            total=$((total + 1))
+            [ "$total" -gt "$MAX_RAPPORTS" ] || rapporter_chemin "$chemin" "$i"
+        done < "$tmp/chemins.trouves"
     done
     if [ "$total" -gt "$MAX_RAPPORTS" ]; then echo "  … et $((total - MAX_RAPPORTS)) autres, non listées."; fi
+    if [ "$total" -eq 0 ]; then
+        echo "✅ oss-guard : aucune valeur interdite dans les fichiers suivis (${#MOTIFS[@]} motifs)."
+        return 0
+    fi
     echo "✗ oss-guard : $total correspondance(s) de valeurs interdites dans les fichiers suivis."
     return 1
 }

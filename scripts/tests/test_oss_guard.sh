@@ -8,10 +8,10 @@
 # Open source — filet de sécurité : une valeur du client qui reparaît dans un
 # fichier suivi, un chemin ou un message de commit recrée une fuite.
 #
-# scan-tree examine les fichiers suivis ; scan-range n'examine que ce que les
-# commits apportent (lignes ajoutées, messages, chemins ajoutés ou renommés) :
-# un commit qui se contente de RETIRER une valeur ne doit pas être bloqué.
-# Aucune ligne correspondante n'est jamais affichée en entier.
+# scan-tree examine les fichiers suivis, contenu et chemins ; scan-range n'examine
+# que ce que les commits apportent (lignes ajoutées, messages, chemins ajoutés ou
+# renommés) : un commit qui se contente de RETIRER une valeur ne doit pas être
+# bloqué. Aucune ligne correspondante n'est jamais affichée en entier.
 #
 # Toutes les valeurs interdites de ce test sont factices.
 set -euo pipefail
@@ -185,12 +185,38 @@ mkdir "$R/dossier-$LITTERAL"
 printf 'note %s\n' "$LITTERAL" > "$R/dossier-$LITTERAL/notes.md"
 commit "fichier sous un chemin interdit"
 run_garde scan-tree "$MOTIFS"
-doit_refuser "8 bis scan-tree" "notes.md:1" "motif n°2"
+doit_refuser "8 bis scan-tree" "notes.md:1" "motif n°2" "chemin suivi"
 run_garde scan-range "$MOTIFS" HEAD~1..HEAD
 doit_refuser "8 bis scan-range" "notes.md:1" "motif n°2"
 git -C "$R" rm -q -r "dossier-$LITTERAL"
 commit "nettoyage du chemin interdit"
 pass "8 bis chemin contenant une valeur interdite : masqué dans le rapport (scan-tree et scan-range)"
+
+# ── 8 ter. un chemin suivi qui contient une valeur interdite, contenu sain ────
+# Le nom d'un fichier ou d'un dossier suffit à identifier un client ou un outil
+# privé : scan-tree examine les chemins suivis, pas seulement leur contenu.
+mkdir "$R/archive-$LITTERAL"
+echo propre > "$R/archive-$LITTERAL/notes.md"
+commit "chemin interdit, contenu sain"
+run_garde scan-tree "$MOTIFS"
+doit_refuser "8 ter scan-tree" "chemin suivi" "motif n°2"
+[ "$(printf '%s\n' "$OUT" | grep -c -- '— chemin suivi —')" -eq 1 ] || fail "8 ter : un seul chemin suivi est fautif — sortie : $OUT"
+printf '%s\n' "$OUT" | grep -qF "notes.md" || fail "8 ter : le fichier au chemin fautif n'est pas nommé — sortie : $OUT"
+EXTRAIT="$(printf '%s\n' "$OUT" | grep -F -- '— chemin suivi —' | head -n 1)"
+[ "${#EXTRAIT}" -le 200 ] || fail "8 ter : la ligne du chemin fautif dépasse 200 caractères (${#EXTRAIT})"
+# Le second motif (expression rationnelle) vaut aussi pour un chemin ; et pour
+# scan-range, ce renommage est un chemin renommé.
+git -C "$R" mv "archive-$LITTERAL" "archive-$REGEX_VALEUR"
+commit "renommage vers un chemin interdit, seconde orthographe"
+run_garde scan-tree "$MOTIFS"
+doit_refuser "8 ter scan-tree, second motif" "chemin suivi" "motif n°6"
+run_garde scan-range "$MOTIFS" HEAD~1..HEAD
+doit_refuser "8 ter scan-range, renommage" "chemin renommé" "motif n°6"
+git -C "$R" rm -q -r "archive-$REGEX_VALEUR"
+commit "nettoyage du chemin interdit"
+run_garde scan-tree "$MOTIFS"
+doit_accepter "8 ter scan-tree après nettoyage"
+pass "8 ter chemin suivi contenant une valeur interdite : signalé par scan-tree, même à contenu sain"
 
 # ── 9. ce qu'un commit de fusion amène lui-même (résolution de conflit) ──────
 git -C "$R" checkout -q -b gauche
