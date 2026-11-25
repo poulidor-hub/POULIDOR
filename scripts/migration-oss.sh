@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # =============================================================================
-# Migration unique vers l'historique post-purge open source (méta 0.80.14+).
+# Migration d'un déploiement vers l'historique réécrit (open source, méta 0.80.14+).
+# À rejouer après chaque réécriture de l'historique du parc : une fois par serveur
+# et par réécriture.
 # =============================================================================
 # Contexte : l'historique git a été réécrit (purge de secrets avant open
 # source). Un déploiement existant ne peut plus faire `hubctl update` :
