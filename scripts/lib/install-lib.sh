@@ -194,3 +194,65 @@ print_next_steps() {
     say "     sur ton poste : http://${HOST_IP}:${API_PORT}/api/pki/ca.crt"
     say ""
 }
+
+# ── Services hôtes (phase 3c de install.sh) ──────────────────────────────────
+# Rend et installe l'unit systemd hubctl-<nom>.service (gabarit de
+# hubctl_src/packaging/, placeholders @REAL_USER@/@PARC_ROOT@ substitués),
+# puis l'active — ou la redémarre si le rendu change. Idempotent, jamais fatal.
+#
+# L'installeur pose ainsi les DEUX unités (atelier et update) : hubctl-update
+# n'était installé par personne — `hubctl init`, lancé sans TTY par
+# install.sh, ne faisait qu'afficher ses commandes « à lancer à la main », et
+# le cockpit Admin du Hub restait sur « Relance automatique suspendue / état
+# inconnu » (constat VM 26/11/2026).
+install_host_service() {  # install_host_service <nom> : 0 si le service est posé et activé
+    local nom="$1"
+    local src="$ROOT_DIR/hubctl_src/packaging/hubctl-$nom.service"
+    local dst="${SYSTEMD_UNIT_DIR:-/etc/systemd/system}/hubctl-$nom.service"
+    local tmp="" origin="$src"
+    if [ ! -f "$src" ]; then
+        warn "Gabarit d'unit introuvable ($src) — service $nom ignoré"
+        return 1
+    fi
+    # Source autoritaire : l'unit rendue par `hubctl init` (phase 3b, juste
+    # avant) — elle substitue AUSSI @DOCKER_GATEWAY@ (passerelle docker0), que
+    # cet installeur ne sait pas calculer. À défaut, rendu minimal ci-dessous.
+    local rendered="$ROOT_DIR/hubctl_src/packaging/.rendered/hubctl-$nom.service"
+    if [ -s "$rendered" ]; then
+        origin="$rendered"
+    fi
+    if ! tmp="$(mktemp)"; then
+        warn "mktemp indisponible — service $nom ignoré (relancer ./install.sh)"
+        return 1
+    fi
+    if ! sed -e "s|@REAL_USER@|$REAL_USER|g" \
+             -e "s|@PARC_ROOT@|$ROOT_DIR|g" \
+             "$origin" > "$tmp"; then
+        rm -f "$tmp"
+        warn "Rendu de l'unit impossible — service $nom ignoré (relancer ./install.sh)"
+        return 1
+    fi
+    # Un placeholder non substitué (ex. @DOCKER_GATEWAY@ sans rendu hubctl)
+    # donnerait une unit système cassée : on ne pose rien.
+    if grep -qE '@[A-Z_]+@' "$tmp"; then
+        rm -f "$tmp"
+        warn "Rendu de l'unit $nom incomplet (placeholder non substitué) — lancez d'abord ./hubctl init, puis relancez ./install.sh"
+        return 1
+    fi
+    if [ ! -f "$dst" ] || ! cmp -s "$tmp" "$dst"; then
+        install -m 644 "$tmp" "$dst"
+        systemctl daemon-reload
+        if systemctl is-active --quiet "hubctl-$nom.service"; then
+            systemctl restart "hubctl-$nom.service"
+            ok "Service $nom mis à jour et redémarré"
+        else
+            systemctl enable --now "hubctl-$nom.service" >/dev/null 2>&1
+            ok "Service $nom installé et activé"
+        fi
+    else
+        systemctl enable --now "hubctl-$nom.service" >/dev/null 2>&1
+        ok "Service $nom déjà à jour"
+    fi
+    rm -f "$tmp"
+    return 0
+}

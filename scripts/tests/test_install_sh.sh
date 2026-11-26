@@ -85,5 +85,79 @@ grep -q "Ajouter une application" <<<"$out"    && fail "guidance : ne doit plus 
 grep -q "demande à l'IA" <<<"$out"             && fail "guidance : ne doit plus annoncer l'assistant IA (rien ne l'installe)"
 pass "guidance : URL, mot de passe, CA — ni menu inexistant ni assistant IA"
 
+# ── 6. Services hôtes : rendu + installation idempotente (phase 3c) ──────────
+# hubctl-update n'était installé par personne (uniquement « commandes à lancer
+# à la main » par hubctl init) : le cockpit Admin du Hub restait sur « Relance
+# automatique suspendue / état inconnu ». L'installeur pose maintenant les deux
+# unités par la même fonction.
+SVC="$TMP/svc"
+mkdir -p "$SVC/root/hubctl_src/packaging" "$SVC/etc" "$SVC/bin"
+printf '[Service]\nUser=@REAL_USER@\nWorkingDirectory=@PARC_ROOT@\n' \
+    > "$SVC/root/hubctl_src/packaging/hubctl-test.service"
+cat > "$SVC/bin/systemctl" <<'EOF'
+#!/usr/bin/env bash
+echo "systemctl $*" >> "$SYSTEMCTL_LOG"
+if [ "$1" = "is-active" ]; then
+    [ -f "$ACTIVE_FILE" ] && exit 0 || exit 3
+fi
+exit 0
+EOF
+chmod +x "$SVC/bin/systemctl"
+: > "$SVC/systemctl.log"
+svc() {  # svc : un appel à install_host_service sur la fixture
+    PATH="$SVC/bin:$PATH" SYSTEMCTL_LOG="$SVC/systemctl.log" SYSTEMD_UNIT_DIR="$SVC/etc" \
+        bash -c "source '$LIB'; ROOT_DIR='$SVC/root'; REAL_USER=test; install_host_service test"
+}
+out="$(svc)" || fail "install_host_service : premier appel doit réussir — $out"
+unit="$SVC/etc/hubctl-test.service"
+[ -f "$unit" ] || fail "l'unit rendue doit être posée dans SYSTEMD_UNIT_DIR — $out"
+grep -q '^User=test$' "$unit" && grep -q "^WorkingDirectory=$SVC/root$" "$unit" \
+    || fail "l'unit doit être rendue (plus de @REAL_USER@/@PARC_ROOT@) : $(cat "$unit")"
+grep -q '@' "$unit" && fail "un placeholder subsiste dans l'unit rendue : $(cat "$unit")"
+grep -q "installé et activé" <<<"$out" || fail "premier appel : « installé et activé » attendu — $out"
+grep -q "systemctl daemon-reload" "$SVC/systemctl.log" || fail "daemon-reload attendu après pose de l'unit"
+pass "service hôte : unit rendue sans placeholder, posée, daemon-reload, activée"
+
+: > "$SVC/systemctl.log"
+out="$(svc)" || fail "deuxième appel : doit réussir — $out"
+grep -q "déjà à jour" <<<"$out" || fail "deuxième appel : « déjà à jour » attendu — $out"
+grep -q "daemon-reload" "$SVC/systemctl.log" && fail "deuxième appel sans changement : pas de daemon-reload"
+grep -q "enable --now hubctl-test.service" "$SVC/systemctl.log" || fail "deuxième appel : enable --now (idempotent) attendu"
+pass "service hôte : relance sans changement = pas de daemon-reload"
+
+printf '[Service]\nUser=@REAL_USER@\nWorkingDirectory=@PARC_ROOT@\nExecStart=/bin/true\n' \
+    > "$SVC/root/hubctl_src/packaging/hubctl-test.service"
+: > "$SVC/systemctl.log"
+out="$(svc)" || fail "gabarit modifié : doit réussir — $out"
+grep -q "daemon-reload" "$SVC/systemctl.log" || fail "gabarit modifié : daemon-reload attendu"
+grep -q "^ExecStart=/bin/true$" "$unit" || fail "gabarit modifié : l'unit posée doit être le nouveau rendu"
+pass "service hôte : gabarit modifié = unit reposée + daemon-reload"
+
+mv "$SVC/root/hubctl_src/packaging/hubctl-test.service" "$SVC/root/hubctl_src/packaging/hubctl-test.service.off"
+if out="$(svc)"; then fail "gabarit absent : doit échouer sans être fatal"; fi
+grep -q "Gabarit d'unit introuvable" <<<"$out" || fail "gabarit absent : avertissement attendu — $out"
+pass "service hôte : gabarit absent → avertissement, échec propre"
+
+# Le rendu de hubctl init (packaging/.rendered/) est la source autoritaire :
+# il substitue AUSSI @DOCKER_GATEWAY@ (passerelle docker0), qu'install.sh ne
+# sait pas calculer.
+mv "$SVC/root/hubctl_src/packaging/hubctl-test.service.off" "$SVC/root/hubctl_src/packaging/hubctl-test.service"
+printf '[Service]\nUser=@REAL_USER@\nWorkingDirectory=@PARC_ROOT@\nExecStart=/x --host @DOCKER_GATEWAY@\n' \
+    > "$SVC/root/hubctl_src/packaging/hubctl-test.service"
+rm -f "$unit"
+if out="$(svc)"; then fail "placeholder inconnu et pas de rendu hubctl : doit refuser"; fi
+grep -q "placeholder non substitué" <<<"$out" || fail "placeholder inconnu : refus explicite attendu — $out"
+[ ! -e "$unit" ] || fail "placeholder inconnu : aucune unit ne doit être posée"
+pass "service hôte : @DOCKER_GATEWAY@ sans rendu hubctl → refus, rien posé"
+
+mkdir -p "$SVC/root/hubctl_src/packaging/.rendered"
+printf '[Service]\nUser=rendu-par-hubctl\nExecStart=/x --host 10.9.9.1\n' \
+    > "$SVC/root/hubctl_src/packaging/.rendered/hubctl-test.service"
+: > "$SVC/systemctl.log"
+out="$(svc)" || fail "avec le rendu de hubctl : doit réussir — $out"
+grep -q '^User=rendu-par-hubctl$' "$unit" || fail "le rendu de hubctl doit être preferé au gabarit : $(cat "$unit")"
+grep -q -- '--host 10.9.9.1' "$unit" || fail "la passerelle docker0 substituée par hubctl doit etre conservee"
+pass "service hôte : rendu de hubctl init preferé (passerelle docker0 incluse)"
+
 echo ""
-echo "✅ test_install_sh.sh : 5 cas OK"
+echo "✅ test_install_sh.sh : 10 cas OK"
