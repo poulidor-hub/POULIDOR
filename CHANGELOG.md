@@ -1,3 +1,14 @@
+## [0.88.7] - 26 novembre 2026
+
+### ⚡ Pointeur HUB_base 3.107.1 (fix 409 auto-bloquant sur ports souhaités)
+- **`HUB_base` 3.107.0 → 3.107.1** : bug E2E VM du 26/11 — le scan flotte
+  (`fleet_env_scan_enabled=true` par défaut) comptait le `.env` de l'app demanderesse
+  parmi les ports occupés : `allocate-ports` rejetait en **409 ses propres ports
+  souhaités** (table vide au moment du refus), cassant `make sync-env` sur tout
+  fresh-install. `read_env_claims_by_slug()` + `fleet_env_occupied(exclude_slug=…)` :
+  le claim du demandeur est exclu dans le chemin desired uniquement (chemin historique
+  inchangé, claims des autres apps toujours bloquants). 48 + 137 tests verts.
+- Pointeur méta du gabarit inchangé (2.40.4, déjà en 0.88.6).
 ## [0.88.6] - 26 novembre 2026
 
 ### ⚡ Pointeurs : HUB_base 3.107.0 + gabarit 2.40.4 (réconciliation sync-env)
