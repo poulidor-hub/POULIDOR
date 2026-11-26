@@ -1,3 +1,16 @@
+## [0.88.13] - 26 novembre 2026
+
+### ⚡ Pointeur hubctl 0.22.1 — validation VM d'une installation neuve (phases 1 à 4)
+- **`hubctl` 0.22.0 → 0.22.1**. Lot validé de bout en bout sur VM vierge avec ce méta : installation
+  sans erreur ni bruit (zéro ✗, zéro debconf, aucun prompt, les deux services hôtes posés,
+  guidance en 4 étapes), reprise sans `--force`, puis **`./hubctl app install <dépôt>`** : clone,
+  socle construit automatiquement, app pré-créée approuvée, démarrage, certificat signé par la
+  CA du Hub en service (HTTPS 200 sous vérification stricte) — une commande.
+- Correctifs issus de cette validation : `hubctl-atelier` démarré en boucle sur tout déploiement
+  neuf (dossier du coffre absent → 226/NAMESPACE) ; `doctor` ne signe plus une configuration
+  comme « non appliquée » après un `restart` ; `app install` sans avertissement sur le
+  `depends.yaml` du gabarit ni sur l'absence de coffre.
+
 ## [0.88.12] - 26 novembre 2026
 
 ### ⚡ Installation sans friction (phases 2, 3 et 4) : `hubctl app install`, publication scriptée, outillage lab
