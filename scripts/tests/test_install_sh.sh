@@ -105,9 +105,10 @@ exit 0
 EOF
 chmod +x "$SVC/bin/systemctl"
 : > "$SVC/systemctl.log"
-svc() {  # svc : un appel à install_host_service sur la fixture
+svc() {  # svc : un appel à install_host_service sur la fixture (passerelle docker0 indéterminable)
+    # docker0_gateway est simulée : le vrai Docker du poste ne doit pas influencer le test.
     PATH="$SVC/bin:$PATH" SYSTEMCTL_LOG="$SVC/systemctl.log" SYSTEMD_UNIT_DIR="$SVC/etc" \
-        bash -c "source '$LIB'; ROOT_DIR='$SVC/root'; REAL_USER=test; install_host_service test"
+        bash -c "source '$LIB'; ROOT_DIR='$SVC/root'; REAL_USER=test; docker0_gateway() { return 1; }; install_host_service test"
 }
 out="$(svc)" || fail "install_host_service : premier appel doit réussir — $out"
 unit="$SVC/etc/hubctl-test.service"
@@ -139,26 +140,43 @@ if out="$(svc)"; then fail "gabarit absent : doit échouer sans être fatal"; fi
 grep -q "Gabarit d'unit introuvable" <<<"$out" || fail "gabarit absent : avertissement attendu — $out"
 pass "service hôte : gabarit absent → avertissement, échec propre"
 
-# Le rendu de hubctl init (packaging/.rendered/) est la source autoritaire :
-# il substitue AUSSI @DOCKER_GATEWAY@ (passerelle docker0), qu'install.sh ne
-# sait pas calculer.
+# @DOCKER_GATEWAY@ (passerelle docker0) : l'installeur la calcule LUI-MÊME et rend
+# le gabarit. Verdict VM 26/11 : l'unit rendue en cache par hubctl init
+# (.rendered/) était périmée après une montée de version → « déjà à jour » alors
+# que l'unit posée était l'ancienne. Le cache n'est plus qu'un repli.
 mv "$SVC/root/hubctl_src/packaging/hubctl-test.service.off" "$SVC/root/hubctl_src/packaging/hubctl-test.service"
 printf '[Service]\nUser=@REAL_USER@\nWorkingDirectory=@PARC_ROOT@\nExecStart=/x --host @DOCKER_GATEWAY@\n' \
     > "$SVC/root/hubctl_src/packaging/hubctl-test.service"
-rm -f "$unit"
-if out="$(svc)"; then fail "placeholder inconnu et pas de rendu hubctl : doit refuser"; fi
-grep -q "placeholder non substitué" <<<"$out" || fail "placeholder inconnu : refus explicite attendu — $out"
-[ ! -e "$unit" ] || fail "placeholder inconnu : aucune unit ne doit être posée"
-pass "service hôte : @DOCKER_GATEWAY@ sans rendu hubctl → refus, rien posé"
+rm -f "$unit"; rm -rf "$SVC/root/hubctl_src/packaging/.rendered"
+if out="$(svc)"; then fail "passerelle docker0 indéterminable et pas de repli : doit refuser"; fi
+grep -q "Passerelle docker0 indéterminable" <<<"$out" || fail "passerelle inconnue : refus explicite attendu — $out"
+[ ! -e "$unit" ] || fail "passerelle inconnue : aucune unit ne doit être posée"
+pass "service hôte : @DOCKER_GATEWAY@ sans passerelle ni repli → refus, rien posé"
+
+svc_gw() {  # comme svc, avec une passerelle docker0 simulée (blancs volontaires)
+    PATH="$SVC/bin:$PATH" SYSTEMCTL_LOG="$SVC/systemctl.log" SYSTEMD_UNIT_DIR="$SVC/etc" \
+        bash -c "source '$LIB'; ROOT_DIR='$SVC/root'; REAL_USER=test; docker0_gateway() { echo ' $1 '; }; install_host_service test"
+}
+out="$(svc_gw 172.17.0.1)" || fail "passerelle connue : doit réussir — $out"
+grep -q -- '--host 172.17.0.1$' "$unit" || fail "la passerelle docker0 doit être substituée (blancs retirés) : $(cat "$unit")"
+grep -q '^User=test$' "$unit" || fail "l'unit doit être rendue depuis le gabarit : $(cat "$unit")"
+pass "service hôte : @DOCKER_GATEWAY@ calculé par l'installeur, gabarit rendu ici"
 
 mkdir -p "$SVC/root/hubctl_src/packaging/.rendered"
-printf '[Service]\nUser=rendu-par-hubctl\nExecStart=/x --host 10.9.9.1\n' \
+printf '[Service]\nUser=cache-perime\nExecStart=/x --host 10.9.9.1\n' \
     > "$SVC/root/hubctl_src/packaging/.rendered/hubctl-test.service"
 : > "$SVC/systemctl.log"
-out="$(svc)" || fail "avec le rendu de hubctl : doit réussir — $out"
-grep -q '^User=rendu-par-hubctl$' "$unit" || fail "le rendu de hubctl doit être preferé au gabarit : $(cat "$unit")"
-grep -q -- '--host 10.9.9.1' "$unit" || fail "la passerelle docker0 substituée par hubctl doit etre conservee"
-pass "service hôte : rendu de hubctl init preferé (passerelle docker0 incluse)"
+out="$(svc_gw 172.17.0.1)" || fail "cache présent : doit réussir — $out"
+grep -q "cache-perime" "$unit" && fail "un cache .rendered/ périmé ne doit pas être posé : $(cat "$unit")"
+grep -q -- '--host 172.17.0.1$' "$unit" || fail "le gabarit doit l'emporter sur le cache : $(cat "$unit")"
+pass "service hôte : un cache .rendered/ périmé ne prime pas sur le gabarit"
+
+rm -f "$unit"
+out="$(PATH="$SVC/bin:$PATH" SYSTEMCTL_LOG="$SVC/systemctl.log" SYSTEMD_UNIT_DIR="$SVC/etc" \
+    bash -c "source '$LIB'; ROOT_DIR='$SVC/root'; REAL_USER=test; docker0_gateway() { return 1; }; install_host_service test")" \
+    || fail "sans passerelle mais avec le rendu hubctl : doit réussir — $out"
+grep -q '^User=cache-perime$' "$unit" || fail "le rendu de hubctl doit servir de repli : $(cat "$unit")"
+pass "service hôte : sans passerelle calculable, repli sur l'unit rendue par hubctl init"
 
 echo ""
-echo "✅ test_install_sh.sh : 10 cas OK"
+echo "✅ test_install_sh.sh : 12 cas OK"
