@@ -1,3 +1,10 @@
+## [0.88.2] - 26 novembre 2026
+### ⚡ garde d'identité : le committer générique des fusions web est autorisé
+- `scripts/hooks/allowed-authors.txt` : ajout de `^noreply@github\.com$` — l'identité
+  de committer des fusions faites via l'interface GitHub (présente dans l'historique
+  réécrit) ; aucun auteur n'utilise cette adresse. `check-author.sh` n'aurait jamais
+  refusé de commit réel (aucun nouveau commit n'utilise cette adresse) : c'est la
+  cohérence de la liste avec l'historique qui est rétablie avant l'installation des hooks.
 ## [0.88.1] - 26 novembre 2026
 ### ⚡ migration-oss.sh : les sous-modules initialisés ne bloquent plus la migration
 - **Symptôme** : un déploiement client réel (sous-modules initialisés — le cas général,
