@@ -1,3 +1,15 @@
+## [0.88.1] - 26 novembre 2026
+### ⚡ migration-oss.sh : les sous-modules initialisés ne bloquent plus la migration
+- **Symptôme** : un déploiement client réel (sous-modules initialisés — le cas général,
+  les applications tournent) voyait l'étape 3/5 échouer sur « could not get a repository
+  handle » : le déplacement du `.git` (étape 1/5) laissait les `.git` internes des
+  sous-modules pointer dans le vide.
+- **Fix** : `git submodule deinit --all --force` avant le déplacement — le working tree
+  d'un sous-module est re-cloné à l'étape 3/5 et les données client (`.env`, `APPS/`…)
+  sont hors sous-modules, rien n'est perdu. Les deux essais du banc (HTTPS et clé de
+  déploiement SSH) passent avec sous-modules initialisés.
+- **Banc étendu** : le scénario testé est désormais celui d'un vrai client — méta ancien
+  avec `.gitmodules` et gitlinks, déploiements à sous-modules initialisés.
 ## [0.88.0] - 25 novembre 2026
 ### ⚡ Neutralisation open source de l'arbre — valeurs d'exemple, HTTPS absolu, garde étendue, captures neutres
 - **Arbre du méta** : valeurs réelles (adresses IP, noms d'hôtes, identifiants de clients,
