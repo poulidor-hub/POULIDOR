@@ -1,3 +1,24 @@
+## [0.88.5] - 26 novembre 2026
+### ⚡ README public : installation de zéro validée en VM + captures d'écran
+- **Section « Aperçu »** : 4 captures d'une installation de zéro (VM Debian 12, labo `oss-readme`) —
+  login SSO, portail « Mes Applications », cockpit d'administration, registre des apps.
+- **Bloc installation corrigé après test verbatim en VM** (chaque étape sensible échouait sur serveur neuf) :
+  - `sudo ./install.sh --no-runner` (racine) remplace `cd HUB_base && sudo ./install.sh` : seul
+    l'installateur racine installe Docker et génère `HUB_base/.env` (57 clés : admin, JWT, OIDC, PKI,
+    ports, whitelist) ; `HUB_base/install.sh` exige Docker préinstallé et sortait en erreur immédiate.
+  - étape `cp .env.example .env` supprimée : le fichier n'existe pas au méta-racine et aucun code
+    n'y lit de `.env` ; la configuration vit dans `HUB_base/.env` (recreate `hub-api` après édition,
+    un `restart` ne recharge pas le `.env`).
+  - `bash hub.sh up-prod` → `./hubctl start prod` (hub.sh n'a pas de sous-commande `up-prod`),
+    dans « Installer un déploiement complet » et « Mettre à jour un déploiement ».
+  - note `doctor` : décalage informatif des pointeurs de sous-modules sur clone public.
+- **Badges README** : retour aux versions réelles des composants pinnées (HUB 3.106.2, HUBsocle
+  2.40.2, template 2.40.3, HUBCSS 0.3.8, hubctl 0.20.6, hub-mcp 0.16.4) au lieu de la version
+  méta uniforme (0.88.4 partout) qui faisait perdre l'information.
+- **`scripts/sync-parc-version.sh`** : le bump n'écrase plus tous les badges README (sed global) —
+  ancre sur la ligne « **POULIDOR** (ce dépôt) » uniquement ; `--check` aligné.
+- guide-hub : version affichée resynchronisée (`guide.js`, footers `data-parc-version`).
+
 ## [0.88.4] - 26 novembre 2026
 ### ⚡ README public du méta créé
 - Création du README à la racine : présentation du parc open source, tableau des sept
