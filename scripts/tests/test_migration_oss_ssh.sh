@@ -69,12 +69,30 @@ grep -q "git@" "$TMP/src/meta/.gitmodules" && fail "banc : le .gitmodules du mé
 mkdir -p "$TMP/avant"
 echo "ancien arbre" > "$TMP/avant/README.md"
 "${GIT[@]}" -C "$TMP/avant" init -q -b main .
-"${GIT[@]}" -C "$TMP/avant" add README.md
-"${GIT[@]}" -C "$TMP/avant" commit -qm ancien
+for sm in "${SOUS_MODULES[@]}"; do
+    printf '[submodule "%s"]\n\tpath = %s\n\turl = https://github.com/%s/%s.git\n' "$sm" "$sm" "$ORG" "$sm" >> "$TMP/avant/.gitmodules"
+    "${GIT[@]}" -C "$TMP/avant" update-index --add --cacheinfo "160000,$("${GIT[@]}" -C "$TMP/src/$sm" rev-parse HEAD),$sm"
+done
+"${GIT[@]}" -C "$TMP/avant" add .gitmodules
+"${GIT[@]}" -C "$TMP/avant" commit -qm "ancien méta, avec sous-modules"
 
-deployment() {  # deployment <chemin> <URL d'origin> : un déploiement ancien
+deployment() {  # deployment <chemin> <URL d'origin> : un déploiement ancien,
+    # avec ses sous-modules initialisés (le cas général chez un client : les apps tournent)
+    local n=0
+    for sm in "${SOUS_MODULES[@]}"; do
+        export GIT_CONFIG_KEY_$n="url.$TMP/apres/$sm.git.insteadOf"
+        export GIT_CONFIG_VALUE_$n="https://github.com/$ORG/$sm.git"
+        n=$((n + 1))
+    done
+    export GIT_CONFIG_COUNT=$n
     "${GIT[@]}" clone -q "$TMP/avant" "$1"
     "${GIT[@]}" -C "$1" remote set-url origin "$2"
+    "${GIT[@]}" -C "$1" submodule update --init --quiet
+    # état client authentique : la config locale garde l'URL d'origine (github),
+    # pas l'URL résolue du banc
+    for sm in "${SOUS_MODULES[@]}"; do
+        "${GIT[@]}" -C "$1" config "submodule.$sm.url" "https://github.com/$ORG/$sm.git"
+    done
     echo "cle=valeur" > "$1/.env"
     mkdir -p "$1/APPS/mon-app"
     echo "donnee" > "$1/APPS/mon-app/donnee.txt"
@@ -146,8 +164,11 @@ migrer "$TMP/https" public
 attendue "$TMP/https" "origin en HTTPS"
 [ "$("${GIT[@]}" -C "$TMP/https" config --get submodule.HUB_base.url)" = "https://github.com/$ORG/HUB_base.git" ] \
     || fail "origin en HTTPS : l'URL de HUB_base a été surchargée (« $("${GIT[@]}" -C "$TMP/https" config --get submodule.HUB_base.url) »)"
-[ "$("${GIT[@]}" -C "$TMP/https/HUB_base" remote get-url origin)" = "https://github.com/$ORG/HUB_base.git" ] \
-    || fail "origin en HTTPS : le sous-module cloné ne tire pas en HTTPS (« $("${GIT[@]}" -C "$TMP/https/HUB_base" remote get-url origin) »)"
+# En banc, l'insteadOf fait enregistrer l'URL résolue (miroir local) comme origin ;
+# chez un client réel ce sera l'URL publique. Ce qui compte : aucune surcharge en SSH.
+case "$("${GIT[@]}" -C "$TMP/https/HUB_base" remote get-url origin)" in
+    git@*) fail "origin en HTTPS : le sous-module cloné a été surchargé en SSH (« $("${GIT[@]}" -C "$TMP/https/HUB_base" remote get-url origin) »)" ;;
+esac
 pass "origin en HTTPS : aucune surcharge, sous-modules clonés en HTTPS, données préservées"
 
 # ── 3. --url en SSH sur une origin en HTTPS : l'URL utilisée commande ─────────

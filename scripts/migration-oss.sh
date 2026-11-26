@@ -63,6 +63,13 @@ rollback() {
   exit 1
 }
 
+# Un vrai déploiement a ses sous-modules initialisés : leurs .git internes sont des
+# pointeurs relatifs vers .git/modules — après le déplacement du .git ils pointent
+# dans le vide, et l'étape 3/5 échouerait (« could not get a repository handle »).
+# Le working tree d'un sous-module est re-cloné à l'étape 3/5 et les données client
+# (.env, APPS…) sont hors sous-modules : désinitialiser ici ne perd rien.
+git submodule deinit --all --force >/dev/null 2>&1 || true
+
 echo "== 1/5 Sauvegarde de l'ancien dépôt git =="
 mv .git ".git.pre-oss-$STAMP"
 
