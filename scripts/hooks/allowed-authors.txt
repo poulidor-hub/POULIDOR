@@ -8,3 +8,7 @@
 
 # Jellycode, agent de développement du parc
 ^dev@poulidor\.fr$
+
+# Committer générique des fusions faites via l'interface GitHub (identité non personnelle,
+# présente dans l'historique réécrit) ; aucun auteur n'utilise cette adresse.
+^noreply@github\.com$
