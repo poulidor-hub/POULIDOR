@@ -85,10 +85,10 @@ if [ "$CHECK" -eq 1 ]; then
     for f in "${targets[@]}"; do
         if grep -q -- "data-parc-version>${VERSION}<" "$f" 2>/dev/null \
            || grep -q -- "PARC_VERSION = \"${VERSION}\"" "$f" 2>/dev/null \
-           || grep -q -- "badge/version-${VERSION}-blue" "$f" 2>/dev/null; then
+           || [ "$(sed -n '/\*\*POULIDOR\*\*/{s|.*badge/version-\([0-9.]*\)-blue.*|\1|p;}' "$f" 2>/dev/null)" = "$VERSION" ]; then
             ok "${f} → ${VERSION}"
         else
-            shown="$(grep -o -- 'data-parc-version>[^<]*<\|PARC_VERSION = "[^"]*"\|badge/version-[0-9.]*-blue' "$f" 2>/dev/null | head -n1 | sed 's/<$//; s/^data-parc-version>//; s/<$//' || true)"
+            shown="$(sed -n '/\*\*POULIDOR\*\*/{s|.*badge/version-\([0-9.]*\)-blue.*|\1|p;}' "$f" 2>/dev/null | head -n1)"
             echo "❌ ${f} — en retard : affiche '${shown:-?}' au lieu de '${VERSION}'" >&2
             drift=1
         fi
@@ -108,7 +108,7 @@ for f in "${targets[@]}"; do
     sed -i \
         -e "s|data-parc-version>[^<]*<|data-parc-version>${VERSION}<|g" \
         -e "s|var PARC_VERSION = \"[^\"]*\";|var PARC_VERSION = \"${VERSION}\";|g" \
-        -e "s|badge/version-[0-9.]*-blue|badge/version-${VERSION}-blue|g" \
+        -e "/\*\*POULIDOR\*\*/s|badge/version-[0-9.]*-blue|badge/version-${VERSION}-blue|g" \
         "$f"
     if [ "$(md5sum "$f" | cut -d' ' -f1)" != "$before" ]; then
         echo "   ✏️  ${f} → ${VERSION}"
