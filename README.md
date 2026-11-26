@@ -47,9 +47,9 @@ passe admin) et démarre le Hub. Installation validée de zéro sur VM Debian 12
 git clone --recurse-submodules https://github.com/poulidor-hub/POULIDOR.git
 cd POULIDOR
 
-# 2) installer le Hub (Docker compris) — le runner CI GitHub est
-#    optionnel, --no-runner le saute
-sudo ./install.sh --no-runner
+# 2) installer le Hub (Docker compris) — idempotent, relançable sans risque
+#    (le runner CI GitHub est en option : sudo ./install.sh --runner)
+sudo ./install.sh
 
 # 3) nommer la source officielle « upstream » (lecture seule)
 git remote rename origin upstream
