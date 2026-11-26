@@ -1,3 +1,14 @@
+## [0.88.8] - 26 novembre 2026
+
+### ⚡ Pointeur hubctl 0.20.7 (le premier boot ne doit plus échouer à 120 s)
+- **`hubctl` 0.20.6 → 0.20.7** : E2E VM 26/11 (×2) — sur VM 2 vCPU, le 1ᵉʳ
+  `make up-prod` de `hubctl init` build les images Hub (> 120 s) et le défaut
+  générique tuait le build → « ✗ Échec du build/démarrage » pour le nouvel
+  utilisateur, pile saine derrière.
+  `hub_make` applique désormais un budget généreux (1800 s,
+  `HUBCTL_BUILD_TIMEOUT`) aux cibles de build ; health check d'init à 600 s
+  (`HUBCTL_HEALTH_TIMEOUT`) ; timeout de build → guidance actionable
+  (« Relancez ./hubctl init : il convergera »). 775 tests verts.
 ## [0.88.7] - 26 novembre 2026
 
 ### ⚡ Pointeur HUB_base 3.107.1 (fix 409 auto-bloquant sur ports souhaités)
