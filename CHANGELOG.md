@@ -1,3 +1,18 @@
+## [0.88.6] - 26 novembre 2026
+
+### ⚡ Pointeurs : HUB_base 3.107.0 + gabarit 2.40.4 (réconciliation sync-env)
+- **`HUB_base` 3.106.2 → 3.107.0** : `POST /api/apps/allocate-ports` accepte des ports
+  souhaités optionnels (`api_port`/`frontend_port`) — enregistrement exact des ports figés
+  par le sync-env des apps, `PortAllocationConflict` → 409 explicite, rétro-compatible
+  (2134 tests verts).
+- **`HUBapp_TEMPLATE_base` 2.40.3 → 2.40.4** : le pré-vol `make sync-env` consulte le Hub
+  même quand les ports sont figés (fin de l'allocation locale 10.220.0.0/16, dernier recours
+  uniquement), subnet depuis le pool Hub `10.50.0.0/16`, dégradation gracieuse sur Hub
+  ancien (45 tests verts). Corrige le signalement du 26/11 (« sync-env ne prend pas en
+  compte les numéros de port ni la plage ») ; le « buildID » cité n'existe nulle part dans
+  le parc (aucun champ build_id : Hub, template, Makefile) — évolution à cadrer à part.
+- Ces pointeurs portent aussi les mises à jour README des dépôts composants fusionnées
+  aujourd'hui (fix/readme-public).
 ## [0.88.5] - 26 novembre 2026
 ### ⚡ README public : installation de zéro validée en VM + captures d'écran
 - **Section « Aperçu »** : 4 captures d'une installation de zéro (VM Debian 12, labo `oss-readme`) —
