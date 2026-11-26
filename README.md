@@ -11,12 +11,12 @@ MIT pour le gabarit et le design system) :
 
 | Dépôt | Rôle | Version |
 |-------|------|---------|
-| [`HUB`](https://github.com/poulidor-hub/HUB) | Le Hub : SSO, PKI, registre des apps, messagerie, sauvegardes, WireGuard | ![version](https://img.shields.io/badge/version-3.106.1-blue) |
-| [`HUBsocle`](https://github.com/poulidor-hub/HUBsocle) | Socle versionné des applications (API fine branchée sur le Hub) | ![version](https://img.shields.io/badge/version-2.40.1-blue) |
-| [`HUBapp-template`](https://github.com/poulidor-hub/HUBapp-template) | Gabarit d'application branchée sur le Hub (FastAPI + React) | ![version](https://img.shields.io/badge/version-2.40.2-blue) |
-| [`HUBCSS`](https://github.com/poulidor-hub/HUBCSS) | Design system CSS/JS servi aux applications | ![version](https://img.shields.io/badge/version-0.3.7-blue) |
-| [`hubctl`](https://github.com/poulidor-hub/hubctl) | CLI d'administration du parc (init, update, ateliers, coffre) | ![version](https://img.shields.io/badge/version-0.20.5-blue) |
-| [`hub-mcp`](https://github.com/poulidor-hub/hub-mcp) | Serveur MCP pour piloter le Hub depuis un assistant IA (66 outils) | ![version](https://img.shields.io/badge/version-0.16.3-blue) |
+| [`HUB`](https://github.com/poulidor-hub/HUB) | Le Hub : SSO, PKI, registre des apps, messagerie, sauvegardes, WireGuard | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
+| [`HUBsocle`](https://github.com/poulidor-hub/HUBsocle) | Socle versionné des applications (API fine branchée sur le Hub) | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
+| [`HUBapp-template`](https://github.com/poulidor-hub/HUBapp-template) | Gabarit d'application branchée sur le Hub (FastAPI + React) | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
+| [`HUBCSS`](https://github.com/poulidor-hub/HUBCSS) | Design system CSS/JS servi aux applications | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
+| [`hubctl`](https://github.com/poulidor-hub/hubctl) | CLI d'administration du parc (init, update, ateliers, coffre) | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
+| [`hub-mcp`](https://github.com/poulidor-hub/hub-mcp) | Serveur MCP pour piloter le Hub depuis un assistant IA (66 outils) | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
 | **POULIDOR** (ce dépôt) | Méta-dépôt : documentation, runbooks, scripts transverses | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
 
 ---

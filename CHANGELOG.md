@@ -1,3 +1,10 @@
+## [0.88.4] - 26 novembre 2026
+### ⚡ README public du méta créé
+- Création du README à la racine : présentation du parc open source, tableau des sept
+  dépôts publics (poulidor-hub) avec versions, installation d'un déploiement complet
+  (clone méta + upstream/origin + .env + APPS + install.sh), mise à jour d'un déploiement
+  (fetch upstream + ff-only + sous-modules — le dépôt public étant en lecture seule pour
+  les clients), documentation et licences (AGPLv3 / MIT).
 ## [0.88.3] - 26 novembre 2026
 ### ⚡ .gitleaksignore régénéré sur l'histoire réécrite
 - Les empreintes gitleaks intègrent les sha de commits : après la réécriture d'historique
