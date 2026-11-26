@@ -1,3 +1,9 @@
+## [0.88.3] - 26 novembre 2026
+### ⚡ .gitleaksignore régénéré sur l'histoire réécrite
+- Les empreintes gitleaks intègrent les sha de commits : après la réécriture d'historique
+  (T6), les 16 empreintes d'ignorance des fixtures ne correspondaient plus. Régénération
+  complète (1 fixture de référence : `scripts/test_flux_complet.sh`), vérification :
+  0 finding sur `--all --full-history`.
 ## [0.88.2] - 26 novembre 2026
 ### ⚡ garde d'identité : le committer générique des fusions web est autorisé
 - `scripts/hooks/allowed-authors.txt` : ajout de `^noreply@github\.com$` — l'identité
