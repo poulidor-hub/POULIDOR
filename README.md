@@ -11,49 +11,69 @@ MIT pour le gabarit et le design system) :
 
 | Dépôt | Rôle | Version |
 |-------|------|---------|
-| [`HUB`](https://github.com/poulidor-hub/HUB) | Le Hub : SSO, PKI, registre des apps, messagerie, sauvegardes, WireGuard | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
-| [`HUBsocle`](https://github.com/poulidor-hub/HUBsocle) | Socle versionné des applications (API fine branchée sur le Hub) | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
-| [`HUBapp-template`](https://github.com/poulidor-hub/HUBapp-template) | Gabarit d'application branchée sur le Hub (FastAPI + React) | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
-| [`HUBCSS`](https://github.com/poulidor-hub/HUBCSS) | Design system CSS/JS servi aux applications | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
-| [`hubctl`](https://github.com/poulidor-hub/hubctl) | CLI d'administration du parc (init, update, ateliers, coffre) | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
-| [`hub-mcp`](https://github.com/poulidor-hub/hub-mcp) | Serveur MCP pour piloter le Hub depuis un assistant IA (66 outils) | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
-| **POULIDOR** (ce dépôt) | Méta-dépôt : documentation, runbooks, scripts transverses | ![version](https://img.shields.io/badge/version-0.88.4-blue) |
+| [`HUB`](https://github.com/poulidor-hub/HUB) | Le Hub : SSO, PKI, registre des apps, messagerie, sauvegardes, WireGuard | ![version](https://img.shields.io/badge/version-3.106.2-blue) |
+| [`HUBsocle`](https://github.com/poulidor-hub/HUBsocle) | Socle versionné des applications (API fine branchée sur le Hub) | ![version](https://img.shields.io/badge/version-2.40.2-blue) |
+| [`HUBapp-template`](https://github.com/poulidor-hub/HUBapp-template) | Gabarit d'application branchée sur le Hub (FastAPI + React) | ![version](https://img.shields.io/badge/version-2.40.3-blue) |
+| [`HUBCSS`](https://github.com/poulidor-hub/HUBCSS) | Design system CSS/JS servi aux applications | ![version](https://img.shields.io/badge/version-0.3.8-blue) |
+| [`hubctl`](https://github.com/poulidor-hub/hubctl) | CLI d'administration du parc (init, update, ateliers, coffre) | ![version](https://img.shields.io/badge/version-0.20.6-blue) |
+| [`hub-mcp`](https://github.com/poulidor-hub/hub-mcp) | Serveur MCP pour piloter le Hub depuis un assistant IA (66 outils) | ![version](https://img.shields.io/badge/version-0.16.4-blue) |
+| **POULIDOR** (ce dépôt) | Méta-dépôt : documentation, runbooks, scripts transverses | ![version](https://img.shields.io/badge/version-0.88.5-blue) |
 
 ---
 
+## Aperçu
+
+Installation de zéro sur une VM Debian 12 (reproductible, voir plus bas) :
+
+| | |
+|---|---|
+| ![Connexion SSO du Hub](docs/screenshots/hub-login.jpg) | ![Portail « Mes Applications »](docs/screenshots/hub-portail-apps.jpg) |
+| *Connexion SSO — tokens JWT RS256, PKI interne* | *Portail utilisateur : apps autorisées, favoris, rôles* |
+| ![Cockpit d'administration](docs/screenshots/hub-admin-cockpit.jpg) | ![Registre des applications](docs/screenshots/hub-registre-apps.jpg) |
+| *Administration : parc, OIDC, VPN, sauvegardes, DNS* | *Registre des apps : approbation, état en direct (SSE)* |
+
+> Les captures sont issues d'une installation de zéro reproductible par les
+> mainteneurs : `scripts/test-fresh-install.sh` (VM Debian 12 éphémère, 17 vérifications).
+
 ## Installer un déploiement complet
 
-Un déploiement POULIDOR = ce méta-dépôt (avec ses sous-modules) + un fichier `.env`
-+ vos applications dans `APPS/` (hors git). Prérequis : un serveur Linux, Docker ≥ 24,
-2 Go de RAM.
+Un déploiement POULIDOR = ce méta-dépôt (avec ses sous-modules) + vos applications
+dans `APPS/` (hors git). Prérequis : un serveur Linux Debian/Ubuntu avec 2 Go de RAM —
+l'installateur installe Docker, génère la configuration (`HUB_base/.env`, secrets, mot de
+passe admin) et démarre le Hub. Installation validée de zéro sur VM Debian 12 (4 Go, 2 vCPU).
 
 ```bash
 # 1) cloner le méta et ses composants
 git clone --recurse-submodules https://github.com/poulidor-hub/POULIDOR.git
 cd POULIDOR
 
-# 2) nommer la source officielle « upstream » (lecture seule)
+# 2) installer le Hub (Docker compris) — le runner CI GitHub est
+#    optionnel, --no-runner le saute
+sudo ./install.sh --no-runner
+
+# 3) nommer la source officielle « upstream » (lecture seule)
 git remote rename origin upstream
 
-# 3) (recommandé) garder votre propre dépôt privé comme « origin »
+# 4) (recommandé) garder votre propre dépôt privé comme « origin »
 git remote add origin git@<votre-git>:<votre-org>/POULIDOR.git
 git push -u origin main
 
-# 4) configuration et applications (hors git)
-cp .env.example .env && éditer le .env   # PHILIA_NG_DOMAIN, ports, secrets…
-mkdir -p APPS                            # vos applications, hors git
-
-# 5) installer et démarrer le Hub
-cd HUB_base && sudo ./install.sh && cd ..
-#    — ou via la CLI :
-./hubctl init
+# 5) vos applications (hors git)
+mkdir -p APPS
 
 # 6) vérifier
-bash hub.sh up-prod
+./hubctl start prod
 ./hubctl doctor
 ```
 
-Le script d'installation affiche l'URL du Hub et le mot de passe admin auto-généré.
+La configuration vit dans `HUB_base/.env` (généré par l'installateur) : ports,
+`APP_WHITELIST_NETWORKS` (réseaux clients autorisés), OIDC, PKI… Le mot de passe admin
+auto-généré y est noté (`ADMIN_PASSWORD`). Après toute modification de ce fichier :
+`cd HUB_base && sudo docker compose up -d hub-api` — un simple `restart` ne recharge pas
+le `.env`. Sur un clone public, `doctor` peut signaler un décalage des pointeurs de
+sous-modules avec les branches upstream : informatif — ne tirez pas un sous-module
+au-delà du pointeur si vous suivez les releases du méta.
+
 Vos applications se créent depuis le gabarit [`HUBapp-template`](https://github.com/poulidor-hub/HUBapp-template)
 (`INITIALISE.py`) et s'enregistrent auprès du Hub.
 
@@ -63,7 +83,7 @@ Vos applications se créent depuis le gabarit [`HUBapp-template`](https://github
 git fetch upstream
 git merge --ff-only upstream/main
 git submodule update --init --recursive
-bash hub.sh up-prod
+./hubctl start prod
 ./hubctl doctor
 ```
 
