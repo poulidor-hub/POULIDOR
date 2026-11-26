@@ -1,3 +1,17 @@
+## [0.88.10] - 26 novembre 2026
+
+### ⚡ Installation sans friction (phase 1) : install.sh idempotent et silencieux + hubctl 0.20.8
+- **`install.sh`** : runner CI GitHub en **opt-in** (`--runner` ; par défaut plus aucun prompt
+  ni résolution d'origin — le message citait `GITHUB_TOKEN`, la variable lue est `GH_PAT` ;
+  `--no-runner` reste accepté) ; `DEBIAN_FRONTEND=noninteractive` (fin du bruit debconf sans
+  TTY) ; « Prochaines étapes » réduit à ce qui existe — URL, changement du mot de passe admin,
+  CA du Hub (`GET /api/pki/ca.crt`) — au lieu d'un menu hubctl inexistant et d'un assistant
+  IA que rien n'installe. Fonctions extraites dans `scripts/lib/install-lib.sh`, verrouillées
+  par `scripts/tests/test_install_sh.sh` (5 cas). README : `sudo ./install.sh` sans flag.
+- **`hubctl` 0.20.7 → 0.20.8** : `hubctl init` est relançable sans risque — si le `.env`
+  existe déjà il **reprend** (rien n'est régénéré, aucun prompt même avec TTY, `up-prod` +
+  health) ; `--force` régénère après un avertissement explicite. `install.sh` relancé Hub
+  arrêté ne sort plus en « ✗ L'initialisation du Hub a échoué ». 784 tests verts.
 ## [0.88.9] - 26 novembre 2026
 
 ### ⚡ Pointeurs alignés sur les têtes des composants : HUBCSS 0.3.8, HUBsocle 2.40.2, hub-mcp 0.16.4
