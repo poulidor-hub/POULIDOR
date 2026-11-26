@@ -17,7 +17,7 @@ MIT pour le gabarit et le design system) :
 | [`HUBCSS`](https://github.com/poulidor-hub/HUBCSS) | Design system CSS/JS servi aux applications | ![version](https://img.shields.io/badge/version-0.3.8-blue) |
 | [`hubctl`](https://github.com/poulidor-hub/hubctl) | CLI d'administration du parc (init, update, ateliers, coffre) | ![version](https://img.shields.io/badge/version-0.20.6-blue) |
 | [`hub-mcp`](https://github.com/poulidor-hub/hub-mcp) | Serveur MCP pour piloter le Hub depuis un assistant IA (66 outils) | ![version](https://img.shields.io/badge/version-0.16.4-blue) |
-| **POULIDOR** (ce dépôt) | Méta-dépôt : documentation, runbooks, scripts transverses | ![version](https://img.shields.io/badge/version-0.88.8-blue) |
+| **POULIDOR** (ce dépôt) | Méta-dépôt : documentation, runbooks, scripts transverses | ![version](https://img.shields.io/badge/version-0.88.9-blue) |
 
 ---
 

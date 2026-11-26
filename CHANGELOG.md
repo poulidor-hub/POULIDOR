@@ -1,3 +1,13 @@
+## [0.88.9] - 26 novembre 2026
+
+### ⚡ Pointeurs alignés sur les têtes des composants : HUBCSS 0.3.8, HUBsocle 2.40.2, hub-mcp 0.16.4
+- Releases déjà publiées de chaque composant (README publics, URLs `poulidor-hub`), dont
+  le pointeur méta n'avait pas suivi : **`HUBCSS` 0.3.7 → 0.3.8**, **`HUBsocle` 2.40.1 →
+  2.40.2**, **`hub-mcp` 0.16.3 → 0.16.4**. Aucun changement fonctionnel.
+- Conséquence visée : sur un clone frais, les gitlinks du méta pointent exactement sur les
+  têtes `main` des composants — `hubctl doctor` ne signale plus de « retard sur
+  origin/main » tant que les composants n'ont pas avancé (préalable à la publication
+  publique, plan « installation sans friction » phase 0).
 ## [0.88.8] - 26 novembre 2026
 
 ### ⚡ Pointeur hubctl 0.20.7 (le premier boot ne doit plus échouer à 120 s)
