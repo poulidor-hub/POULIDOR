@@ -1,3 +1,14 @@
+## [0.88.14] - 26 novembre 2026
+
+### 🐛 install.sh : les services hôtes sont rendus depuis le gabarit, plus depuis un cache
+- Verdict VM d'une montée de version : `install_host_service` préférait l'unit rendue en cache
+  par `hubctl init` (`packaging/.rendered/`), cache non re-rendu à la montée de version — il
+  déclarait le service atelier « déjà à jour » alors que l'unit posée était l'ancienne.
+- L'installeur calcule lui-même la passerelle docker0 et rend le gabarit ; le cache n'est
+  qu'un repli. Passerelle indéterminable sans repli : refus explicite, rien posé (le rendu
+  produisait auparavant une unit `--host` vide).
+- `scripts/tests/test_install_sh.sh` : 12 cas, hermétiques au Docker du poste.
+
 ## [0.88.13] - 26 novembre 2026
 
 ### ⚡ Pointeur hubctl 0.22.1 — validation VM d'une installation neuve (phases 1 à 4)
