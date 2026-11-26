@@ -1,3 +1,32 @@
+## [0.88.12] - 26 novembre 2026
+
+### ⚡ Installation sans friction (phases 2, 3 et 4) : `hubctl app install`, publication scriptée, outillage lab
+- **`hubctl` 0.21.0 → 0.22.0** : nouvelle commande **`hubctl app install <url-git>`** — clone, dépendances
+  d'abord (`depends.yaml`), `.env` avec secrets par défaut neutralisés, images et contexte de build
+  du socle garantis, `sync-env`, build, app pré-créée approuvée au Hub (mot de passe admin :
+  `HUBCTL_ADMIN_PASSWORD`, puis `.env`, puis saisie masquée ; sans mot de passe l'app reste « en
+  attente »), démarrage, certificat de la CA du Hub, résumé avec l'URL. Budgets de premier
+  démarrage 1800 / 600 / 300 s. Menu PROD (touche 5). 981 tests verts.
+- **`HUB_base` 3.107.2 → 3.108.0** : précheck « image socle » dans le pipeline de déploiement —
+  l'image manquante est nommée avec son remède (`./hubctl socle build`) avant tout build, au lieu
+  d'un échec muet plus loin.
+- **`install.sh`** : 4e étape de la guidance de fin — « installer une application :
+  `./hubctl app install <url-git-du-depot>` » (annoncée maintenant qu'elle existe).
+- **README** : section « Installer une application » ; bloc « Installer » sans no-op ;
+  rechargement du `.env` par `./hubctl restart` ; note `doctor` honnête ; bloc « Mettre à jour »
+  avec `./hubctl update hub` (débloqué en 0.21.0 sur un déploiement).
+- **`scripts/publish-public.sh`** : publication privée → publique idempotente et testée
+  (`scripts/tests/test_publish_public.sh`, 25 mutations tuées). Sans `--yes` : dry-run qui
+  vérifie tout (commits étrangers, garde OSS en fail-closed, adaptation du méta régénérée dans un
+  worktree jetable) sans rien pousser ; `--verify` : clone anonyme de contrôle. Remplace la
+  routine manuelle du runbook.
+- **Outillage lab** : `vm_push_branch` bundle TOUS les sous-modules (découverte dans
+  `.gitmodules` — HUBsocle était oublié) et amorce `~/POULIDOR` sur une VM neuve ; les échecs
+  remontent au lieu d'être avalés (`scripts/tests/test_vm_push_branch.sh`, commandes « VM »
+  réellement exécutées en local). Harnais `test-fresh-install.sh` : check `app-frontend` en
+  HTTPS (le gabarit est HTTPS par défaut), clone de l'org publique par défaut (`--private`
+  pour l'org privée).
+
 ## [0.88.11] - 26 novembre 2026
 
 ### ⚡ Installation sans friction (phase 1, réellement) : install.sh + hubctl 0.21.0 + HUB_base 3.107.2
