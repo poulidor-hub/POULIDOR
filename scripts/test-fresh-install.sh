@@ -8,17 +8,20 @@
 # complète (clone + install.sh + santé Hub + smoke hubctl + création d'app),
 # et produit un rapport pass/fail. Exit non-zéro si échec.
 #
-# Usage : scripts/test-fresh-install.sh [--keep] [--branch <branche>]
+# Usage : scripts/test-fresh-install.sh [--keep] [--branch <branche>] [--private]
 #   --keep        Conserver la VM en fin de run (debug)
+#   --private     Cloner l'org PRIVÉE (POULIDOR-Audit-Developpement) au lieu de
+#                 l'org publique poulidor-hub — défaut : ce que voient les
+#                 utilisateurs (agent SSH requis pour l'org privée)
 #   --branch <b>  Tester la branche <b> (propagée par git bundle ; les
 #                 sous-modules sont bundlés aussi). Défaut : origin/main.
 #
 # PRÉREQUIS (hôte) :
 #   - qemu-kvm, qemu-utils, cloud-image-utils installés
 #   - image de base présente : build/fresh-install/base/debian-12-generic-amd64.qcow2
-#   - dépôts du parc publics : le clone se fait en HTTPS anonyme, sans agent SSH.
-#     Tant qu'ils sont privés, un clone HTTPS réclame un jeton (le harnais n'en
-#     fournit pas : utiliser un labo, scripts/lib/vm-lab.sh).
+#   - clone par défaut sur l'org PUBLIQUE poulidor-hub (HTTPS anonyme, sans
+#     agent SSH) : c'est l'état que voient les utilisateurs. --private clone
+#     l'org privée (jeton ou agent SSH requis de la part de l'opérateur).
 #
 # Découvertes intégrées (phase A, voir build/fresh-install/RAPPORT-FINAL.md) :
 #   - host key GitHub absente d'une machine neuve → sans objet depuis le clone HTTPS
@@ -38,12 +41,16 @@ TS="$(date +%Y%m%d-%H%M%S)"
 RUN_DIR="$ROOT/build/fresh-install/runs/$TS"
 KEEP=false
 BRANCH=""
+PUBLIC_CLONE_URL="https://github.com/poulidor-hub/POULIDOR.git"
+PRIVATE_CLONE_URL="https://github.com/POULIDOR-Audit-Developpement/POULIDOR.git"
+CLONE_URL="$PUBLIC_CLONE_URL"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --keep) KEEP=true; shift ;;
     --branch) BRANCH="${2:-}"; shift 2 ;;
-    *) echo "Usage: $0 [--keep] [--branch <branche>]" >&2; exit 2 ;;
+    --private) CLONE_URL="$PRIVATE_CLONE_URL"; shift ;;
+    *) echo "Usage: $0 [--keep] [--branch <branche>] [--private]" >&2; exit 2 ;;
   esac
 done
 
@@ -106,7 +113,7 @@ echo "Run : $RUN_DIR (VM port $VM_PORT)" | tee -a "$RUN_DIR/report.txt"
 check "vm-create" vm_create
 
 # ── A3 : clone + sous-modules (HTTPS anonyme, comme un utilisateur du parc public) ──
-check "clone" in_vm "git clone --recurse-submodules https://github.com/POULIDOR-Audit-Developpement/POULIDOR.git ~/POULIDOR"
+check "clone" in_vm "git clone --recurse-submodules $CLONE_URL ~/POULIDOR"
 if [ -n "$BRANCH" ]; then
   check "checkout-branch" vm_push_branch "$BRANCH"
 fi
@@ -138,7 +145,9 @@ check "hub-whitelist" in_vm 'cd ~/POULIDOR/HUB_base && (grep -q "10.0.2.0/24" .e
 check "app-sync-env" in_vm 'cd ~/POULIDOR/APPS/testapp && make sync-env && grep -q "^API_PORT=[0-9]" .env'
 check "app-up" in_vm 'cd ~/POULIDOR/APPS/testapp && make up'
 check "app-health" in_vm 'cd ~/POULIDOR/APPS/testapp && API_PORT=$(grep -E "^API_PORT=" .env | cut -d= -f2); for i in $(seq 1 20); do curl -sf "http://localhost:${API_PORT}/api/health" | grep -q "\"status\": \"healthy\"\|\"status\":\"healthy\"" && exit 0; sleep 3; done; exit 1'
-check "app-frontend" in_vm 'cd ~/POULIDOR/APPS/testapp && FRONT=$(grep -E "^FRONTEND_PORT=" .env | cut -d= -f2); for i in $(seq 1 10); do curl -s -o /dev/null -w "%{http_code}" "http://localhost:${FRONT}" | grep -q 200 && exit 0; sleep 3; done; exit 1'
+# Le gabarit est en HTTPS par défaut (HTTPS_ENABLED=true) : le port HTTP répond
+# 301 vers FRONTEND_PORT+1 — c'est le port HTTPS qui doit répondre 200.
+check "app-frontend" in_vm 'cd ~/POULIDOR/APPS/testapp && FRONT=$(grep -E "^FRONTEND_PORT=" .env | cut -d= -f2); for i in $(seq 1 10); do curl -sk -o /dev/null -w "%{http_code}" "https://localhost:$((FRONT + 1))" | grep -q 200 && exit 0; sleep 3; done; exit 1'
 check "app-register-pending" in_vm 'cd ~/POULIDOR; PW=$(grep -E "^ADMIN_PASSWORD=" HUB_base/.env | cut -d= -f2); TOKEN=$(curl -sf -X POST http://localhost:8000/api/auth/login -H "Content-Type: application/json" -d "{\"username\": \"admin\", \"password\": \"$PW\"}" | python3 -c "import sys,json;print(json.load(sys.stdin)[\"access_token\"])"); curl -sL http://localhost:8000/api/apps/ -H "Authorization: Bearer $TOKEN" | grep -q "testapp"'
 check "app-approve" approve_app
 check "app-active" in_vm 'cd ~/POULIDOR; PW=$(grep -E "^ADMIN_PASSWORD=" HUB_base/.env | cut -d= -f2); TOKEN=$(curl -sf -X POST http://localhost:8000/api/auth/login -H "Content-Type: application/json" -d "{\"username\": \"admin\", \"password\": \"$PW\"}" | python3 -c "import sys,json;print(json.load(sys.stdin)[\"access_token\"])"); curl -sL http://localhost:8000/api/apps/ -H "Authorization: Bearer $TOKEN" | python3 -c "import sys,json; d=json.load(sys.stdin); apps=d if isinstance(d,list) else d.get(\"items\") or d.get(\"apps\"); a=[x for x in apps if x.get(\"slug\")==\"testapp\"][0]; exit(0 if a.get(\"approval_status\")==\"approved\" and a.get(\"is_active\") else 1)"'
