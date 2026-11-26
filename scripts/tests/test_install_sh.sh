@@ -83,7 +83,8 @@ grep -q "mot de passe admin" <<<"$out"         || fail "guidance : changement du
 grep -q "192.0.2.10:8000/api/pki/ca.crt" <<<"$out" || fail "guidance : URL de téléchargement de la CA attendue — obtenu : $out"
 grep -q "Ajouter une application" <<<"$out"    && fail "guidance : ne doit plus annoncer un menu hubctl inexistant"
 grep -q "demande à l'IA" <<<"$out"             && fail "guidance : ne doit plus annoncer l'assistant IA (rien ne l'installe)"
-pass "guidance : URL, mot de passe, CA — ni menu inexistant ni assistant IA"
+grep -q "app install <url-git-du-depot>" <<<"$out" || fail "guidance : la commande d'installation d'une app doit etre annoncee — obtenu : $out"
+pass "guidance : URL, mot de passe, CA, installation d'une app — ni menu inexistant ni assistant IA"
 
 # ── 6. Services hôtes : rendu + installation idempotente (phase 3c) ──────────
 # hubctl-update n'était installé par personne (uniquement « commandes à lancer

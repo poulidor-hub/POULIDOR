@@ -61,21 +61,39 @@ git push -u origin main
 # 5) vos applications (hors git)
 mkdir -p APPS
 
-# 6) vérifier
-./hubctl start prod
+# 6) vérifier (ℹ = information, ✗ = problème avec son remède)
 ./hubctl doctor
+
+# 7) installer une application — une seule commande
+./hubctl app install <url-git-du-depot>
 ```
 
 La configuration vit dans `HUB_base/.env` (généré par l'installateur) : ports,
 `APP_WHITELIST_NETWORKS` (réseaux clients autorisés), OIDC, PKI… Le mot de passe admin
-auto-généré y est noté (`ADMIN_PASSWORD`). Après toute modification de ce fichier :
-`cd HUB_base && sudo docker compose up -d hub-api` — un simple `restart` ne recharge pas
-le `.env`. Sur un clone public, `doctor` peut signaler un décalage des pointeurs de
-sous-modules avec les branches upstream : informatif — ne tirez pas un sous-module
-au-delà du pointeur si vous suivez les releases du méta.
+auto-généré y est noté (`ADMIN_PASSWORD`). Après toute modification de ce fichier : `./hubctl restart` — il
+recrée les services concernés (un simple redémarrage des conteneurs ne relit pas le
+`.env`, et `doctor` vous le signale). `doctor` marque « mise à jour disponible » comme
+une information : sur un déploiement, la mise à jour d'un composant passe par celle du
+méta (bloc « Mettre à jour » ci-dessous), jamais par un sous-module tiré au-delà de son
+pointeur.
 
-Vos applications se créent depuis le gabarit [`HUBapp-template`](https://github.com/poulidor-hub/HUBapp-template)
-(`INITIALISE.py`) et s'enregistrent auprès du Hub.
+## Installer une application
+
+Une application existante du parc (dépôt git) s'installe en une commande :
+
+```bash
+./hubctl app install <url-git-du-depot>
+```
+
+hubctl la clone dans `APPS/`, construit le socle s'il manque, lui fait allouer ports et
+sous-réseau auprès du Hub, la démarre et l'approuve — votre mot de passe admin vous est
+demandé si celui du `.env` a été changé ; sans mot de passe disponible, l'app est
+installée et reste « en attente d'approbation » dans le Hub. Ses dépendances déclarées
+dans `depends.yaml` sont installées d'abord (renseignez leurs dépôts dans
+`seed-apps.yaml` si elles ne sont pas au registre du Hub). Plusieurs URL, ou un fichier
+`seed-apps.yaml`, sont acceptés ; `--help` détaille les options. Pour créer une
+application **neuve**, partez du gabarit
+[`HUBapp-template`](https://github.com/poulidor-hub/HUBapp-template) (`INITIALISE.py`).
 
 ## Mettre à jour un déploiement
 
@@ -83,7 +101,7 @@ Vos applications se créent depuis le gabarit [`HUBapp-template`](https://github
 git fetch upstream
 git merge --ff-only upstream/main
 git submodule update --init --recursive
-./hubctl start prod
+./hubctl update hub
 ./hubctl doctor
 ```
 

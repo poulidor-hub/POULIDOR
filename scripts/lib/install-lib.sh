@@ -184,7 +184,7 @@ phase_runner_ci() {
 # 26/11/2026 : « ./hubctl → Apps → Ajouter une application » n'existe pas, et
 # l'assistant IA n'est installé par rien). La CA du Hub est servie sans auth
 # par l'API (GET /api/pki/ca.crt) : l'installer sur le poste évite l'avertissement
-# de sécurité du navigateur.
+# de sécurité du navigateur. `hubctl app install` : hubctl ≥ 0.22.0.
 
 print_next_steps() {
     say "${BOLD}Prochaines étapes :${NC}"
@@ -192,6 +192,7 @@ print_next_steps() {
     say "  2. Connecte-toi et change le mot de passe admin"
     say "  3. Pour éviter l'avertissement de sécurité du navigateur, installe la CA du Hub"
     say "     sur ton poste : http://${HOST_IP}:${API_PORT}/api/pki/ca.crt"
+    say "  4. Installe une application : ${BOLD}./hubctl app install <url-git-du-depot>${NC}"
     say ""
 }
 
