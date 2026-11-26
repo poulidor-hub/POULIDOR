@@ -206,21 +206,39 @@ print_next_steps() {
 # install.sh, ne faisait qu'afficher ses commandes « à lancer à la main », et
 # le cockpit Admin du Hub restait sur « Relance automatique suspendue / état
 # inconnu » (constat VM 26/11/2026).
+docker0_gateway() {  # passerelle du réseau bridge de Docker (docker0), vide si indéterminable
+    local gw=""
+    gw="$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null)" || gw=""
+    printf '%s' "${gw//[[:space:]]/}"
+}
+
 install_host_service() {  # install_host_service <nom> : 0 si le service est posé et activé
     local nom="$1"
     local src="$ROOT_DIR/hubctl_src/packaging/hubctl-$nom.service"
     local dst="${SYSTEMD_UNIT_DIR:-/etc/systemd/system}/hubctl-$nom.service"
-    local tmp="" origin="$src"
+    local tmp="" origin="$src" gw=""
     if [ ! -f "$src" ]; then
         warn "Gabarit d'unit introuvable ($src) — service $nom ignoré"
         return 1
     fi
-    # Source autoritaire : l'unit rendue par `hubctl init` (phase 3b, juste
-    # avant) — elle substitue AUSSI @DOCKER_GATEWAY@ (passerelle docker0), que
-    # cet installeur ne sait pas calculer. À défaut, rendu minimal ci-dessous.
+    # L'installeur rend le GABARIT lui-même, passerelle docker0 comprise. Le
+    # rendu mis en cache par `hubctl init` (.rendered/) n'est qu'un repli quand
+    # la passerelle est indéterminable : ce cache n'est pas re-rendu lors d'une
+    # montée de version, et une unit périmée restait posée (verdict VM 26/11).
     local rendered="$ROOT_DIR/hubctl_src/packaging/.rendered/hubctl-$nom.service"
-    if [ -s "$rendered" ]; then
-        origin="$rendered"
+    if grep -q '@DOCKER_GATEWAY@' "$src"; then
+        gw="$(docker0_gateway)"
+        gw="${gw//[[:space:]]/}"   # défensif : jamais de blanc dans une adresse
+        if [ -z "$gw" ]; then
+            if [ -s "$rendered" ]; then
+                origin="$rendered"
+                warn "Passerelle docker0 indéterminable — repli sur l'unit rendue par ./hubctl init ($rendered)"
+            else
+                # Jamais une unit « --host » vide : on ne pose rien.
+                warn "Passerelle docker0 indéterminable et pas d'unit rendue par ./hubctl init — service $nom non posé (lancez ./hubctl init, puis relancez ./install.sh)"
+                return 1
+            fi
+        fi
     fi
     if ! tmp="$(mktemp)"; then
         warn "mktemp indisponible — service $nom ignoré (relancer ./install.sh)"
@@ -228,6 +246,7 @@ install_host_service() {  # install_host_service <nom> : 0 si le service est pos
     fi
     if ! sed -e "s|@REAL_USER@|$REAL_USER|g" \
              -e "s|@PARC_ROOT@|$ROOT_DIR|g" \
+             -e "s|@DOCKER_GATEWAY@|$gw|g" \
              "$origin" > "$tmp"; then
         rm -f "$tmp"
         warn "Rendu de l'unit impossible — service $nom ignoré (relancer ./install.sh)"
