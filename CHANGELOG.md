@@ -1,3 +1,28 @@
+## [0.88.11] - 26 novembre 2026
+
+### ⚡ Installation sans friction (phase 1, réellement) : install.sh + hubctl 0.21.0 + HUB_base 3.107.2
+- **Correction de l'entrée 0.88.10** : le volet `install.sh` qu'elle décrit n'était PAS sur `main`
+  — la branche avait été « mergée » depuis `origin/…` sans être poussée au préalable (merge
+  « déjà à jour », non vérifié). Seul le pointeur hubctl y était. Constaté par la validation VM
+  du lot ; le volet arrive ici, complété, et les merges sont désormais vérifiés (2 parents,
+  contenu contrôlé) avant tout push.
+- **`install.sh`** : runner CI GitHub en **opt-in** (`--runner` ; plus aucun prompt ni résolution
+  d'origin par défaut — le message citait `GITHUB_TOKEN`, la variable lue est `GH_PAT` ;
+  `--no-runner` reste accepté) ; `DEBIAN_FRONTEND=noninteractive` ; « Prochaines étapes » réduit
+  à ce qui existe (URL, mot de passe admin, CA du Hub) ; **l'installeur pose les deux services
+  hôtes** (`hubctl-atelier` ET `hubctl-update` — ce dernier n'était installé par personne : le
+  cockpit Admin restait sur « Relance automatique suspendue ») via `install_host_service`
+  (préfère l'unit rendue par `hubctl init`, refuse tout placeholder non substitué) ; il signale
+  sa présence par `HUBCTL_INSTALLER=1` (plus de rappel « à lancer à la main » dans ce flux) ;
+  home utilisateur par `getent`. Fonctions dans `scripts/lib/install-lib.sh`, 10 cas de test.
+- **`hubctl` 0.20.8 → 0.21.0** : `doctor` honnête sur un déploiement (plus de ✗ sur un clone
+  frais : « mise à jour disponible » est une ℹ, `--fix` idempotent, remède « méta d'abord ») ;
+  `update hub` non bloqué par les informations ; nouvelle commande **`hubctl restart`**
+  (recreate — recharge le `.env`) ; ℹ si un `.env` modifié n'est pas appliqué ; `init --help`
+  dit la reprise ; plus de rappel manuel des services hôtes sous l'installeur. 821 tests verts.
+- **`HUB_base` 3.107.1 → 3.107.2** : `DEBIAN_FRONTEND=noninteractive` dans le `Dockerfile` du
+  Hub (18 lignes de bruit debconf au premier boot).
+
 ## [0.88.10] - 26 novembre 2026
 
 ### ⚡ Installation sans friction (phase 1) : install.sh idempotent et silencieux + hubctl 0.20.8
