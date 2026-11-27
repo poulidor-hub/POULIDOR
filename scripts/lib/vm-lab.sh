@@ -183,10 +183,10 @@ lab_ssh() { # lab_ssh <nom> [cmd...]
   vm_ssh "$@"
 }
 
-lab_push() { # lab_push <nom> <branche> : branche locale + sous-modules → VM
+lab_push() { # lab_push <nom> <branche> [origin_du_méta] : branche locale + sous-modules → VM
   local name="${1:?usage: lab_push <nom> <branche>}" branch="${2:?usage: lab_push <nom> <branche>}"
   _lab_bind "$name"
-  vm_push_branch "$branch"
+  vm_push_branch "$branch" "${3:-}"
 }
 
 lab_inject() { # lab_inject <nom> <src> <dst-dans-la-VM>
