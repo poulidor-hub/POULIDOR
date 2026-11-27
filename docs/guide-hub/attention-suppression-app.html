@@ -24,36 +24,38 @@
   <h1>Supprimer une application</h1>
 
   <h2>Objectif</h2>
-  <p>Retirer une application du parc, avec filet de sécurité (coffre +
-  sauvegarde + corbeille).</p>
+  <p>Retirer une application du parc — <strong>suppression définitive</strong> :
+  le seul filet de sécurité est l'archive <code>tar.gz</code> créée avant le
+  retrait du dossier.</p>
 
   <h2>Quand l'utiliser</h2>
   <p>Quand une app n'est plus utilisée, ou pour la réinstaller proprement.</p>
 
   <h2>Comment faire</h2>
-  <p>La suppression passe par <code>hubctl app remove</code> : sauvegarde
-  automatique, arrêt avec volumes, puis retrait du dossier de l'app — après
-  confirmation.</p>
+  <p>La suppression passe par <code>hubctl app remove</code> : arrêt avec
+  volumes (<code>down -v</code>), sauvegarde automatique, puis retrait du
+  dossier de l'app — après confirmation.</p>
   <div class="code"><pre>./hubctl app remove &lt;slug&gt;             # supprime l'app (confirmation interactive)
 ./hubctl app remove &lt;slug&gt; --dry-run   # voir d'abord ce qui serait supprimé</pre></div>
-  <p>Le déroulé : <strong>backup</strong> <code>tar.gz</code> de l'app, puis
-  <code>compose down -v</code> (conteneurs <em>et volumes</em>, base incluse),
-  puis retrait du dossier <code>APPS/&lt;slug&gt;</code>. Répondre
+  <p>Le déroulé : <code>compose down -v</code> (conteneurs <em>et volumes</em>,
+  base incluse), puis <strong>backup</strong> <code>tar.gz</code> de l'app,
+  puis retrait du dossier <code>APPS/&lt;slug&gt;</code> (définitif). Répondre
   <strong>O</strong> pour confirmer ; <code>--yes</code> passe la confirmation
   (scripts, CI).</p>
 
   <details class="accordion">
     <summary>En coulisse (technique)</summary>
-    <p>Avant suppression, <code>hubctl</code> synchronise le coffre et crée une
-    archive <code>tar.gz</code> dans <code>hubctl_src/hubctl_cli/backups/</code>,
-    puis arrête le projet compose avec ses volumes (<code>down -v</code>) et
-    supprime <code>APPS/&lt;slug&gt;</code> (hubctl 0.24.0).</p>
+    <p><code>hubctl</code> arrête d'abord le projet compose avec ses volumes
+    (<code>down -v</code>), crée ensuite une archive <code>tar.gz</code> du
+    dossier dans <code>hubctl_src/hubctl_cli/backups/</code> (chmod 600,
+    best-effort), puis supprime <code>APPS/&lt;slug&gt;</code> définitivement
+    (<code>rm -rf</code>) — le coffre n'est jamais touché (hubctl 0.24.0).</p>
   </details>
 
   <div class="attention">
     <strong>⚠ Points d'attention</strong>
     <ul>
-      <li><code>down -v</code> détruit les volumes Docker : les données de la base ne sont conservées que dans le backup <code>tar.gz</code> — vérifiez-le avant de confirmer.</li>
+      <li><code>down -v</code> détruit les volumes Docker : les données de la base sont <strong>perdues</strong> — le backup <code>tar.gz</code> n'archive que le dossier de l'app (code, config, <code>.env</code>), pas les volumes. Un dump préalable (ex. <code>pg_dump</code>) est nécessaire si ces données comptent.</li>
       <li>Les archives s'accumulent dans <code>hubctl_src/hubctl_cli/backups/</code> : pensez à l'espace disque.</li>
       <li>La commande agit sur <strong>une seule app</strong> : relisez le slug demandé avant de confirmer.</li>
     </ul>
@@ -62,9 +64,11 @@
   <details class="accordion">
     <summary>En cas de problème</summary>
     <p>Pour remonter une app supprimée par erreur : réinstallez-la depuis son
-    dépôt git (<code>./hubctl app install &lt;url-git&gt;</code>), puis
-    restaurez ses données depuis l'archive <code>tar.gz</code> de
-    <code>hubctl_src/hubctl_cli/backups/</code>.</p>
+    dépôt git (<code>./hubctl app install &lt;url-git&gt;</code>) — l'archive
+    <code>tar.gz</code> de <code>hubctl_src/hubctl_cli/backups/</code> rend son
+    code et sa configuration, pas les données des volumes (détruites par
+    <code>down -v</code>) : celles-ci ne survivent que si un dump avait été
+    fait avant la suppression.</p>
   </details>
 </main>
 <footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.88.18</span> · <a href="index.html">Accueil</a></footer>

@@ -14,6 +14,7 @@
 sudo ./install.sh                 # tout-en-un (Docker + Hub + firewall VPN)
 ./hubctl init                     # variante : Hub seul (prérequis déjà là)
 ./hubctl start                    # tout démarrer + health
+./hubctl app install <url1> <url2>…  # repeupler des apps connues
 ls APPS/                          # apps installées du banc (détail : ./hubctl doctor)
 ```
 

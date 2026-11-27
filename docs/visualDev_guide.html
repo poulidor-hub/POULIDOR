@@ -601,7 +601,7 @@ sequenceDiagram
           <tr><td><code>vpn sync|status|on|off</code></td><td>WireGuard : l'état voulu vit en DB, le conteneur est réconcilié par <code>sync</code>.</td></tr>
           <tr><td><code>vault backup|restore|status|export|import|app list|app set-url</code></td><td>Coffre chiffré Fernet+scrypt des .env/secrets + réplication PRA. (backup_all/restore_all/change_passphrase restent des fonctions internes, pilotées par la TUI.)</td></tr>
           <tr><td><code>jwt keys|rotate|revoke|cleanup</code></td><td>Trousseau JWT multi-clés du Hub (≥ 3.59.0) : rotation avec chevauchement 24 h — les apps n'ont rien à faire (JWKS dynamique).</td></tr>
-          <tr><td><code>app install &lt;url…&gt; [--no-deps|--yes]</code> · <code>app remove &lt;slug&gt; [--yes|--dry-run]</code></td><td>Installe une ou plusieurs apps depuis leur dépôt git (clone/ports/.env/build/approbation/health — URLs multiples pour une flotte) ; <code>remove</code> (0.24.0) supprime une app : backup <code>tar.gz</code>, <code>down -v</code>, retrait du dossier, confirmation.</td></tr>
+          <tr><td><code>app install &lt;url…&gt; [--no-deps|--yes]</code> · <code>app remove &lt;slug&gt; [--yes|--dry-run]</code></td><td>Installe une ou plusieurs apps depuis leur dépôt git (clone/ports/.env/build/approbation/health — URLs multiples pour une flotte) ; <code>remove</code> (0.24.0) supprime une app : <code>down -v</code>, backup <code>tar.gz</code>, retrait du dossier, confirmation.</td></tr>
           <tr><td><code>socle build [--force]|status</code></td><td>Socle HUBsocle : construction locale des images de base <code>poulidor/socle-*</code> ; drift <code>APP_SOCLE_VERSION</code> de la flotte.</td></tr>
         </tbody>
       </table>
