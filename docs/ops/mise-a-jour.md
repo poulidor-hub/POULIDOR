@@ -138,7 +138,7 @@ Le script :
   le `.gitmodules` versionné reste identique à l'officiel → **zéro conflit** au
   rapatriement amont ;
 - affiche le récap des apps `APPS/*` (info : chaque app est un cas par déploiement,
-  géré par le seed / le coffre).
+  gérée par `app install` / le coffre).
 
 Si un sous-module forké porte un **autre nom de repo** (ex. `HUB_base` forké en
 `<org>/HUB`), passe le mapping explicite (répétable) :

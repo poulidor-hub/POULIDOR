@@ -31,33 +31,39 @@
   <p>Quand une app n'est plus utilisée, ou pour la réinstaller proprement.</p>
 
   <h2>Comment faire</h2>
-  <p>La suppression passe par le <strong>seed</strong> : on liste les apps
-  souhaitées dans un YAML, et <code>--prune</code> retire celles présentes sur
-  disque mais absentes de la liste (avec confirmation).</p>
-  <div class="code"><pre>./hubctl seed apps.yaml --prune     # supprime les apps non listées (confirmation)
-./hubctl seed apps.yaml --prune --dry-run   # voir d'abord ce qui serait supprimé</pre></div>
+  <p>La suppression passe par <code>hubctl app remove</code> : sauvegarde
+  automatique, arrêt avec volumes, puis retrait du dossier de l'app — après
+  confirmation.</p>
+  <div class="code"><pre>./hubctl app remove &lt;slug&gt;             # supprime l'app (confirmation interactive)
+./hubctl app remove &lt;slug&gt; --dry-run   # voir d'abord ce qui serait supprimé</pre></div>
+  <p>Le déroulé : <strong>backup</strong> <code>tar.gz</code> de l'app, puis
+  <code>compose down -v</code> (conteneurs <em>et volumes</em>, base incluse),
+  puis retrait du dossier <code>APPS/&lt;slug&gt;</code>. Répondre
+  <strong>O</strong> pour confirmer ; <code>--yes</code> passe la confirmation
+  (scripts, CI).</p>
 
   <details class="accordion">
     <summary>En coulisse (technique)</summary>
-    <p>Avant suppression, <code>hubctl</code> synchronise le coffre, crée une
-    archive <code>tar.gz</code> dans <code>hubctl_src/hubctl_cli/backups/</code>, puis
-    déplace l'app vers la corbeille <code>hubctl_src/hubctl_cli/_trash/</code> — jamais un
-    <code>rm -rf</code>.</p>
+    <p>Avant suppression, <code>hubctl</code> synchronise le coffre et crée une
+    archive <code>tar.gz</code> dans <code>hubctl_src/hubctl_cli/backups/</code>,
+    puis arrête le projet compose avec ses volumes (<code>down -v</code>) et
+    supprime <code>APPS/&lt;slug&gt;</code> (hubctl 0.24.0).</p>
   </details>
 
   <div class="attention">
     <strong>⚠ Points d'attention</strong>
     <ul>
-      <li>Les données de la base (volume Docker) ne partent pas dans la corbeille : sauvegardez l'app (backup) au préalable si elles comptent.</li>
-      <li>La corbeille n'est pas vidée automatiquement : pensez à l'espace disque.</li>
-      <li>Relisez la liste avant de confirmer : <code>--prune</code> agit sur toutes les apps non listées, pas une seule.</li>
+      <li><code>down -v</code> détruit les volumes Docker : les données de la base ne sont conservées que dans le backup <code>tar.gz</code> — vérifiez-le avant de confirmer.</li>
+      <li>Les archives s'accumulent dans <code>hubctl_src/hubctl_cli/backups/</code> : pensez à l'espace disque.</li>
+      <li>La commande agit sur <strong>une seule app</strong> : relisez le slug demandé avant de confirmer.</li>
     </ul>
   </div>
 
   <details class="accordion">
     <summary>En cas de problème</summary>
-    <p>Pour récupérer une app supprimée par erreur, restaurez depuis
-    <code>hubctl_src/hubctl_cli/_trash/</code> ou l'archive <code>tar.gz</code> de
+    <p>Pour remonter une app supprimée par erreur : réinstallez-la depuis son
+    dépôt git (<code>./hubctl app install &lt;url-git&gt;</code>), puis
+    restaurez ses données depuis l'archive <code>tar.gz</code> de
     <code>hubctl_src/hubctl_cli/backups/</code>.</p>
   </details>
 </main>

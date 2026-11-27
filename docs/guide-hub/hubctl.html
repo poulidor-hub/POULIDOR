@@ -70,7 +70,7 @@
   <h2>Sous-commandes CLI (non interactives)</h2>
   <div class="code"><pre>hubctl [-h] [--no-anim] [--dry-run] [--dev | --prod]
        {start,restart,stop,update,doctor,atelier,init,export,
-        restore,pra-restore,debug,vpn,vault,jwt,seed,app,socle,docker}</pre></div>
+        restore,pra-restore,debug,vpn,vault,jwt,app,socle,docker}</pre></div>
   <p><code>--dry-run</code> est un flag <strong>global</strong> : il se place
   <em>avant</em> la sous-commande (<code>./hubctl --dry-run atelier X --maj</code>).</p>
 
@@ -79,7 +79,8 @@
     <tr><th>Commande</th><th>Rôle</th></tr>
     <tr><td><code>./hubctl start [all|prod|dev]</code></td><td>Démarre la stack (défaut : <code>all</code>).</td></tr>
     <tr><td><code>./hubctl stop [all|prod|dev]</code></td><td>Arrête toutes les apps et le Hub.</td></tr>
-    <tr><td><code>./hubctl app install &lt;url-git&gt;… [--no-deps] [--yes]</code></td><td>Installe une app du parc depuis son dépôt git : clone, dépendances, ports, <code>.env</code> (secrets neutralisés), socle, build, approbation, démarrage, health check. Détail et vigilances : page <a href="attention-ajouter-app.html">Ajouter une app</a>.</td></tr>
+    <tr><td><code>./hubctl app install &lt;url-git&gt;… [--no-deps] [--yes]</code></td><td>Installe une app du parc depuis son dépôt git : clone, dépendances, ports, <code>.env</code> (secrets neutralisés), socle, build, approbation, démarrage, health check. Plusieurs URLs en une commande pour installer toute une flotte. Détail et vigilances : page <a href="attention-ajouter-app.html">Ajouter une app</a>.</td></tr>
+    <tr><td><code>./hubctl app remove &lt;slug&gt; [--yes] [--dry-run]</code></td><td>Supprime une app du parc : backup <code>tar.gz</code> automatique, arrêt avec volumes (<code>down -v</code>), retrait du dossier <code>APPS/&lt;slug&gt;</code>. Confirmation interactive ; <code>--yes</code> pour les scripts, <code>--dry-run</code> pour simuler. Détail : page <a href="attention-suppression-app.html">Supprimer une app</a>.</td></tr>
     <tr><td><code>./hubctl update &lt;cible…&gt;</code></td><td>Mise à jour <strong>ciblée</strong> : <code>hub</code> (Hub seul), un ou plusieurs slugs d'app, <code>*</code> ou <code>all</code> = Hub <strong>et toutes les apps</strong>. git pull + rebuild + health check + rollback. Sans cible : usage uniquement, rien n'est exécuté (quoter le <code>*</code> : <code>"*"</code>).</td></tr>
     <tr><td><code>./hubctl init [--force]</code></td><td>Bootstrap automatique du Hub : génère le <code>.env</code>, démarre, vérifie la santé.</td></tr>
   </table>
@@ -142,11 +143,9 @@
     <tr><td><code>./hubctl jwt cleanup</code></td><td>Supprimer les PEM archivés/révoqués anciens.</td></tr>
   </table>
 
-  <h3>Seed &amp; debug IA</h3>
+  <h3>Debug IA</h3>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
-    <tr><td><code>./hubctl seed &lt;fichier.yaml&gt;</code></td><td>Déploie/converge les apps listées dans un fichier seed : une simple <strong>liste d'URLs git</strong>, le slug est déduit du nom de dépôt. Outil de convergence de flotte — pour installer une seule app, préférer <code>app install</code>. <code>--prune</code> supprime les apps non listées, <code>--dry-run</code> simule.</td></tr>
-    <tr><td><code>./hubctl seed export [-o &lt;fichier&gt;] [--force]</code></td><td>Exporte l'état du parc vers un seed YAML (défaut : <code>seed-export-YYYY-MM-DD.yaml</code>).</td></tr>
     <tr><td><code>./hubctl debug &lt;app&gt;</code></td><td>Agent de diagnostic IA local (Ollama) en lecture seule. Voir <a href="../debug-agent.md">debug-agent</a>.</td></tr>
     <tr><td><code>./hubctl debug --setup</code> / <code>--status</code> / <code>--off</code></td><td>Installer / vérifier / désactiver l'agent. <code>--rw</code> : mode semi-auto, <code>--model 8b|2b</code> : choix du modèle.</td></tr>
   </table>
