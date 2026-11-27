@@ -1,3 +1,10 @@
+## [0.88.18] - 27 novembre 2026
+
+### ⚡ Pointeurs hubctl 0.23.2 + HUBsocle 2.40.4 — plancher compose ≥ 5.7.0 (docker 29)
+- **`hubctl` 0.23.1 → 0.23.2** : `doctor` et le précheck d'`hubctl app install` détectent le combo bloquant compose < 5.7.0 + buildx ≥ 0.37.2 (entitlements fs.read — CVE-2026-93325) : ⚠ + remède « upgrade docker-compose-plugin » ; info ℹ préventive sinon ; docker absent = silencieux. 16 tests.
+- **`install.sh`** : contrôle du plancher compose ≥ 5.7.0 en fin de phase Docker — upgrade automatique par la voie installée (repo Docker ou Debian), sinon blocage explicite avant toute configuration. L'install fraîche ne peut plus tomber dans la fenêtre.
+- **`HUBsocle` 2.40.3 → 2.40.4** : note REFERENCE-APP-FINE §5 (plancher toolchain du build frontend d'app fine).
+- guide-hub : callout compose ≥ 5.7 dans make.html. Cadrage complet : docs/superpowers/specs/2026-11-27-cadrage-apps-fines-docker29.md.
 ## [0.88.17] - 27 novembre 2026
 
 ### ⚡ Restes « installation sans friction » : docs réécrites, install silencieuse, UI mises à jour honnête
