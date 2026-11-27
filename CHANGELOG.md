@@ -1,3 +1,17 @@
+## [0.88.16] - 27 novembre 2026
+
+### ⚡ Pointeur hubctl 0.22.2 — les unités hôtes suivent les montées de version
+- **`hubctl` 0.23.0 → 0.22.2 (complément 0.23.0)** : `./hubctl update hub` re-rend et
+  re-pose les unités système hubctl-atelier / hubctl-update quand le gabarit change —
+  plus d'unit périmée après une montée de version (retour utilisateur du 27/11).
+- `hubctl init` crée le dossier du coffre avant le service atelier (le service ne
+  boucle plus en 226/NAMESPACE sur un déploiement neuf — verdict VM).
+- `app install` : dépendance absente = avertissement + app autonome (plus de
+  `seed-apps.yaml` dans la mise en place) ; `depends_on: []` du gabarit silencieux ;
+  sans coffre encore créé : information.
+- Lot validé en VM : installation neuve sans erreur, deux services hôtes actifs dès le
+  premier démarrage, `hubctl app install` d'une app du gabarit, approuvée, certificat
+  de la CA du Hub en service.
 ## [0.88.15] - 27 novembre 2026
 
 ### ⚡ Pointeur hubctl 0.23.0 — une dépendance absente ne bloque plus l'installation d'app
