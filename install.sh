@@ -298,6 +298,49 @@ else
     err "Docker Compose v2 (plugin) non fonctionnel. Vérifie docker-compose-plugin."
 fi
 
+# 2d-bis. Plancher compose ≥ 5.7.0 (gate entitlements fs.read de docker ≥ 29)
+# buildx ≥ 0.37.2 (CVE-2026-93325) enforce les entitlements fichiers même en
+# bake rawjson : en dessous de compose 5.7.0 (PR #14325, auto-grant des contexts
+# socle et du dockerfile hors contexte), tout `docker compose build` d'app fine
+# socle échoue — cf. docs/superpowers/specs/2026-11-27-cadrage-apps-fines-docker29.md (§2, §5-A1).
+# Comparaison sémantique via sort -V (5.7.0 < 5.10.0) ; docker/compose absent est
+# déjà bloqué par le contrôle 2d ci-dessus (err + exit 1), on ne le double pas.
+version_ge() {  # true si $1 ≥ $2 (préfixe 'v' toléré, ex. v5.8.1)
+    [ "$(printf '%s\n%s\n' "$2" "${1#v}" | sort -V | head -n1)" == "$2" ]
+}
+COMPOSE_FLOOR="5.7.0"
+compose_meets_floor() {  # true si version courte $1 lisible ET ≥ plancher
+    [[ "${1}" =~ ^v?[0-9]+(\.[0-9]+)+$ ]] && version_ge "${1}" "${COMPOSE_FLOOR}"
+}
+if ! compose_meets_floor "${COMPOSE_VER}"; then
+    warn "Compose ${COMPOSE_VER} < plancher ${COMPOSE_FLOOR} — tentative de mise à niveau..."
+    # Même variable de voie que l'installation (L149-172) : repo Docker officiel
+    # → docker-compose-plugin, sinon paquet Debian → docker-compose-v2.
+    if $DOCKER_FROM_REPO; then
+        apt-get install -y -qq --only-upgrade docker-compose-plugin >/dev/null 2>&1 \
+            || warn "Upgrade docker-compose-plugin impossible (pas de version plus récente côté dépôt Docker ?)"
+    else
+        apt-get install -y -qq --only-upgrade docker-compose-v2 >/dev/null 2>&1 \
+            || warn "Upgrade docker-compose-v2 impossible (pas de version plus récente côté dépôts Debian ?)"
+    fi
+    COMPOSE_VER=$(docker compose version --short 2>/dev/null || echo "?")
+    if compose_meets_floor "${COMPOSE_VER}"; then
+        ok "Docker Compose mis à niveau (${COMPOSE_VER})"
+    else
+        say ""
+        say "${BOLD}Docker Compose ${COMPOSE_VER} < ${COMPOSE_FLOOR} requis.${NC}"
+        say "Les builds d'apps fines socle sont impossibles : docker ≥ 29 (buildx,"
+        say "CVE-2026-93325) applique les entitlements fs.read et seul compose ≥ 5.7.0"
+        say "accorde lui-même les grants. Remède manuel, puis relance install.sh :"
+        if $DOCKER_FROM_REPO; then
+            say "  sudo apt-get install --only-upgrade docker-compose-plugin"
+        else
+            say "  sudo apt-get install --only-upgrade docker-compose-v2"
+        fi
+        err "Installation interrompue — compose < ${COMPOSE_FLOOR} (builds d'apps fines impossibles)."
+    fi
+fi
+
 # 2e. Vérifier l'accès au socket Docker
 #     Note : sous sudo, root a accès au socket même si l'utilisateur n'est pas
 #     encore dans le groupe (newgrp requis côté utilisateur).
