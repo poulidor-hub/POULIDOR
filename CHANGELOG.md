@@ -1,3 +1,11 @@
+## [0.88.17] - 27 novembre 2026
+
+### ⚡ Restes « installation sans friction » : docs réécrites, install silencieuse, UI mises à jour honnête
+- **`hubctl` 0.22.2 → 0.23.1** : la page « Mises à jour » de l'UI ne marque plus HUB_base « à mettre à jour » sur un déploiement entre deux releases du méta (nouveau champ `deployment`, lecture alignée sur `doctor` — l'avance sur origin/main devient une information ℹ, plus un faux warning) ; `hubctl app install` n'affiche plus la rafale Extracting/Pulling (`COMPOSE_PROGRESS=quiet`, erreurs préservées) ; verrouillage de tests du complément « unités re-rendues par `update hub ».
+- **`HUB_base` 3.108.0 → 3.108.1** : badge info « N commit(s) d'avance — en attente de release du méta » au lieu du warning trompeur ; `docs/GUIDE_INSTALLATION.md` réécrite sur le parcours réel (`sudo ./install.sh`, `hubctl app install`, approbation UI, certificat CA) — BOOTSTRAP_TOKEN et PKI manuelle supprimés.
+- **`HUBsocle` 2.40.2 → 2.40.3** : builds apt silencieux (`ENV DEBIAN_FRONTEND=noninteractive` dans les deux stages de l'image api + template Rust d'INITIALISE) — 27 lignes `debconf:` → 0 au build du socle.
+- **Docs guide-hub réécrites** : « Ajouter une app » distingue enfin installer (`hubctl app install` — voie reine) de créer (template/INITIALISE socle/assistant IA) ; seed documenté en simple liste d'URLs ; usage hubctl complet (18 sous-commandes) ; 5 pages retouchées (« INITIALISE v2 à venir » supprimé).
+- **Labo** : `vm_push_branch` retape l'origin des sous-modules sur `.gitmodules` après le transfert (plus de ℹ « fetch impossible » sur un chemin de bundle mort) et peut retyper l'origin du méta ; harnais étendu (13 cas).
 ## [0.88.16] - 27 novembre 2026
 
 ### ⚡ Pointeur hubctl 0.22.2 — les unités hôtes suivent les montées de version
