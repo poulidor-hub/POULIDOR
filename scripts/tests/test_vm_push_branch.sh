@@ -9,7 +9,9 @@
 #   - liste codée en dur de 5 sous-modules → HUBsocle jamais bundlé ;
 #   - ~/POULIDOR et ~/POULIDOR/<sub> supposés déjà clonés → VM neuve en échec ;
 #   - `|| true` partout → échecs avalés en silence ;
-#   - clone d'un bundle sans -b → HEAD indéterminé.
+#   - clone d'un bundle sans -b → HEAD indéterminé ;
+#   - origins (méta et sous-modules) laissées sur le chemin du bundle, dossier
+#     détruit en fin d'appel → tout fetch ultérieur dans la VM échoue.
 #
 # Fixture : un méta factice et 3 sous-modules aux noms quelconques (compA,
 # compB, soclex : la liste doit être DÉCOUVERTE dans .gitmodules), 2 commits
@@ -91,9 +93,9 @@ vm_scp() { cp "$1" "${2#*:}"; }
 
 # ── Outils ───────────────────────────────────────────────────────────────────
 RC=0 OUT=""
-run_push() { # run_push : vm_push_branch $BRANCH → RC (retour), OUT (stdout+stderr)
+run_push() { # run_push [origin_méta] : vm_push_branch $BRANCH [origin] → RC (retour), OUT (stdout+stderr)
   RC=0
-  vm_push_branch "$BRANCH" >"$TMP/out.log" 2>&1 || RC=$?
+  vm_push_branch "$BRANCH" "${1:-}" >"$TMP/out.log" 2>&1 || RC=$?
   OUT="$(cat "$TMP/out.log")"
 }
 
@@ -128,6 +130,22 @@ assert_state() { # assert_state <cas> <sous-module>… : méta sur $BRANCH au co
     || fail "$cas : le méta n'est pas au commit bundlé"
 }
 
+assert_origins() { # assert_origins <cas> <sous-module>… : origins des sous-modules propres —
+  #   (a) aucun remote.origin.url ne pointe dans le dossier de bundles détruit (il vivait dans $VMTMP)
+  #   (b) chaque remote.origin.url == URL .gitmodules correspondante
+  local cas="$1" sub url want
+  shift
+  for sub in "$@"; do
+    url="$(git -C "$VMP/$sub" config --get remote.origin.url)" \
+      || fail "$cas : $sub : remote.origin.url illisible"
+    case "$url" in
+      "$VMTMP"|"$VMTMP"/*) fail "$cas : $sub : origin pointe dans le dossier de bundles détruit : $url" ;;
+    esac
+    want="$(git -C "$META" config --file .gitmodules --get "submodule.$sub.url")"
+    [ "$url" = "$want" ] || fail "$cas : $sub : origin « $url » ≠ URL .gitmodules « $want »"
+  done
+}
+
 # ── 1. VM neuve : aucun ~/POULIDOR ───────────────────────────────────────────
 run_push
 [ "$RC" -eq 0 ] || fail "1. VM neuve : vm_push_branch rend $RC — sortie :"$'\n'"$OUT"
@@ -136,6 +154,7 @@ for s in "${SUBS[@]}"; do
   [ "$(git -C "$VMP" config --get "submodule.$s.url")" = "$TMP/unreachable/$s.git" ] \
     || fail "1. VM neuve : URL de $s non enregistrée (submodule init)"
 done
+assert_origins "1. VM neuve" "${SUBS[@]}"
 assert_clean "1. VM neuve"
 pass "1. VM neuve : méta cloné sur $BRANCH, 3 sous-modules au HEAD bundlé, sans aller chercher leur URL"
 
@@ -256,6 +275,24 @@ RC=0
 grep -q "trap de l'appelant" "$TMP/chain.log" || fail "7. interruption : le trap EXIT de l'appelant n'a pas été chaîné"
 assert_clean "7. interruption"
 pass "7. interruption en cours d'appel : bundles retirés, trap EXIT de l'appelant chaîné"
+
+# ── 8. Origin du méta passée à l'appel ───────────────────────────────────────
+# Le clone neuf du méta vient du bundle (détruit ensuite) : l'appelant qui
+# connaît la vraie URL (ex. $CLONE_URL du harness) la repose en 2ᵉ argument.
+META_ORIGIN="https://github.com/poulidor-hub/POULIDOR.git"
+run_push "$META_ORIGIN" || fail "8. origin du méta : vm_push_branch en échec — sortie :"$'\n'"$OUT"
+[ "$(git -C "$VMP" config --get remote.origin.url)" = "$META_ORIGIN" ] \
+  || fail "8. origin du méta : remote.origin.url « $(git -C "$VMP" config --get remote.origin.url) » ≠ « $META_ORIGIN »"
+assert_state "8. origin du méta" "${SUBS[@]}" compD
+assert_origins "8. origin du méta" "${SUBS[@]}" compD
+assert_clean "8. origin du méta"
+# Relance sans argument : l'origine posée doit survivre (le méta existe déjà,
+# aucun re-clone depuis un bundle).
+run_push "" || fail "8. relance : vm_push_branch en échec — sortie :"$'\n'"$OUT"
+[ "$(git -C "$VMP" config --get remote.origin.url)" = "$META_ORIGIN" ] \
+  || fail "8. relance : l'origin du méta a été écrasée : $(git -C "$VMP" config --get remote.origin.url)"
+assert_origins "8. relance" "${SUBS[@]}" compD
+pass "8. origin du méta : posée en 2ᵉ argument, survit à une relance sans argument ; sous-modules toujours sur .gitmodules"
 
 # Le trap EXIT de CE script doit avoir survécu à tous les appels
 [ "$(trap -p EXIT)" = "$ORIG_TRAP" ] || fail "le trap EXIT de l'appelant n'a pas été rendu : $(trap -p EXIT)"

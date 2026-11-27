@@ -147,8 +147,10 @@ _vm_push_on_exit() { # trap EXIT : bundles retirés, puis trap EXIT de l'appelan
   eval "$1"
 }
 
-vm_push_branch() { # vm_push_branch <branche> : bundle du méta + de tous ses sous-modules → VM
-  local branch="${1:?usage: vm_push_branch <branche>}" root rc=0
+vm_push_branch() { # vm_push_branch <branche> [origin_du_méta] : bundle du méta + de tous ses sous-modules → VM
+  # origin_du_méta : URL à reposer sur l'origin du méta dans la VM (le clone neuf
+  # vient du bundle, dont le dossier est détruit en fin d'appel) — ex. $CLONE_URL.
+  local branch="${1:?usage: vm_push_branch <branche>}" meta_origin="${2:-}" root rc=0
   root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
   _VM_PUSH_WD="$(mktemp -d "${TMPDIR:-/tmp}/fi-push.XXXXXX")" || {
     _VM_PUSH_WD=""
@@ -161,14 +163,14 @@ vm_push_branch() { # vm_push_branch <branche> : bundle du méta + de tous ses so
   # l'appelant avant de rendre la main.
   _VM_PUSH_TRAP="$(trap -p EXIT)"
   trap _vm_push_on_exit EXIT
-  _vm_push_run "$branch" "$root" || rc=$?
+  _vm_push_run "$branch" "$meta_origin" "$root" || rc=$?
   _vm_push_cleanup
   if [ -n "$_VM_PUSH_TRAP" ]; then eval "$_VM_PUSH_TRAP"; else trap - EXIT; fi
   return "$rc"
 }
 
-_vm_push_run() { # _vm_push_run <branche> <racine> : les étapes ; s'arrête et rend 1 au premier échec
-  local branch="$1" root="$2"
+_vm_push_run() { # _vm_push_run <branche> <origin_du_méta> <racine> : les étapes ; s'arrête et rend 1 au premier échec
+  local branch="$1" meta_origin="$2" root="$3"
   local wd="$_VM_PUSH_WD" rdir listing out sub name bundle rb sha i rc=0
   local -a subs=() shas=() skipped=()
 
@@ -237,7 +239,7 @@ EOS
 
   # 5. Méta sur la branche bundlée, puis ses sous-modules : leurs commits y sont
   #    déjà, git ne va pas les chercher sur GitHub
-  vm_ssh "bash -s -- $(_vm_push_q "$branch") $(_vm_push_q "$rdir/fi-meta.bundle")" <<'EOS' \
+  vm_ssh "bash -s -- $(_vm_push_q "$branch") $(_vm_push_q "$rdir/fi-meta.bundle") $(_vm_push_q "$meta_origin")" <<'EOS' \
     || { _vm_push_fail "méta dans la VM (branche « $branch » puis sous-modules)"; return 1; }
 set -eu
 export GIT_TERMINAL_PROMPT=0
@@ -246,6 +248,15 @@ git -C "$m" fetch -q "$2" "$1"
 git -C "$m" checkout -B "$1" FETCH_HEAD
 git -C "$m" submodule init
 git -C "$m" submodule update --init --recursive
+# Les sous-modules viennent d'être posés depuis le dossier de bundles (détruit
+# en fin d'appel) : leurs remote.origin.url y pointent encore. .gitmodules
+# porte les vraies URLs — sync les réécrit depuis lui, dans la VM seulement.
+git -C "$m" submodule sync --recursive
+# Origin du méta, même raison : le clone neuf vient du bundle. L'appelant qui
+# connaît la vraie URL (ex. $CLONE_URL du harness) la passe au wrapper.
+if [ -n "$3" ]; then
+  git -C "$m" remote set-url origin "$3"
+fi
 EOS
 
   if [ "${#skipped[@]}" -gt 0 ]; then
@@ -260,7 +271,7 @@ vm-debian12.sh — Primitives VM Debian 12 pour test fresh-install POULIDOR
 
 CLI   : vm-debian12.sh {usage|create <nom>|ssh "<cmd>"|console <nom>|destroy <nom>}
 Sourcé: source vm-debian12.sh; puis vm_create / vm_ssh / vm_scp / vm_wait_ssh /
-        vm_console_tail / vm_destroy / vm_push_branch <branche>
+        vm_console_tail / vm_destroy / vm_push_branch <branche> [origin_méta]
 
 Env   : FI_ROOT (défaut build/fresh-install), FI_BASE_IMAGE,
         VM_NAME (défaut current), VM_PORT (défaut 2222)

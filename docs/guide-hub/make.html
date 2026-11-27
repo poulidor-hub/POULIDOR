@@ -111,7 +111,7 @@ make bump-major    # X.0.0  (changement majeur)</pre></div>
   <h2>Initialisation &amp; index IA</h2>
   <table>
     <tr><th>Commande</th><th>Rôle</th></tr>
-    <tr><td><code>make init</code></td><td>Initialise une nouvelle app depuis le template (déprécié : préférer <code>ACTIONS/PYTHON/INITIALISE.py</code>).</td></tr>
+    <tr><td><code>make init</code></td><td>Initialise une app créée depuis le template (génération v1), en appelant <code>ACTIONS/PYTHON/INITIALISE.py</code>. Pour installer une app <em>existante</em> du parc, ce n'est pas la voie : <code>./hubctl app install &lt;url-git&gt;</code>.</td></tr>
     <tr><td><code>make ai-index</code></td><td>Régénère <code>AI_INDEX.md</code> (carte des symboles pour les assistants IA).</td></tr>
   </table>
 
@@ -149,7 +149,8 @@ make bump-major    # X.0.0  (changement majeur)</pre></div>
     <code>make sync-env</code> appelle <code>ACTIONS/PYTHON/allocate_ports.py</code>
     (réservation de ports auprès du Hub) et <code>make init</code> appelle
     <code>ACTIONS/PYTHON/INITIALISE.py</code>. Vous n'avez normalement pas à les
-    lancer directement.
+    lancer directement — et pour installer une app existante du parc, la voie
+    est <code>./hubctl app install &lt;url-git&gt;</code>, pas <code>make</code>.
   </div>
 
   <details class="accordion">
@@ -160,6 +161,6 @@ make bump-major    # X.0.0  (changement majeur)</pre></div>
     avant de réécrire le <code>.env</code>.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.88.16</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.88.17</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

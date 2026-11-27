@@ -30,7 +30,7 @@
 
   <div class="cards">
     <a class="card" href="architecture.html"><h3>Une stack homogène</h3><p>FastAPI · React 18 / Vite · PostgreSQL · Docker Compose — identique pour toutes les apps.</p></a>
-    <a class="card" href="hubctl.html"><h3>Un seul outil de pilotage</h3><p><code>hubctl</code> : menu interactif + 14 sous-commandes pour tout administrer.</p></a>
+    <a class="card" href="hubctl.html"><h3>Un seul outil de pilotage</h3><p><code>hubctl</code> : menu interactif + sous-commandes CLI pour tout administrer.</p></a>
     <a class="card" href="index.html"><h3>Un parc vivant</h3><p>Une douzaine d'applications en production, toutes reliées au même SSO.</p></a>
   </div>
 
@@ -40,7 +40,7 @@
     <tr><td>1</td><td>Installer le serveur</td><td><code>sudo ./install.sh</code> (prérequis + Hub), ou <code>./hubctl init</code> si les prérequis existent — voir <a href="#installation">Guides d'installation</a>.</td></tr>
     <tr><td>2</td><td>Ouvrir le Hub</td><td><code>https://&lt;IP serveur&gt;</code> — connexion admin créée à l'installation.</td></tr>
     <tr><td>3</td><td>Lancer hubctl</td><td><code>./hubctl</code> — tableau de bord, démarrage/arrêt, mise à jour, coffre.</td></tr>
-    <tr><td>4</td><td>Ajouter une app</td><td>Fichier <code>seed</code> YAML, <code>scripts/create_app.sh</code>, ou avec l'assistant IA.</td></tr>
+    <tr><td>4</td><td>Ajouter une app</td><td><code>./hubctl app install &lt;url-git&gt;</code> pour installer une app existante ; la créer depuis le template (<code>scripts/create_app.sh</code>) ou avec l'assistant IA.</td></tr>
     <tr><td>5</td><td>Aller plus loin</td><td>Suivre les renvois « voir … » de chaque section ci-dessous.</td></tr>
   </table>
 
@@ -210,12 +210,17 @@
   </table>
 
   <h3>Ajouter une application</h3>
-  <p>Trois voies équivalentes : fichier <strong>seed YAML</strong>
-  (<code>./hubctl seed apps.yaml</code>), script <code>scripts/create_app.sh</code>,
-  ou <strong>assistant IA</strong> (« Crée une app mon-outil dans POULIDOR » —
-  skill <code>create-hub-app</code>). L'app naît du template canonique, s'enregistre
-  au Hub et rejoint le portail. Points de vigilance par opération :
-  pages <a href="attention-ajouter-app.html">ajouter une app</a>,
+  <p>Deux cas à ne pas confondre. <strong>Installer une application
+  existante</strong> (mise en service, exploitation) :
+  <code>./hubctl app install &lt;url-git&gt;</code> — clone, ports, secrets,
+  build, approbation et démarrage en une commande ; pour toute une flotte,
+  <code>./hubctl seed &lt;fichier.yaml&gt;</code> (simple liste d'URLs git).
+  <strong>Créer une nouvelle application</strong> (développeur) :
+  <code>scripts/create_app.sh</code> + <code>INITIALISE.py</code> (template),
+  apps fines du socle via <code>python3 HUBsocle/INITIALISE.py</code>, ou
+  <strong>assistant IA</strong> (skill <code>create-hub-app</code>) — puis
+  déploiement par <code>app install</code> ou seed. Points de vigilance par
+  opération : pages <a href="attention-ajouter-app.html">ajouter une app</a>,
   <a href="attention-workshop.html">atelier</a>,
   <a href="attention-bascule-dev-prod.html">bascule dev → prod</a>.</p>
 
@@ -237,7 +242,7 @@
   <h2 id="renvois">Où trouver la doc détaillée</h2>
   <table>
     <tr><th>Document</th><th>Contenu</th></tr>
-    <tr><td><a href="hubctl.html">guide hubctl</a> (ce dossier)</td><td>Menu TUI + 14 sous-commandes CLI, garde-fous.</td></tr>
+    <tr><td><a href="hubctl.html">guide hubctl</a> (ce dossier)</td><td>Menu TUI + sous-commandes CLI, garde-fous.</td></tr>
     <tr><td><a href="make.html">guide make</a> (ce dossier)</td><td>Cibles Makefile du Hub et des apps.</td></tr>
     <tr><td><a href="architecture.html">architecture</a> (ce dossier)</td><td>Composants du parc, prod vs atelier, coffre.</td></tr>
     <tr><td><code>docs/guide-parc-poulidor.md</code></td><td>Référence complète du parc (instantané daté).</td></tr>
@@ -257,6 +262,6 @@
     les skills listés dans <code>AGENTS.md</code> encadrent ces opérations.
   </div>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.88.16</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.88.17</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

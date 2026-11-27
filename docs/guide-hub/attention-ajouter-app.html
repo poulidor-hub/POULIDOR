@@ -24,60 +24,121 @@
   <h1>Ajouter une application</h1>
 
   <h2>Objectif</h2>
-  <p>Installer une nouvelle application dans le parc depuis son dépôt git.</p>
+  <p>Deux situations, deux outils — ne pas les confondre :</p>
+  <ul>
+    <li><strong>Installer une application existante</strong> (mise en service
+    client, exploitation) : l'app vit dans son dépôt git, on la dépose dans le
+    parc avec <code>./hubctl app install &lt;url-git&gt;</code>.</li>
+    <li><strong>Créer une nouvelle application</strong> (développement) : l'app
+    naît du template ou du socle, puis se déploie comme ci-dessus.</li>
+  </ul>
 
-  <h2>Quand l'utiliser</h2>
-  <p>À la mise en service d'une nouvelle application.</p>
-
-  <h2>Voies possibles</h2>
-  <h3>1. Fichier seed (recommandé)</h3>
-  <p>Décrire l'app (slug + URL git) dans un YAML puis laisser <code>hubctl</code>
-  faire : clone, détection de la config, écriture du <code>.env</code>, build,
-  démarrage et synchronisation du coffre.</p>
-  <div class="code"><pre>./hubctl seed apps.yaml        # déploie ou converge les apps listées
-./hubctl seed apps.yaml --dry-run   # simuler d'abord</pre></div>
-
-  <h3>2. Clonage manuel</h3>
+  <h2>Installer une application existante</h2>
+  <p>La voie reine, une seule commande :</p>
+  <div class="code"><pre>./hubctl app install https://github.com/mon-org/mon-app.git</pre></div>
+  <p>Ce que fait <code>app install</code>, dans l'ordre :</p>
   <ol>
-    <li><code>git clone &lt;URL&gt; APPS/&lt;nom&gt;</code> (ex. <code>https://github.com/exemple-org/exemple-app-2.git</code>).</li>
-    <li>Lancer <code>INITIALISE.py</code> depuis le dossier de l'app.</li>
+    <li>clone du dépôt dans <code>APPS/&lt;nom-du-dépôt&gt;</code> ;</li>
+    <li>installation des dépendances déclarées dans <code>depends.yaml</code>
+    (leur URL est résolue dans le registre du Hub ; une dépendance absente du
+    registre n'empêche pas l'installation — simple avertissement) ;</li>
+    <li>génération du <code>.env</code> — <strong>secrets par défaut
+    neutralisés</strong>, rien de réutilisé d'une autre app ;</li>
+    <li>garantie des images du socle (<code>hubctl socle build</code> si
+    nécessaire) ;</li>
+    <li>allocation des ports auprès du Hub (<code>make sync-env</code>), puis
+    <code>make build</code> ;</li>
+    <li>pré-création de l'app dans le registre du Hub, <strong>approvée</strong>
+    quand le jeton admin est disponible ;</li>
+    <li>démarrage (<code>make up</code>) et health check ;</li>
+    <li>certificat signé par la CA du Hub, synchronisation du coffre, puis
+    rapport final (code de sortie 0 seulement si toutes les apps
+    répondent).</li>
   </ol>
-
-  <h3>3. Assistant IA</h3>
-  <p>Demander à l'agent (« Crée une app … ») : le skill
-  <code>create-hub-app</code> orchestre toute la création.</p>
-
   <div class="info">
-    <strong>Contenu de démo</strong>
-    Par défaut, <code>INITIALISE.py</code> nettoie le contenu de démonstration.
-    Lancez-le avec <code>--demo</code> pour le conserver et explorer l'app
-    (<code>--yes</code> pour un mode non interactif).
+    <strong>Options</strong>
+    <code>--no-deps</code> : ignorer les dépendances déclarées
+    (<code>depends.yaml</code>) — avec avertissement. <code>--yes</code> :
+    aucune confirmation (comportement effectif sans terminal interactif).
+    On peut aussi passer un fichier seed en argument unique :
+    <code>./hubctl app install apps.yaml</code>.
+  </div>
+  <div class="info">
+    <strong>Approbation</strong>
+    Le mot de passe admin est pris dans <code>HUBCTL_ADMIN_PASSWORD</code>,
+    sinon <code>ADMIN_PASSWORD</code> de <code>HUB_base/.env</code>, sinon
+    demandé à l'écran (saisie masquée). Sans jeton, l'installation continue
+    quand même : l'app reste « En attente » dans le Hub, il faut l'approuver
+    depuis l'UI — <strong>Administration → Applications → Approuver</strong>.
+  </div>
+  <div class="info">
+    <strong>Certificat et navigateur</strong>
+    Le HTTPS des apps s'appuie sur la CA du Hub. Pour supprimer l'avertissement
+    navigateur sur les postes clients, installez le certificat racine :
+    <code>https://&lt;IP-du-serveur&gt;/api/pki/ca.crt</code>.
   </div>
 
-  <details class="accordion">
-    <summary>En coulisse (technique)</summary>
-    <p>Le clone hérite des droits SSH du serveur et atterrit dans
-    <code>APPS/&lt;nom-du-dépôt&gt;</code>. <code>INITIALISE.py</code> exécute
-    14 étapes (<code>.env</code>, docker-compose, config, frontend, tests,
-    VERSION, CHANGELOG). Une garde disque s'applique.</p>
-  </details>
+  <h2>Déployer une flotte</h2>
+  <p>Pour plusieurs apps d'un coup, ou pour <strong>converger</strong> le parc
+  vers une liste connue :</p>
+  <div class="code"><pre>./hubctl seed apps.yaml          # déploie ou converge les apps listées
+./hubctl seed apps.yaml --dry-run   # simuler d'abord</pre></div>
+  <p>Le fichier seed est une simple <strong>liste d'URLs git</strong> — le slug
+  est déduit du nom de chaque dépôt :</p>
+  <div class="code"><pre>apps:
+  - https://github.com/mon-org/mon-app.git
+  - https://github.com/mon-org/mon-autre-app.git</pre></div>
+  <p><code>--prune</code> supprime les apps présentes mais non listées
+  (confirmation globale), <code>./hubctl seed export</code> écrit un seed depuis
+  l'état du parc. <strong>C'est un outil de convergence de flotte</strong> : pour
+  la première installation d'une app, passer par
+  <code>hubctl app install</code>.</p>
 
+  <h2>Créer une nouvelle application (développeur)</h2>
+  <p>Trois points de départ, au choix :</p>
+  <ul>
+    <li><strong>Template canonique</strong> :
+    <code>bash scripts/create_app.sh &lt;nom&gt;</code> copie
+    <code>HUBapp_TEMPLATE_base</code> dans <code>APPS/&lt;nom&gt;</code>, puis
+    <code>python3 INITIALISE.py</code> depuis le dossier de l'app personnalise
+    et finalise l'installation locale.</li>
+    <li><strong>Socle applicatif (apps « fines »)</strong> :
+    <code>python3 HUBsocle/INITIALISE.py --name "Mon App" --slug mon-app</code>
+    génère une app adossée au socle versionné (<code>HUBsocle/</code>).</li>
+    <li><strong>Assistant IA</strong> : demander à l'agent (« Crée une app … ») —
+    le skill <code>create-hub-app</code> orchestre toute la création.</li>
+  </ul>
+  <p>Une fois l'app poussée dans son dépôt git, elle s'installe sur un serveur
+  comme toute app du parc : <code>hubctl app install &lt;url&gt;</code> ou seed.</p>
+
+  <h2>En cas de problème</h2>
   <div class="attention">
     <strong>⚠ Points d'attention</strong>
     <ul>
-      <li>Vérifiez l'espace disque avant un gros clone (refus sous 5 % libre).</li>
-      <li>Le nom du dossier vient du nom du dépôt : choisissez un dépôt bien nommé.</li>
+      <li>Vérifiez l'espace disque avant d'installer : garde hubctl —
+      avertissement sous 15 % libre, <strong>refus sous 5 %</strong>.</li>
+      <li>L'app reste « En attente » dans le Hub ? Approuvez-la depuis l'UI
+      (Administration → Applications → Approuver) ou relancez avec
+      <code>HUBCTL_ADMIN_PASSWORD</code>.</li>
+      <li>Avertissement navigateur sur l'app ? Installez le certificat racine
+      du Hub (<code>/api/pki/ca.crt</code>) sur les postes clients.</li>
+      <li>Le rapport final d'<code>app install</code> nomme l'étape qui a
+      échoué ; le code de sortie dit si toutes les apps répondent.</li>
     </ul>
   </div>
 
   <details class="accordion">
-    <summary>En cas de problème</summary>
-    <p>Échec du clone : vérifiez l'URL et les droits SSH du serveur (ou configurez
-    le dépôt depuis l'UI HUB, vue Santé → « Configurer le dépôt git »). Échec de
-    <code>INITIALISE.py</code> : relancez-le manuellement depuis le dossier de
-    l'app.</p>
+    <summary>En coulisse (technique)</summary>
+    <p><code>app install</code> s'appuie sur les Makefile du parc :
+    <code>make sync-env</code> (ports alloués par le Hub), <code>make build</code>,
+    <code>make up</code>, health check. L'app est pré-créée au registre du Hub
+    via l'API admin (avec son Service Account) ; le jeton admin est lu dans
+    <code>HUBCTL_ADMIN_PASSWORD</code> ou <code>ADMIN_PASSWORD</code>
+    (<code>HUB_base/.env</code>). Le seed, lui, converge le parc : apps
+    installées dans <code>APPS/</code> mais absentes du fichier = candidates au
+    retrait avec <code>--prune</code>.</p>
   </details>
 </main>
-<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.88.16</span> · <a href="index.html">Accueil</a></footer>
+<footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.88.17</span> · <a href="index.html">Accueil</a></footer>
 </body>
 </html>

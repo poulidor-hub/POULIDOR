@@ -115,7 +115,7 @@ check "vm-create" vm_create
 # ── A3 : clone + sous-modules (HTTPS anonyme, comme un utilisateur du parc public) ──
 check "clone" in_vm "git clone --recurse-submodules $CLONE_URL ~/POULIDOR"
 if [ -n "$BRANCH" ]; then
-  check "checkout-branch" vm_push_branch "$BRANCH"
+  check "checkout-branch" vm_push_branch "$BRANCH" "$CLONE_URL"
 fi
 check "submodules" in_vm 'cd ~/POULIDOR && [ "$(git submodule status | wc -l)" -eq 6 ] && ls HUB_base/docker-compose.yml hubctl_src/hubctl HUBapp_TEMPLATE_base/Makefile >/dev/null'
 
