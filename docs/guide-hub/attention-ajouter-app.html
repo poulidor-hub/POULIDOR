@@ -40,8 +40,8 @@
   <ol>
     <li>clone du dépôt dans <code>APPS/&lt;nom-du-dépôt&gt;</code> ;</li>
     <li>installation des dépendances déclarées dans <code>depends.yaml</code>
-    (leur URL est résolue dans <code>seed-apps.yaml</code> à la racine du parc,
-    sinon dans le registre du Hub) ;</li>
+    (leur URL est résolue dans le registre du Hub ; une dépendance absente du
+    registre n'empêche pas l'installation — simple avertissement) ;</li>
     <li>génération du <code>.env</code> — <strong>secrets par défaut
     neutralisés</strong>, rien de réutilisé d'une autre app ;</li>
     <li>garantie des images du socle (<code>hubctl socle build</code> si
@@ -75,7 +75,7 @@
     <strong>Certificat et navigateur</strong>
     Le HTTPS des apps s'appuie sur la CA du Hub. Pour supprimer l'avertissement
     navigateur sur les postes clients, installez le certificat racine :
-    <code>http://&lt;IP-du-serveur&gt;:&lt;port-API&gt;/api/pki/ca.crt</code>.
+    <code>https://&lt;IP-du-serveur&gt;/api/pki/ca.crt</code>.
   </div>
 
   <h2>Déployer une flotte</h2>
