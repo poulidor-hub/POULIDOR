@@ -49,9 +49,11 @@
   </ul>
 
   <h2>Le template (<code>HUBapp_TEMPLATE_base/</code>)</h2>
-  <p>Modèle de référence pour créer une app : backend FastAPI, frontend React +
-  Vite, PostgreSQL, Docker Compose. Copié par <code>create_app.sh</code> puis
-  personnalisé par <code>INITIALISE.py</code>.</p>
+  <p>Modèle de référence — génération dite « template v1 » — pour créer une
+  app : backend FastAPI, frontend React + Vite, PostgreSQL, Docker Compose.
+  Copié par <code>create_app.sh</code> puis personnalisé par
+  <code>INITIALISE.py</code> (installé à la racine de l'app par
+  <code>create_app.sh</code>).</p>
 
   <h2>Le socle versionné (<code>HUBsocle/</code>)</h2>
   <p>Le code de base des apps est progressivement <strong>mutualisé dans un
@@ -60,9 +62,9 @@
   images de base <code>poulidor/socle-api</code> / <code>socle-web</code>
   construites localement (<code>./hubctl socle build</code>, offline-first).
   Chaque app du socle déclare sa version via <code>APP_SOCLE_VERSION</code>
-  (<code>./hubctl socle status</code> = drift de la flotte). Les apps existantes
-  restent des forks du template ; les nouvelles apps naîtront « fines » via
-  INITIALISE v2 (à venir).</p>
+  (<code>./hubctl socle status</code> = drift de la flotte). Les apps « fines »
+  naissent du socle via <code>python3 HUBsocle/INITIALISE.py</code> ; les apps
+  plus anciennes restent des forks du template.</p>
 
   <h2>Production vs Atelier</h2>
   <table>
