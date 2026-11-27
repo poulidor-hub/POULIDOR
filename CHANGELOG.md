@@ -1,3 +1,10 @@
+## [0.89.0] - 27 novembre 2026
+
+### ⚡ Retrait du système seed (non utilisé) — pointeurs hubctl 0.24.0 + HUB_base 3.108.2
+- **`hubctl` 0.23.2 → 0.24.0** : retrait de `./hubctl seed`, `seed export` et de la variante `app install <seed.yaml>` (non utilisés, remplacés par `app install <url1> <url2> …` — dépendances résolues au registre du Hub seul). **Ajout : `hubctl app remove <slug>`** (backup tar.gz + `compose down -v` + retrait du dossier, confirmation/`--yes`/`--dry-run`) — le seul filet est le backup, les volumes sont détruits. 16 tests dédiés, suite complète 1001 verts. pyproject resynchronisé (désynchro héritée 0.22.2).
+- **`HUB_base` 3.108.1 → 3.108.2** : GUIDE_INSTALLATION sans l'option seed YAML (doc seule).
+- Docs : guide-parc (§ seed supprimé, reprise de flotte = `app install` multi-URLs, suppression d'app = `app remove`), guide-hub (usage sans seed, page « Supprimer une app » réécrite sur le contrat réel), cheatsheet banc, seed-apps.yaml + export supprimés.
+- Reprise de flotte après perte d'APPS/ : `./hubctl app install <url1> <url2> …` (les URLs viennent du registre du Hub ou des dépôts).
 ## [0.88.18] - 27 novembre 2026
 
 ### ⚡ Pointeurs hubctl 0.23.2 + HUBsocle 2.40.4 — plancher compose ≥ 5.7.0 (docker 29)

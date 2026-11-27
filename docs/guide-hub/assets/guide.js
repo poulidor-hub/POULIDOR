@@ -5,7 +5,7 @@
   "use strict";
   // Source de vérité : fichier `VERSION` à la racine du parc POULIDOR.
   // À resynchroniser à chaque release (cf. skill release-on-main).
-  var PARC_VERSION = "0.88.18";
+  var PARC_VERSION = "0.89.0";
 
   function addCopyButtons() {
     var blocks = document.querySelectorAll(".code");
