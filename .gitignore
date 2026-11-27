@@ -45,8 +45,6 @@ docs/runbook-*.local.md
 /docs/superpowers/
 /docs/plans/
 /docs/specs/
-/seed-apps.yaml
-/seed-export-2026-07-31.yaml
 /scripts/campagne-flotte/
 /scripts/https-flotte/
 /scripts/migration-legacy/

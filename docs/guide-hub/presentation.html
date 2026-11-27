@@ -155,7 +155,7 @@
   Apps GitHub, Ateliers ; accès et sécurité : VPN, Clients OIDC, Service
   Accounts, Accès &amp; routage ; Sauvegardes), gestion des
   utilisateurs (identité : UUID stable, prénom/nom, renommage du login),
-  déploiement par fichier seed.
+  pilotage des apps (démarrage, arrêt, mise à jour).
   <strong>Voir :</strong> <code>HUB_base/docs/GUIDE_ADMIN.md</code>.</p>
 
   <figure class="shot">
@@ -214,12 +214,13 @@
   existante</strong> (mise en service, exploitation) :
   <code>./hubctl app install &lt;url-git&gt;</code> — clone, ports, secrets,
   build, approbation et démarrage en une commande ; pour toute une flotte,
-  <code>./hubctl seed &lt;fichier.yaml&gt;</code> (simple liste d'URLs git).
+  <code>./hubctl app install &lt;url1&gt; &lt;url2&gt; …</code> (plusieurs
+  URLs git en une commande).
   <strong>Créer une nouvelle application</strong> (développeur) :
   <code>scripts/create_app.sh</code> + <code>INITIALISE.py</code> (template),
   apps fines du socle via <code>python3 HUBsocle/INITIALISE.py</code>, ou
   <strong>assistant IA</strong> (skill <code>create-hub-app</code>) — puis
-  déploiement par <code>app install</code> ou seed. Points de vigilance par
+  déploiement par <code>app install</code>. Points de vigilance par
   opération : pages <a href="attention-ajouter-app.html">ajouter une app</a>,
   <a href="attention-workshop.html">atelier</a>,
   <a href="attention-bascule-dev-prod.html">bascule dev → prod</a>.</p>

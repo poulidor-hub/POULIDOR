@@ -60,8 +60,8 @@
     <code>--no-deps</code> : ignorer les dépendances déclarées
     (<code>depends.yaml</code>) — avec avertissement. <code>--yes</code> :
     aucune confirmation (comportement effectif sans terminal interactif).
-    On peut aussi passer un fichier seed en argument unique :
-    <code>./hubctl app install apps.yaml</code>.
+    Plusieurs URLs en une commande installent toute une flotte :
+    <code>./hubctl app install &lt;url1&gt; &lt;url2&gt; …</code>.
   </div>
   <div class="info">
     <strong>Approbation</strong>
@@ -78,22 +78,6 @@
     <code>https://&lt;IP-du-serveur&gt;/api/pki/ca.crt</code>.
   </div>
 
-  <h2>Déployer une flotte</h2>
-  <p>Pour plusieurs apps d'un coup, ou pour <strong>converger</strong> le parc
-  vers une liste connue :</p>
-  <div class="code"><pre>./hubctl seed apps.yaml          # déploie ou converge les apps listées
-./hubctl seed apps.yaml --dry-run   # simuler d'abord</pre></div>
-  <p>Le fichier seed est une simple <strong>liste d'URLs git</strong> — le slug
-  est déduit du nom de chaque dépôt :</p>
-  <div class="code"><pre>apps:
-  - https://github.com/mon-org/mon-app.git
-  - https://github.com/mon-org/mon-autre-app.git</pre></div>
-  <p><code>--prune</code> supprime les apps présentes mais non listées
-  (confirmation globale), <code>./hubctl seed export</code> écrit un seed depuis
-  l'état du parc. <strong>C'est un outil de convergence de flotte</strong> : pour
-  la première installation d'une app, passer par
-  <code>hubctl app install</code>.</p>
-
   <h2>Créer une nouvelle application (développeur)</h2>
   <p>Trois points de départ, au choix :</p>
   <ul>
@@ -109,7 +93,7 @@
     le skill <code>create-hub-app</code> orchestre toute la création.</li>
   </ul>
   <p>Une fois l'app poussée dans son dépôt git, elle s'installe sur un serveur
-  comme toute app du parc : <code>hubctl app install &lt;url&gt;</code> ou seed.</p>
+  comme toute app du parc : <code>hubctl app install &lt;url&gt;</code>.</p>
 
   <h2>En cas de problème</h2>
   <div class="attention">
@@ -134,9 +118,7 @@
     <code>make up</code>, health check. L'app est pré-créée au registre du Hub
     via l'API admin (avec son Service Account) ; le jeton admin est lu dans
     <code>HUBCTL_ADMIN_PASSWORD</code> ou <code>ADMIN_PASSWORD</code>
-    (<code>HUB_base/.env</code>). Le seed, lui, converge le parc : apps
-    installées dans <code>APPS/</code> mais absentes du fichier = candidates au
-    retrait avec <code>--prune</code>.</p>
+    (<code>HUB_base/.env</code>).</p>
   </details>
 </main>
 <footer>Guide du HUB POULIDOR — version du parc <span data-parc-version>0.88.18</span> · <a href="index.html">Accueil</a></footer>

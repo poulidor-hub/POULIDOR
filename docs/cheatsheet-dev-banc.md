@@ -14,8 +14,8 @@
 sudo ./install.sh                 # tout-en-un (Docker + Hub + firewall VPN)
 ./hubctl init                     # variante : Hub seul (prérequis déjà là)
 ./hubctl start                    # tout démarrer + health
-./hubctl seed export -o banc.yaml # photographier la flotte du banc en YAML
-./hubctl seed banc.yaml           # (re)peupler le banc depuis ce YAML
+./hubctl app install <url1> <url2>…  # repeupler des apps connues
+ls APPS/                          # apps installées du banc (détail : ./hubctl doctor)
 ```
 
 **VM vierge jetable ou persistante** (reproduire un bug en environnement
