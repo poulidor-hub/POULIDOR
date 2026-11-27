@@ -1,24 +1,24 @@
 [submodule "HUB_base"]
 	path = HUB_base
-	url = https://github.com/POULIDOR-Audit-Developpement/HUB_base.git
+	url = https://github.com/poulidor-hub/HUB.git
 	branch = main
 [submodule "HUBCSS"]
 	path = HUBCSS
-	url = https://github.com/POULIDOR-Audit-Developpement/HUBCSS.git
+	url = https://github.com/poulidor-hub/HUBCSS.git
 	branch = main
 [submodule "hub-mcp"]
 	path = hub-mcp
-	url = https://github.com/POULIDOR-Audit-Developpement/hub-mcp.git
+	url = https://github.com/poulidor-hub/hub-mcp.git
 	branch = main
 [submodule "HUBapp_TEMPLATE_base"]
 	path = HUBapp_TEMPLATE_base
-	url = https://github.com/POULIDOR-Audit-Developpement/HUBapp_TEMPLATE_base.git
+	url = https://github.com/poulidor-hub/HUBapp-template.git
 	branch = main
 [submodule "hubctl_src"]
 	path = hubctl_src
-	url = https://github.com/POULIDOR-Audit-Developpement/Hubctl.git
+	url = https://github.com/poulidor-hub/hubctl.git
 
 [submodule "HUBsocle"]
 	path = HUBsocle
-	url = https://github.com/POULIDOR-Audit-Developpement/HUBsocle.git
+	url = https://github.com/poulidor-hub/HUBsocle.git
 	branch = main
