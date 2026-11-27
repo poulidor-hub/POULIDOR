@@ -1,3 +1,14 @@
+## [0.88.15] - 27 novembre 2026
+
+### ⚡ Pointeur hubctl 0.23.0 — une dépendance absente ne bloque plus l'installation d'app
+- **`hubctl` 0.22.1 → 0.23.0** : retour utilisateur — pour la mise en place d'un Hub, `hubctl
+  app install` doit fonctionner même quand les apps déclarées dans `depends.yaml` ne sont pas
+  encore présentes. Dépendance absente du registre du Hub → avertissement explicite et l'app
+  s'installe seule ; plus aucune consultation de `seed-apps.yaml` (outil de reprise d'une
+  flotte sauvegardée, hors mise en place). `seed` garde son rôle de reprise, inchangé.
+- README : « Installer une application » aligné (autonomie des dépendances).
+- Pointeur hubctl uniquement ; HUB_base reste à 3.108.0.
+
 ## [0.88.14] - 26 novembre 2026
 
 ### 🐛 install.sh : les services hôtes sont rendus depuis le gabarit, plus depuis un cache

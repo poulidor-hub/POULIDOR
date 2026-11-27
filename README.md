@@ -17,7 +17,7 @@ MIT pour le gabarit et le design system) :
 | [`HUBCSS`](https://github.com/poulidor-hub/HUBCSS) | Design system CSS/JS servi aux applications | ![version](https://img.shields.io/badge/version-0.3.8-blue) |
 | [`hubctl`](https://github.com/poulidor-hub/hubctl) | CLI d'administration du parc (init, update, ateliers, coffre) | ![version](https://img.shields.io/badge/version-0.20.6-blue) |
 | [`hub-mcp`](https://github.com/poulidor-hub/hub-mcp) | Serveur MCP pour piloter le Hub depuis un assistant IA (66 outils) | ![version](https://img.shields.io/badge/version-0.16.4-blue) |
-| **POULIDOR** (ce dépôt) | Méta-dépôt : documentation, runbooks, scripts transverses | ![version](https://img.shields.io/badge/version-0.88.14-blue) |
+| **POULIDOR** (ce dépôt) | Méta-dépôt : documentation, runbooks, scripts transverses | ![version](https://img.shields.io/badge/version-0.88.15-blue) |
 
 ---
 
@@ -88,11 +88,12 @@ Une application existante du parc (dépôt git) s'installe en une commande :
 hubctl la clone dans `APPS/`, construit le socle s'il manque, lui fait allouer ports et
 sous-réseau auprès du Hub, la démarre et l'approuve — votre mot de passe admin vous est
 demandé si celui du `.env` a été changé ; sans mot de passe disponible, l'app est
-installée et reste « en attente d'approbation » dans le Hub. Ses dépendances déclarées
-dans `depends.yaml` sont installées d'abord (renseignez leurs dépôts dans
-`seed-apps.yaml` si elles ne sont pas au registre du Hub). Plusieurs URL, ou un fichier
-`seed-apps.yaml`, sont acceptés ; `--help` détaille les options. Pour créer une
-application **neuve**, partez du gabarit
+installée et reste « en attente d'approbation » dans le Hub. Une dépendance déclarée
+dans `depends.yaml` et encore absente du parc n'empêche pas l'installation : l'app
+s'installe seule et ses intégrations s'activeront quand elle rejoindra le parc
+(`./hubctl app install <url-de-la-dépendance>`). Plusieurs URL, ou un fichier YAML de
+liste, sont acceptés ; `--help` détaille les options. Pour créer une application
+**neuve**, partez du gabarit
 [`HUBapp-template`](https://github.com/poulidor-hub/HUBapp-template) (`INITIALISE.py`).
 
 ## Mettre à jour un déploiement
