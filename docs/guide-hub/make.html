@@ -76,6 +76,13 @@
     <tr><td><code>make restart-frontend</code></td><td>Redémarre uniquement le frontend.</td></tr>
     <tr><td><code>make build</code></td><td>Construit les images Docker (<code>sync-env</code> inclus).</td></tr>
   </table>
+  <div class="info">
+    <strong>Docker ≥ 29 : compose ≥ 5.7.0 requis pour builder les apps</strong>
+    Depuis docker 29 (buildx ≥ 0.37.2), les entitlements <code>fs.read</code>
+    (CVE-2026-93325) imposent <code>docker compose</code> ≥ 5.7.0 pour builder
+    le frontend d'une app — l'installeur du parc contrôle ce plancher ; remède
+    manuel : <code>apt-get install --only-upgrade docker-compose-plugin</code>.
+  </div>
 
   <h3>Logs</h3>
   <table>
